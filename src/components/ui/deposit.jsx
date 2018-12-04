@@ -81,7 +81,7 @@ export default class QTDeposit extends React.Component {
           <div className="qr-code"></div>
           <div className="content d-flex flex-column">
             <div className="d-flex align-items-center">
-              <img src="/assets/images/attention.svg" width="30" height="37.5" />
+              <img src="/public/images/attention.svg" width="30" height="37.5" />
               <div className="header-container d-flex flex-column">
                 <span className="header qt-font-semibold">Send only CHAT (ChatCoin) to this deposit address.<br /></span>
                 <span className="sub-header qt-font-small">Sending any other currency to this address may result in the loss of your deposit.</span>

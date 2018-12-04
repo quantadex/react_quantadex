@@ -90,7 +90,7 @@ export default class HamburgerMenu extends React.Component {
     const a = Math.random()
     return (
       <div ref="hamburgerMenu" className={container}>
-        <a><img src="/assets/images/menuicons/hamburger.svg" width="16" height="16" /></a>
+        <a><img src="/public/images/menuicons/hamburger.svg" width="16" height="16" /></a>
         <div className={"hamburger-menu flex-column position-absolute qt-font-small qt-font-regular " + (this.state.menuOpen ? 'd-flex' : 'd-none')}>
           {
             this.props.menuList.map((e, index) => {
@@ -149,52 +149,52 @@ HamburgerMenu.defaultProps = {
     }]
   },{
     items: [{
-      iconPath:"/assets/images/menuicons/quanta-grey.svg",
-      iconPathActive:"/assets/images/menuicons/quanta-white.svg",
+      iconPath:"/public/images/menuicons/quanta-grey.svg",
+      iconPathActive:"/public/images/menuicons/quanta-white.svg",
       text:"Exchange",
       url:"/exchange"
     }]
   },{
     items: [{
-      iconPath:"/assets/images/menuicons/wallet-grey.svg",
-      iconPathActive:"/assets/images/menuicons/wallet-white.svg",
+      iconPath:"/public/images/menuicons/wallet-grey.svg",
+      iconPathActive:"/public/images/menuicons/wallet-white.svg",
       text:"Wallets",
       url:"/exchange/wallets"
     },{
-      iconPath:"/assets/images/menuicons/deposit-grey.svg",
-      iconPathActive:"/assets/images/menuicons/deposit-white.svg",
+      iconPath:"/public/images/menuicons/deposit-grey.svg",
+      iconPathActive:"/public/images/menuicons/deposit-white.svg",
       text:"Deposit / Withdraw",
       url:"/exchange/wallets"
     },{
-      iconPath:"/assets/images/menuicons/fund-history-grey.svg",
-      iconPathActive:"/assets/images/menuicons/fund-history-white.svg",
+      iconPath:"/public/images/menuicons/fund-history-grey.svg",
+      iconPathActive:"/public/images/menuicons/fund-history-white.svg",
       text:"Funds History",
       url:"/exchange/history"
     },{
-      iconPath:"/assets/images/menuicons/order-history-grey.svg",
-      iconPathActive:"/assets/images/menuicons/order-history-white.svg",
+      iconPath:"/public/images/menuicons/order-history-grey.svg",
+      iconPathActive:"/public/images/menuicons/order-history-white.svg",
       text:"Orders History",
       url:"/exchange/orders"
     }]
   },{
     items: [{
-      iconPath:"/assets/images/menuicons/referral-grey.svg",
-      iconPathActive:"/assets/images/menuicons/referral-white.svg",
+      iconPath:"/public/images/menuicons/referral-grey.svg",
+      iconPathActive:"/public/images/menuicons/referral-white.svg",
       text:"Referrals",
       url:"/referrals"
     }]
   },{
     items: [{
-      iconPath:"/assets/images/menuicons/profile-grey.svg",
-      iconPathActive:"/assets/images/menuicons/profile-white.svg",
+      iconPath:"/public/images/menuicons/profile-grey.svg",
+      iconPathActive:"/public/images/menuicons/profile-white.svg",
       text:"Profile",
       url:"/exchange/wallets"
     }],
     backgroundColor:"rgba(40, 48, 52,0.36)"
   },{
     items: [{
-      iconPath:"/assets/images/menuicons/quanta-grey.svg",
-      iconPathActive:"/assets/images/menuicons/quanta-white.svg",
+      iconPath:"/public/images/menuicons/quanta-grey.svg",
+      iconPathActive:"/public/images/menuicons/quanta-white.svg",
       text:"Logout",
       onClick: () => {
         console.log('logged out')

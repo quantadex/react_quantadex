@@ -106,10 +106,12 @@ Datafeeds.UDFCompatibleDatafeed.prototype._send = function(url, params) {
   }
 
   this._logMessage("New request: " + request);
-  var myInit = { method: 'GET',
-        mode: 'cors',
-        type: 'json',
-        cache: 'default' };
+  var myInit = {
+    method: "GET",
+    mode: "cors",
+    type: "json",
+    cache: "default"
+  };
 
   var myRequest = new Request(request, myInit);
 
@@ -118,31 +120,33 @@ Datafeeds.UDFCompatibleDatafeed.prototype._send = function(url, params) {
     url: request,
     contentType: "application/json",
 
-      xhrFields: {
-          withCredentials: false
-      }
+    xhrFields: {
+      withCredentials: false
+    }
   });
 };
 
 Datafeeds.UDFCompatibleDatafeed.prototype._sendCors = function(url, params) {
-    var request = url;
-    if (params) {
-        for (var i = 0; i < Object.keys(params).length; ++i) {
-            var key = Object.keys(params)[i];
-            var value = encodeURIComponent(params[key]);
-            request += (i === 0 ? "?" : "&") + key + "=" + value;
-        }
+  var request = url;
+  if (params) {
+    for (var i = 0; i < Object.keys(params).length; ++i) {
+      var key = Object.keys(params)[i];
+      var value = encodeURIComponent(params[key]);
+      request += (i === 0 ? "?" : "&") + key + "=" + value;
     }
+  }
 
-    this._logMessage("New request: " + request);
-    var myInit = { method: 'GET',
-        mode: 'cors',
-        type: 'json',
-        cache: 'default' };
+  this._logMessage("New request: " + request);
+  var myInit = {
+    method: "GET",
+    mode: "cors",
+    type: "json",
+    cache: "default"
+  };
 
-    var myRequest = new Request(request, myInit);
+  var myRequest = new Request(request, myInit);
 
-    return fetch(myRequest, myInit);
+  return fetch(myRequest, myInit);
 };
 
 Datafeeds.UDFCompatibleDatafeed.prototype._initialize = function() {
@@ -369,7 +373,11 @@ Datafeeds.UDFCompatibleDatafeed.prototype.resolveSymbol = function(
   }
 
   if (!this._configuration.supports_group_request) {
-    this._send(this._datafeedURL + "/symbol_info/" + symbolName.replace("_", "/").toUpperCase())
+    this._send(
+      this._datafeedURL +
+        "/symbol_info/" +
+        symbolName.replace("_", "/").toUpperCase()
+    )
       .done(function(response) {
         var data = parseJSONorNot(response);
 
@@ -417,46 +425,43 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
     throw new Error([
       "Got a JS time instead of Unix one.",
       rangeStartDate,
-      rangeEndDate,
+      rangeEndDate
     ]);
   }
-  const ticker = symbolInfo.ticker.split("/");
-  this._sendCors("https://horizon-testnet.stellar.org/trade_aggregations", {
-      resolution: resolution * 1000 * 60,
-        start_time: rangeStartDate,
-        end_time: rangeEndDate,
-      base_asset_type: "credit_alphanum4",
-      base_asset_issuer: symbolInfo.exchange,
-      base_asset_code: ticker[0],
-      counter_asset_type: "credit_alphanum4",
-      counter_asset_issuer: symbolInfo.exchange,
-      counter_asset_code: ticker[1]
+
+  if (!resolution.endsWith("D")) {
+    resolution = resolution + "m";
+  }
+
+  this._sendCors("http://backend-dev.env.quantadex.com:8080/api/v1/prices", {
+    startDate: Math.round(rangeStartDate),
+    endDate: Math.round(rangeEndDate),
+    interval: resolution,
+    symbol: symbolInfo.ticker
   })
-      .then(function(response) {
-        return response.json()
-      })
     .then(function(response) {
-      var data = response._embedded.records;
+      return response.json();
+    })
+    .then(function(data) {
       const no_data = data.length == 0;
 
-      const bars = data.map((e) => {
+      const bars = data.map(e => {
         return {
-           time: e[0],
-           open: +e[1],
-           high: +e[2],
-           low: +e[3],
-           close: +e[4],
-           volume: +e[5]
-        }
+          time: e.time,
+          open: +e.open,
+          high: +e.high,
+          low: +e.low,
+          close: +e.close,
+          volume: +e.volume
+        };
       });
 
-      //console.log("Bars ", bars);
+      // console.log("Bars ", bars);
 
-            onDataCallback(bars, {
-              noData: no_data,
-              nextTime: null
-            });
-
+      onDataCallback(bars, {
+        noData: no_data,
+        nextTime: null
+      });
     })
     .catch(function(arg) {
       console.warn(["getBars(): HTTP error", arg]);
@@ -474,7 +479,7 @@ Datafeeds.UDFCompatibleDatafeed.prototype.subscribeBars = function(
   listenerGUID,
   onResetCacheNeededCallback
 ) {
-console.log("Subscribe bars");
+  console.log("Subscribe bars");
   this._barsPulseUpdater.subscribeDataListener(
     symbolInfo,
     resolution,
@@ -826,7 +831,7 @@ Datafeeds.DataPulseUpdater.prototype.unsubscribeDataListener = function(
 ) {
   this._datafeed._logMessage("Unsubscribing " + listenerGUID);
 
-  this._subscribers[listenerGUID].sockets.forEach((ws) => {
+  this._subscribers[listenerGUID].sockets.forEach(ws => {
     ws.close();
   });
 
@@ -850,27 +855,29 @@ Datafeeds.DataPulseUpdater.prototype.subscribeDataListener = function(
     };
   }
 
-    console.log("Subscribe ", symbolInfo);
-    var ws = new WebSocket("ws://localhost:9000/ws/1/chart/" + symbolInfo.ticker, ["protocolOne", "protocolTwo"]);
-    ws.onopen = function (event) {
-        console.log("Socket opened");
-    };
+  console.log("Subscribe ", symbolInfo);
+  var ws = new WebSocket(
+    "ws://backend-dev.env.quantadex.com:8080/ws/v1/chart/" + symbolInfo.ticker + "/1h"
+  );
+  ws.onopen = function(event) {
+    console.log("Socket opened");
+  };
 
-    ws.onmessage = function (event) {
-      const data = JSON.parse(event.data);
-      data.message.time *= 1000;
-      //console.log(data.message);
-      newDataCallback(data.message);
-    }
+  ws.onmessage = function(event) {
+    const data = JSON.parse(event.data);
+    data.message.time *= 1000;
+    //console.log(data.message);
+    newDataCallback(data.message);
+  };
 
   this._subscribers[listenerGUID].sockets.push(ws);
-
 };
 
 Datafeeds.DataPulseUpdater.prototype.periodLengthSeconds = function(
   resolution,
   requiredPeriodsCount
 ) {
+  console.log("periodLengthSeconds", resolution);
   var daysCount = 0;
 
   if (resolution === "D") {

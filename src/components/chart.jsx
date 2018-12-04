@@ -21,7 +21,7 @@ class Chart extends Component {
           { text: "5m", resolution: "5" },
           { text: "1d", resolution: "1", title: "1m" }
         ],
-        library_path: "/assets/charting_library/",
+        library_path: "/public/vendor/charting_library/",
         locale: "en",
         debug: false,
         //	Regression Trend-related functionality is not implemented yet, so it's hidden for a while
@@ -34,7 +34,7 @@ class Chart extends Component {
         enabled_features: [],
         charts_storage_url: "http://saveload.tradingview.com",
         charts_storage_api_version: "1.1",
-        custom_css_url: "/assets/charting_library/theme_dark.css",
+        custom_css_url: "/public/vendor/charting_library/theme_dark.css",
         client_id: "tradingview.com",
         user_id: "public_user_id",
         overrides: {

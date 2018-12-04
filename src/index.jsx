@@ -19,24 +19,24 @@ import globalcss from './components/global-css.js'
 injectGlobal`
 	@font-face {
 	  font-family: "SFCompactTextBold";
-	  src: url("/assets/stylesheets/fonts/SFCompactText-Bold.otf");
+	  src: url("/public/styles/fonts/SFCompactText-Bold.otf");
 	}
 	@font-face {
 		font-family: "SFCompactTextRegular";
-		src: url("/assets/stylesheets/fonts/SFCompactText-Regular.otf");
+		src: url("/public/styles/fonts/SFCompactText-Regular.otf");
 	}
 	@font-face {
 		font-family: "SFCompactTextLight";
-		src: url("/assets/stylesheets/fonts/SFCompactText-Light.otf");
+		src: url("/public/styles/fonts/SFCompactText-Light.otf");
 	}
 	@font-face {
 		font-family: "SFCompactTextSemiBold";
-		src: url("/assets/stylesheets/fonts/SFCompactText-Semibold.otf");
+		src: url("/public/styles/fonts/SFCompactText-Semibold.otf");
 	}
 
 	@font-face {
 	  font-family: "Multicolore";
-	  src: url("/assets/stylesheets/fonts/Multicolore.otf");
+	  src: url("/public/styles/fonts/Multicolore.otf");
 	}
 
 	html {

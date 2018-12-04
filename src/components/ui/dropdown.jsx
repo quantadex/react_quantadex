@@ -53,7 +53,7 @@ const Container = styled('div')`
   }
 
   &.icon-before.down .qt-dropdown-btn:before {
-    background-image: url('/assets/images/menu-arrow-down.svg');
+    background-image: url('/public/images/menu-arrow-down.svg');
     width:6px;
     height:8px;
     background-size: 6px 10px;
@@ -64,7 +64,7 @@ const Container = styled('div')`
   }
 
   &.icon-after.down .qt-dropdown-btn:after {
-    background-image: url('/assets/images/menu-arrow-down.svg');
+    background-image: url('/public/images/menu-arrow-down.svg');
     width:6px;
     height:8px;
     background-size: 6px 10px;

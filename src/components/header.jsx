@@ -32,18 +32,18 @@ class Header extends Component {
 			<div className={container}>
 				<div className="d-flex justify-content-between">
 					<div className="d-flex align-items-center">
-						<a><img src="/assets/images/close-left.svg" width="20" height="20" onClick={() => {
+						<a><img src="/public/images/close-left.svg" width="20" height="20" onClick={() => {
 								this.props.dispatch({
 									type: TOGGLE_LEFT_PANEL
 								})
 							}}/></a>
-						<a href="/exchange" className="header-logo"><img src="/assets/images/group-4.svg" width="127" height="20" /></a>
+						<a href="/exchange" className="header-logo"><img src="/public/images/group-4.svg" width="127" height="20" /></a>
 						<div className="header-slogan qt-font-tiny qt-opacity-half"><span>DECENTRALIZED<br /> EXCHANGE</span></div>
 					</div>
 					<div className="d-flex align-items-center">
 						<span className="header-coin-name qt-font-normal qt-font-regular">{this.props.currentTicker.replace('/','')}</span>
 						<span className="header-coin-value qt-font-normal qt-font-regular qt-color-theme">{this.props.currentPrice}</span>
-						<a><img src="/assets/images/close-right.svg" width="20" height="20" onClick={() => {
+						<a><img src="/public/images/close-right.svg" width="20" height="20" onClick={() => {
 								this.props.dispatch({
 									type: TOGGLE_RIGHT_PANEL
 								})

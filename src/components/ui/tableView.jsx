@@ -21,7 +21,7 @@ const container = css`
   }
 
   .theader:after {
-    background-image: url('/assets/images/menu-arrow-down.svg');
+    background-image: url('/public/images/menu-arrow-down.svg');
     width:6px;
     height:10px;
     background-size: 6px 10px;

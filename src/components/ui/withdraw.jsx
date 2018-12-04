@@ -20,7 +20,7 @@ const container = css`
     padding:32px;
 
     .attention {
-      background: url("/assets/images/attention.svg");
+      background: url("/public/images/attention.svg");
       width: 30px;
       height:37.5px;
       flex-shrink: 0;

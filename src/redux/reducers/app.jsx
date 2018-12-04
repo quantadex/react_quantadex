@@ -166,8 +166,8 @@ let initialState = {
       name:"",
       type:"icon",
       key: "favoriteList",
-      favoritedIconUrl: "/assets/images/star-white.svg",
-      unfavoritedIconUrl: "/assets/images/star-grey.svg",
+      favoritedIconUrl: "/public/images/star-white.svg",
+      unfavoritedIconUrl: "/public/images/star-grey.svg",
       handleClick: pair => {
         return toggleFavoriteList(pair)
       }
