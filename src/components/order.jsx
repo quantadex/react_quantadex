@@ -33,7 +33,7 @@ const container = css`
 	}
 
 	.amountBox:last-child {
-		padding-right: 0px;		
+		padding-right: 0px;
 	}
 `;
 
@@ -77,12 +77,12 @@ const OrderBox = ({className, actionType, base, counter, price, amount, balance,
 						</div>
 						<div className="form-group">
 							<div className="col-sm-offset-2 col-sm-10">
-								<button className={"btn btn-block " + (actionType == ACTION_BUY ? 'btn-success' : 'btn-danger')} 
+								<button className={"btn btn-block " + (actionType == ACTION_BUY ? 'btn-success' : 'btn-danger')}
 										onClick={(e) => {e.preventDefault(); onOrder(actionType, base, counter, price, amount); }}>
 									{actionType} {base}
 								</button>
 							</div>
-						</div>						
+						</div>
 					</form>
 				</div>
 	);
@@ -106,7 +106,7 @@ class Order extends Component {
 				data: {
 					inputSellAmount: totalBalance
 				}
-			});			
+			});
 		}
 	}
 
@@ -166,19 +166,19 @@ class Order extends Component {
 	render() {
 		return (
 			<div className={container}>
-				<OrderBox className="col-md-6" actionType={ACTION_BUY} price={this.props.inputBuy} 
+				<OrderBox className="col-md-6" actionType={ACTION_BUY} price={this.props.inputBuy}
 									setPrice={this.setPrice.bind(this)} setAmount={this.setAmount.bind(this)}
 									setPercent={(amount) => this.setPercent(ACTION_BUY, amount)} amount={this.props.inputBuyAmount}
-									base={this.props.base} counter={this.props.counter} balance={this.props.counter} 
+									base={this.props.base} counter={this.props.counter} balance={this.props.counter}
 									balanceAmount={this.props.balance[this.props.counter]||{} }
 									onOrder={this.onOrder} />
 
-				<OrderBox className="col-md-6" actionType={ACTION_SELL} price={this.props.inputSell}  
+				<OrderBox className="col-md-6" actionType={ACTION_SELL} price={this.props.inputSell}
 								setPrice={this.setPrice.bind(this)} setAmount={this.setAmount.bind(this)}
 								setPercent={(amount) => this.setPercent(ACTION_SELL, amount)} amount={this.props.inputSellAmount}
-								base={this.props.base} counter={this.props.counter} balance={this.props.base}  
+								base={this.props.base} counter={this.props.counter} balance={this.props.base}
 								balanceAmount={this.props.balance[this.props.base]||{}}
-								onOrder={this.onOrder} />				
+								onOrder={this.onOrder} />
 			</div>
 		);
 	}
@@ -191,7 +191,7 @@ const mapStateToProps = (state) => ({
 		inputBuy: state.app.inputBuy,
 		inputSell: state.app.inputSell,
 		inputBuyAmount: state.app.inputBuyAmount,
-		inputSellAmount: state.app.inputSellAmount		
+		inputSellAmount: state.app.inputSellAmount
 	});
 
 export default connect(mapStateToProps)(Order);

@@ -1,58 +1,94 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
-
+import { TOGGLE_LEFT_PANEL, TOGGLE_RIGHT_PANEL } from '../redux/actions/app.jsx'
 import { css } from 'emotion'
 
 const container = css`
-	font-size: 12px;
-	height: 50px;
-	padding-top: 5px;
+	padding-bottom:10px;
 
-	div.ticker {
-		font-size: 18px;
+	.header-logo {
+		margin-left: 18px;
 	}
-	div.headerLabel {
-		color: #666;
+
+	.header-slogan {
+		margin-left: 8.5px;
+		display:inline-block;
+		letter-spacing: 1px;
+		font-family: Multicolore;
+	}
+
+	.header-coin-name {
+		margin-right: 8px;
+	}
+
+	.header-coin-value {
+		margin-right: 20px;
 	}
 `;
 
 class Header extends Component {
 	render() {
 		return (
-			<div  className={this.props.className}>
-				<div className={container + " row"}>
-					<div className="col-md-2 text-left ticker">
-						{this.props.currentTicker}
+			<div className={container}>
+				<div className="d-flex justify-content-between">
+					<div className="d-flex align-items-center">
+						<a><img src="/assets/images/close-left.svg" width="20" height="20" onClick={() => {
+								this.props.dispatch({
+									type: TOGGLE_LEFT_PANEL
+								})
+							}}/></a>
+						<a href="/exchange" className="header-logo"><img src="/assets/images/group-4.svg" width="127" height="20" /></a>
+						<div className="header-slogan qt-font-tiny qt-opacity-half"><span>DECENTRALIZED<br /> EXCHANGE</span></div>
 					</div>
-					<div className="col-md-2">
-						<div className="headerLabel">Last Price</div>
-						<div className="headerValue">{this.props.currentPrice}</div>
+					<div className="d-flex align-items-center">
+						<span className="header-coin-name qt-font-normal qt-font-regular">{this.props.currentTicker.replace('/','')}</span>
+						<span className="header-coin-value qt-font-normal qt-font-regular qt-color-theme">{this.props.currentPrice}</span>
+						<a><img src="/assets/images/close-right.svg" width="20" height="20" onClick={() => {
+								this.props.dispatch({
+									type: TOGGLE_RIGHT_PANEL
+								})
+							}} /></a>
 					</div>
-					<div className="col-md-2">
-						<div className="headerLabel">24h Change</div>
-						<div className="headerValue"></div>
-					</div>
-					<div className="col-md-2">
-						<div className="headerLabel">24h High</div>
-						<div className="headerValue"></div>
-					</div>
-					<div className="col-md-2">
-						<div className="headerLabel">24h Low</div>
-						<div className="headerValue"></div>
-					</div>
-					<div className="col-md-2">
-						<div className="headerLabel">24h Volume</div>
-						<div className="headerValue"></div>
-					</div>				
-				</div>
+        </div>
 			</div>
 		);
 	}
 }
 
+/*
+<div  className={this.props.className}>
+	<div className={container + " row"}>
+		<div className="col-md-2 text-left ticker">
+			{this.props.currentTicker}
+		</div>
+		<div className="col-md-2">
+			<div className="headerLabel">Last Price</div>
+			<div className="headerValue">{this.props.currentPrice}</div>
+		</div>
+		<div className="col-md-2">
+			<div className="headerLabel">24h Change</div>
+			<div className="headerValue"></div>
+		</div>
+		<div className="col-md-2">
+			<div className="headerLabel">24h High</div>
+			<div className="headerValue"></div>
+		</div>
+		<div className="col-md-2">
+			<div className="headerLabel">24h Low</div>
+			<div className="headerValue"></div>
+		</div>
+		<div className="col-md-2">
+			<div className="headerLabel">24h Volume</div>
+			<div className="headerValue"></div>
+		</div>
+	</div>
+</div>
+*/
+
+
 const mapStateToProps = (state) => ({
 		currentTicker: state.app.currentTicker,
-		currentPrice: state.app.currentPrice		
+		currentPrice: state.app.mostRecentTrade.price
 	});
 
 export default connect(mapStateToProps)(Header);

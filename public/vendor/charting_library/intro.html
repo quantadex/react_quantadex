@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+	<head>
+
+		<title>TradingView Charting Library demo</title>
+
+		<!-- Fix for iOS Safari zooming bug -->
+		<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+		<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+		<script type="text/javascript" src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+		<script type="text/javascript" src="charting_library/charting_library.min.js"></script>
+		<script type="text/javascript" src="charting_library/datafeed/udf/datafeed.js"></script>
+
+		<script type="text/javascript">
+
+			TradingView.onready(function()
+			{
+				var widget = new TradingView.widget({
+					fullscreen: true,
+					symbol: 'AAPL',
+					interval: 'D',
+					container_id: "tv_chart_container",
+					//	BEWARE: no trailing slash is expected in feed URL
+					datafeed: new Datafeeds.UDFCompatibleDatafeed("https://demo_feed.tradingview.com"),
+					library_path: "charting_library/",
+					locale: "en",
+					//	Regression Trend-related functionality is not implemented yet, so it's hidden for a while
+					drawings_access: { type: 'black', tools: [ { name: "Regression Trend" } ] },
+					enabled_features: ["chart_property_page_trading"],
+					disabled_features: ["use_localstorage_for_settings"],
+					charts_storage_url: 'http://saveload.tradingview.com',
+                    charts_storage_api_version: "1.1",
+					client_id: 'tradingview.com',
+					user_id: 'public_user_id'
+
+				});
+
+				widget.onChartReady(function() {
+					var position = widget.createPositionLine()
+						.onReverse(function(text) {
+						})
+						.onClose(function(text) {
+						})
+						.setText("PROFIT: 71.1 (3.31%)")
+						.setQuantity("8.235")
+						.setLineLength(3);
+					position.setPrice(position.getPrice() - 2);
+
+					var order = widget.createOrderLine()
+						.onCancel(function(text) {
+						})
+						.setText("STOP: 73.5 (5,64%)")
+						.setLineLength(3)
+						.setQuantity("2");
+					order.setPrice(order.getPrice() - 2.5);
+
+					widget.createExecutionShape()
+						.setText("@1,320.75 Limit Buy 1")
+						.setTextColor("rgba(255,0,0,0.5)")
+						.setArrowSpacing(25)
+						.setArrowHeight(25)
+						.setArrowColor("#F00")
+						.setTime(new Date("3 Dec 2014 00:00:00 GMT+0").valueOf() / 1000)
+						.setPrice(15.5);
+				});
+			});
+
+		</script>
+
+	</head>
+
+	<body style="margin:0px;">
+		<div id="tv_chart_container"></div>
+	</body>
+
+</html>

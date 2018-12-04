@@ -1,0 +1,14 @@
+{
+  "presets" : ["es2015", "stage-2", "react"],
+  "plugins": ["transform-decorators-legacy"],
+  "env": {
+    "production": {
+      "plugins": [["emotion", { "hoist": true }]]
+    },
+    "development": {
+      "plugins": [
+        ["emotion", { "sourceMap": true, "autoLabel": true }]
+      ]
+    }
+  }
+}
