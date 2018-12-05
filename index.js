@@ -5,7 +5,7 @@ var path = require("path");
 currentApp.use("/public", express.static(path.join(__dirname, './public')))
 
 // respond with "hello world" when a GET request is made to the homepage
-currentApp.get('/', function (req, res) {
+currentApp.get('/*', function (req, res) {
 	const fileName = path.join(__dirname + '/public/index.html')
   res.sendFile(fileName);
 })

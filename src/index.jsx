@@ -2,6 +2,7 @@ import React from 'react';
 import {render} from 'react-dom';
 import Exchange from './components/exchange.jsx';
 import Fund from './components/fund.jsx';
+import Login, {GenerateKey} from './pages/login.jsx';
 
 import { createStore, applyMiddleware, compose } from 'redux'
 import { Provider } from 'react-redux'
@@ -206,6 +207,8 @@ class Container extends React.Component {
           <Route path="/exchange/wallets" render={FundPage.bind(this,"wallets")} />
           <Route path="/exchange/history" render={FundPage.bind(this,"history")} />
           <Route path="/exchange/orders" render={FundPage.bind(this,"orders")} />
+          <Route exact path="/login" component={Login} />
+		  <Route exact path="/keygen" component={GenerateKey} />
         </Switch>
       </Router>
     </Provider>);
