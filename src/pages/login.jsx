@@ -1,12 +1,17 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom'
+import { Link, Redirect, withRouter } from 'react-router-dom'
 import { css } from 'emotion'
+import StellarBase from "@quantadex/quanta-base"
+import qbase from '@quantadex/quanta-base';
+import jsPDF from 'jspdf'
+import Leaderboard from "../components/leaderboard.jsx"
 
 const login_container = css`
 	position: relative;
 	height: 100vh;
 	width: calc(100% - 420px);
 	color: #0a0a0a;
+	font-size: 18px;
 	text-align: center;
 	float: left;
 
@@ -23,7 +28,6 @@ const login_container = css`
 			margin-bottom: 40px;
 		}
 		p {
-			font-size: 18px;
 			line-height: 26px;
 			margin: 30px 0px 40px 0px;
 		}
@@ -51,7 +55,6 @@ const login_container = css`
 			button {
 				width: 100%;
 				margin: 0px;
-				font-size: 18px;
 				color: #fff;
 				padding: 12px;
 				background-color: #f0185c;
@@ -60,22 +63,28 @@ const login_container = css`
 		}
 	}
 
+	.back-nav {
+		text-align: left;
+		margin-left: 30px;
+	}
+
 	form {
+		.input-container {
+			position: relative;
+			border: 1px solid #c7c7c8;
+			border-radius: 4px
+		}
 		label {
 			background-color: #f9f9f9;
 			width: 135px;
 			height: 45px;
+			margin: 0px;
+			border-right: 1px solid #c7c7c8;
 			padding: 7px;
 			padding-left: 40px;
+			font-size: 11px;
 			text-align: left;
-			border: 1px solid #c7c7c8;
-			border-right: none;
-			border-radius: 4px 0px 0px 4px;
 			background: #f9f9f9 url("/public/images/lock.svg") no-repeat 15px 12px;
-
-			span {
-				font-size: 13px;
-			}
 		}
 		input {
 			float: right;
@@ -88,8 +97,16 @@ const login_container = css`
 			line-height: 26px;
 			letter-spacing: 0.7px;
 			padding: 10px 20px;
-			border: 1px solid #c7c7c8;
-			border-radius: 0px 4px 4px 0px;
+		}
+		input.error {
+			background-color: rgba(255, 50, 130, 0.03);
+		}
+		span.error {
+			position: absolute;
+			bottom: -18px;
+			right: 0;
+			font-size: 12px;
+			color: #f0185c;
 		}
 	}
 	button {
@@ -97,12 +114,15 @@ const login_container = css`
 		margin: 40px auto;
 		background-color: #00d8d0;
 		color: #fff;
-		font-size: 18px;
 		padding: 12px 28px;
 		border-radius: 2px;
+		cursor: pointer;
 	}
-	a {
-		font-size: 17px;
+	button:disabled {
+		opacity: 0.23;
+
+	}
+	.auth-form a {
 		padding-bottom: 5px;
 		border-bottom: 1px solid #979797;
 	}
@@ -111,62 +131,23 @@ const login_container = css`
 	}
 	
 `
-const leaderboard_container = css `
-	position: relative;
-	width: 420px;
-	height: 100vh;
-	background-color: #293946;
-	color: #fff;
-	text-align: center;
-	float: right;
-
-	.content {
-		position: absolute;
-		width: 290px;
-		max-width: 100%
-		margin: auto;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-
-		p.info {
-			margin-top: 10px;
-			font-size: 30px;
-			line-height: 38px;
-			letter-spacing: -0.7px;
-		}
-
-		h5 {
-			margin: 72px 0 20px 0;
-			text-align: left;
-			border-bottom: 1px solid #fff;
-		}
-		table {
-			width: 100%;
-			text-align: left;
-			font-size: 12px;
-
-			th {
-				opacity: 0.45; 
-				font-size: 11px;
-			}
-
-			.balance {
-				text-align: right;
-			}
-		}
-	}
-`
 
 class Login extends Component {
+	handleLogin() {
+		this.props.history.push("/exchange")
+	}
 	render() {
 			return (
-				// <GenerateKey />
 				<div>
 					<div className={login_container}>
-						<div class="content">
-							<KeyInfo />
-							<AuthForm onClick={this.props.onClick}/>
+						<div className="content">
+						<div>
+							<img id="logo" src="/public/images/login-logo.svg" alt="Quantadex Decentralized Exchange"/>
+							<p>To access QDEX exchange and participate on the Paper Trading Contest you 
+								will need your QUANTA wallet private key. To get one you need to create a 
+								QUANTA wallet first and open the downloaded PDF file.</p>
+						</div>
+							<AuthForm onAuth={this.handleLogin.bind(this)}/>
 						</div>
 					</div>
 					<Leaderboard />
@@ -175,42 +156,163 @@ class Login extends Component {
 	}
 }
 
-const KeyInfo = () => {
-	return (
-		<div>
-			<img id="logo" src="/public/images/login-logo.svg" alt="Quantadex Decentralized Exchange"/>
-			<p>To access QDEX exchange and participate on the Paper Trading Contest you 
-				will need your QUANTA wallet private key. To get one you need to create a 
-				QUANTA wallet first and open the downloaded PDF file.</p>
-		</div>
-	)
-}
-
 class AuthForm extends Component {
+	constructor(props) {
+		super(props);
+		this.state = { private_key: '', authError: false }
+
+		this.handleChange = this.handleChange.bind(this);
+		this.handleSubmit = this.handleSubmit.bind(this);
+	}
+
+	handleChange(e) {
+		this.setState({private_key: e.target.value, has_input: e.target.value.length > 0})
+	}
+
+	handleSubmit(e) {
+		e.preventDefault();
+
+		try {
+			const auth = qbase.Keypair.fromSecret(this.state.private_key)
+			this.props.onAuth()
+		} catch(e) {
+			console.log(e)
+			this.setState({authError: true})
+		}
+		
+	}
 	render() {
 		return (
-			<div class="auth-form">
-				<form>
-					<label for="private-key">
-						QUANTA<br/>PRIVATE KEY
-					</label>
-					<input id="private-key" name="private-key" type="text" placeholder="Enter private key …"/>
-					<button type="submit">Authenticate</button>
+			<div className="auth-form">
+				<form onSubmit={this.handleSubmit}>
+					<div className="input-container">
+						<label htmlFor="private-key">
+							QUANTA<br/>PRIVATE KEY
+						</label>
+						<input name="private-key" value={this.state.value} onChange={this.handleChange} type="text" spellCheck="false" placeholder="Enter private key …"/>
+						<span className="error" hidden={!this.state.authError}>*Invalid Key</span>
+					</div>
+					<button type="submit" disabled={!this.state.has_input}>Authenticate</button>
 				</form>
 				
-				<Link to="/keygen" class="black">I don’t have one. Generate a QUANTA Wallet.</Link>
+				<Link to="/keygen" className="black">I don’t have one. Generate a QUANTA Wallet.</Link>
 			</div>
 		)
 	}
 }
 
 export class GenerateKey extends Component {
+	constructor(props) {
+		super(props);
+		this.state = { downloaded: false}
+	}
+
+	goLogin() {
+		this.props.history.push("/login")
+	}
+
+	generateKeys(e) {
+		e.preventDefault();
+
+		var keys = StellarBase.Keypair.random();
+		
+		this.setState({
+			public: keys.publicKey(),
+			private: keys.secret()
+		})
+		setTimeout(function() {this.saveToPDF()}.bind(this), 400)
+	}
+
+	saveToPDF() {
+		var doc = new jsPDF()
+		
+		doc.setFontSize(16)
+		// doc.addImage(window.logoData, 'JPEG', 70, 10)
+		doc.text('WALLET INFORMATION', 75, 40)
+		var tm = 50
+		doc.rect(10, tm+40, 190, 55)
+		doc.setFontSize(18)
+		doc.text('Your QUANTA private key\nKeep it safe, keep it secure.', 20, tm +50)
+		doc.setFontSize(16)
+		doc.text('Do not share it with anyone, not even the QUANTA foundation.\nWe will never ask you for your private key.', 20, tm +70)
+		doc.setFontSize(12)
+		doc.setTextColor("#FF0000")
+		doc.text(this.state.private, 20, tm +85)
+
+		doc.setTextColor("#000000")
+		doc.rect(10, tm +120, 190, 40)
+		doc.setFontSize(18)
+		doc.text('Your QUANTA public key\nYou may share this key with other parties.', 20, tm +130)
+		doc.setFontSize(12)
+		doc.setTextColor("#1dc4bf")
+		doc.text(this.state.public, 20, tm +150)
+
+		doc.save('quanta_wallet.pdf')
+
+		this.setState({ downloaded : true })
+
+	}
+
+	complete(e) {
+		e.preventDefault();
+		const self = this;
+		fetch("/api/v1/crowdsale/public_key", {
+				method: "post",
+				headers: {
+						"Content-Type": "application/json",
+						Accept: "application/json"
+				},
+				body: JSON.stringify({
+						publicKey: self.state.public,
+				}),
+				credentials: "include"
+		})
+				.then(response => {
+						if (response.status == 200 || response.status == 400) {
+								return response.json();
+						} else {
+								self.setState({
+										error: true,
+										message: "Server error, Please try again."
+								});
+								return null;
+						}
+				})
+				.then(json => {
+						console.log("Success -- ", json);
+						if (json!= null ) {
+							self.setState({ error: false, message: "" });
+							self.props.history.push("/crowdsale");
+						} else {
+								self.setState({error: true, message: "Server error, Please try again."});
+						}
+				});		
+	}
+
 	render() {
 		return (
 			<div>
 				<div className={login_container}>
-					<div class="content">
-						<GenerateInfo />
+					<div className="back-nav">
+						<Link to="/login"><img src="/public/images/back-button.svg" /></Link>
+					</div>
+					
+					<div className="content">
+						<h1>QUANTA Wallet keys</h1>
+						<p>Please download your QUANTA wallet keys. Inside the .PDF you
+							will get the private key that will be used to access QDEX Exchange</p>
+
+						<div className="warning">
+							<ul>
+								<li>Store this wallet securely. QUANTA does not have your keys.</li>
+								<li>If you lose it you will lose your tokens.</li>
+								<li>Do not share it! Your funds will be stolen if you use this file on a malicious/phishing site.</li>
+								<li>Make a backup! Secure it like the millions of dollars it may one day be worth.</li>
+								<li>This is not a ERC-20.</li>
+							</ul>
+							<button onClick={this.generateKeys.bind(this)}>Download QUANTA Wallet Keys (.pdf)</button>
+						</div>
+						<button onClick={this.goLogin.bind(this)} disabled={!this.state.downloaded}>Start Authentication</button>
 					</div>
 				</div>
 				<Leaderboard />
@@ -219,49 +321,5 @@ export class GenerateKey extends Component {
 	}
 }
 
-const GenerateInfo = () => {
-	return (
-		<div>
-			<h1>QUANTA Wallet keys</h1>
-			<p>Please download your QUANTA wallet keys. Inside the .PDF you
-				will get the private key that will be used to access QDEX Exchange</p>
 
-			<div class="warning">
-				<ul>
-					<li>Store this wallet securely. QUANTA does not have your keys.</li>
-					<li>If you lose it you will lose your tokens.</li>
-					<li>Do not share it! Your funds will be stolen if you use this file on a malicious/phishing site.</li>
-					<li>Make a backup! Secure it like the millions of dollars it may one day be worth.</li>
-					<li>This is not a ERC-20.</li>
-				</ul>
-				<button>Download QUANTA Wallet Keys (.pdf)</button>
-			</div>
-			<button id="start-auth">Start Authentication</button>
-		</div>
-	)
-}
-
-
-class Leaderboard extends Component {
-	render() {
-		return (
-			<div className={leaderboard_container}>
-				<div class="content">
-					<img src="/public/images/trophy.svg"/>
-					<p class="info">Participate on our  
-						Paper Trading Contest and <br/>
-						<b>win up to $5000 USD</b></p>
-
-					<h5>CURRENT LEADERS</h5>
-					<table>
-						<tr><th class="place">#</th><th class="name">Name</th><th class="balance">Balance</th></tr>
-						<tr><td class="place">1</td><td class="name">Place</td><td class="balance">$111,800.00</td></tr>
-						<tr><td class="place">2</td><td class="name">Holder</td><td class="balance">$111,700.00</td></tr>
-					</table>
-				</div>
-			</div>
-		)
-	}
-}
-
-export default Login
+export default withRouter(Login)
