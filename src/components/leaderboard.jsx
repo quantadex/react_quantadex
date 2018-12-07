@@ -1,67 +1,87 @@
 import React, { Component } from 'react';
 import { css } from 'emotion'
+import QTTabBar from './ui/tabBar.jsx'
 
 const leaderboard_container = css `
 	position: relative;
-	width: 420px;
-	height: 100vh;
-	background-color: #293946;
-	color: #fff;
-	text-align: center;
-	float: right;
+	background-color: #3c444a;
+	padding: 20px;
 
-	.content {
+	h4 {
+		margin: 0;
+	}
+	span#last-updated {
+		font-size: 11px;
+		opacity: 0.35;
+	}
+	.leaderboard-share {
+		display: flex;
+		justify-content: space-between;
 		position: absolute;
-		width: 290px;
-		max-width: 100%
-		margin: auto;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-
-		p.info {
-			margin-top: 10px;
-			font-size: 30px;
-			line-height: 38px;
-			letter-spacing: -0.7px;
+		top: 23px;
+		right: 20px;
+		width: 77px;
+		span {
+			opacity: 0.30;
 		}
-
-		h5 {
-			margin: 72px 0 20px 0;
-			text-align: left;
-			border-bottom: 1px solid #fff;
+	}
+	table {
+		width: 100%;
+		margin-top: 20px;
+		thead {
+			font-size: 11px;
+			opacity: 0.45;
 		}
-		table {
-			width: 100%;
-			text-align: left;
+		.balance {
+			text-align: right;
+		}
+	}
+
+	.leaderboard-actions {
+		display: flex;
+		justify-content: space-between;
+		margin-top: 20px;
+
+		button {
 			font-size: 12px;
-
-			th {
-				opacity: 0.45; 
-				font-size: 11px;
-			}
-
-			.balance {
-				text-align: right;
-			}
+			color: #fff;
+			background-color: transparent;
+			border: 1px solid #fff;
+			border-radius: 2px;
+			padding: 5px;
+			flex: 0 0 48%;
+			cursor: pointer;
 		}
 	}
 `
 
 class Leaderboard extends Component {
 	render() {
+		const tabs = {
+			names: ['BALANCE','FREQUENCY','VOLATILITY'],
+			selectedTabIndex: 0,
+		  }
 		return (
 			<div className={leaderboard_container}>
-				<div className="content">
-					<img src="/public/images/trophy.svg"/>
-					<p className="info">Participate on our  
-						Paper Trading Contest and <br/>
-						<b>win up to $5000 USD</b></p>
-
-					<h5>CURRENT LEADERS</h5>
+				<div>
+					<h4>LEADERBOARD</h4>
+					<span id="last-updated">Updated 5 min ago</span><br/><br/>
+				</div>
+				<div className="leaderboard-share">
+					<span>Share</span>
+					<a><img src="/public/images/share/twitter.svg" /></a>
+					<a><img src="/public/images/share/fbook.svg" /></a>
+				</div>
+					
+					
+					<QTTabBar
+							className="underline small fluid even-width qt-font-semibold d-flex justify-content-between"
+							width={85}
+							tabs = {tabs}
+						/>
 					<table>
 						<thead>
-							<tr><th className="place">#</th><th className="name">Name</th><th className="balance">Balance</th></tr>
+							<tr><th className="place">Rank</th><th className="name">Name</th><th className="balance">Balance</th></tr>
 						</thead>
 						<tbody>
 							<tr><td className="place">1</td><td className="name">Place</td><td className="balance">$111,800.00</td></tr>
@@ -69,7 +89,11 @@ class Leaderboard extends Component {
 						</tbody>
 						
 					</table>
-				</div>
+
+					<div className="leaderboard-actions">
+						<button>Join Conversation</button>
+						<button>See Full List</button>
+					</div>
 			</div>
 		)
 	}

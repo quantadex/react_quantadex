@@ -4,7 +4,7 @@ import { css } from 'emotion'
 import StellarBase from "@quantadex/quanta-base"
 import qbase from '@quantadex/quanta-base';
 import jsPDF from 'jspdf'
-import Leaderboard from "../components/leaderboard.jsx"
+import Banner from "../components/login_banner.jsx"
 
 const login_container = css`
 	position: relative;
@@ -150,7 +150,7 @@ class Login extends Component {
 							<AuthForm onAuth={this.handleLogin.bind(this)}/>
 						</div>
 					</div>
-					<Leaderboard />
+					<Banner />
 				</div>
 			)
 	}
@@ -315,7 +315,7 @@ export class GenerateKey extends Component {
 						<button onClick={this.goLogin.bind(this)} disabled={!this.state.downloaded}>Start Authentication</button>
 					</div>
 				</div>
-				<Leaderboard />
+				<Banner />
 			</div>
 		)
 	}

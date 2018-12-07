@@ -11,7 +11,11 @@ const container = css`
 	padding: 18px 21px;
 
 	.trading-history-table-container {
-		margin-top: 22px;
+		h4 {
+			padding-bottom: 10px;
+			border-bottom: 1px solid #333;
+			margin-bottom: 10px;
+		}
 	}
 `;
 
@@ -26,13 +30,14 @@ class TradingHistory extends Component {
 
 		return (
 			<div className={container}>
-				<QTTabBar
+				{/* <QTTabBar
 					className="underline small fluid even-width qt-font-bold d-flex justify-content-between"
 					width={122.9}
 					tabs = {tabs}
-				/>
+				/> */}
 
 				<section className="trading-history-table-container">
+					<h4>TRADING HISTORY</h4>
 					<QTTableViewSimple dataSource={this.props.trades.dataSource} columns={this.props.trades.columns} />
 				</section>
 			</div>

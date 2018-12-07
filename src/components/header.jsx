@@ -37,8 +37,7 @@ class Header extends Component {
 									type: TOGGLE_LEFT_PANEL
 								})
 							}}/></a>
-						<a href="/exchange" className="header-logo"><img src="/public/images/group-4.svg" width="127" height="20" /></a>
-						<div className="header-slogan qt-font-tiny qt-opacity-half"><span>DECENTRALIZED<br /> EXCHANGE</span></div>
+						<a href="/exchange" className="header-logo"><img src="/public/images/color-logo.svg" width="220" height="26" /></a>
 					</div>
 					<div className="d-flex align-items-center">
 						<span className="header-coin-name qt-font-normal qt-font-regular">{this.props.currentTicker.replace('/','')}</span>

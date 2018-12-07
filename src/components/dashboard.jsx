@@ -8,13 +8,19 @@ import QTTabBar from './ui/tabBar.jsx'
 import QTTableViewSimple from './ui/tableViewSimple.jsx'
 
 const container = css`
-	background-color: #22282c;
+	width: 50%;
+	float: left;
+	padding: 20px;
+	border-right: 1px solid #333;
 	.coin-tabbar {
 		padding:10px 21px;
 	}
 
   .price {
-		padding:20px 21px;
+		h4 {
+			padding-bottom: 10px;
+			border-bottom: 1px solid #333;
+		}
   }
 `;
 
@@ -48,8 +54,7 @@ class Dashboard extends Component {
 
 		return (
 			<div className={container}>
-
-        <section className="menu d-flex justify-content-start qt-font-extra-small qt-font-light text-center">
+        {/* <section className="menu d-flex justify-content-start qt-font-extra-small qt-font-light text-center">
 					<QTTabBar
 						className="block medium fluid qt-font-regular d-flex justify-content-start"
 					 	tabs = {tabs}
@@ -61,9 +66,10 @@ class Dashboard extends Component {
 						width={58.3}
 						tabs = {subtabs}
 					/>
-				</section>
-
+				</section> */}
+				
         <section className="price">
+			<h4>ETH MARKET</h4>
 					<QTTableViewSimple
 						dataSource={this.props.dashboard.dataSource}
 						columns={this.props.dashboard.columns}

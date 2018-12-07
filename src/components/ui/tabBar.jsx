@@ -2,15 +2,27 @@ import React, {PropTypes} from 'react';
 import styled, { css } from 'react-emotion'
 import globalcss from '../global-css.js'
 
+// const itemWidth = (props) => {
+//   return css`
+//     width:${props.width}px;
+//   `
+// }
+
+// const gutterWidth = (props) => {
+//   return css`
+//     margin-left:${props.gutter}px;
+//   `
+// }
+
 const itemWidth = (props) => {
   return css`
-    width:${props.width}px;
+    width:100%;
   `
 }
 
 const gutterWidth = (props) => {
   return css`
-    margin-left:${props.gutter}px;
+    margin-left:0;
   `
 }
 

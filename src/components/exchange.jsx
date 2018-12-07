@@ -7,6 +7,7 @@ import Dashboard from './dashboard.jsx';
 import Menu from './menu.jsx';
 import Orders from './orders.jsx';
 import Trade from './trade.jsx';
+import Leaderboard from './leaderboard.jsx'
 import QTTableView from './ui/tableView.jsx'
 import Order from './order.jsx';
 import Markets from './markets.jsx';
@@ -34,6 +35,7 @@ const container = css`
 		padding: 21px 19px;
 		flex-grow:1;
 		background-color:rgba(17,20,22,1);
+		padding-bottom: 0;
 	}
 
 	.exchange-right {
@@ -43,17 +45,19 @@ const container = css`
 
 	.exchange-bottom {
 		padding: 20px 35px;
-		width:100%;
+		background-color: #23282c;
+		justify-content: center;
 	}
 
 	#tv_chart_container {
 		height:370px !important;
+		padding-bottom: 20px;
+		border-bottom: 1px solid #333;
 	}
 
 	.exchange-dashboard {
 		border-bottom: solid 1px #121517;
 	}
-
 `;
 
 class Exchange extends Component {
@@ -66,28 +70,25 @@ class Exchange extends Component {
 		const windowHeight = window.screen.availHeight - 60;
 		return (
 		<div className={container + " container-fluid"}>
-			<div className="row flex-nowrap" style={{overflow:"hidden",height:windowHeight+"px",borderBottom:"3px solid black"}}>
+			<div className="row flex-nowrap" style={{overflow:"hidden",minHeight:"calc(100vh - 119px)",borderBottom:"3px solid black"}}>
 				<div className="exchange-left" style={{ display: this.props.leftOpen ? 'block': 'none'}}>
 					<OrderBook />
 				</div>
 				<div className="exchange-middle">
 					<Header />
 					<Chart />
+					<Dashboard />
 					<Trade />
 				</div>
 				<div className="exchange-right" style={{ display: this.props.rightOpen ? 'block' : 'none'}}>
 					<Menu />
-					<div className="exchange-dashboard">
-						<Dashboard />
-					</div>
+					<Leaderboard />
 
 					<TradingHistory />
 				</div>
 			</div>
-			<div className="row">
-				<div className="exchange-bottom">
-					<Orders />
-				</div>
+			<div className="row exchange-bottom">
+				<Orders />
 			</div>
 		</div>
 		);
