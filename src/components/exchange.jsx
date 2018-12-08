@@ -62,12 +62,16 @@ const container = css`
 
 class Exchange extends Component {
 	componentDidMount() {
-		this.props.dispatch(switchTicker("BTC/USD"));
-		this.props.dispatch(initBalance());
+		if (!this.props.private_key) {
+			this.props.history.push("/login")
+		} else {
+			this.props.dispatch(switchTicker("BTC/USD"));
+			this.props.dispatch(initBalance());
+		}
+		
 	}
 
 	render() {
-		const windowHeight = window.screen.availHeight - 60;
 		return (
 		<div className={container + " container-fluid"}>
 			<div className="row flex-nowrap" style={{overflow:"hidden",minHeight:"calc(100vh - 119px)",borderBottom:"3px solid black"}}>
@@ -96,6 +100,7 @@ class Exchange extends Component {
 }
 
 const mapStateToProps = (state) => ({
+		private_key: state.app.private_key,
 		leftOpen: state.app.ui.leftOpen,
 		rightOpen: state.app.ui.rightOpen,
 	});

@@ -1,7 +1,9 @@
 import lodash from 'lodash';
 import API from "../../api.jsx"
 import SortedSet from 'js-sorted-set'
+import QuantaClient from "@quantadex/quanta_js"
 export const INIT_DATA = 'INIT_DATA';
+export const LOGIN = 'LOGIN';
 export const APPEND_TRADE = 'APPEND_TRADE';
 export const UPDATE_TICKER = 'UPDATE_TICKER';
 export const UPDATE_ORDER = 'UPDATE_ORDER';
@@ -24,6 +26,12 @@ export const toggleFavoriteList = pair => ({
 
 import StellarBase, {Keypair, Asset, Operation} from 'stellar-base'
 StellarBase.Network.use(new StellarBase.Network("Test QuantaDex SDF Network ; June 2018"))
+
+const c = new QuantaClient({ orderbookUrl: "http://orderbook-api-792236404.us-west-2.elb.amazonaws.com", secretKey: "ZBYUCOMTT7UPXG6JSKIQREYF6FLMUFAE42I24VJNX6NOFP7I6BUQWEKV" })
+const market = c.showMarkets().then((e) => {
+	console.log(e[0].Name);
+	return e[0].Name
+})
 
 var getFreeCoins = (accountId) => {
 	return fetch("http://backend-dev.env.quantadex.com:8080/api/v1/demo/freecoins/" + accountId)
@@ -129,36 +137,13 @@ export function initBalance() {
 	}
 }
 
-export function buyTransaction(publicKey,secretKey,issuerKey, qty, price) {
-	return function(dispatch) {
-		return getBalance(publicKey).then((data) => {
-			var account=new StellarBase.Account(publicKey,data.seqnum.toString());
-			var buying = new Asset("BTC",issuerKey)
-			var selling = new Asset("USD",issuerKey)
-			var opt3 = {
-				buying: buying,
-				selling: selling,
-				amount: (1.0 * qty * price).toFixed(7).toString(),
-				price: (1.0 / price).toString()
-			}
-		    console.log("buyTransaction(" + publicKey + ", seq=" + data.seqnum.toString() + "): BUY " + qty + " @ " + price + " | " + opt3.amount + " @ " + opt3.price);
-			var transaction = new StellarBase.TransactionBuilder(account)
-				.addOperation(StellarBase.Operation.manageOffer(opt3))
-				.build();
-			var key = Keypair.fromSecret(secretKey);
-			transaction.sign(key);
-			postTransaction(transaction).then((data) => {
-				console.log("after making one buy transaction: ",data)
-				getMyOrders(publicKey).then((data) => {
-					console.log("open orders: ", data)
-					dispatch({
-						type: UPDATE_OPEN_ORDERS,
-						data:data
-					})
-				})
-			})
-		})
-	}
+export function buyTransaction(price, amount) {
+	c.submitOrder(0, market, String(price), String(amount))
+	.then((e) => e.json()).then((e) => {
+		console.log("ordered ", e);
+	}).catch((e) => {
+		console.log(e);
+	})
 }
 
 export function sellTransaction(publicKey,secretKey,issuerKey, qty, price) {

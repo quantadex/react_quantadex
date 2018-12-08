@@ -9,6 +9,7 @@ import QTTableViewSimple from './ui/tableViewSimple.jsx'
 
 const container = css`
 	width: 50%;
+	height: 100%;
 	float: left;
 	padding: 20px;
 	border-right: 1px solid #333;

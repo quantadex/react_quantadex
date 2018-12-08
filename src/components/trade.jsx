@@ -42,6 +42,7 @@ const container = css`
     position: relative;
 
     button {
+      display: block;
       width: 100%;
       padding: 8px;
       margin: 15px 0;
@@ -49,6 +50,9 @@ const container = css`
       color: #fff;
       border-radius: 2px;
       cursor: pointer;
+    }
+    .inactive {
+      display: none;
     }
   }
   .buy-btn {
@@ -69,6 +73,10 @@ const container = css`
       border-radius: 2px;
       padding-right: 25px;
     }
+    input::selection {
+      background-color: #fff;
+      color: #333;
+    }
     span {
       position: absolute;
       right: 10px;
@@ -77,10 +85,11 @@ const container = css`
     }
     button.qt-dropdown-btn, button.qt-dropdown-item {
       font-family: SFCompactTextRegular;
+      width: 57px;
       margin: 0;
       border-right: 0;
       border-radius: 2px 0 0 2px;
-      padding: 5px 15px;
+      padding: 5px 5px;
     }
     .up .qt-dropdown-menu {
       bottom: 37px;
@@ -159,8 +168,8 @@ class Trade extends Component {
   constructor(props) {
     super(props);
     this.state = {
-        qty: 1,
-        price: 8800};
+        qty: 0.05,
+        price: 1};
   }
 
 
@@ -170,8 +179,8 @@ class Trade extends Component {
 		var publicKey = localStorage.getItem("quanta_sender_publicKey")
 		var secretKey = localStorage.getItem("quanta_sender_secretKey")
 		var issuerKey = localStorage.getItem("quanta_issuer_publicKey")
-
-		this.props.dispatch(buyTransaction(publicKey,secretKey,issuerKey, this.state.qty, this.state.price))
+    console.log('!!!', this.state.price, this.state.qty)
+		this.props.dispatch(buyTransaction(this.state.price, this.state.qty))
 	}
 
 	handleSell(e) {
@@ -193,19 +202,23 @@ class Trade extends Component {
            qty: e.target.value
          });
   }
-  
-  switchToBuy(e) {
-    document.getElementById('sell-switch').classList.add('inactive');
-    e.target.classList.remove('inactive');
-    document.getElementById('buy-action').style.display = 'block';
-    document.getElementById('sell-action').style.display = 'none';
+
+  handleInputFocus(e) {
+    e.target.select();
   }
 
-  switchToSell(e) {
-    document.getElementById('buy-switch').classList.add('inactive');
-    e.target.classList.remove('inactive');
-    document.getElementById('sell-action').style.display = 'block';
-    document.getElementById('buy-action').style.display = 'none';
+  switchTradeTo(e) {
+    var to_hide = e.target.id == "sell-switch" ? document.getElementsByClassName('buy-btn') : 
+                                                  document.getElementsByClassName('sell-btn');
+    var to_show = e.target.id == "sell-switch" ? document.getElementsByClassName('sell-btn') : 
+                                                  document.getElementsByClassName('buy-btn');
+
+    for (let i=0; i < to_hide.length; i++) {
+      to_hide[i].classList.add("inactive");
+    }
+    for (let i=0; i < to_show.length; i++) {
+      to_show[i].classList.remove("inactive");
+    }
   }
 
   render() {
@@ -231,96 +244,16 @@ class Trade extends Component {
     return (
       <div className={container + " container-fluid"}>
         <div className="buy-sell-toggle">
-          <button id="buy-switch" className="buy-btn inactive" onClick={this.switchToBuy}>BUY</button>
-          <button id="sell-switch" className="sell-btn" onClick={this.switchToSell}>SELL</button>
+          <button id="buy-switch" className="buy-btn" onClick={this.switchTradeTo}>BUY</button>
+          <button id="sell-switch" className="sell-btn inactive" onClick={this.switchTradeTo}>SELL</button>
         </div>
-
-        {/* <div className="row justify-content-between">
-          <div className="trade-left">
-						<QTTabBar
-							className="underline small fluid even-width qt-font-bold d-flex justify-content-between"
-							width={85}
-							tabs = {tabs}
-						/>
-          </div>
-          <div className="trade-right d-flex justify-content-end align-items-center qt-font-small">
-						{
-							pairBalance.map((item) => {
-
-								return (
-									<span className="trade-balance">{item.currency} Balance: {item.amount}</span>
-								)
-							})
-						}
-          </div>
-        </div> */}
-        {/* <div className="row trade-input-row justify-content-between">
-          <div className="trade-left">
-            <div className="qt-opacity-64 qt-font-semibold">PRICE</div>
-            <div className="trade-input-container">
-              <input type="number" className="trade-input qt-number-bold qt-font-small"
-                     value={this.state.price}
-                     onChange={this.handlePriceInputChange.bind(this)} />
-            </div>
-          </div>
-          <div className="trade-right d-flex justify-content-between">
-            <div className="trade-input-half">
-              <div className="qt-opacity-64 qt-font-semibold">AMOUNT {tradingPair[0]}</div>
-              <div className="trade-input-container">
-                <input type="number" className="trade-input qt-number-bold qt-font-small"
-                       value={this.state.qty}
-                       onChange={this.handleQtyInputChange.bind(this)} />
-              </div>
-            </div>
-            <div className="trade-input-half">
-              <div className="qt-opacity-64 qt-font-semibold">TOTAL {tradingPair[1]}</div>
-              <div className="trade-input-container d-flex justify-content-between align-items-center">
-								<QTDropdown
-									items={dropdown_items.items}
-									value={dropdown_items.value}
-									className="up bordered dark qt-font-base qt-font-bold"
-									reverse={true}
-									width="50"
-									height="32"
-									onChange={() => {console.log("dropdown changed value")}}/>
-                <div className="trade-input-percentage">
-                  <input
-										type="number"
-										className="trade-input qt-number-bold qt-font-small"
-										value={pairBalance[1].amount * 0.2}
-									 />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div> */}
-
-        {/* <div className="row trade-btn-row justify-content-between">
-          <div className="trade-left">
-            <QTButton
-							className="theme inverse fluid qt-font-small qt-font-bold"
-							borderWidth="2"
-							height="32"
-							label="BUY"
-							onClick={this.handleBuy.bind(this)}
-						/>
-          </div>
-          <div className="trade-right">
-            <QTButton
-                            className="red inverse fluid qt-font-small qt-font-bold"
-							borderWidth="2"
-							height="32"
-							label="SELL"
-							onClick={this.handleSell.bind(this)}
-						/>
-          </div>
-        </div> */}
 
         <div className="transac-actions">
           
             <div className="input-container">
               <label>PRICE</label>
               <input type="number" className="trade-input qt-number-bold qt-font-small"
+                    onFocus={this.handleInputFocus.bind(this)}
                      value={this.state.price}
                      onChange={this.handlePriceInputChange.bind(this)} />
               <span>BTC</span>
@@ -336,6 +269,7 @@ class Trade extends Component {
 									height="32"
 									onChange={() => {console.log("dropdown changed value")}}/>
               <input type="number" className="trade-input qt-number-bold qt-font-small"
+                      onFocus={this.handleInputFocus.bind(this)}
                        value={this.state.qty}
                        onChange={this.handleQtyInputChange.bind(this)} />
               <span>BNB</span>
@@ -344,14 +278,15 @@ class Trade extends Component {
               <label>TOTAL</label>
               <input
 										type="number"
-										className="trade-input qt-number-bold qt-font-small"
+                    className="trade-input qt-number-bold qt-font-small"
+                    onFocus={this.handleInputFocus.bind(this)}
 										value={pairBalance[1].amount * 0.2}
 									 />
               <span>BTC</span>
             </div>
 
-          <button id="sell-action" className="sell-btn" onClick={this.handleSell.bind(this)} style={{display: 'block'}}>PLACE SELL ORDER</button>
-          <button id="buy-action" className="buy-btn" onClick={this.handleBuy.bind(this)} style={{display: 'none'}}>PLACE BUY ORDER</button>
+          <button id="sell-action" className="sell-btn inactive" onClick={this.handleSell.bind(this)}>PLACE SELL ORDER</button>
+          <button id="buy-action" className="buy-btn" onClick={this.handleBuy.bind(this)}>PLACE BUY ORDER</button>
         </div>
         <div className="d-flex justify-content-center align-items-center qt-font-small">
 						{

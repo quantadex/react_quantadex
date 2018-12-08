@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { Link, Redirect, withRouter } from 'react-router-dom'
+import { connect } from 'react-redux'
+import { LOGIN } from '../redux/actions/app.jsx'
 import { css } from 'emotion'
 import StellarBase from "@quantadex/quanta-base"
 import qbase from '@quantadex/quanta-base';
@@ -133,30 +135,6 @@ const login_container = css`
 `
 
 class Login extends Component {
-	handleLogin() {
-		this.props.history.push("/exchange")
-	}
-	render() {
-			return (
-				<div>
-					<div className={login_container}>
-						<div className="content">
-						<div>
-							<img id="logo" src="/public/images/login-logo.svg" alt="Quantadex Decentralized Exchange"/>
-							<p>To access QDEX exchange and participate on the Paper Trading Contest you 
-								will need your QUANTA wallet private key. To get one you need to create a 
-								QUANTA wallet first and open the downloaded PDF file.</p>
-						</div>
-							<AuthForm onAuth={this.handleLogin.bind(this)}/>
-						</div>
-					</div>
-					<Banner />
-				</div>
-			)
-	}
-}
-
-class AuthForm extends Component {
 	constructor(props) {
 		super(props);
 		this.state = { private_key: '', authError: false }
@@ -174,32 +152,100 @@ class AuthForm extends Component {
 
 		try {
 			const auth = qbase.Keypair.fromSecret(this.state.private_key)
-			this.props.onAuth()
+			this.handleLogin()
 		} catch(e) {
 			console.log(e)
 			this.setState({authError: true})
 		}
 		
 	}
+
+	handleLogin() {
+		this.props.dispatch({
+			type: LOGIN,
+			private_key: this.state.private_key
+		})
+		this.props.history.push("/exchange")
+		
+	}
 	render() {
+		console.log(this.props)
 		return (
-			<div className="auth-form">
-				<form onSubmit={this.handleSubmit}>
-					<div className="input-container">
-						<label htmlFor="private-key">
-							QUANTA<br/>PRIVATE KEY
-						</label>
-						<input name="private-key" value={this.state.value} onChange={this.handleChange} type="text" spellCheck="false" placeholder="Enter private key …"/>
-						<span className="error" hidden={!this.state.authError}>*Invalid Key</span>
+			<div>
+				<div className={login_container}>
+					<div className="content">
+					<div>
+						<img id="logo" src="/public/images/login-logo.svg" alt="Quantadex Decentralized Exchange"/>
+						<p>To access QDEX exchange and participate on the Paper Trading Contest you 
+							will need your QUANTA wallet private key. To get one you need to create a 
+							QUANTA wallet first and open the downloaded PDF file.</p>
 					</div>
-					<button type="submit" disabled={!this.state.has_input}>Authenticate</button>
-				</form>
-				
-				<Link to="/keygen" className="black">I don’t have one. Generate a QUANTA Wallet.</Link>
+						<div className="auth-form">
+							<form onSubmit={this.handleSubmit}>
+								<div className="input-container">
+									<label htmlFor="private-key">
+										QUANTA<br/>PRIVATE KEY
+									</label>
+									<input name="private-key" value={this.state.value} onChange={this.handleChange} type="text" spellCheck="false" placeholder="Enter private key …"/>
+									<span className="error" hidden={!this.state.authError}>*Invalid Key</span>
+								</div>
+								<button type="submit" disabled={!this.state.has_input}>Authenticate</button>
+							</form>
+							
+							<Link to="/keygen" className="black">I don’t have one. Generate a QUANTA Wallet.</Link>
+						</div>
+					</div>
+				</div>
+				<Banner />
 			</div>
 		)
 	}
 }
+
+// class AuthForm extends Component {
+// 	constructor(props) {
+// 		super(props);
+// 		this.state = { private_key: '', authError: false }
+
+// 		this.handleChange = this.handleChange.bind(this);
+// 		this.handleSubmit = this.handleSubmit.bind(this);
+// 	}
+
+// 	handleChange(e) {
+// 		this.setState({private_key: e.target.value, has_input: e.target.value.length > 0})
+// 	}
+
+// 	handleSubmit(e) {
+// 		e.preventDefault();
+
+// 		try {
+// 			const auth = qbase.Keypair.fromSecret(this.state.private_key)
+// 			this.props.onAuth()
+// 		} catch(e) {
+// 			console.log(e)
+// 			this.setState({authError: true})
+// 		}
+		
+// 	}
+// 	render() {
+// 		return (
+// 			<div className="auth-form">
+// 				<form onSubmit={this.handleSubmit}>
+// 					<div className="input-container">
+// 						<label htmlFor="private-key">
+// 							QUANTA<br/>PRIVATE KEY
+// 						</label>
+// 						<input name="private-key" value={this.state.value} onChange={this.handleChange} type="text" spellCheck="false" placeholder="Enter private key …"/>
+// 						<span className="error" hidden={!this.state.authError}>*Invalid Key</span>
+// 					</div>
+// 					<button type="submit" disabled={!this.state.has_input}>Authenticate</button>
+// 				</form>
+				
+// 				<Link to="/keygen" className="black">I don’t have one. Generate a QUANTA Wallet.</Link>
+// 			</div>
+// 		)
+// 	}
+// }
 
 export class GenerateKey extends Component {
 	constructor(props) {
@@ -321,5 +367,8 @@ export class GenerateKey extends Component {
 	}
 }
 
+const mapStateToProps = (state) => ({
+	private_key: state.app.private_key,
+});
 
-export default withRouter(Login)
+export default connect(mapStateToProps)(withRouter(Login))

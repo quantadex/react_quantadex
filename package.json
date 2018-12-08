@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@quantadex/quanta-base": "^0.8.3",
+    "@quantadex/quanta_js": "^1.0.1",
     "autosuggest-highlight": "^3.1.1",
     "babel-loader": "^7.1.2",
     "babel-plugin-emotion": "^8.0.12",

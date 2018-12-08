@@ -1,6 +1,7 @@
 import { INIT_DATA, INIT_BALANCE, APPEND_TRADE, UPDATE_ORDER, UPDATE_OPEN_ORDERS, SET_AMOUNT, UPDATE_USER_ORDER, UPDATE_TICKER, UPDATE_TRADES, UPDATE_DIGITS } from "../actions/app.jsx";
 import { TOGGLE_LEFT_PANEL, TOGGLE_RIGHT_PANEL } from "../actions/app.jsx";
 import { TOGGLE_FAVORITE_LIST } from "../actions/app.jsx";
+import { LOGIN } from "../actions/app.jsx";
 import { toggleFavoriteList } from "../actions/app.jsx";
 import SortedSet from 'js-sorted-set'
 
@@ -162,16 +163,18 @@ let initialState = {
       volume: "346788",
       favoriteList:false
     }],
-    columns: [{
-      name:"",
-      type:"icon",
-      key: "favoriteList",
-      favoritedIconUrl: "/public/images/star-white.svg",
-      unfavoritedIconUrl: "/public/images/star-grey.svg",
-      handleClick: pair => {
-        return toggleFavoriteList(pair)
-      }
-    },{
+    columns: [
+    //   {
+    //   name:"",
+    //   type:"icon",
+    //   key: "favoriteList",
+    //   favoritedIconUrl: "/public/images/star-white.svg",
+    //   unfavoritedIconUrl: "/public/images/star-grey.svg",
+    //   handleClick: pair => {
+    //     return toggleFavoriteList(pair)
+    //   }
+    // },
+    {
       name:"Pair",
       key:"pair",
       type:"string",
@@ -353,6 +356,13 @@ const app = (state = initialState, action) => {
 
         ...state,
         balance: lodash.keyBy(action.data.balances,'currency')
+      }
+
+    case LOGIN:
+      console.log(action)
+      return {
+        ...state,
+        private_key: action.private_key
       }
 
     case UPDATE_OPEN_ORDERS:
