@@ -152,7 +152,7 @@ Datafeeds.UDFCompatibleDatafeed.prototype._sendCors = function(url, params) {
 Datafeeds.UDFCompatibleDatafeed.prototype._initialize = function() {
   var that = this;
 
-  this._send("/assets/charting_library/datafeed/udf/config.json")
+  this._send("/public/vendor/charting_library/datafeed/udf/config.json")
     .done(function(response) {
       var configurationData = parseJSONorNot(response);
       that._setupWithConfiguration(configurationData);
@@ -373,24 +373,35 @@ Datafeeds.UDFCompatibleDatafeed.prototype.resolveSymbol = function(
   }
 
   if (!this._configuration.supports_group_request) {
-    this._send(
-      this._datafeedURL +
-        "/symbol_info/" +
-        symbolName.replace("_", "/").toUpperCase()
-    )
-      .done(function(response) {
-        var data = parseJSONorNot(response);
+    console.log("NOT GROUP REQUEST");
+    // this._send(
+    //   this._datafeedURL +
+    //     "/symbol_info/" +
+    //     symbolName.replace("_", "/").toUpperCase()
+    // )
+    //   .done(function(response) {
+    //     var data = parseJSONorNot(response);
 
-        if (data.s && data.s !== "ok") {
-          onResolveErrorCallback("unknown_symbol");
-        } else {
-          onResultReady(data);
-        }
-      })
-      .fail(function(reason) {
-        that._logMessage("Error resolving symbol: " + JSON.stringify([reason]));
-        onResolveErrorCallback("unknown_symbol");
+    //     if (data.s && data.s !== "ok") {
+    //       onResolveErrorCallback("unknown_symbol");
+    //     } else {
+    //       onResultReady(data);
+    //     }
+    //   })
+    //   .fail(function(reason) {
+    //     that._logMessage("Error resolving symbol: " + JSON.stringify([reason]));
+    //     onResolveErrorCallback("unknown_symbol");
+    //   });
+    setTimeout(function() {
+      onResultReady({
+        name: symbolName,
+        ticker: symbolName,
+        description: symbolName,
+        exchange: "QDEX",
+        timezone: "America/Los_Angeles",
+        has_intraday: true
       });
+    }, 500)
   } else {
     if (this._initializationFinished) {
       this._symbolsStorage.resolveSymbol(
@@ -433,21 +444,21 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
     resolution = resolution + "m";
   }
 
-  this._sendCors("http://backend-dev.env.quantadex.com:8080/api/v1/prices", {
-    startDate: Math.round(rangeStartDate),
-    endDate: Math.round(rangeEndDate),
+  console.log("Load prices");
+  this._sendCors("http://orderbook-api-792236404.us-west-2.elb.amazonaws.com/chart/" + symbolInfo.ticker, {
+    start: Math.round(rangeStartDate),
+    end: Math.round(rangeEndDate),
     interval: resolution,
-    symbol: symbolInfo.ticker
   })
     .then(function(response) {
       return response.json();
     })
     .then(function(data) {
       const no_data = data.length == 0;
-
+      console.log(data);
       const bars = data.map(e => {
         return {
-          time: e.time,
+          time: e.time*1000,
           open: +e.open,
           high: +e.high,
           low: +e.low,
