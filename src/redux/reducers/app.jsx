@@ -8,7 +8,7 @@ import lodash from 'lodash'
 import moment from 'moment'
 
 let initialState = {
-  currentTicker: 'BTC/USD',
+  currentTicker: 'ETH*QB3WOAL55IVT6E7BVUNRW6TUVCAOPH5RJYPUUL643YMKMJSZFZGWDJU3/BTC*QB3WOAL55IVT6E7BVUNRW6TUVCAOPH5RJYPUUL643YMKMJSZFZGWDJU3',
   tradeHistory: [],
   tradeBook: { bids: [], asks: []},
   openOrders: [], markets: [],
@@ -298,14 +298,16 @@ const app = (state = initialState, action) => {
         }
       })
 
-      const tradesDataSource = action.data.trades.trades.map((trade) => {
+      const tradesDataSource = action.data.trades.reverse().map((trade) => {
         return {
           price: trade.price,
           amount: trade.amount,
-          date: moment(trade.time * 1000).format('DD MMM'),
-          time:moment(trade.time * 1000).format("HH:mm:ss")
+          date: moment(trade.SettledAt || "").utc().format('DD MMM'),
+          time: moment(trade.SettledAt || "").utc().format("HH:mm:ss")
         }
       })
+
+      console.log(tradesDataSource);
 
       var spread = 0
       var spreadDollar = 0
@@ -317,7 +319,7 @@ const app = (state = initialState, action) => {
       return {
         ...state,
         currentTicker:action.data.ticker,
-        openOrders:action.data.openOrders.orders,
+        openOrders: [], // action.data.openOrders,
         orderBook: {
           ...state.orderBook,
           spread: spread,
@@ -376,8 +378,8 @@ const app = (state = initialState, action) => {
             {
               price: trade.price,
               amount: trade.amount,
-              date: moment(trade.time * 1000).format('DD MMM'),
-              time:moment(trade.time * 1000).format("HH:mm:ss")
+              date: moment(trade.SettledAt * 1000).format('DD MMM'),
+              time: moment(trade.SettledAt * 1000).format("HH:mm:ss")
             },
             ...state.trades.dataSource
           ]

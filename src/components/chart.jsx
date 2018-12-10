@@ -1,11 +1,13 @@
 import React, { Component } from "react";
+import { connect } from 'react-redux'
 
 class Chart extends Component {
   componentDidMount() {
+    const self = this;
     TradingView.onready(function() {
       var widget = (window.tvWidget = new TradingView.widget({
         fullscreen: false,
-        symbol: "BTC/USD",
+        symbol: self.props.currentTicker,
         interval: "5",
         allow_symbol_change: false,
         // height: '50px',
@@ -78,4 +80,8 @@ class Chart extends Component {
   }
 }
 
-export default Chart;
+const mapStateToProps = (state) => ({
+  currentTicker: state.app.currentTicker,
+});
+
+export default connect(mapStateToProps)(Chart);

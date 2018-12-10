@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import { TOGGLE_LEFT_PANEL, TOGGLE_RIGHT_PANEL } from '../redux/actions/app.jsx'
 import { css } from 'emotion'
+import Ticker from './ui/ticker.jsx';
 
 const container = css`
 	padding-bottom:10px;
@@ -41,7 +42,7 @@ class Header extends Component {
 						<div className="header-slogan qt-font-tiny qt-opacity-half"><span>DECENTRALIZED<br /> EXCHANGE</span></div>
 					</div>
 					<div className="d-flex align-items-center">
-						<span className="header-coin-name qt-font-normal qt-font-regular">{this.props.currentTicker.replace('/','')}</span>
+						<span className="header-coin-name qt-font-normal qt-font-regular"><Ticker ticker={this.props.currentTicker} /></span>
 						<span className="header-coin-value qt-font-normal qt-font-regular qt-color-theme">{this.props.currentPrice}</span>
 						<a><img src="/public/images/close-right.svg" width="20" height="20" onClick={() => {
 								this.props.dispatch({

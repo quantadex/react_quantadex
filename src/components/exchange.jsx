@@ -58,8 +58,8 @@ const container = css`
 
 class Exchange extends Component {
 	componentDidMount() {
-		this.props.dispatch(switchTicker("BTC/USD"));
-		this.props.dispatch(initBalance());
+		this.props.dispatch(switchTicker("ETH*QB3WOAL55IVT6E7BVUNRW6TUVCAOPH5RJYPUUL643YMKMJSZFZGWDJU3/BTC*QB3WOAL55IVT6E7BVUNRW6TUVCAOPH5RJYPUUL643YMKMJSZFZGWDJU3"));
+		//this.props.dispatch(initBalance());
 	}
 
 	render() {

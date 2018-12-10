@@ -8,6 +8,7 @@ import globalcss from './global-css.js'
 import QTTabBar from './ui/tabBar.jsx'
 import QTDropdown from './ui/dropdown.jsx'
 import QTButton from './ui/button.jsx'
+import {Token} from './ui/ticker.jsx'
 
 import {buyTransaction} from "../redux/actions/app.jsx";
 import {sellTransaction} from "../redux/actions/app.jsx";
@@ -152,7 +153,7 @@ class Trade extends Component {
 							pairBalance.map((item) => {
 
 								return (
-									<span className="trade-balance">{item.currency} Balance: {item.amount}</span>
+                  <span className="trade-balance"><Token name={item.currency}/> Balance: {item.amount}</span>
 								)
 							})
 						}
@@ -169,7 +170,7 @@ class Trade extends Component {
           </div>
           <div className="trade-right d-flex justify-content-between">
             <div className="trade-input-half">
-              <div className="qt-opacity-64 qt-font-semibold">AMOUNT {tradingPair[0]}</div>
+              <div className="qt-opacity-64 qt-font-semibold">AMOUNT <Token name={tradingPair[0]}/></div>
               <div className="trade-input-container">
                 <input type="number" className="trade-input qt-number-bold qt-font-small"
                        value={this.state.qty}
@@ -177,7 +178,7 @@ class Trade extends Component {
               </div>
             </div>
             <div className="trade-input-half">
-              <div className="qt-opacity-64 qt-font-semibold">TOTAL {tradingPair[1]}</div>
+              <div className="qt-opacity-64 qt-font-semibold">TOTAL <Token name={tradingPair[1]}/></div>
               <div className="trade-input-container d-flex justify-content-between align-items-center">
 								<QTDropdown
 									items={dropdown_items.items}
