@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import { SET_AMOUNT } from "../redux/actions/app.jsx";
 import API from "../api.jsx"
 import { css } from 'emotion'
+import {Token} from './ui/ticker.jsx';
 
 const container = css`
 	font-size: 12px;
@@ -43,20 +44,20 @@ const ACTION_SELL = "SELL";
 const OrderBox = ({className, actionType, base, counter, price, amount, balance, balanceAmount, setPrice, setAmount, setPercent, onOrder}) => {
 	return (
 				<div className={className}>
-					<div className="bar"><span className="header">{actionType} {base} </span><span style={{float: "right"}}>{balance} Balance: {parseFloat(balanceAmount.amount) - parseFloat(balanceAmount.hold)}</span></div>
+					<div className="bar"><span className="header">{actionType} <Token name={base}/> </span><span style={{float: "right"}}>{balance} Balance: {parseFloat(balanceAmount.amount) - parseFloat(balanceAmount.hold)}</span></div>
 					<form className="form-horizontal">
 						<div className="form-group">
 							<label htmlFor="inputPrice" className="col-sm-2 control-label">Price</label>
 							<div className="col-sm-10">
 								<NumericInput className="form-control" id="inputPrice" step={0.1} value={price} onChange={(e) => setPrice(actionType, e)}/>
-								<div className="counter">{counter}</div>
+						<div className="counter"><Token name={counter}/></div>
 							</div>
 						</div>
 						<div className="form-group">
 							<label htmlFor="inputAmount" className="col-sm-2 control-label">Amount</label>
 							<div className="col-sm-10">
 								<input type="number" className="form-control" id="inputAmount" value={amount} onChange={(e) => setAmount(actionType, e)}/>
-								<div className="counter">{base}</div>
+								<div className="counter"><Token name={base}/></div>
 							</div>
 						</div>
 						<div className="form-group text-right">

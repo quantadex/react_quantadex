@@ -8,6 +8,7 @@ import globalcss from './global-css.js'
 import QTTabBar from './ui/tabBar.jsx'
 import QTDropdown from './ui/dropdown.jsx'
 import QTButton from './ui/button.jsx'
+import {Token} from './ui/ticker.jsx'
 
 import {buyTransaction} from "../redux/actions/app.jsx";
 import {sellTransaction} from "../redux/actions/app.jsx";
@@ -259,7 +260,7 @@ class Trade extends Component {
               <span>BTC</span>
             </div>
             <div className="input-container">
-              <label>AMOUNT</label>
+              <label>AMOUNT <Token name={tradingPair[0]}/></label>
               <QTDropdown
 									items={dropdown_items.items}
 									value={dropdown_items.value}
@@ -275,7 +276,7 @@ class Trade extends Component {
               <span>BNB</span>
             </div>
             <div className="input-container">
-              <label>TOTAL</label>
+              <label>TOTAL <Token name={tradingPair[1]}/></label>
               <input
 										type="number"
                     className="trade-input qt-number-bold qt-font-small"
@@ -293,7 +294,7 @@ class Trade extends Component {
 							pairBalance.map((item) => {
 
 								return (
-									<span className="trade-balance">{item.currency} Balance: {item.amount}</span>
+									<span className="trade-balance"><Token name={item.currency}/> Balance: {item.amount}</span>
 								)
 							})
 						}

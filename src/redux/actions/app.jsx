@@ -215,9 +215,9 @@ export function switchTicker(ticker) {
 	console.log("Switch ticker ", ticker);
 	return function (dispatch) {
 
-		const orderBook = fetch("http://backend-dev.env.quantadex.com:8080/api/v1/depth?symbol="+ticker).then((res) => {return res.json()})
-		const trades = fetch("http://backend-dev.env.quantadex.com:8080/api/v1/trades?symbol="+ticker).then((res) => {return res.json()})
-		const openOrders = fetch("http://backend-dev.env.quantadex.com:8080/api/v1/account/orders/"+localStorage.getItem("quanta_sender_publicKey")).then((res) => {return res.json()})
+		const orderBook = fetch("http://orderbook-api-792236404.us-west-2.elb.amazonaws.com/depth/"+ticker).then((res) => {return res.json()})
+		const trades = fetch("http://orderbook-api-792236404.us-west-2.elb.amazonaws.com/settlement/"+ticker).then((res) => {return res.json()})
+		const openOrders = fetch("http://orderbook-api-792236404.us-west-2.elb.amazonaws.com/status").then((res) => {return res.json()})
 
 		return Promise.all([orderBook,trades,openOrders])
 			.then((data) => {
