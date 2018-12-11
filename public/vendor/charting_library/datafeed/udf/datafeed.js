@@ -442,6 +442,8 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
 
   if (!resolution.endsWith("D")) {
     resolution = resolution + "m";
+  } else {
+    resolution = resolution.replace("D", "d");
   }
 
   console.log("Load prices");

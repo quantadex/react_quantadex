@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 class Chart extends Component {
   componentDidMount() {
     const self = this;
-    TradingView.onready(function() {
+    // TradingView.onready(function() {
       var widget = (window.tvWidget = new TradingView.widget({
         fullscreen: false,
         symbol: self.props.currentTicker,
@@ -21,7 +21,7 @@ class Chart extends Component {
           { text: "30m", resolution: "30" },
           { text: "15m", resolution: "15" },
           { text: "5m", resolution: "5" },
-          { text: "1d", resolution: "1", title: "1m" }
+          { text: "1m", resolution: "1", title: "1m" }
         ],
         library_path: "/public/vendor/charting_library/",
         locale: "en",
@@ -69,7 +69,7 @@ class Chart extends Component {
           "study_Overlay@tv-basicstudies.areaStyle.linecolor": "blue"
         }
       }));
-    });
+    // });
   }
   render() {
     return (

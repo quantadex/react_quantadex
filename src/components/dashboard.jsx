@@ -8,7 +8,7 @@ import QTTabBar from './ui/tabBar.jsx'
 import QTTableViewSimple from './ui/tableViewSimple.jsx'
 
 const container = css`
-	width: 50%;
+	width: calc(100% - 360px);
 	height: 100%;
 	float: left;
 	padding: 20px;

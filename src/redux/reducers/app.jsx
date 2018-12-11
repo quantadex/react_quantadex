@@ -361,7 +361,6 @@ const app = (state = initialState, action) => {
       }
 
     case LOGIN:
-      console.log(action)
       return {
         ...state,
         private_key: action.private_key

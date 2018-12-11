@@ -342,7 +342,7 @@ i {
 }
 
 .tv-data-table__cell--status {
-    background: #121b21121b21 none repeat scroll 0 0 !important;
+    background: #121b21 none repeat scroll 0 0 !important;
     height: 15px !important;
     white-space: nowrap !important;
 }
@@ -1152,4 +1152,8 @@ to {
 ._tv-dialog-content .main-properties {
   padding: 10px 25px !important;
   height: auto !important;
+}
+
+.chart-status-picture {
+    display: none;
 }

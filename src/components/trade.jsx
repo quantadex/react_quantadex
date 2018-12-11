@@ -14,7 +14,7 @@ import {buyTransaction} from "../redux/actions/app.jsx";
 import {sellTransaction} from "../redux/actions/app.jsx";
 
 const container = css`
-  width: 50%;
+  width: 360px;
   display: inline-block;
   padding: 20px;
   
@@ -72,7 +72,7 @@ const container = css`
     }
     input {
       border-radius: 2px;
-      padding-right: 25px;
+      padding-right: 35px;
     }
     input::selection {
       background-color: #fff;
@@ -99,6 +99,15 @@ const container = css`
     button.qt-dropdown-item {
       width: 56px;
       padding: 0;
+    }
+    input[type=number] {
+      -moz-appearance:textfield;
+      min-width: 0;
+    }
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
     }
   }
 
