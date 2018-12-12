@@ -27,11 +27,16 @@ export const toggleFavoriteList = pair => ({
 import StellarBase, {Keypair, Asset, Operation} from 'stellar-base'
 StellarBase.Network.use(new StellarBase.Network("Test QuantaDex SDF Network ; June 2018"))
 
-const c = new QuantaClient({ orderbookUrl: "http://orderbook-api-792236404.us-west-2.elb.amazonaws.com", secretKey: "ZBYUCOMTT7UPXG6JSKIQREYF6FLMUFAE42I24VJNX6NOFP7I6BUQWEKV" })
-const market = c.showMarkets().then((e) => {
-	console.log(e[0].Name);
-	return e[0].Name
-})
+var quantaClient, default_market;
+export function initMarket(key) {
+	console.log("set key =", key)
+	quantaClient = new QuantaClient({ orderbookUrl: "http://orderbook-api-792236404.us-west-2.elb.amazonaws.com", secretKey: key })
+	default_market = (quantaClient.showMarkets().then((e) => {
+		console.log("market", e, e[0].Name);
+		return e[0].Name
+	}))
+}
+
 
 var getFreeCoins = (accountId) => {
 	return fetch("http://backend-dev.env.quantadex.com:8080/api/v1/demo/freecoins/" + accountId)
@@ -138,45 +143,58 @@ export function initBalance() {
 }
 
 export function buyTransaction(price, amount) {
-	c.submitOrder(0, market, String(price), String(amount))
-	.then((e) => e.json()).then((e) => {
-		console.log("ordered ", e);
-	}).catch((e) => {
-		console.log(e);
-	})
+	default_market.then((market) => (
+		quantaClient.submitOrder(0, market, price, amount)
+		.then((e) => e.json()).then((e) => {
+			console.log("ordered ", e);
+		}).catch((e) => {
+			console.log(e);
+		})
+	))
 }
 
-export function sellTransaction(publicKey,secretKey,issuerKey, qty, price) {
-	return function(dispatch) {
-		return getBalance(publicKey).then((data) => {
-			var account=new StellarBase.Account(publicKey,data.seqnum.toString());
-			var buying = new Asset("USD",issuerKey)
-			var selling = new Asset("BTC",issuerKey)
-			var opt3 = {
-				buying: buying,
-				selling: selling,
-				amount: (1.0 * qty).toString(),
-				price: (1.0 * price).toString()
-			}
-		    console.log("sellTransaction(" + publicKey + ", seq=" + data.seqnum.toString() + "): SELL " + qty + " @ " + price + " | " + opt3.amount + " @ " + opt3.price);
-			var transaction = new StellarBase.TransactionBuilder(account)
-				.addOperation(StellarBase.Operation.manageOffer(opt3))
-				.build();
-			var key = Keypair.fromSecret(secretKey);
-			transaction.sign(key);
-			postTransaction(transaction).then((data) => {
-				console.log("after making one sell transaction: ",data)
-				getMyOrders(publicKey).then((data) => {
-					console.log("open orders: ", data)
-					dispatch({
-						type: UPDATE_OPEN_ORDERS,
-						data:data
-					})
-				})
-			})
+export function sellTransaction(price, amount) {
+	default_market.then((market) => (
+		quantaClient.submitOrder(1, market, price, amount)
+		.then((e) => e.json()).then((e) => {
+			console.log("ordered ", e);
+		}).catch((e) => {
+			console.log(e);
 		})
-	}
+	))
 }
+
+// export function sellTransaction(publicKey,secretKey,issuerKey, qty, price) {
+// 	return function(dispatch) {
+// 		return getBalance(publicKey).then((data) => {
+// 			var account=new StellarBase.Account(publicKey,data.seqnum.toString());
+// 			var buying = new Asset("USD",issuerKey)
+// 			var selling = new Asset("BTC",issuerKey)
+// 			var opt3 = {
+// 				buying: buying,
+// 				selling: selling,
+// 				amount: (1.0 * qty).toString(),
+// 				price: (1.0 * price).toString()
+// 			}
+// 		    console.log("sellTransaction(" + publicKey + ", seq=" + data.seqnum.toString() + "): SELL " + qty + " @ " + price + " | " + opt3.amount + " @ " + opt3.price);
+// 			var transaction = new StellarBase.TransactionBuilder(account)
+// 				.addOperation(StellarBase.Operation.manageOffer(opt3))
+// 				.build();
+// 			var key = Keypair.fromSecret(secretKey);
+// 			transaction.sign(key);
+// 			postTransaction(transaction).then((data) => {
+// 				console.log("after making one sell transaction: ",data)
+// 				getMyOrders(publicKey).then((data) => {
+// 					console.log("open orders: ", data)
+// 					dispatch({
+// 						type: UPDATE_OPEN_ORDERS,
+// 						data:data
+// 					})
+// 				})
+// 			})
+// 		})
+// 	}
+// }
 
 // var mockTransaction =  (publicKey,secretKey,issuerKey) => {
 //

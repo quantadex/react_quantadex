@@ -182,23 +182,12 @@ class Trade extends Component {
         price: 1};
   }
 
-
-
-
 	handleBuy(e) {
-		var publicKey = localStorage.getItem("quanta_sender_publicKey")
-		var secretKey = localStorage.getItem("quanta_sender_secretKey")
-		var issuerKey = localStorage.getItem("quanta_issuer_publicKey")
-    console.log('!!!', this.state.price, this.state.qty)
 		this.props.dispatch(buyTransaction(this.state.price, this.state.qty))
 	}
 
 	handleSell(e) {
-		var publicKey = localStorage.getItem("quanta_sender_publicKey")
-		var secretKey = localStorage.getItem("quanta_sender_secretKey")
-		var issuerKey = localStorage.getItem("quanta_issuer_publicKey")
-
-		this.props.dispatch(sellTransaction(publicKey,secretKey,issuerKey, this.state.qty, this.state.price))
+		this.props.dispatch(sellTransaction(this.state.price, this.state.qty))
 	}
 
 	handlePriceInputChange(e) {
@@ -269,7 +258,7 @@ class Trade extends Component {
               <span>BTC</span>
             </div>
             <div className="input-container">
-              <label>AMOUNT <Token name={tradingPair[0]}/></label>
+               <label>AMOUNT {/*<Token name={tradingPair[0]}/>*/}</label> 
               <QTDropdown
 									items={dropdown_items.items}
 									value={dropdown_items.value}
@@ -285,7 +274,7 @@ class Trade extends Component {
               <span>BNB</span>
             </div>
             <div className="input-container">
-              <label>TOTAL <Token name={tradingPair[1]}/></label>
+               <label>TOTAL {/*<Token name={tradingPair[1]}/> */}</label>
               <input
 										type="number"
                     className="trade-input qt-number-bold qt-font-small"

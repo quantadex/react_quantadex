@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Link, Redirect, withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
-import { LOGIN } from '../redux/actions/app.jsx'
+import { LOGIN, initMarket } from '../redux/actions/app.jsx'
 import { css } from 'emotion'
 import StellarBase from "@quantadex/quanta-base"
 import qbase from '@quantadex/quanta-base';
@@ -164,8 +164,9 @@ class Login extends Component {
 		this.props.dispatch({
 			type: LOGIN,
 			private_key: this.state.private_key
-		})
-		this.props.history.push("/exchange")
+		});
+		this.props.history.push("/exchange");
+		this.props.dispatch(initMarket(this.state.private_key));
 		
 	}
 	render() {

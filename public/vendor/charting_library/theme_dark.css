@@ -107,6 +107,10 @@ input.symbol-edit,
   color: #aaa !important;
 }
 
+.symbol-edit-widget {
+    display: none;
+}
+
 .header-chart-panel .button,
 .hotlist-controls .button,
 .symbol-edit-widget .button,
