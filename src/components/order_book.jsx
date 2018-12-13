@@ -13,7 +13,6 @@ const container = css`
 
 	.orderbook-ask, .orderbook-bid {
 		height:260px;
-		overflow-y: scroll;
 	}
 
 	.orderbook-middle {
@@ -22,6 +21,18 @@ const container = css`
 		border-bottom: 1px solid rgba(255, 255, 255, .09);
 	}
 
+	.no-scroll-bar {
+		position: relative;
+		overflow-x: hidden;
+	}
+	.no-scroll-bar > div {
+		padding-right: 10px;
+		box-sizing: content-box;
+		position: absolute;
+		left: 0;
+		right: -25px;
+		overflow-y: scroll;
+	}
 `;
 
 class OrderBook extends Component {
@@ -45,7 +56,7 @@ class OrderBook extends Component {
 		// 		total: parseFloat(ask.total).toFixed(this.props.decimals.maxTotalDecimals)
 		// 	}
 		// })
-
+		
 		var asksIterator = this.props.asks.dataSource.beginIterator();
 		var asksDataSource = []
 		while (asksIterator.value() !== null && asksDataSource.length < 20) {
@@ -87,8 +98,10 @@ class OrderBook extends Component {
 							onChange={this.updateDigits}/>
 					</div>
 				</section>
-				<section className="orderbook-ask">
-					<QTTableViewSimple dataSource={asksDataSource} columns={this.props.asks.columns} />
+				<section className="orderbook-ask no-scroll-bar">
+					<div>
+						<QTTableViewSimple dataSource={asksDataSource} columns={this.props.asks.columns} />
+					</div>
 				</section>
 				<section className="orderbook-middle d-flex justify-content-between">
 					<div className="d-flex flex-column justify-content-center">
@@ -97,15 +110,17 @@ class OrderBook extends Component {
 					</div>
 					<div className="d-flex flex-column justify-content-center">
 						<div className="qt-opacity-half qt-font-base text-right">Spread</div>
-						<div className="qt-number-small text-right">{this.props.spread.toFixed(2) + "%"}</div>
+						<div className="qt-number-small text-right">{this.props.spread != undefined ? this.props.spread.toFixed(2) + "%" : "N/A"}</div>
 					</div>
 				</section>
-				<section className="orderbook-bid">
-					<QTTableViewSimple
-						dataSource={bidsDataSource}
-						columns={this.props.bids.columns}
-						HideHeader={true}
-					 />
+				<section className="orderbook-bid no-scroll-bar">
+					<div>
+						<QTTableViewSimple
+							dataSource={bidsDataSource}
+							columns={this.props.bids.columns}
+							HideHeader={true}
+						/>
+					 </div>
 				</section>
 			</div>
 		);
@@ -115,10 +130,10 @@ class OrderBook extends Component {
 const mapStateToProps = (state) => ({
   	bids: state.app.orderBook.bids,
   	asks: state.app.orderBook.asks,
-		decimals: state.app.orderBook.decimals,
-		spread: state.app.orderBook.spread,
-		spreadDollar:state.app.orderBook.spreadDollar,
-		mostRecentTrade: state.app.mostRecentTrade,
+	decimals: state.app.orderBook.decimals,
+	spread: state.app.orderBook.spread,
+	spreadDollar:state.app.orderBook.spreadDollar,
+	mostRecentTrade: state.app.mostRecentTrade,
 	});
 
 export default connect(mapStateToProps)(OrderBook);

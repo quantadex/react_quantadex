@@ -215,20 +215,20 @@ let initialState = {
   trades: {
     dataSource: [],
     columns: [{
+      name:"Amount",
+      key:"amount",
+      type:"number",
+      sortable:false,
+      color: (value) => {return value == 0 ? "theme" : "red"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"left"
+    },{
       name:"Price BTC",
       key:"price",
       type:"number",
       sortable:false,
       color: (value) => {return "white"},
-      fontSize:"extra-small",
-      fontWeight:"light",
-      float:"left"
-    },{
-      name:"Amount",
-      key:"amount",
-      type:"number",
-      sortable:false,
-      color: (value) => {return "theme"},
       fontSize:"extra-small",
       fontWeight:"light",
       float:"right"
@@ -300,19 +300,20 @@ const app = (state = initialState, action) => {
           }))
         }
       })
-
+      
       const tradesDataSource = action.data.trades.reverse().map((trade) => {
         return {
-          price: trade.price,
-          amount: trade.amount,
+          price: (trade.MatchedOrders[0].Price/10000000).toFixed(7),
+          amount: (trade.MatchedOrders[0].Side == 1 ? trade.MatchedOrders[0].Seller.Amount : trade.MatchedOrders[0].Buyer.Amount)/10000000,
+          color_key: trade.MatchedOrders[0].Side,
           date: moment(trade.SettledAt || "").utc().format('DD MMM'),
           time: moment(trade.SettledAt || "").utc().format("HH:mm:ss")
         }
       })
 
-      console.log(tradesDataSource);
+      // bidsSortedSet = asksSortedSet;
 
-      var spread = 0
+      var spread = undefined
       var spreadDollar = 0
       if (asksSortedSet.beginIterator().value() && bidsSortedSet.beginIterator().value()) {
         spread = Math.abs((parseFloat(JSON.parse(asksSortedSet.beginIterator().value()).price)/parseFloat(JSON.parse(bidsSortedSet.beginIterator().value()).price) - 1)*100)
@@ -373,7 +374,6 @@ const app = (state = initialState, action) => {
       }
 
     case UPDATE_TRADES:
-
       const trade = JSON.parse(action.data).message
       return {
         ...state,

@@ -16,7 +16,7 @@ import globalcss from '../global-css.js'
 
 const itemWidth = (props) => {
   return css`
-    width:100%;
+    width:${props.width}px;
   `
 }
 
@@ -87,6 +87,12 @@ const Container = styled('div')`
   &.even-width {
 
     .item {
+      width:100%;
+    }
+  }
+  &.set-width {
+
+    .item {
       ${itemWidth};
     }
   }
@@ -115,7 +121,9 @@ export default class QTTabBar extends React.Component {
                   key={tab}
                   data-index={index}
                   className={(this.state.selectedTabIndex == index ? "selected" : "") + " item"}
-                  onClick={(e) => {this.setState({selectedTabIndex:e.target.dataset.index})}}>
+                  onClick={(e) => {this.setState({selectedTabIndex:e.target.dataset.index})
+                                    this.props.switchTab(e.target.dataset.index, this.state.selectedTabIndex)
+                                  }}>
                   {tab}
                 </div>
             )

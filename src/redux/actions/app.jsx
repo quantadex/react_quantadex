@@ -27,16 +27,15 @@ export const toggleFavoriteList = pair => ({
 import StellarBase, {Keypair, Asset, Operation} from 'stellar-base'
 StellarBase.Network.use(new StellarBase.Network("Test QuantaDex SDF Network ; June 2018"))
 
-var quantaClient, default_market;
+var qClient, default_market;
 export function initMarket(key) {
 	console.log("set key =", key)
-	quantaClient = new QuantaClient({ orderbookUrl: "http://orderbook-api-792236404.us-west-2.elb.amazonaws.com", secretKey: key })
-	default_market = (quantaClient.showMarkets().then((e) => {
+	qClient = new QuantaClient({ orderbookUrl: "http://orderbook-api-792236404.us-west-2.elb.amazonaws.com", secretKey: key })
+	default_market = (qClient.showMarkets().then((e) => {
 		console.log("market", e, e[0].Name);
 		return e[0].Name
 	}))
 }
-
 
 var getFreeCoins = (accountId) => {
 	return fetch("http://backend-dev.env.quantadex.com:8080/api/v1/demo/freecoins/" + accountId)
@@ -144,7 +143,7 @@ export function initBalance() {
 
 export function buyTransaction(price, amount) {
 	default_market.then((market) => (
-		quantaClient.submitOrder(0, market, price, amount)
+		qClient.submitOrder(0, market, price, amount)
 		.then((e) => e.json()).then((e) => {
 			console.log("ordered ", e);
 		}).catch((e) => {
@@ -155,7 +154,7 @@ export function buyTransaction(price, amount) {
 
 export function sellTransaction(price, amount) {
 	default_market.then((market) => (
-		quantaClient.submitOrder(1, market, price, amount)
+		qClient.submitOrder(1, market, price, amount)
 		.then((e) => e.json()).then((e) => {
 			console.log("ordered ", e);
 		}).catch((e) => {

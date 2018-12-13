@@ -9,8 +9,15 @@ import QTTabBar from './ui/tabBar.jsx'
 import QTButton from './ui/button.jsx'
 
 const container = css`
+  width: 100%;
+  padding: 20px 35px;
+
   .order-list {
     margin-top: 35px;
+  }
+
+  .order-list.inactive {
+    display: none;
   }
 
   .order-list-pairs {
@@ -60,6 +67,14 @@ const container = css`
 `;
 
 class Orders extends Component {
+  handleSwitch(index, selected) {
+    const list = document.getElementsByClassName("order-list")[0]
+    if (index != selected || list.classList.contains("inactive")) {
+      list.classList.remove("inactive")
+    } else {
+      list.classList.add("inactive")
+    }
+  }
 
   render() {
     // const orders_data = [
@@ -74,12 +89,13 @@ class Orders extends Component {
     return (
       <div className={container}>
         <QTTabBar
-          className="underline small static even-width qt-font-bold d-flex justify-content-start"
-          width={138.5}
+          className="underline small static set-width qt-font-bold d-flex justify-content-center"
+          width={200}
           gutter={10}
           tabs = {tabs}
+          switchTab = {this.handleSwitch.bind(this)}
         />
-        <section className="order-list container-fluid">
+        <section className="order-list container-fluid inactive">
 					<div className="row qt-opacity-half justify-content-between qt-number-base qt-font-semibold">
 						<span className="order-list-pairs text-left">Pair</span>
 						<span className="order-list-sloss text-right">STOP LOSS</span>

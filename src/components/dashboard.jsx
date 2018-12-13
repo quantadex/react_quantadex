@@ -12,6 +12,7 @@ const container = css`
 	height: 100%;
 	float: left;
 	padding: 20px;
+	overflow: auto;
 	border-right: 1px solid #333;
 	.coin-tabbar {
 		padding:10px 21px;
