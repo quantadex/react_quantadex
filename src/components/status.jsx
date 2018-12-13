@@ -13,6 +13,10 @@ const container = css`
         color: #000;
         font-size: 15px;
         font-weight: bold;
+
+        a {
+            margin-left: 5px;
+        }
     }
 
     .status-info.brand {
@@ -41,11 +45,11 @@ class Status extends Component {
                 </div>
                 <div className="status-info">
                     <span className="label">QUANTA </span>
-                    <div>Explorer</div>
+                    <div>Explorer <a><img src="/public/images/external-link.svg" /></a></div>
                 </div>
                 <div className="status-info">
                     <span className="label">Highest Block</span>
-                    <div>995020</div>
+                    <div>995020 <a><img src="/public/images/external-link.svg" /></a></div>
                 </div>
                 <div className="status-info">
                     <span className="label">Average Block Latency</span>
@@ -61,7 +65,7 @@ class Status extends Component {
                 </div>
                 <div className="status-info">
                     <span className="label">On-chain Custody </span>
-                    <div>2 tokens</div>
+                    <div>2 tokens <a><img src="/public/images/external-link.svg" /></a></div>
                 </div>
             </div>
         )
