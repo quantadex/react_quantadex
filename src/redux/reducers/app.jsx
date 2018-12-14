@@ -205,6 +205,7 @@ const app = (state = initialState, action) => {
       //console.log("Merge? ", mergeTickerData(action.data.markets, action.data.tickers));
       console.log(action.data.orderBook)
       var asksSortedSet = state.orderBook.asks.dataSource
+      asksSortedSet.clear()
       action.data.orderBook.asks.map((ask) => {
         if (ask[0] != 0.0) {
           try {
@@ -221,6 +222,7 @@ const app = (state = initialState, action) => {
       })
 
       var bidsSortedSet = state.orderBook.bids.dataSource
+      bidsSortedSet.clear()
       action.data.orderBook.bids.map((bid) => {
         if (bid[0] != 0.0) {
           try {
