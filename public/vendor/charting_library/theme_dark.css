@@ -1104,7 +1104,7 @@ to {
 #library-container .save-load-buttons .active,
 #library-container .symbol-edit-widget .button.active,
 .feature-no-touch .chart-controls-bar-buttons a:not(.disabled):hover {
-  background: #465761 !important;
+  background: rgba(17,20,22,1) !important;
 }
 
 /* layout */

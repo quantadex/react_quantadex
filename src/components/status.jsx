@@ -13,6 +13,7 @@ const container = css`
         color: #000;
         font-size: 15px;
         font-weight: bold;
+        white-space: nowrap;
 
         a {
             margin-left: 5px;
@@ -22,16 +23,11 @@ const container = css`
     .status-info.brand {
         background: #eeeeef linear-gradient(to right, #ffffff, #eeeeef);
         flex: 0 0 260px;
-        .label {
-            text-transform: none;
-        }
     }
     .label {
         font-size: 12px;
         color: #999;
         font-weight: 100;
-        text-transform: uppercase;
-        white-space: nowrap;
     }
 `;
 
@@ -48,23 +44,23 @@ class Status extends Component {
                     <div>Explorer <a><img src="/public/images/external-link.svg" /></a></div>
                 </div>
                 <div className="status-info">
-                    <span className="label">Highest Block</span>
+                    <span className="label">HIGHEST BLOCK</span>
                     <div>995020 <a><img src="/public/images/external-link.svg" /></a></div>
                 </div>
                 <div className="status-info">
-                    <span className="label">Average Block Latency</span>
+                    <span className="label">AVERAGE BLOCK LATENCY</span>
                     <div>2000ms</div>
                 </div>
                 <div className="status-info">
-                    <span className="label">Number of Nodes </span>
+                    <span className="label">NUMBER OF NODES </span>
                     <div>13</div>
                 </div>
                 <div className="status-info">
-                    <span className="label">On-chain Orderbook Latency </span>
+                    <span className="label">ON-CHAIN ORDERBOOK LATENCY </span>
                     <div>12 ms</div>
                 </div>
                 <div className="status-info">
-                    <span className="label">On-chain Custody </span>
+                    <span className="label">ON-CHAIN CUSTODY </span>
                     <div>2 tokens <a><img src="/public/images/external-link.svg" /></a></div>
                 </div>
             </div>

@@ -54,6 +54,8 @@ class Chart extends Component {
           "mainSeriesProperties.style": 1, //  Candles styles
           "mainSeriesProperties.candleStyle.upColor": "#50b3b7",
           "mainSeriesProperties.candleStyle.downColor": "#ff3282",
+          "mainSeriesProperties.candleStyle.wickUpColor": "#50b3b7",
+          "mainSeriesProperties.candleStyle.wickDownColor": "#ff3282",
           "mainSeriesProperties.candleStyle.drawBorder": false,
           "mainSeriesProperties.hollowCandleStyle.upColor": "black",
           "mainSeriesProperties.hollowCandleStyle.downColor": "black",
