@@ -259,7 +259,7 @@ export function switchTicker(ticker) {
 					}
 				})
 
-				var orderbookws = new EventSource('http://testnet-02.quantachain.io:7200/stream/depth/ETH*QB3WOAL55IVT6E7BVUNRW6TUVCAOPH5RJYPUUL643YMKMJSZFZGWDJU3/BTC*QB3WOAL55IVT6E7BVUNRW6TUVCAOPH5RJYPUUL643YMKMJSZFZGWDJU3');
+				var orderbookws = new EventSource('http://testnet-02.quantachain.io:7200/stream/depth/'+ticker);
 
 				// Log errors
 				orderbookws.onerror = function (error) {
