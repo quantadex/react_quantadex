@@ -9,12 +9,13 @@ import Orders from './orders.jsx';
 import Trade from './trade.jsx';
 import Leaderboard from './leaderboard.jsx'
 import Status from './status.jsx'
+// import FirstTime from './first_time.jsx'
 import QTTableView from './ui/tableView.jsx'
 import Order from './order.jsx';
 import Markets from './markets.jsx';
 import OpenOrders from './open_orders.jsx';
 
-import {switchTicker, initBalance} from "../redux/actions/app.jsx";
+import {switchTicker, initBalance, getMarketQuotes} from "../redux/actions/app.jsx";
 import { connect } from 'react-redux'
 
 import { css } from 'emotion'
@@ -63,6 +64,20 @@ const container = css`
 	.exchange-dashboard {
 		border-bottom: solid 1px #121517;
 	}
+
+	.no-scroll-bar {
+		position: relative;
+		overflow: hidden;
+	}
+	.no-scroll-bar > div {
+		height: 100%;
+		padding-right: 10px;
+		box-sizing: content-box;
+		position: absolute;
+		left: 0;
+		right: -25px;
+		overflow-y: scroll;
+	}
 `;
 
 class Exchange extends Component {
@@ -70,8 +85,9 @@ class Exchange extends Component {
 		if (!this.props.private_key) {
 			this.props.history.push("/login")
 		} else {
-			this.props.dispatch(switchTicker("ETH*QB3WOAL55IVT6E7BVUNRW6TUVCAOPH5RJYPUUL643YMKMJSZFZGWDJU3/BTC*QB3WOAL55IVT6E7BVUNRW6TUVCAOPH5RJYPUUL643YMKMJSZFZGWDJU3"));
+			this.props.dispatch(switchTicker("ETH*QB3WOAL55IVT6E7BVUNRW6TUVCAOPH5RJYPUUL643YMKMJSZFZGWDJU3/BTC*QB3WOAL55IVT6E7BVUNRW6TUVCAOPH5RJYPUUL643YMKMJSZFZGWDJU3"))
 			//this.props.dispatch(initBalance());
+			this.props.dispatch(getMarketQuotes())
 		}
 
 		document.getElementsByClassName("row flex-nowrap")[0].style.paddingBottom = document.getElementsByClassName("exchange-bottom")[0].offsetHeight + "px";
@@ -101,6 +117,7 @@ class Exchange extends Component {
 				<Orders />
 				<Status />
 			</div>
+			{/* <FirstTime /> */}
 		</div>
 		);
 	}

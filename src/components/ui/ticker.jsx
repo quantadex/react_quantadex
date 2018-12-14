@@ -9,6 +9,15 @@ export const Token = ({ name }) => {
 	return <span>{token[0]}<b>{token[1].substr(0, 4)}</b></span>
 }
 
+export const SmallToken = ({ name }) => {
+	if (name === undefined || name === null) {
+		return "INVALID"
+	}
+
+	const token = name.split("*")
+	return <span>{token[0]}<span className="issuer">{token[1].substr(0, 4)}</span></span>
+}
+
 export default ({ticker}) => {
 	if (ticker === undefined || ticker === null) {
 		return "INVALID"

@@ -1,4 +1,4 @@
-import { INIT_DATA, INIT_BALANCE, APPEND_TRADE, UPDATE_ORDER, UPDATE_OPEN_ORDERS, SET_AMOUNT, UPDATE_USER_ORDER, UPDATE_TICKER, UPDATE_TRADES, UPDATE_DIGITS } from "../actions/app.jsx";
+import { INIT_DATA, INIT_BALANCE, SET_MARKET_QUOTE, APPEND_TRADE, UPDATE_ORDER, UPDATE_OPEN_ORDERS, SET_AMOUNT, UPDATE_USER_ORDER, UPDATE_TICKER, UPDATE_TRADES, UPDATE_DIGITS } from "../actions/app.jsx";
 import { TOGGLE_LEFT_PANEL, TOGGLE_RIGHT_PANEL } from "../actions/app.jsx";
 import { TOGGLE_FAVORITE_LIST } from "../actions/app.jsx";
 import { LOGIN } from "../actions/app.jsx";
@@ -96,73 +96,7 @@ let initialState = {
     }
   },
   dashboard: {
-    dataSource: [{
-      pair: "ENG",
-      price: "0.00038789",
-      percentage: "33.26",
-      volume: "346788",
-      favoriteList:false
-    },{
-      pair: "LSK",
-      price: "0.0031460",
-      percentage: "30.06",
-      volume: "346788",
-      favoriteList:true
-    },{
-      pair: "BTC",
-      price: "0.002990",
-      percentage: "23.66",
-      volume: "346788",
-      favoriteList:true
-    },{
-      pair: "BTG",
-      price: "0.014553",
-      percentage: "22.1",
-      volume: "346788",
-      favoriteList:false
-    },{
-      pair: "XLM",
-      price: "0.000123",
-      percentage: "12",
-      volume: "346788",
-      favoriteList:false
-    },{
-      pair: "SNT",
-      price: "0.000123",
-      percentage: "134",
-      volume: "346788",
-      favoriteList:true
-    },{
-      pair: "SNT",
-      price: "0.000123",
-      percentage: "-67.34",
-      volume: "346788",
-      favoriteList:false
-    },{
-      pair: "NULS",
-      price: "0.000123",
-      percentage: "24",
-      volume: "346788",
-      favoriteList:false
-    },{
-      pair: "MOD",
-      price: "0.00038789",
-      percentage: "33.26",
-      volume: "346788",
-      favoriteList:false
-    },{
-      pair: "VEN",
-      price: "0.00038789",
-      percentage: "33.26",
-      volume: "346788",
-      favoriteList:false
-    },{
-      pair: "MOD",
-      price: "0.00038789",
-      percentage: "33.26",
-      volume: "346788",
-      favoriteList:false
-    }],
+    dataSource: [],
     columns: [
     //   {
     //   name:"",
@@ -175,8 +109,8 @@ let initialState = {
     //   }
     // },
     {
-      name:"Pair",
-      key:"pair",
+      name:"Pairs",
+      key:"pairs",
       type:"string",
       sortable:false,
       color: (value) => {return "white"},
@@ -184,20 +118,11 @@ let initialState = {
       fontWeight:"regular",
       float:"left"
     },{
-      name:"Price BTC",
+      name:"Price",
       key:"price",
       type:"number",
       sortable:false,
       color: (value) => {return "white72"},
-      fontSize:"extra-small",
-      fontWeight:"light",
-      float:"right"
-    },{
-      name:"24hr,%",
-      key:"percentage",
-      type:"number",
-      sortable:false,
-      color: (value) => {return parseFloat(value) > 0 ? "theme" : "red"},
       fontSize:"extra-small",
       fontWeight:"light",
       float:"right"
@@ -278,34 +203,43 @@ const app = (state = initialState, action) => {
     case INIT_DATA:
 
       //console.log("Merge? ", mergeTickerData(action.data.markets, action.data.tickers));
-
+      console.log(action.data.orderBook)
       var asksSortedSet = state.orderBook.asks.dataSource
       action.data.orderBook.asks.map((ask) => {
         if (ask[0] != 0.0) {
-          asksSortedSet.insert(JSON.stringify({
-            price: ask[1],
-            amount: ask[0],
-            total: parseFloat(ask[1]) * parseFloat(ask[0])
-          }))
+          try {
+            asksSortedSet.insert(JSON.stringify({
+              price: ask[1],
+              amount: ask[0],
+              total: parseFloat(ask[1]) * parseFloat(ask[0])
+            }))
+          } catch(e) {
+            console.log(e)
+          }
+          
         }
       })
 
       var bidsSortedSet = state.orderBook.bids.dataSource
       action.data.orderBook.bids.map((bid) => {
         if (bid[0] != 0.0) {
-          bidsSortedSet.insert(JSON.stringify({
-            price: bid[1],
-            amount: bid[0],
-            total: parseFloat(bid[1]) * parseFloat(bid[0])
-          }))
+          try {
+            bidsSortedSet.insert(JSON.stringify({
+              price: bid[1],
+              amount: bid[0],
+              total: parseFloat(bid[1]) * parseFloat(bid[0])
+            }))
+          } catch(e) {
+            console.log(e)
+          }
         }
       })
       
       const tradesDataSource = action.data.trades.reverse().map((trade) => {
         return {
-          price: (trade.MatchedOrders[0].Price/10000000).toFixed(7),
-          amount: (trade.MatchedOrders[0].Side == 1 ? trade.MatchedOrders[0].Seller.Amount : trade.MatchedOrders[0].Buyer.Amount)/10000000,
-          color_key: trade.MatchedOrders[0].Side,
+          price: (trade.Price/10000000).toFixed(7),
+          amount: trade.Amount/10000000,
+          color_key: trade.Taker,
           date: moment(trade.SettledAt || "").utc().format('DD MMM'),
           time: moment(trade.SettledAt || "").utc().format("HH:mm:ss")
         }
@@ -359,6 +293,15 @@ const app = (state = initialState, action) => {
 
         ...state,
         balance: lodash.keyBy(action.data.balances,'currency')
+      }
+
+    case SET_MARKET_QUOTE:
+      return {
+        ...state,
+        dashboard: {
+          ...state.dashboard,
+          dataSource: action.data
+        }
       }
 
     case LOGIN:
@@ -432,7 +375,7 @@ const app = (state = initialState, action) => {
       }
     case UPDATE_ORDER:
       try {
-        const rec = JSON.parse(action.data).message // new asks and bids
+        const rec = JSON.parse(action.data) // new asks and bids
         var asksSortedSet = state.orderBook.asks.dataSource // asks on list
         const rec_asks = rec.asks // new asks
         rec_asks.forEach((item) => {
@@ -446,11 +389,15 @@ const app = (state = initialState, action) => {
               asksIterator = asksIterator.next()
             }
           } else {
-            asksSortedSet.insert(JSON.stringify({
-              price: item[1],
-              amount: item[0],
-              total: parseFloat(item[1]) * parseFloat(item[0])
-            }))
+            try {
+              asksSortedSet.insert(JSON.stringify({
+                price: item[1],
+                amount: item[0],
+                total: parseFloat(item[1]) * parseFloat(item[0])
+              }))
+            } catch(e) {
+              console.log(e)
+            }
           }
         })
 
@@ -467,11 +414,15 @@ const app = (state = initialState, action) => {
               bidsIterator = bidsIterator.next()
             }
           } else {
-            bidsSortedSet.insert(JSON.stringify({
-              price: item[1],
-              amount: item[0],
-              total: parseFloat(item[1]) * parseFloat(item[0])
-            }))
+            try {
+              bidsSortedSet.insert(JSON.stringify({
+                price: item[1],
+                amount: item[0],
+                total: parseFloat(item[1]) * parseFloat(item[0])
+              }))
+            } catch (e) {
+              console.log(e)
+            }
           }
         })
         var spread = 0;

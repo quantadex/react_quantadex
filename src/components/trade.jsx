@@ -183,11 +183,11 @@ class Trade extends Component {
   }
 
 	handleBuy(e) {
-		this.props.dispatch(buyTransaction(this.state.price, this.state.qty))
+		this.props.dispatch(buyTransaction(this.props.currentTicker, this.state.price, this.state.qty))
 	}
 
 	handleSell(e) {
-		this.props.dispatch(sellTransaction(this.state.price, this.state.qty))
+		this.props.dispatch(sellTransaction(this.props.currentTicker, this.state.price, this.state.qty))
 	}
 
 	handlePriceInputChange(e) {

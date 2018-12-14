@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import moment from 'moment';
+import { SmallToken } from './ui/ticker.jsx'
 
 import { css } from 'emotion'
 import globalcss from './global-css.js'
 import QTTabBar from './ui/tabBar.jsx'
 import QTTableViewSimple from './ui/tableViewSimple.jsx'
+import {switchTicker} from "../redux/actions/app.jsx";
 
 const container = css`
 	width: calc(100% - 360px);
@@ -24,6 +26,32 @@ const container = css`
 			border-bottom: 1px solid #333;
 		}
   }
+  table {
+	  width: 100%;
+	  thead {
+		  color: #777;
+	  }
+	  tr {
+		  border-bottom: 1px solid #222;
+		  cursor: pointer;
+	  }
+	  tbody tr:hover {
+		  background-color: rgba(52,62,68,0.3);
+	  }
+	  .market {
+		  font-weight: bold;
+		  line-height: 25px;
+		  .issuer {
+			  background-color: #5b5a69;
+			  font-size: 10px;
+			  font-weight: 100;
+			  border-radius: 3px;
+			  padding: 1px 4px;
+			  margin: 0 3px;
+			  opacity: 0.7;
+		  }
+	  }
+  }
 `;
 
 class Dashboard extends Component {
@@ -35,15 +63,12 @@ class Dashboard extends Component {
 		}
 	}
 
-	toggleStar(e) {
-		if (e.target.src.includes("white")) {
-			e.target.src = e.target.src.replace("white","grey")
-		} else {
-			e.target.src = e.target.src.replace("grey","white")
-		}
+	switchMarket(e) {
+		this.props.dispatch(switchTicker(e))
 	}
 
 	render() {
+		console.log("dashboard", this.props)
 		const tabs = {
 			names: ['All','Trading','Favorites'],
 			selectedTabIndex: 0
@@ -71,11 +96,23 @@ class Dashboard extends Component {
 				</section> */}
 				
         <section className="price">
-			<h4>ETH MARKET</h4>
-					<QTTableViewSimple
-						dataSource={this.props.dashboard.dataSource}
-						columns={this.props.dashboard.columns}
-						{...this.props} />
+			<h4>MARKETS</h4>
+			<table>
+				<thead>
+					<tr>
+						<td>Pairs</td>
+						<td className="text-right">Price</td>
+						<td className="text-right">Volume</td>
+					</tr>
+				</thead>
+				<tbody>
+					{this.props.dashboard.dataSource.map((market) => {
+						const pair = market.market.split('/')
+						return <tr onClick={this.switchMarket.bind(this, market.market)}><td className="market"><SmallToken name={pair[0]} />/<SmallToken name={pair[1]} /></td><td className="text-right">{market.last}</td><td className="text-right"></td></tr>
+					} 
+						)}
+				</tbody>
+			</table>
         </section>
 			</div>
 		);

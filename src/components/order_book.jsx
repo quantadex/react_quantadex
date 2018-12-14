@@ -20,19 +20,6 @@ const container = css`
 		border-top: 1px solid rgba(255, 255, 255, .09);
 		border-bottom: 1px solid rgba(255, 255, 255, .09);
 	}
-
-	.no-scroll-bar {
-		position: relative;
-		overflow-x: hidden;
-	}
-	.no-scroll-bar > div {
-		padding-right: 10px;
-		box-sizing: content-box;
-		position: absolute;
-		left: 0;
-		right: -25px;
-		overflow-y: scroll;
-	}
 `;
 
 class OrderBook extends Component {
