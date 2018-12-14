@@ -11,7 +11,7 @@ $bfx-blue: #5B91B2; */
 }
 
 .chart-page {
-  background:black;
+  background:rgba(17,20,22,1);
 }
 
 html, body {
@@ -57,7 +57,7 @@ a:hover {
 
 .chart-page .chart-container {
   background-color: #1b262d !important;
-  border-color: #121b21 !important;
+  border-color: rgba(17,20,22,1) !important;
 }
 
 .header-chart-panel {
@@ -97,7 +97,7 @@ a:hover {
 }
 
 .chart-controls-bar {
-  background: #1b262d !important;
+  background: rgba(17,20,22,1) !important;
 }
 
 input.symbol-edit,
@@ -1104,7 +1104,7 @@ to {
 #library-container .save-load-buttons .active,
 #library-container .symbol-edit-widget .button.active,
 .feature-no-touch .chart-controls-bar-buttons a:not(.disabled):hover {
-  background: #465761 !important;
+  background: rgba(17,20,22,1) !important;
 }
 
 /* layout */
@@ -1160,4 +1160,8 @@ to {
 
 .chart-status-picture {
     display: none;
+}
+
+.header-chart-panel-sizer {
+    background-color: rgba(17,20,22,1);
 }

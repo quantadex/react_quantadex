@@ -8,9 +8,11 @@ import QTTabBar from './ui/tabBar.jsx'
 import QTTableViewSimple from './ui/tableViewSimple.jsx'
 
 const container = css`
+	height: 260px;
 	padding: 18px 21px;
 
 	.trading-history-table-container {
+		max-height: 100%;
 		h4 {
 			padding-bottom: 10px;
 			border-bottom: 1px solid #333;
@@ -36,9 +38,11 @@ class TradingHistory extends Component {
 					tabs = {tabs}
 				/> */}
 
-				<section className="trading-history-table-container">
+				<section className="trading-history-table-container no-scroll-bar">
 					<h4>TRADING HISTORY</h4>
-					<QTTableViewSimple dataSource={this.props.trades.dataSource} columns={this.props.trades.columns} />
+					<div>
+						<QTTableViewSimple dataSource={this.props.trades.dataSource} columns={this.props.trades.columns} />
+					</div>
 				</section>
 			</div>
 		);

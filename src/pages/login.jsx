@@ -79,7 +79,7 @@ const login_container = css`
 		label {
 			background-color: #f9f9f9;
 			width: 135px;
-			height: 45px;
+			height: 100%;
 			margin: 0px;
 			border-right: 1px solid #c7c7c8;
 			padding: 7px;

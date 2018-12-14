@@ -96,6 +96,10 @@ export default class QTTableViewSimple extends React.Component {
               <tr>
                 {
                   this.props.columns.map((col) => {
+                    var col_color = row[col.key];
+                    if (row.color_key != undefined) {
+                      col_color = row.color_key;
+                    }
                     if (col.type == "icon") {
                       return (
                         <td><img
@@ -110,7 +114,7 @@ export default class QTTableViewSimple extends React.Component {
                     }
                     return (
                       <td
-                        className={[col.float,col.color(row[col.key]),col.fontWeight,col.fontSize].join(" ")}>
+                        className={[col.float,col.color(col_color),col.fontWeight,col.fontSize].join(" ")}>
                         {row[col.key]}
                       </td>
                     )

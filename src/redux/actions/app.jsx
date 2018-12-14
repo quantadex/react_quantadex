@@ -4,6 +4,7 @@ import SortedSet from 'js-sorted-set'
 import QuantaClient from "@quantadex/quanta_js"
 export const INIT_DATA = 'INIT_DATA';
 export const LOGIN = 'LOGIN';
+export const SET_MARKET_QUOTE = 'SET_MARKET_QUOTE';
 export const APPEND_TRADE = 'APPEND_TRADE';
 export const UPDATE_TICKER = 'UPDATE_TICKER';
 export const UPDATE_ORDER = 'UPDATE_ORDER';
@@ -27,16 +28,25 @@ export const toggleFavoriteList = pair => ({
 import StellarBase, {Keypair, Asset, Operation} from 'stellar-base'
 StellarBase.Network.use(new StellarBase.Network("Test QuantaDex SDF Network ; June 2018"))
 
-var quantaClient, default_market;
+var qClient, default_market;
 export function initMarket(key) {
 	console.log("set key =", key)
-	quantaClient = new QuantaClient({ orderbookUrl: "http://orderbook-api-792236404.us-west-2.elb.amazonaws.com", secretKey: key })
-	default_market = (quantaClient.showMarkets().then((e) => {
-		console.log("market", e, e[0].Name);
+	qClient = new QuantaClient({ orderbookUrl: "http://orderbook-api-792236404.us-west-2.elb.amazonaws.com", secretKey: key })
+	default_market = (qClient.showMarkets().then((e) => {
 		return e[0].Name
 	}))
 }
 
+export function getMarketQuotes() {
+	return function(dispatch) {
+		qClient.getQuotes().then((e) => {
+			dispatch({
+				type: SET_MARKET_QUOTE,
+				data: e
+			})
+		})
+	} 
+}
 
 var getFreeCoins = (accountId) => {
 	return fetch("http://backend-dev.env.quantadex.com:8080/api/v1/demo/freecoins/" + accountId)
@@ -142,26 +152,26 @@ export function initBalance() {
 	}
 }
 
-export function buyTransaction(price, amount) {
-	default_market.then((market) => (
-		quantaClient.submitOrder(0, market, price, amount)
-		.then((e) => e.json()).then((e) => {
-			console.log("ordered ", e);
-		}).catch((e) => {
-			console.log(e);
-		})
-	))
+export function buyTransaction(market, price, amount) {
+	return function() {
+		return qClient.submitOrder(0, market, price, amount)
+			.then((e) => e.json()).then((e) => {
+				console.log("ordered ", e);
+			}).catch((e) => {
+				console.log(e);
+			})
+	} 
 }
 
-export function sellTransaction(price, amount) {
-	default_market.then((market) => (
-		quantaClient.submitOrder(1, market, price, amount)
-		.then((e) => e.json()).then((e) => {
-			console.log("ordered ", e);
-		}).catch((e) => {
-			console.log(e);
-		})
-	))
+export function sellTransaction(market, price, amount) {
+	return function() {
+		return qClient.submitOrder(1, market, price, amount)
+			.then((e) => e.json()).then((e) => {
+				console.log("ordered ", e);
+			}).catch((e) => {
+				console.log(e);
+			})
+	}
 }
 
 // export function sellTransaction(publicKey,secretKey,issuerKey, qty, price) {
@@ -249,11 +259,11 @@ export function switchTicker(ticker) {
 					}
 				})
 
-				var orderbookws = new WebSocket('ws://backend-dev.env.quantadex.com:8080/ws/v1/depth/BTC/USD');
+				var orderbookws = new EventSource('http://testnet-02.quantachain.io:7200/stream/depth/ETH*QB3WOAL55IVT6E7BVUNRW6TUVCAOPH5RJYPUUL643YMKMJSZFZGWDJU3/BTC*QB3WOAL55IVT6E7BVUNRW6TUVCAOPH5RJYPUUL643YMKMJSZFZGWDJU3');
 
 				// Log errors
 				orderbookws.onerror = function (error) {
-				  console.log('WebSocket Error ' + error);
+				  console.log('EventSource Error ' + error);
 				};
 
 				// Log messages from the server

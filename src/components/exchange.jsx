@@ -8,12 +8,14 @@ import Menu from './menu.jsx';
 import Orders from './orders.jsx';
 import Trade from './trade.jsx';
 import Leaderboard from './leaderboard.jsx'
+import Status from './status.jsx'
+// import FirstTime from './first_time.jsx'
 import QTTableView from './ui/tableView.jsx'
 import Order from './order.jsx';
 import Markets from './markets.jsx';
 import OpenOrders from './open_orders.jsx';
 
-import {switchTicker, initBalance} from "../redux/actions/app.jsx";
+import {switchTicker, initBalance, getMarketQuotes} from "../redux/actions/app.jsx";
 import { connect } from 'react-redux'
 
 import { css } from 'emotion'
@@ -25,6 +27,7 @@ import QTTableViewSimple from './ui/tableViewSimple.jsx'
 
 const container = css`
 	background-color:${globalcss.COLOR_BACKGROUND};
+	position: relative;
 
 	.exchange-left {
 		width:281px;
@@ -44,11 +47,14 @@ const container = css`
 	}
 
 	.exchange-bottom {
-		padding: 20px 35px;
+		position: absolute;
+		width: 100%;
+		bottom: 0;
 		background-color: #23282c;
 		justify-content: center;
+		border-top: 3px solid black;
 	}
-
+	
 	#tv_chart_container {
 		height:370px !important;
 		padding-bottom: 20px;
@@ -57,6 +63,20 @@ const container = css`
 
 	.exchange-dashboard {
 		border-bottom: solid 1px #121517;
+	}
+
+	.no-scroll-bar {
+		position: relative;
+		overflow: hidden;
+	}
+	.no-scroll-bar > div {
+		height: 100%;
+		padding-right: 10px;
+		box-sizing: content-box;
+		position: absolute;
+		left: 0;
+		right: -25px;
+		overflow-y: scroll;
 	}
 `;
 
@@ -67,13 +87,16 @@ class Exchange extends Component {
 		} else {
 			this.props.dispatch(switchTicker("ETH*QB3WOAL55IVT6E7BVUNRW6TUVCAOPH5RJYPUUL643YMKMJSZFZGWDJU3/USD*QB3WOAL55IVT6E7BVUNRW6TUVCAOPH5RJYPUUL643YMKMJSZFZGWDJU3"));
 			//this.props.dispatch(initBalance());
+			this.props.dispatch(getMarketQuotes())
 		}
+
+		document.getElementsByClassName("row flex-nowrap")[0].style.paddingBottom = document.getElementsByClassName("exchange-bottom")[0].offsetHeight + "px";
 	}
 
 	render() {
 		return (
 		<div className={container + " container-fluid"}>
-			<div className="row flex-nowrap" style={{overflow:"hidden",minHeight:"calc(100vh - 119px)",borderBottom:"3px solid black"}}>
+			<div className="row flex-nowrap" style={{overflow:"hidden",minHeight:"100vh"}}>
 				<div className="exchange-left" style={{ display: this.props.leftOpen ? 'block': 'none'}}>
 					<OrderBook />
 				</div>
@@ -92,7 +115,9 @@ class Exchange extends Component {
 			</div>
 			<div className="row exchange-bottom">
 				<Orders />
+				<Status />
 			</div>
+			{/* <FirstTime /> */}
 		</div>
 		);
 	}
