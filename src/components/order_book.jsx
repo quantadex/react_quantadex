@@ -35,6 +35,16 @@ class OrderBook extends Component {
 		})
 	}
 
+	setAmount(e) {
+		this.props.dispatch({
+			type: 'SET_AMOUNT',
+			data: {
+				inputBuy: e.price,
+				inputBuyAmount: e.amount
+			}
+		})
+	}
+
 	render() {
 		// const asksDataSource = lodash.takeRight(this.props.asks.dataSource,20).map((ask) => {
 		// 	return {
@@ -93,7 +103,7 @@ class OrderBook extends Component {
 				<section className="orderbook-middle d-flex justify-content-between">
 					<div className="d-flex flex-column justify-content-center">
 						<div className="qt-color-theme qt-font-huge">{this.props.mostRecentTrade.price}</div>
-						<div className="qt-number-normal qt-opacity-64">${this.props.spreadDollar}</div>
+						<div className="qt-number-normal qt-opacity-64">${this.props.spreadDollar.toFixed(2)}</div>
 					</div>
 					<div className="d-flex flex-column justify-content-center">
 						<div className="qt-opacity-half qt-font-base text-right">Spread</div>
@@ -106,6 +116,7 @@ class OrderBook extends Component {
 							dataSource={bidsDataSource}
 							columns={this.props.bids.columns}
 							HideHeader={true}
+							onAction={this.setAmount.bind(this)}
 						/>
 					 </div>
 				</section>

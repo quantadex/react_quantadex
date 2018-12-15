@@ -78,6 +78,10 @@ export default class QTTableViewSimple extends React.Component {
     super(props);
   }
 
+  handleClick(e) {
+      this.props.onAction(e)
+  }
+
   render() {
     return (
       <table className={container}>
@@ -114,6 +118,7 @@ export default class QTTableViewSimple extends React.Component {
                     }
                     return (
                       <td
+                        onClick={this.props.onAction ? () => this.props.onAction(row) : null}
                         className={[col.float,col.color(col_color),col.fontWeight,col.fontSize].join(" ")}>
                         {row[col.key]}
                       </td>

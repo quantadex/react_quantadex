@@ -40,6 +40,11 @@ injectGlobal`
 	  src: url("/public/styles/fonts/Multicolore.otf");
 	}
 
+	* {
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+	}
+
 	html {
 		font-size: 11px;
 	}

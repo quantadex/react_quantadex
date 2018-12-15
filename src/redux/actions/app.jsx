@@ -159,6 +159,7 @@ export function buyTransaction(market, price, amount) {
 				console.log("ordered ", e);
 			}).catch((e) => {
 				console.log(e);
+				throw "failed"
 			})
 	} 
 }
