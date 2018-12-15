@@ -3,6 +3,8 @@ import { connect } from 'react-redux'
 import moment from 'moment';
 
 import { css } from 'emotion'
+import { ToastContainer, toast } from 'react-toastify';
+// import 'react-toastify/dist/ReactToastify.css';
 import globalcss from './global-css.js'
 
 import QTTabBar from './ui/tabBar.jsx'
@@ -179,11 +181,33 @@ class Trade extends Component {
     super(props);
     this.state = {
         qty: 0.05,
-        price: 1};
+        price: 1
+      };
   }
 
+	// componentWillReceiveProps(nextProps) {
+  //   console.log("next props", nextProps)
+  //   if (nextProps.inputBuy != this.state.order_price || nextProps.inputBuyAmount != this.state.order_qty) {
+  //     this.setState({
+  //       qty: nextProps.inputBuyAmount,
+  //       price: nextProps.inputBuy,
+  //       order_qty: nextProps.inputBuyAmount,
+  //       order_price: nextProps.inputBuy
+  //     })
+  //   }
+	// }
+
+  notify = () => toast("Buy/sell success?", {
+    position: toast.POSITION.TOP_LEFT
+  });
 	handleBuy(e) {
-		this.props.dispatch(buyTransaction(this.props.currentTicker, this.state.price, this.state.qty))
+    this.props.dispatch(buyTransaction(this.props.currentTicker, this.state.price, this.state.qty))
+    .then((e) => {
+      console.log("no error?")
+      this.notify()
+    }).catch((e) => {
+      console.log("error?", e);
+    })
 	}
 
 	handleSell(e) {
@@ -191,6 +215,7 @@ class Trade extends Component {
 	}
 
 	handlePriceInputChange(e) {
+    console.log("change")
          this.setState({
            price: e.target.value
          });
@@ -252,6 +277,7 @@ class Trade extends Component {
             <div className="input-container">
               <label>PRICE</label>
               <input type="number" className="trade-input qt-number-bold qt-font-small"
+                    name="price"
                     onFocus={this.handleInputFocus.bind(this)}
                      value={this.state.price}
                      onChange={this.handlePriceInputChange.bind(this)} />
@@ -268,6 +294,7 @@ class Trade extends Component {
 									height="32"
 									onChange={() => {console.log("dropdown changed value")}}/>
               <input type="number" className="trade-input qt-number-bold qt-font-small"
+                      name="amount"
                       onFocus={this.handleInputFocus.bind(this)}
                        value={this.state.qty}
                        onChange={this.handleQtyInputChange.bind(this)} />
@@ -278,6 +305,7 @@ class Trade extends Component {
               <input
 										type="number"
                     className="trade-input qt-number-bold qt-font-small"
+                    name="total"
                     onFocus={this.handleInputFocus.bind(this)}
 										value={pairBalance[1].amount * 0.2}
 									 />
@@ -297,6 +325,7 @@ class Trade extends Component {
 							})
 						}
           </div>
+          <ToastContainer />
       </div>
     )
   }
@@ -310,7 +339,9 @@ const mapStateToProps = (state) => ({
   	asks: state.app.tradeBook.asks,
 		currentPrice: state.app.mostRecentTrade.price,
 		currentTicker:state.app.currentTicker,
-		balance:state.app.balance
+    balance:state.app.balance,
+    inputBuy: state.app.inputBuy,
+		inputBuyAmount: state.app.inputBuyAmount
 	});
 
 export default connect(mapStateToProps)(Trade);
