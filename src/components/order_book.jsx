@@ -87,7 +87,7 @@ class OrderBook extends Component {
 				</section>
 				<section className="orderbook-ask no-scroll-bar">
 					<div>
-						<QTTableViewSimple dataSource={asksDataSource} columns={this.props.asks.columns} />
+						<QTTableViewSimple key="ask_tv" dataSource={asksDataSource} columns={this.props.asks.columns} />
 					</div>
 				</section>
 				<section className="orderbook-middle d-flex justify-content-between">
@@ -102,7 +102,7 @@ class OrderBook extends Component {
 				</section>
 				<section className="orderbook-bid no-scroll-bar">
 					<div>
-						<QTTableViewSimple
+						<QTTableViewSimple key="bid_tv"
 							dataSource={bidsDataSource}
 							columns={this.props.bids.columns}
 							HideHeader={true}

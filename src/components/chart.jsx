@@ -5,10 +5,10 @@ class Chart extends Component {
   componentDidMount() {
     const self = this;
     // TradingView.onready(function() {
-      var widget = (window.tvWidget = new TradingView.widget({
+      var widget = (window.chartWidget = new TradingView.widget({
         fullscreen: false,
         symbol: self.props.currentTicker,
-        interval: "5",
+        interval: "5m",
         allow_symbol_change: false,
         // height: '50px',
         autosize: true,
@@ -16,12 +16,12 @@ class Chart extends Component {
         //	BEWARE: no trailing slash is expected in feed URL
         datafeed: new Datafeeds.UDFCompatibleDatafeed("/api/v1"),
         time_frames: [
-          { text: "1d", resolution: "1D" },
-          { text: "1h", resolution: "60" },
-          { text: "30m", resolution: "30" },
-          { text: "15m", resolution: "15" },
-          { text: "5m", resolution: "5" },
-          { text: "1m", resolution: "1", title: "1m" }
+          { text: "1d", resolution: "1D", title: "1D" },
+          { text: "1h", resolution: "60m",  title: "60m"},
+          { text: "30m", resolution: "30m",  title: "30m"},
+          { text: "15m", resolution: "15m",  title: "15m"},
+          { text: "5m", resolution: "5m",  title: "5m"},
+          { text: "1m", resolution: "1m", title: "1m" }
         ],
         library_path: "/public/vendor/charting_library/",
         locale: "en",
@@ -76,6 +76,12 @@ class Chart extends Component {
       }));
     // });
   }
+
+  componentDidUpdate() {
+    console.log("change chart to ", this.props.currentTicker);
+    window.chartWidget.setSymbol(this.props.currentTicker, "1d")
+  }
+  
   render() {
     return (
       <div {...this.props}>

@@ -39,7 +39,7 @@ Datafeeds.UDFCompatibleDatafeed.prototype.defaultConfiguration = function() {
   return {
     supports_search: false,
     supports_group_request: true,
-    supported_resolutions: ["1", "5", "15", "30", "60", "1D", "1W", "1M"],
+    supported_resolutions: ["1m", "5m", "15m", "30m", "60m", "1D", "1W", "1M"],
     supports_marks: false,
     supports_timescale_marks: false
   };
@@ -396,7 +396,7 @@ Datafeeds.UDFCompatibleDatafeed.prototype.resolveSymbol = function(
       onResultReady({
         name: symbolName,
         ticker: symbolName,
-        description: symbolName,
+        description: "Price",
         exchange: "QDEX",
         timezone: "America/Los_Angeles",
         has_intraday: true
@@ -446,7 +446,7 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
     resolution = resolution.replace("D", "d");
   }
 
-  console.log("Load prices");
+  console.log("Load prices ", symbolInfo.ticker, resolution);
   this._sendCors("http://orderbook-api-792236404.us-west-2.elb.amazonaws.com/chart/" + symbolInfo.ticker, {
     start: Math.round(rangeStartDate),
     end: Math.round(rangeEndDate),
@@ -457,7 +457,6 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
     })
     .then(function(data) {
       const no_data = data.length == 0;
-      console.log(data);
       const bars = data.map(e => {
         return {
           time: e.time*1000,
@@ -492,7 +491,6 @@ Datafeeds.UDFCompatibleDatafeed.prototype.subscribeBars = function(
   listenerGUID,
   onResetCacheNeededCallback
 ) {
-  console.log("Subscribe bars");
   this._barsPulseUpdater.subscribeDataListener(
     symbolInfo,
     resolution,
@@ -639,9 +637,8 @@ Datafeeds.SymbolsStorage.prototype._onExchangeDataReceived = function(
       var hasIntraday = tableField(data, "has-intraday", symbolIndex);
 
       var tickerPresent = typeof data.ticker != "undefined";
-
       var symbolInfo = {
-        name: symbolName,
+        name: "symbolName",
         base_name: [listedExchange + ":" + symbolName],
         description: tableField(data, "description", symbolIndex),
         full_name: fullName,
@@ -868,22 +865,23 @@ Datafeeds.DataPulseUpdater.prototype.subscribeDataListener = function(
     };
   }
 
-  console.log("Subscribe ", symbolInfo);
-  var ws = new WebSocket(
-    "ws://backend-dev.env.quantadex.com:8080/ws/v1/chart/" + symbolInfo.ticker + "/1h"
-  );
-  ws.onopen = function(event) {
-    console.log("Socket opened");
-  };
+  // minutes don't have suffix, add it
+  if (Number.isInteger(parseInt(resolution))) {
+    resolution = resolution + "m";
+  }
 
-  ws.onmessage = function(event) {
+  var streamUrl = "http://testnet-02.quantachain.io:7200/stream/chart/" + symbolInfo.ticker + "?interval=" + resolution.toLowerCase()
+  console.log("Stream Subscribe ", symbolInfo, streamUrl);
+  var stream = new EventSource(streamUrl);
+
+  stream.onmessage = function(event) {
     const data = JSON.parse(event.data);
     data.message.time *= 1000;
-    //console.log(data.message);
+    console.log(data.message);
     newDataCallback(data.message);
   };
 
-  this._subscribers[listenerGUID].sockets.push(ws);
+  this._subscribers[listenerGUID].sockets.push(stream);
 };
 
 Datafeeds.DataPulseUpdater.prototype.periodLengthSeconds = function(
