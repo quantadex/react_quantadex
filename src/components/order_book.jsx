@@ -60,7 +60,7 @@ class OrderBook extends Component {
 		var asksIterator = this.props.asks.dataSource.beginIterator();
 		var asksDataSource = []
 		while (asksIterator.value() !== null && asksDataSource.length < 20) {
-			const ask = JSON.parse(asksIterator.value())
+			const ask = asksIterator.value()
 			asksDataSource.push({
 				...ask,
 				price: parseFloat(ask.price).toFixed(this.props.decimals.value),
@@ -75,7 +75,7 @@ class OrderBook extends Component {
 		var bidsIterator = this.props.bids.dataSource.beginIterator();
 		var bidsDataSource = []
 		while (bidsIterator.value() !== null && bidsDataSource.length < 20) {
-			const bid = JSON.parse(bidsIterator.value())
+			const bid = bidsIterator.value()
 			bidsDataSource.push({
 				...bid,
 				price: parseFloat(bid.price).toFixed(this.props.decimals.value),
@@ -100,7 +100,7 @@ class OrderBook extends Component {
 				</section>
 				<section className="orderbook-ask no-scroll-bar">
 					<div>
-						<QTTableViewSimple dataSource={asksDataSource} 
+						<QTTableViewSimple key="ask_tv" dataSource={asksDataSource} 
 							columns={this.props.asks.columns} 
 							onAction={this.setAmount.bind(this, 1)}
 						/>
@@ -109,7 +109,7 @@ class OrderBook extends Component {
 				<section className="orderbook-middle d-flex justify-content-between">
 					<div className="d-flex flex-column justify-content-center">
 						<div className="qt-color-theme qt-font-huge">{this.props.mostRecentTrade.price}</div>
-						<div className="qt-number-normal qt-opacity-64">${this.props.spreadDollar.toFixed(2)}</div>
+						<div className="qt-number-normal qt-opacity-64">{this.props.spreadDollar}</div>
 					</div>
 					<div className="d-flex flex-column justify-content-center">
 						<div className="qt-opacity-half qt-font-base text-right">Spread</div>
@@ -118,7 +118,7 @@ class OrderBook extends Component {
 				</section>
 				<section className="orderbook-bid no-scroll-bar">
 					<div>
-						<QTTableViewSimple
+						<QTTableViewSimple key="bid_tv"
 							dataSource={bidsDataSource}
 							columns={this.props.bids.columns}
 							HideHeader={true}

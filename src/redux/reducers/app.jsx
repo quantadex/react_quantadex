@@ -31,7 +31,7 @@ let initialState = {
     spread: 0,
     spreadDollar:0,
     asks: {
-      dataSource: new SortedSet({ comparator: function(a, b) { return parseFloat(JSON.parse(a).price) - parseFloat(JSON.parse(b).price); }}),
+      dataSource: new SortedSet({ comparator: function(a, b) { return parseFloat(a.price) - parseFloat(b.price); }}),
 
       columns: [{
         name:"Price BTC",
@@ -63,7 +63,7 @@ let initialState = {
       }]
     },
     bids: {
-      dataSource: new SortedSet({ comparator: function(a, b) { return parseFloat(JSON.parse(b).price) - parseFloat(JSON.parse(a).price); }}),
+      dataSource: new SortedSet({ comparator: function(a, b) { return parseFloat(b.price) - parseFloat(a.price); }}),
 
       columns: [{
         name:"Price BTC",
@@ -207,34 +207,29 @@ const app = (state = initialState, action) => {
       var asksSortedSet = state.orderBook.asks.dataSource
       asksSortedSet.clear()
       action.data.orderBook.asks.map((ask) => {
-        if (ask[0] != 0.0) {
-          try {
-            asksSortedSet.insert(JSON.stringify({
-              price: ask[1],
-              amount: ask[0],
-              total: parseFloat(ask[1]) * parseFloat(ask[0])
-            }))
-          } catch(e) {
-            console.log(e)
-          }
-          
+        try {
+          asksSortedSet.insert({
+            price: ask[1],
+            amount: ask[0],
+            total: parseFloat(ask[1]) * parseFloat(ask[0])
+          })
+        } catch(e) {
+          console.log(e)
         }
       })
 
       var bidsSortedSet = state.orderBook.bids.dataSource
       bidsSortedSet.clear()
-      action.data.orderBook.bids.map((bid) => {
-        if (bid[0] != 0.0) {
-          try {
-            bidsSortedSet.insert(JSON.stringify({
+      action.data.orderBook.bids.map((bid) => {          
+        try {
+            bidsSortedSet.insert({
               price: bid[1],
               amount: bid[0],
               total: parseFloat(bid[1]) * parseFloat(bid[0])
-            }))
+            })
           } catch(e) {
             console.log(e)
           }
-        }
       })
       
       const tradesDataSource = action.data.trades.reverse().map((trade) => {
@@ -252,8 +247,8 @@ const app = (state = initialState, action) => {
       var spread = undefined
       var spreadDollar = 0
       if (asksSortedSet.beginIterator().value() && bidsSortedSet.beginIterator().value()) {
-        spread = Math.abs((parseFloat(JSON.parse(asksSortedSet.beginIterator().value()).price)/parseFloat(JSON.parse(bidsSortedSet.beginIterator().value()).price) - 1)*100)
-        spreadDollar = Math.abs(parseFloat(JSON.parse(asksSortedSet.beginIterator().value()).price) - parseFloat(JSON.parse(bidsSortedSet.beginIterator().value()).price))
+        spread = Math.abs((parseFloat(asksSortedSet.beginIterator().value().price)/parseFloat(bidsSortedSet.beginIterator().value().price) - 1)*100)
+        spreadDollar = Math.abs(parseFloat(asksSortedSet.beginIterator().value().price) - parseFloat(bidsSortedSet.beginIterator().value().price)).toFixed(7)
       }
 
       return {
@@ -277,17 +272,6 @@ const app = (state = initialState, action) => {
           ...state.trades,
           dataSource: tradesDataSource
         }
-        // ticker: action.data.ticker,
-        // base: action.data.ticker.split("/")[0],
-        // counter: action.data.ticker.split("/")[1],
-        // tradeHistory: action.data.tradeHistory,
-        // tradeBook: action.data.tradeBook,
-        // currentPrice: currentPrice,
-        // balance: action.data.balance,
-        // inputSell: currentPrice,
-        // inputBuy: currentPrice,
-        // openOrders: action.data.openOrders,
-        // markets: mergeTickerData(action.data.markets, action.data.tickers)
       }
 
     case INIT_BALANCE:
@@ -379,59 +363,43 @@ const app = (state = initialState, action) => {
       try {
         const rec = JSON.parse(action.data) // new asks and bids
         var asksSortedSet = state.orderBook.asks.dataSource // asks on list
-        const rec_asks = rec.asks // new asks
-        rec_asks.forEach((item) => {
-          if (parseFloat(item[0]) == 0.0) {
-            var asksIterator = asksSortedSet.beginIterator()
-            while (asksIterator.value() !== null) {
-              if (parseFloat(JSON.parse(asksIterator.value()).price) == parseFloat(item[1])) {
-                asksSortedSet.remove(asksIterator.value())
-                break
-              }
-              asksIterator = asksIterator.next()
-            }
-          } else {
-            try {
-              asksSortedSet.insert(JSON.stringify({
-                price: item[1],
-                amount: item[0],
-                total: parseFloat(item[1]) * parseFloat(item[0])
-              }))
-            } catch(e) {
-              console.log(e)
-            }
-          }
-        })
-
         var bidsSortedSet = state.orderBook.bids.dataSource
-        const rec_bids = rec.bids
-        rec_bids.forEach((item) => {
-          if (parseFloat(item[0]) == 0.0) {
-            var bidsIterator = bidsSortedSet.beginIterator()
-            while (bidsIterator.value() !== null) {
-              if (parseFloat(JSON.parse(bidsIterator.value()).price) == parseFloat(item[1])) {
-                bidsSortedSet.remove(bidsIterator.value())
-                break
+
+        const updateLevel = function(recs, orderSet) {
+          recs.forEach((item) => {
+            const amount = item[0];
+            const price = item[1];
+            const it = orderSet.findIterator({ price: price })
+
+            if (parseFloat(item[0]) == 0.0) {
+              console.log("iter ", it, item[1]);
+              orderSet.remove(it.node.value)
+            } else {
+              try {
+                if (it.node) {
+                  it.node.value().amount = amount;
+                } else {
+                  orderSet.insert({
+                    price: price,
+                    amount: amount,
+                    total: parseFloat(price) * parseFloat(amount)
+                  })
+                }
+              } catch (e) {
+                console.log(e)
               }
-              bidsIterator = bidsIterator.next()
             }
-          } else {
-            try {
-              bidsSortedSet.insert(JSON.stringify({
-                price: item[1],
-                amount: item[0],
-                total: parseFloat(item[1]) * parseFloat(item[0])
-              }))
-            } catch (e) {
-              console.log(e)
-            }
-          }
-        })
+          })
+        }
+
+        updateLevel(rec.asks, asksSortedSet);
+        updateLevel(rec.bids, bidsSortedSet);
+
         var spread = 0;
         var spreadDollar = 0;
         if (asksSortedSet.beginIterator().value() && bidsSortedSet.beginIterator().value()) {
-          spread = Math.abs((parseFloat(JSON.parse(asksSortedSet.beginIterator().value()).price)/parseFloat(JSON.parse(bidsSortedSet.beginIterator().value()).price) - 1)*100)
-          spreadDollar = Math.abs(parseFloat(JSON.parse(asksSortedSet.beginIterator().value()).price) - parseFloat(JSON.parse(bidsSortedSet.beginIterator().value()).price))
+          spread = Math.abs((parseFloat(asksSortedSet.beginIterator().value().price)/parseFloat(bidsSortedSet.beginIterator().value().price) - 1)*100)
+          spreadDollar = Math.abs(parseFloat(asksSortedSet.beginIterator().value().price) - parseFloat(bidsSortedSet.beginIterator().value().price)).toFixed(7)
         }
 
         return {
@@ -474,13 +442,13 @@ const app = (state = initialState, action) => {
       // const finalAsks = lodash.orderBy(lodash.values(askByPrice), "price")
 
       // console.log(rec, finalBids, finalAsks)
-      return {
-        ...state,
-        tradeBook: {
-          bids: action.data.bids,
-          asks: action.data.asks
-        }
-      }
+      // return {
+      //   ...state,
+      //   tradeBook: {
+      //     bids: action.data.bids,
+      //     asks: action.data.asks
+      //   }
+      // }
     case TOGGLE_LEFT_PANEL:
       return {
         ...state,
