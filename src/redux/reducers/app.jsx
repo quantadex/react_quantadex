@@ -366,7 +366,7 @@ const app = (state = initialState, action) => {
     case SET_AMOUNT:
       return {
         ...state,
-        ...lodash.pick(action.data, ['inputBuy', 'inputSell', 'inputBuyAmount', 'inputSellAmount'])
+        ...lodash.pick(action.data, ['inputBuy', 'inputSell', 'inputBuyAmount', 'inputSellAmount', 'inputSide', 'setTime'])
       }
     case UPDATE_USER_ORDER:
       //console.log("update user ", action.data)
