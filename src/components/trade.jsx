@@ -4,7 +4,7 @@ import moment from 'moment';
 
 import { css } from 'emotion'
 import { ToastContainer, toast } from 'react-toastify';
-// import 'react-toastify/dist/ReactToastify.css';
+import 'react-toastify/dist/ReactToastify.css';
 import globalcss from './global-css.js'
 
 import QTTabBar from './ui/tabBar.jsx'
@@ -187,7 +187,7 @@ class Trade extends Component {
   }
 
 	componentWillReceiveProps(nextProps) {
-    if (nextProps.inputSetTime != this.state.inputSetTime) {
+    if (nextProps.inputSetTime != undefined && nextProps.inputSetTime != this.state.inputSetTime) {
       this.setState({
         qty: nextProps.inputBuyAmount,
         price: nextProps.inputBuy,
@@ -197,21 +197,47 @@ class Trade extends Component {
     }
 	}
 
-  notify = () => toast("Buy/sell success?", {
-    position: toast.POSITION.TOP_LEFT
+  notify_success = (msg) => toast.success(msg, {
+    position: toast.POSITION.TOP_CENTER
   });
+  notify_failed = (msg) => toast.error(msg, {
+    position: toast.POSITION.TOP_CENTER
+  });
+
 	handleBuy(e) {
+    const label = this.props.currentTicker.split('*')
     this.props.dispatch(buyTransaction(this.props.currentTicker, this.state.price, this.state.qty))
     .then((e) => {
-      console.log("no error?")
-      this.notify()
+      const msg = ( <div>
+                    <span>BUY {label[0]}[{label[1].substr(0,4)}] {this.state.price} @ {this.state.qty}</span><br/>
+                    <span>OrderId: {e.Id.substr(0,10)}</span>
+                    </div> )
+      this.notify_success(msg)
     }).catch((e) => {
-      console.log("error?", e);
+      const msg = ( <div>
+                    <span>BUY {label[0]}[{label[1].substr(0,4)}] {this.state.price} @ {this.state.qty}</span><br/>
+                    <span>Failed order: Unable to place order</span>
+                    </div> )
+      this.notify_failed(msg)
     })
 	}
 
 	handleSell(e) {
-		this.props.dispatch(sellTransaction(this.props.currentTicker, this.state.price, this.state.qty))
+    const label = this.props.currentTicker.split('*')
+    this.props.dispatch(sellTransaction(this.props.currentTicker, this.state.price, this.state.qty))
+    .then((e) => {
+      const msg = ( <div>
+                    <span>SELL {label[0]}[{label[1].substr(0,4)}] {this.state.price} @ {this.state.qty}</span><br/>
+                    <span>OrderId: {e.Id.substr(0,10)}</span>
+                    </div> )
+      this.notify_success(msg)
+    }).catch((e) => {
+      const msg = ( <div>
+                    <span>SELL {label[0]}[{label[1].substr(0,4)}] {this.state.price} @ {this.state.qty}</span><br/>
+                    <span>Failed order: Unable to place order</span>
+                    </div> )
+      this.notify_failed(msg)
+    })
 	}
 
 	handlePriceInputChange(e) {

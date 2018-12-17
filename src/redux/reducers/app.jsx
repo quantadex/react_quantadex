@@ -231,7 +231,7 @@ const app = (state = initialState, action) => {
             console.log(e)
           }
       })
-      
+
       const tradesDataSource = action.data.trades.reverse().map((trade) => {
         return {
           price: (trade.Price/10000000).toFixed(7),
@@ -241,7 +241,7 @@ const app = (state = initialState, action) => {
           time: moment(trade.SettledAt || "").utc().format("HH:mm:ss")
         }
       })
-
+      
       // bidsSortedSet = asksSortedSet;
 
       var spread = undefined

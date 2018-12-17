@@ -9,7 +9,7 @@ import Orders from './orders.jsx';
 import Trade from './trade.jsx';
 import Leaderboard from './leaderboard.jsx'
 import Status from './status.jsx'
-// import FirstTime from './first_time.jsx'
+import FirstTime from './first_time.jsx'
 import QTTableView from './ui/tableView.jsx'
 import Order from './order.jsx';
 import Markets from './markets.jsx';
