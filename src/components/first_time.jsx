@@ -91,6 +91,7 @@ const container = css`
 
             input, button {
                 width: 100%;
+                border-radius: 2px;
             }
             input {
                 background-color: #fff;
