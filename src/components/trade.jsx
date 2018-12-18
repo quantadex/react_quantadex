@@ -135,7 +135,7 @@ const container = css`
 
   .trade-input {
     width: 100%;
-		cursor:pointer;
+		cursor:text;
 
 		&:hover, &:focus {
 			background-color:white

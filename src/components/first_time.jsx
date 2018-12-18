@@ -11,6 +11,7 @@ const container = css`
     height: 100%;
     width: 100%;
     background-color: rgba(0,0,0,0.7);
+    color: #292626;
 
     .flex {
         display: flex;
@@ -28,7 +29,6 @@ const container = css`
         align-self: center;
         background-color: #fff;
         border-radius: 7px;
-        color: #292626;
         font-size: 16px;
         line-height: 25px;
         
@@ -112,6 +112,7 @@ const container = css`
         font-size: 18px;
         border-radius: 2px;
         height: 45px;
+        padding: 0 20px 0 20px;
         cursor: pointer;
     }
 
@@ -138,6 +139,27 @@ const container = css`
         border-radius: 4px;
         padding: 10px 20px;
     }
+
+    #status-dialog {
+        display: none;
+        position: absolute;
+        bottom: 40px;
+        width: 450px;
+        background-color: #fff;
+        border-radius: 4px;
+        text-align: center;
+        padding: 30px;
+        font-size: 16px;
+    }
+
+    #status-dialog::after {
+        content: "";
+        border: solid 25px transparent;
+        border-top-color: #fff;
+        position: absolute;
+        bottom: -48px;
+        left: 200px;
+    }
 `
 
 class FirstTime extends Component {
@@ -150,8 +172,20 @@ class FirstTime extends Component {
         }
     }
 
-    acceptFund() {
+    // acceptFund() {
+    //     document.getElementById("first-time").style.display = "none";
+    // }
+
+    statusDialog() {
+        window.scrollTo(0,document.body.scrollHeight);
+        document.getElementsByClassName("content")[0].style.display = "none";
+        document.getElementById("status-dialog").style.display = "block";
+        document.getElementById("first-time").style.height = "calc(100% - 54px)"
+    }
+
+    letsGo() {
         document.getElementById("first-time").style.display = "none";
+        window.scrollTo(0,0);
     }
 
 
@@ -205,11 +239,17 @@ class FirstTime extends Component {
                                 <p>You have unlocked 10,000 QDEX to start trading.
                                     <img src="/public/images/thumb-up.svg" />
                                 </p>
-                                <button onClick={this.acceptFund}>Continue</button>
+                                <button onClick={this.statusDialog}>Continue</button>
                             </div>
                         </div>
                     </div>
 
+                </div>
+                <div id="status-dialog">
+                    <h1>The QUANTA status bar</h1>
+                    <p>Fair trading means 100% <nobr>on-chain</nobr> token custody, 100% transparent 
+                        auditable order-book, 100% <nobr>sub-second</nobr> order matching.</p>
+                    <button onClick={this.letsGo}>I like fairness. Let’s GO!</button>
                 </div>
             </div>
         )
