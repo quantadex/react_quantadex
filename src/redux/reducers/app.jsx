@@ -373,11 +373,13 @@ const app = (state = initialState, action) => {
 
             if (parseFloat(item[0]) == 0.0) {
               console.log("iter ", it, item[1]);
-              orderSet.remove(it.node.value)
+              if (it.node != null) {
+                orderSet.remove(it.node.value)
+              }
             } else {
               try {
-                if (it.node) {
-                  it.node.value().amount = amount;
+                if (it.node != null) {
+                  it.node.value.amount = amount;
                 } else {
                   orderSet.insert({
                     price: price,

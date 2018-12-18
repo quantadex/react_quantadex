@@ -201,10 +201,12 @@ class Trade extends Component {
     position: toast.POSITION.TOP_LEFT
   });
 	handleBuy(e) {
+    const self = this;
+
     this.props.dispatch(buyTransaction(this.props.currentTicker, this.state.price, this.state.qty))
     .then((e) => {
       console.log("no error?")
-      this.notify()
+      self.notify()
     }).catch((e) => {
       console.log("error?", e);
     })

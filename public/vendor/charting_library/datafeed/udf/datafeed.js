@@ -876,9 +876,16 @@ Datafeeds.DataPulseUpdater.prototype.subscribeDataListener = function(
 
   stream.onmessage = function(event) {
     const data = JSON.parse(event.data);
-    data.message.time *= 1000;
-    console.log(data.message);
-    newDataCallback(data.message);
+    const res = {
+      time: data.time*1000,
+      volume: +data.volume,
+      open: +data.open,
+      high: +data.high,
+      low: +data.low,
+      close: +data.close
+    }
+    console.log(data, res);
+    newDataCallback(res);
   };
 
   this._subscribers[listenerGUID].sockets.push(stream);
