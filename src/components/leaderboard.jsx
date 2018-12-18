@@ -58,7 +58,7 @@ const leaderboard_container = css `
 class Leaderboard extends Component {
 	render() {
 		const tabs = {
-			names: ['BALANCE','FREQUENCY','VOLATILITY'],
+			names: ['BALANCE','FREQUENCY'],
 			selectedTabIndex: 0,
 		  }
 		return (
@@ -84,6 +84,14 @@ class Leaderboard extends Component {
 							<tr><th className="place">Rank</th><th className="name">Name</th><th className="balance">Balance</th></tr>
 						</thead>
 						<tbody>
+							<tr><td className="place">1</td><td className="name">Place</td><td className="balance">$111,800.00</td></tr>
+							<tr><td className="place">2</td><td className="name">Holder</td><td className="balance">$111,700.00</td></tr>
+							<tr><td className="place">1</td><td className="name">Place</td><td className="balance">$111,800.00</td></tr>
+							<tr><td className="place">2</td><td className="name">Holder</td><td className="balance">$111,700.00</td></tr>
+							<tr><td className="place">1</td><td className="name">Place</td><td className="balance">$111,800.00</td></tr>
+							<tr><td className="place">2</td><td className="name">Holder</td><td className="balance">$111,700.00</td></tr>
+							<tr><td className="place">1</td><td className="name">Place</td><td className="balance">$111,800.00</td></tr>
+							<tr><td className="place">2</td><td className="name">Holder</td><td className="balance">$111,700.00</td></tr>
 							<tr><td className="place">1</td><td className="name">Place</td><td className="balance">$111,800.00</td></tr>
 							<tr><td className="place">2</td><td className="name">Holder</td><td className="balance">$111,700.00</td></tr>
 						</tbody>

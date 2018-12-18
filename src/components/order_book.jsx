@@ -89,13 +89,13 @@ class OrderBook extends Component {
 				<section className="orderbook-title">
 					<div className="d-flex justify-content-between align-items-center">
 						<div className="qt-font-bold qt-font-normal">ORDER BOOK</div>
-						<QTDropdown
+						{/* <QTDropdown
 							items={this.props.decimals.allowedDecimals}
 							value={this.props.decimals.value}
 							className="icon-after down light qt-font-small qt-font-semibold"
 							width="31"
 							height="31"
-							onChange={this.updateDigits}/>
+							onChange={this.updateDigits}/> */}
 					</div>
 				</section>
 				<section className="orderbook-ask no-scroll-bar">

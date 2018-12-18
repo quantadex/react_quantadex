@@ -10,7 +10,7 @@ import globalcss from './global-css.js'
 import QTTabBar from './ui/tabBar.jsx'
 import QTDropdown from './ui/dropdown.jsx'
 import QTButton from './ui/button.jsx'
-import {Token} from './ui/ticker.jsx'
+import {Token, SmallToken} from './ui/ticker.jsx'
 
 import {buyTransaction} from "../redux/actions/app.jsx";
 import {sellTransaction} from "../redux/actions/app.jsx";
@@ -85,6 +85,9 @@ const container = css`
       right: 10px;
       line-height: 32px;
       color: #555;
+    }
+    span.issuer {
+      display: none;
     }
     button.qt-dropdown-btn, button.qt-dropdown-item {
       font-family: SFCompactTextRegular;
@@ -304,9 +307,11 @@ class Trade extends Component {
               <input type="number" className="trade-input qt-number-bold qt-font-small"
                     name="price"
                     onFocus={this.handleInputFocus.bind(this)}
+                    min="0"
+                    step="0.0000001"
                      value={this.state.price}
                      onChange={this.handlePriceInputChange.bind(this)} />
-              <span>BTC</span>
+              <SmallToken name={tradingPair[1]}/>
             </div>
             <div className="input-container">
                <label>AMOUNT {/*<Token name={tradingPair[0]}/>*/}</label> 
@@ -321,9 +326,11 @@ class Trade extends Component {
               <input type="number" className="trade-input qt-number-bold qt-font-small"
                       name="amount"
                       onFocus={this.handleInputFocus.bind(this)}
+                      min="0"
+                      step="0.0000001"
                        value={this.state.qty}
                        onChange={this.handleQtyInputChange.bind(this)} />
-              <span>BNB</span>
+              <SmallToken name={tradingPair[0]}/>
             </div>
             <div className="input-container">
                <label>TOTAL {/*<Token name={tradingPair[1]}/> */}</label>
@@ -331,10 +338,12 @@ class Trade extends Component {
 										type="number"
                     className="trade-input qt-number-bold qt-font-small"
                     name="total"
+                    min="0"
+                    step="0.0000001"
                     onFocus={this.handleInputFocus.bind(this)}
 										value={((this.state.qty*10000000) * (this.state.price*10000000))/100000000000000}
 									 />
-              <span>BTC</span>
+              <SmallToken name={tradingPair[1]}/>
             </div>
 
           <button id="sell-action" className="sell-btn inactive" onClick={this.handleSell.bind(this)}>PLACE SELL ORDER</button>

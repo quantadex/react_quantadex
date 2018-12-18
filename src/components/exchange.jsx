@@ -56,7 +56,8 @@ const container = css`
 	}
 	
 	#tv_chart_container {
-		height:370px !important;
+		height: calc(100vh - 530px);
+		min-height: 370px !important;
 		padding-bottom: 20px;
 		border-bottom: 1px solid #333;
 	}

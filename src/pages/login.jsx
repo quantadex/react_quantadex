@@ -6,28 +6,28 @@ import { css } from 'emotion'
 import StellarBase from "@quantadex/quanta-base"
 import qbase from '@quantadex/quanta-base';
 import jsPDF from 'jspdf'
-import Banner from "../components/login_banner.jsx"
+import Banner from "./login_banner.jsx"
 
+const container = css`
+	display: flex;
+`
 const login_container = css`
-	position: relative;
+	display: flex;
+	justify-content: center;
 	height: 100vh;
 	width: calc(100% - 420px);
 	color: #0a0a0a;
 	font-size: 18px;
 	text-align: center;
-	float: left;
+	overflow: auto;
 
 	.content {
-		position: absolute;
+		align-self: center;
 		width: 750px;
 		max-width: 100%
 		margin: auto;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
 		#logo {
-			height: 38px;
-			margin-bottom: 40px;
+			margin-bottom: 10px;
 		}
 		p {
 			line-height: 26px;
@@ -171,14 +171,14 @@ class Login extends Component {
 	}
 	render() {
 		return (
-			<div>
+			<div className={container}>
 				<div className={login_container}>
 					<div className="content">
 					<div>
-						<img id="logo" src="/public/images/login-logo.svg" alt="Quantadex Decentralized Exchange"/>
-						<p>To access QDEX exchange and participate on the Paper Trading Contest you 
-							will need your QUANTA wallet private key. To get one you need to create a 
-							QUANTA wallet first and open the downloaded PDF file.</p>
+						<img id="logo" src="/public/images/qdex-fantasy.svg" alt="QDEX Fantasy"/>
+						<p>To start participating in the QDEX Fantasy paper trading contest you will need 
+							to authenticate using your QUANTA wallet private key.  You can generate a new 
+							wallet if you don’t have one, and locate the private key in the downloadable PDF file.  </p>
 					</div>
 						<div className="auth-form">
 							<form onSubmit={this.handleSubmit}>

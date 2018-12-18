@@ -12,6 +12,7 @@ const container = css`
     width: 100%;
     background-color: rgba(0,0,0,0.7);
     color: #292626;
+    z-index: 999;
 
     .flex {
         display: flex;
@@ -48,29 +49,38 @@ const container = css`
             }
             .flex-center {
                 align-self: center;
+                max-width: 600px;
             }
             p {
-                font-size: 30px;
+                font-size: 18px;
                 margin: 40px;
-                img {
-                    vertical-align: bottom;
-                    margin-left: 20px;
-                }
+            }
+            h1 {
+                margin-top: 30px;
+            }
+            h1 img {
+                vertical-align: bottom;
+                margin-left: 20px;
             }
             .go-back {
                 position: absolute;
-                top: 0;
+                top: 5px;
                 left: 30px;
                 cursor: pointer;
             }
             button {
                 width: 150px;
             }
+            a {
+                color: #00d8d0;
+                text-decoration: underline;
+            }
         }
 
         .left {
             width: calc(100% - 500px);
             padding: 75px;
+            padding-bottom: 35px;
             overflow: auto;
 
             a {
@@ -135,10 +145,16 @@ const container = css`
     }
     
     .disclaimer {
-        border: 1px dashed #00d8d0;
-        border-radius: 4px;
-        padding: 10px 20px;
+        font-size: 14px;
+		letter-spacing: -0.3px;
     }
+    .disclaimer::before {
+		content: '*';
+		height: 100px;
+		float: left;
+		padding-right: 5px;
+		font-size: 15px;
+	}
 
     #status-dialog {
         display: none;
@@ -177,7 +193,7 @@ class FirstTime extends Component {
     // }
 
     statusDialog() {
-        window.scrollTo(0,document.body.scrollHeight);
+        // window.scrollTo(0,document.body.scrollHeight);
         document.getElementsByClassName("content")[0].style.display = "none";
         document.getElementById("status-dialog").style.display = "block";
         document.getElementById("first-time").style.height = "calc(100% - 54px)"
@@ -185,7 +201,7 @@ class FirstTime extends Component {
 
     letsGo() {
         document.getElementById("first-time").style.display = "none";
-        window.scrollTo(0,0);
+        // window.scrollTo(0,0);
     }
 
 
@@ -195,27 +211,27 @@ class FirstTime extends Component {
                 <div className="content">
                     <div id="username-select" className="flex">
                         <div className="left">
-                            <span>Welcome to </span>
-                            <h1>QDEX Fantasy</h1>
-                            <p>We are currently on the Warm-up Contest where you can win a grand total of $1,000 USD.  
-                                The Main Contest will start when this contest ends, which is Jan 18th 2019, with a 
-                                grand prize of $2,000 USD.</p>
+                            <h2>Welcome to </h2>
+                            <img src="/public/images/qdex-fantasy.svg" alt="QDEX Fantasy" />
+                            <p style={{margin: '10px 0 20px'}}>We are currently on the Warm-up Contest where you can win a grand prize $500 USD + 40,000 
+                                QDEX tokens, with total value of $12,500 USD*.  The Main Contest will start when 
+                                this contest ends, which is Jan 18th 2019, with a grand prize of $1000 USD + 60,000 QDEX tokens.</p>
 
                             <h1>Two ways to win</h1>
                             <div className="leaderboard-rule balance">
                                 <span className="header">Balance Leaderboard</span>
                                 <p>Win by having the biggest trading balance at the end of the contest.</p>
-                                <b>Prize: $500 USD</b>
+                                <b>Prize: $500 USD + 20,000 QDEX tokens*</b>
                             </div>
                             <div className="leaderboard-rule frequency">
                                 <span className="header">Frequency Leaderboard</span>
                                 <p>Win by having the highest number of trades at the end of the contest while 
                                     maintaining a balance of at least 8,000 QDEX (80% of initial balance).</p>
-                                <b>Prize: $500 USD</b>
+                                <b>Prize: $500 USD + 20,000 QDEX tokens*</b>
                             </div>
                             <div class="disclaimer">
-                                You can earn more initial tokens by depositing up to three Ropstein Testnet Ethers 
-                                into the QUANTA wallet, and experience QUANTA’s cross-chain technology.  
+                                QDEX token is currently valued at $0.3USD based on pre-sale value, and is redeemable 
+                                upon MainNet launch.  Actual QDEX token value will depend on market pricing at time of redemption.    
                             </div>
                             <a>Read Full Rules</a>
                         </div>
@@ -236,9 +252,12 @@ class FirstTime extends Component {
                             <img onClick={this.openFund} className="go-back" src="/public/images/back-button.svg"/>
                             <div class="flex-center">
                                 <img src="/public/images/coins.svg" />
-                                <p>You have unlocked 10,000 QDEX to start trading.
+                                <h1>You have unlocked 10,000 QDEX to start trading.
                                     <img src="/public/images/thumb-up.svg" />
-                                </p>
+                                </h1>
+                                <p>You can earn more initial tokens by depositing up to three Ropstein 
+                                    Testnet Ethers into the QUANTA wallet, and experience QUANTA’s cross-chain 
+                                    technology. <a>Learn more.</a> </p>
                                 <button onClick={this.statusDialog}>Continue</button>
                             </div>
                         </div>
