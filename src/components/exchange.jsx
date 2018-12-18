@@ -117,7 +117,7 @@ class Exchange extends Component {
 				<Orders />
 				<Status />
 			</div>
-			{/* <FirstTime /> */}
+			<FirstTime />
 		</div>
 		);
 	}

@@ -377,7 +377,7 @@ const app = (state = initialState, action) => {
             } else {
               try {
                 if (it.node) {
-                  it.node.value().amount = amount;
+                  it.node.value.amount = amount;
                 } else {
                   orderSet.insert({
                     price: price,

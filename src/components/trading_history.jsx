@@ -8,11 +8,11 @@ import QTTabBar from './ui/tabBar.jsx'
 import QTTableViewSimple from './ui/tableViewSimple.jsx'
 
 const container = css`
-	height: 260px;
+	height: 360px;
 	padding: 18px 21px;
 
 	.trading-history-table-container {
-		max-height: 100%;
+		height: 100%;
 		h4 {
 			padding-bottom: 10px;
 			border-bottom: 1px solid #333;
@@ -22,9 +22,21 @@ const container = css`
 `;
 
 class TradingHistory extends Component {
+	setAmount(e) {
+		console.log(e)
+		const set_time = new Date();
+		this.props.dispatch({
+			type: 'SET_AMOUNT',
+			data: {
+				inputBuy: e.price,
+				inputBuyAmount: e.amount,
+				inputSide: e.color_key,
+				setTime: set_time
+			}
+		})
+	}
 
 	render() {
-
 		const tabs = {
 			names: ['TRADING HISTORY','MY TRADES'],
 			selectedTabIndex: 0,
@@ -41,7 +53,8 @@ class TradingHistory extends Component {
 				<section className="trading-history-table-container no-scroll-bar">
 					<h4>TRADING HISTORY</h4>
 					<div>
-						<QTTableViewSimple dataSource={this.props.trades.dataSource} columns={this.props.trades.columns} />
+						<QTTableViewSimple dataSource={this.props.trades.dataSource} columns={this.props.trades.columns}
+											onAction={this.setAmount.bind(this)} />
 					</div>
 				</section>
 			</div>

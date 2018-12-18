@@ -241,7 +241,6 @@ class Trade extends Component {
 	}
 
 	handlePriceInputChange(e) {
-    console.log("change")
          this.setState({
            price: e.target.value
          });
@@ -333,7 +332,7 @@ class Trade extends Component {
                     className="trade-input qt-number-bold qt-font-small"
                     name="total"
                     onFocus={this.handleInputFocus.bind(this)}
-										value={pairBalance[1].amount * 0.2}
+										value={((this.state.qty*10000000) * (this.state.price*10000000))/100000000000000}
 									 />
               <span>BTC</span>
             </div>
