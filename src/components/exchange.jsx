@@ -87,7 +87,7 @@ class Exchange extends Component {
 		} else {
 			this.props.dispatch(switchTicker("ETH*QB3WOAL55IVT6E7BVUNRW6TUVCAOPH5RJYPUUL643YMKMJSZFZGWDJU3/USD*QB3WOAL55IVT6E7BVUNRW6TUVCAOPH5RJYPUUL643YMKMJSZFZGWDJU3"));
 			//this.props.dispatch(initBalance());
-			this.props.dispatch(getMarketQuotes())
+			//this.props.dispatch(getMarketQuotes())
 		}
 
 		document.getElementsByClassName("row flex-nowrap")[0].style.paddingBottom = document.getElementsByClassName("exchange-bottom")[0].offsetHeight + "px";

@@ -2,6 +2,9 @@ import lodash from 'lodash';
 import API from "../../api.jsx"
 import SortedSet from 'js-sorted-set'
 import QuantaClient from "@quantadex/quanta_js"
+import { Apis } from "@quantadex/bitsharesjs-ws";
+import { FillOrder } from "../../common/MarketClasses";
+
 export const INIT_DATA = 'INIT_DATA';
 export const LOGIN = 'LOGIN';
 export const SET_MARKET_QUOTE = 'SET_MARKET_QUOTE';
@@ -24,9 +27,6 @@ export const toggleFavoriteList = pair => ({
 	type: TOGGLE_FAVORITE_LIST,
 	pair
 })
-
-import StellarBase, {Keypair, Asset, Operation} from 'stellar-base'
-StellarBase.Network.use(new StellarBase.Network("Test QuantaDex SDF Network ; June 2018"))
 
 var qClient, default_market;
 export function initMarket(key) {
@@ -178,158 +178,101 @@ export function sellTransaction(market, price, amount) {
 	}
 }
 
-// export function sellTransaction(publicKey,secretKey,issuerKey, qty, price) {
-// 	return function(dispatch) {
-// 		return getBalance(publicKey).then((data) => {
-// 			var account=new StellarBase.Account(publicKey,data.seqnum.toString());
-// 			var buying = new Asset("USD",issuerKey)
-// 			var selling = new Asset("BTC",issuerKey)
-// 			var opt3 = {
-// 				buying: buying,
-// 				selling: selling,
-// 				amount: (1.0 * qty).toString(),
-// 				price: (1.0 * price).toString()
-// 			}
-// 		    console.log("sellTransaction(" + publicKey + ", seq=" + data.seqnum.toString() + "): SELL " + qty + " @ " + price + " | " + opt3.amount + " @ " + opt3.price);
-// 			var transaction = new StellarBase.TransactionBuilder(account)
-// 				.addOperation(StellarBase.Operation.manageOffer(opt3))
-// 				.build();
-// 			var key = Keypair.fromSecret(secretKey);
-// 			transaction.sign(key);
-// 			postTransaction(transaction).then((data) => {
-// 				console.log("after making one sell transaction: ",data)
-// 				getMyOrders(publicKey).then((data) => {
-// 					console.log("open orders: ", data)
-// 					dispatch({
-// 						type: UPDATE_OPEN_ORDERS,
-// 						data:data
-// 					})
-// 				})
-// 			})
-// 		})
-// 	}
-// }
+var initAPI = false;
+var wsString = "ws://testnet-01.quantachain.io:8090";
 
-// var mockTransaction =  (publicKey,secretKey,issuerKey) => {
-//
-// 	getBalance(publicKey).then((data) => {
-// 		var account=new StellarBase.Account(publicKey,data.seqnum.toString());
-// 		var selling = new Asset("USD",issuerKey)
-// 		var buying = new Asset("BTC",issuerKey)
-// 		var opt3 = {
-// 			selling: selling,
-// 			buying: buying,
-// 			amount: "2",
-// 			price: {
-// 				n:1,
-// 				d:1
-// 			},
-// 		}
-// 		var transaction = new StellarBase.TransactionBuilder(account)
-// 			.addOperation(StellarBase.Operation.manageOffer(opt3))
-// 			.build();
-// 		var key = Keypair.fromSecret(secretKey);
-// 		transaction.sign(key);
-// 		postTransaction(transaction).then((data) => {
-// 			console.log("after making one transaction: ",data)
-// 			getBalance(sender_public).then((data) => {
-// 				console.log("balance: ", data)
-// 			})
-// 			getOpenOrders(sender_public).then((data) => {
-// 				console.log("open orders: ", data)
-// 			})
-// 		})
-// 	})
-// }
-// mockTransaction(sender_public,sender_secret,issuer_public)
 
 export function switchTicker(ticker) {
 	console.log("Switch ticker ", ticker);
 	return function (dispatch) {
 
-		const orderBook = fetch("http://orderbook-api-792236404.us-west-2.elb.amazonaws.com/depth/"+ticker).then((res) => {return res.json()})
-		const trades = fetch("http://orderbook-api-792236404.us-west-2.elb.amazonaws.com/settlement/"+ticker).then((res) => {return res.json()})
-		const openOrders = fetch("http://orderbook-api-792236404.us-west-2.elb.amazonaws.com/status").then((res) => {return res.json()})
+		if (initAPI == false) {
+			Apis.instance(wsString, true).init_promise.then((res) => {
+				console.log("connected to:", res[0].network);
 
-		return Promise.all([orderBook,trades,openOrders])
-			.then((data) => {
-				dispatch({
-					type: INIT_DATA,
-					data: {
-						orderBook:data[0],
-						trades:data[1],
-						openOrders:data[2],
-						ticker:ticker,
-					}
-				})
+				//Apis.instance().db_api().exec("set_subscribe_callback", [updateListener, true]);
+				initAPI = true;
+			}).then((e) => {
+				action()
+			});
+		} else {
+			action()
+		}
 
-				var orderbookws = new EventSource('http://testnet-02.quantachain.io:7200/stream/depth/'+ticker);
-
-				// Log errors
-				orderbookws.onerror = function (error) {
-				  console.log('EventSource Error ' + error);
-				};
-
-				// Log messages from the server
-				orderbookws.onmessage = function (e) {
-					dispatch({
-						type: UPDATE_ORDER,
-						data: e.data
-					})
-				};
-
-				var tradesws = new WebSocket('ws://backend-dev.env.quantadex.com:8080/ws/v1/trades/BTC/USD');
-
-				// Log errors
-				tradesws.onerror = function (error) {
-				  console.log('WebSocket Error ' + error);
-				};
-
-				// Log messages from the server
-				tradesws.onmessage = function (e) {
-					dispatch({
-						type: UPDATE_TRADES,
-						data: e.data
-					})
-				};
+		function action() {
+			var base = "1.3.1"
+			var counter = "1.3.0"
+			Apis.instance().db_api().exec("list_assets", ["A", 100]).then((assets) => {
+				console.log(assets);
+				window.assets = lodash.keyBy(assets, "id")
 			})
+
+			Apis.instance().history_api().exec("get_fill_order_history", [base, counter, 100]).then((filled) => {
+				console.log("history filled ", filled);
+				filled.forEach((filled) => {
+					var fill = new FillOrder(
+						filled,
+						window.assets,
+						counter
+					);
+					console.log("normalized ", fill, fill.getPrice(), fill.fill_price.toReal());
+				})
+			})
+
+			Apis.instance().db_api().exec("get_order_book", [base, counter, 50]).then((ob) => {
+				console.log("ob  ", ob);
+			})
+
+			Apis.instance().db_api().exec("subscribe_to_market", [(data) => {
+				console.log("Got a market change ", data);
+			}, base, counter])
+		}
+		// const orderBook = fetch("http://orderbook-api-792236404.us-west-2.elb.amazonaws.com/depth/"+ticker).then((res) => {return res.json()})
+		// const trades = fetch("http://orderbook-api-792236404.us-west-2.elb.amazonaws.com/settlement/"+ticker).then((res) => {return res.json()})
+		// const openOrders = fetch("http://orderbook-api-792236404.us-west-2.elb.amazonaws.com/status").then((res) => {return res.json()})
+
+		// return Promise.all([orderBook,trades,openOrders])
+		// 	.then((data) => {
+		// 		dispatch({
+		// 			type: INIT_DATA,
+		// 			data: {
+		// 				orderBook:data[0],
+		// 				trades:data[1],
+		// 				openOrders:data[2],
+		// 				ticker:ticker,
+		// 			}
+		// 		})
+
+		// 		var orderbookws = new EventSource('http://testnet-02.quantachain.io:7200/stream/depth/'+ticker);
+
+		// 		// Log errors
+		// 		orderbookws.onerror = function (error) {
+		// 		  console.log('EventSource Error ' + error);
+		// 		};
+
+		// 		// Log messages from the server
+		// 		orderbookws.onmessage = function (e) {
+		// 			dispatch({
+		// 				type: UPDATE_ORDER,
+		// 				data: e.data
+		// 			})
+		// 		};
+
+		// 		var tradesws = new WebSocket('ws://backend-dev.env.quantadex.com:8080/ws/v1/trades/BTC/USD');
+
+		// 		// Log errors
+		// 		tradesws.onerror = function (error) {
+		// 		  console.log('WebSocket Error ' + error);
+		// 		};
+
+		// 		// Log messages from the server
+		// 		tradesws.onmessage = function (e) {
+		// 			dispatch({
+		// 				type: UPDATE_TRADES,
+		// 				data: e.data
+		// 			})
+		// 		};
+		// 	})
 	}
 
-	// const [first, second] = ticker.split("/");
-	//
-	// return function (dispatch) {
-	//     const base = new StellarSdk.Asset(first, "GBQWAJ7I7BKKGBBXX64HCIVQB6ENC5ZX44CTZ3VKMOU6HO5UN4ILNHI6");
-  //       const counter = new StellarSdk.Asset(second, "GBQWAJ7I7BKKGBBXX64HCIVQB6ENC5ZX44CTZ3VKMOU6HO5UN4ILNHI6");
-	//
-  //       orderStream = server.orderbook(base, counter)
-  //           .stream({
-  //               onmessage: function (message) {
-  //                   //console.log("ORDERBOOK ", message)
-	//
-  //                   dispatch({
-  //                       type: UPDATE_ORDER,
-  //                       data : message
-  //                   })
-  //               }
-  //           })
-	//
-	// 	return Promise.all([API.open_trades(first, second), API.trade_history(), API.balance(), API.pending_trades(), API.pairs(), API.ticker()])
-	// 		.then((data) => {
-	// 			console.log("data ", data, first, second);
-	// 			dispatch({
-	// 				type: INIT_DATA,
-	// 				data : {
-	// 					ticker: ticker,
-	// 					tradeBook: data[0],
-	// 					tradeHistory: data[1],
-	// 					balance: lodash.keyBy(data[2],'currency'),
-	// 					openOrders: data[3],
-	// 					markets: data[4],
-	// 					tickers: data[5]
-	// 				}
-	// 			})
-	//
-	// 				streaming here/
-	// 	});
-	// }
 }
