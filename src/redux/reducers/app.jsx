@@ -231,7 +231,7 @@ const app = (state = initialState, action) => {
             console.log(e)
           }
       })
-      
+
       const tradesDataSource = action.data.trades.reverse().map((trade) => {
         return {
           price: (trade.Price/10000000).toFixed(7),
@@ -241,7 +241,7 @@ const app = (state = initialState, action) => {
           time: moment(trade.SettledAt || "").utc().format("HH:mm:ss")
         }
       })
-
+      
       // bidsSortedSet = asksSortedSet;
 
       var spread = undefined
@@ -350,7 +350,7 @@ const app = (state = initialState, action) => {
     case SET_AMOUNT:
       return {
         ...state,
-        ...lodash.pick(action.data, ['inputBuy', 'inputSell', 'inputBuyAmount', 'inputSellAmount'])
+        ...lodash.pick(action.data, ['inputBuy', 'inputSell', 'inputBuyAmount', 'inputSellAmount', 'inputSide', 'setTime'])
       }
     case UPDATE_USER_ORDER:
       //console.log("update user ", action.data)
@@ -378,7 +378,7 @@ const app = (state = initialState, action) => {
               }
             } else {
               try {
-                if (it.node != null) {
+                if (it.node) {
                   it.node.value.amount = amount;
                 } else {
                   orderSet.insert({

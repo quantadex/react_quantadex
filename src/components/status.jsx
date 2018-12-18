@@ -34,7 +34,7 @@ const container = css`
 class Status extends Component {
     render() {
         return (
-            <div className={container}>
+            <div id="quanta-status" className={container}>
                 <div className="status-info brand">
                     <span className="label">Powered by </span>
                     <div>QUANTA - Fair Trading Protocol</div>

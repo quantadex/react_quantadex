@@ -4,7 +4,7 @@ import moment from 'moment';
 
 import { css } from 'emotion'
 import { ToastContainer, toast } from 'react-toastify';
-// import 'react-toastify/dist/ReactToastify.css';
+import 'react-toastify/dist/ReactToastify.css';
 import globalcss from './global-css.js'
 
 import QTTabBar from './ui/tabBar.jsx'
@@ -135,7 +135,7 @@ const container = css`
 
   .trade-input {
     width: 100%;
-		cursor:pointer;
+		cursor:text;
 
 		&:hover, &:focus {
 			background-color:white
@@ -181,43 +181,66 @@ class Trade extends Component {
     super(props);
     this.state = {
         qty: 0.05,
-        price: 1
+        price: 1,
+        inputSetTime: 0
       };
   }
 
-	// componentWillReceiveProps(nextProps) {
-  //   console.log("next props", nextProps)
-  //   if (nextProps.inputBuy != this.state.order_price || nextProps.inputBuyAmount != this.state.order_qty) {
-  //     this.setState({
-  //       qty: nextProps.inputBuyAmount,
-  //       price: nextProps.inputBuy,
-  //       order_qty: nextProps.inputBuyAmount,
-  //       order_price: nextProps.inputBuy
-  //     })
-  //   }
-	// }
+	componentWillReceiveProps(nextProps) {
+    if (nextProps.inputSetTime != undefined && nextProps.inputSetTime != this.state.inputSetTime) {
+      this.setState({
+        qty: nextProps.inputBuyAmount,
+        price: nextProps.inputBuy,
+        inputSetTime: nextProps.inputSetTime
+      })
+      this.switchTradeTo(nextProps.inputSide)
+    }
+	}
 
-  notify = () => toast("Buy/sell success?", {
-    position: toast.POSITION.TOP_LEFT
+  notify_success = (msg) => toast.success(msg, {
+    position: toast.POSITION.TOP_CENTER
   });
-	handleBuy(e) {
-    const self = this;
+  notify_failed = (msg) => toast.error(msg, {
+    position: toast.POSITION.TOP_CENTER
+  });
 
+	handleBuy(e) {
+    const label = this.props.currentTicker.split('*')
     this.props.dispatch(buyTransaction(this.props.currentTicker, this.state.price, this.state.qty))
     .then((e) => {
-      console.log("no error?")
-      self.notify()
+      const msg = ( <div>
+                    <span>BUY {label[0]}[{label[1].substr(0,4)}] {this.state.price} @ {this.state.qty}</span><br/>
+                    <span>OrderId: {e.Id.substr(0,10)}</span>
+                    </div> )
+      this.notify_success(msg)
     }).catch((e) => {
-      console.log("error?", e);
+      const msg = ( <div>
+                    <span>BUY {label[0]}[{label[1].substr(0,4)}] {this.state.price} @ {this.state.qty}</span><br/>
+                    <span>Failed order: Unable to place order</span>
+                    </div> )
+      this.notify_failed(msg)
     })
 	}
 
 	handleSell(e) {
-		this.props.dispatch(sellTransaction(this.props.currentTicker, this.state.price, this.state.qty))
+    const label = this.props.currentTicker.split('*')
+    this.props.dispatch(sellTransaction(this.props.currentTicker, this.state.price, this.state.qty))
+    .then((e) => {
+      const msg = ( <div>
+                    <span>SELL {label[0]}[{label[1].substr(0,4)}] {this.state.price} @ {this.state.qty}</span><br/>
+                    <span>OrderId: {e.Id.substr(0,10)}</span>
+                    </div> )
+      this.notify_success(msg)
+    }).catch((e) => {
+      const msg = ( <div>
+                    <span>SELL {label[0]}[{label[1].substr(0,4)}] {this.state.price} @ {this.state.qty}</span><br/>
+                    <span>Failed order: Unable to place order</span>
+                    </div> )
+      this.notify_failed(msg)
+    })
 	}
 
 	handlePriceInputChange(e) {
-    console.log("change")
          this.setState({
            price: e.target.value
          });
@@ -233,10 +256,10 @@ class Trade extends Component {
     e.target.select();
   }
 
-  switchTradeTo(e) {
-    var to_hide = e.target.id == "sell-switch" ? document.getElementsByClassName('buy-btn') : 
+  switchTradeTo(side) {
+    var to_hide = side === 1 ? document.getElementsByClassName('buy-btn') : 
                                                   document.getElementsByClassName('sell-btn');
-    var to_show = e.target.id == "sell-switch" ? document.getElementsByClassName('sell-btn') : 
+    var to_show = side === 1 ? document.getElementsByClassName('sell-btn') : 
                                                   document.getElementsByClassName('buy-btn');
 
     for (let i=0; i < to_hide.length; i++) {
@@ -270,8 +293,8 @@ class Trade extends Component {
     return (
       <div className={container + " container-fluid"}>
         <div className="buy-sell-toggle">
-          <button id="buy-switch" className="buy-btn" onClick={this.switchTradeTo}>BUY</button>
-          <button id="sell-switch" className="sell-btn inactive" onClick={this.switchTradeTo}>SELL</button>
+          <button id="buy-switch" className="buy-btn" onClick={this.switchTradeTo.bind(this, 0)}>BUY</button>
+          <button id="sell-switch" className="sell-btn inactive" onClick={this.switchTradeTo.bind(this, 1)}>SELL</button>
         </div>
 
         <div className="transac-actions">
@@ -309,7 +332,7 @@ class Trade extends Component {
                     className="trade-input qt-number-bold qt-font-small"
                     name="total"
                     onFocus={this.handleInputFocus.bind(this)}
-										value={pairBalance[1].amount * 0.2}
+										value={((this.state.qty*10000000) * (this.state.price*10000000))/100000000000000}
 									 />
               <span>BTC</span>
             </div>
@@ -343,7 +366,9 @@ const mapStateToProps = (state) => ({
 		currentTicker:state.app.currentTicker,
     balance:state.app.balance,
     inputBuy: state.app.inputBuy,
-		inputBuyAmount: state.app.inputBuyAmount
+    inputBuyAmount: state.app.inputBuyAmount,
+    inputSetTime: state.app.setTime,
+    inputSide: state.app.inputSide
 	});
 
 export default connect(mapStateToProps)(Trade);

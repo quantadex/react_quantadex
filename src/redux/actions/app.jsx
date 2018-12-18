@@ -157,9 +157,10 @@ export function buyTransaction(market, price, amount) {
 		return qClient.submitOrder(0, market, price, amount)
 			.then((e) => e.json()).then((e) => {
 				console.log("ordered ", e);
+				return e
 			}).catch((e) => {
 				console.log(e);
-				throw "failed"
+				throw e
 			})
 	} 
 }
@@ -169,8 +170,10 @@ export function sellTransaction(market, price, amount) {
 		return qClient.submitOrder(1, market, price, amount)
 			.then((e) => e.json()).then((e) => {
 				console.log("ordered ", e);
+				return e
 			}).catch((e) => {
 				console.log(e);
+				throw e
 			})
 	}
 }

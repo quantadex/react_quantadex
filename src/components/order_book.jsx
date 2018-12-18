@@ -35,12 +35,15 @@ class OrderBook extends Component {
 		})
 	}
 
-	setAmount(e) {
+	setAmount(side, e) {
+		const set_time = new Date();
 		this.props.dispatch({
 			type: 'SET_AMOUNT',
 			data: {
 				inputBuy: e.price,
-				inputBuyAmount: e.amount
+				inputBuyAmount: e.amount,
+				inputSide: side,
+				setTime: set_time
 			}
 		})
 	}
@@ -97,7 +100,10 @@ class OrderBook extends Component {
 				</section>
 				<section className="orderbook-ask no-scroll-bar">
 					<div>
-						<QTTableViewSimple key="ask_tv" dataSource={asksDataSource} columns={this.props.asks.columns} />
+						<QTTableViewSimple key="ask_tv" dataSource={asksDataSource} 
+							columns={this.props.asks.columns} 
+							onAction={this.setAmount.bind(this, 1)}
+						/>
 					</div>
 				</section>
 				<section className="orderbook-middle d-flex justify-content-between">
@@ -116,7 +122,7 @@ class OrderBook extends Component {
 							dataSource={bidsDataSource}
 							columns={this.props.bids.columns}
 							HideHeader={true}
-							onAction={this.setAmount.bind(this)}
+							onAction={this.setAmount.bind(this, 0)}
 						/>
 					 </div>
 				</section>

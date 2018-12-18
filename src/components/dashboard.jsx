@@ -68,7 +68,6 @@ class Dashboard extends Component {
 	}
 
 	render() {
-		console.log("dashboard", this.props)
 		const tabs = {
 			names: ['All','Trading','Favorites'],
 			selectedTabIndex: 0
