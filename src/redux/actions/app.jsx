@@ -184,8 +184,9 @@ export function switchTicker(ticker) {
 				window.assets = lodash.keyBy(assets, "id")
 			})
 
-			Apis.instance().history_api().exec("get_fill_order_history", [base, counter, 100]).then((filled) => {
+			const trades = Apis.instance().history_api().exec("get_fill_order_history", [base, counter, 100]).then((filled) => {
 				console.log("history filled ", filled);
+				var trade_history = [];
 				filled.forEach((filled) => {
 					var fill = new FillOrder(
 						filled,
@@ -193,16 +194,32 @@ export function switchTicker(ticker) {
 						counter
 					);
 					console.log("normalized ", fill, fill.getPrice(), fill.fill_price.toReal());
+					trade_history.push(fill)
 				})
+				return trade_history
 			})
 
-			Apis.instance().db_api().exec("get_order_book", [base, counter, 50]).then((ob) => {
+			const orderBook = Apis.instance().db_api().exec("get_order_book", [base, counter, 50]).then((ob) => {
 				console.log("ob  ", ob);
+				return ob
 			})
 
 			Apis.instance().db_api().exec("subscribe_to_market", [(data) => {
 				console.log("Got a market change ", data);
 			}, base, counter])
+
+			return Promise.all([orderBook,trades])
+			.then((data) => {
+				dispatch({
+					type: INIT_DATA,
+					data: {
+						orderBook:data[0],
+						trades:data[1],
+					}
+				})
+			})
+
+
 		}
 		// const orderBook = fetch("http://orderbook-api-792236404.us-west-2.elb.amazonaws.com/depth/"+ticker).then((res) => {return res.json()})
 		// const trades = fetch("http://orderbook-api-792236404.us-west-2.elb.amazonaws.com/settlement/"+ticker).then((res) => {return res.json()})

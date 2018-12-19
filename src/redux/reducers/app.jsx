@@ -204,15 +204,14 @@ const app = (state = initialState, action) => {
     case INIT_DATA:
 
       //console.log("Merge? ", mergeTickerData(action.data.markets, action.data.tickers));
-      console.log(action.data.orderBook)
       var asksSortedSet = state.orderBook.asks.dataSource
       asksSortedSet.clear()
       action.data.orderBook.asks.map((ask) => {
         try {
           asksSortedSet.insert({
-            price: ask[1],
-            amount: ask[0],
-            total: parseFloat(ask[1]) * parseFloat(ask[0])
+            price: ask.price,
+            amount: ask.base,
+            total: parseFloat(ask.price) * parseFloat(ask.base)
           })
         } catch(e) {
           console.log(e)
@@ -224,26 +223,24 @@ const app = (state = initialState, action) => {
       action.data.orderBook.bids.map((bid) => {          
         try {
             bidsSortedSet.insert({
-              price: bid[1],
-              amount: bid[0],
-              total: parseFloat(bid[1]) * parseFloat(bid[0])
+              price: bid.price,
+              amount: bid.base,
+              total: parseFloat(bid.price) * parseFloat(bid.base)
             })
           } catch(e) {
             console.log(e)
           }
       })
-
+      console.log("!!!", action.data.trades)
       const tradesDataSource = action.data.trades.reverse().map((trade) => {
         return {
-          price: (trade.Price/10000000).toFixed(7),
-          amount: trade.Amount/10000000,
+          price: trade.getPrice(),
+          amount: trade.fill_price.base.getAmount({real: true}),
           color_key: trade.Taker,
-          date: moment(trade.SettledAt || "").utc().format('DD MMM'),
-          time: moment(trade.SettledAt || "").utc().format("HH:mm:ss")
+          date: moment(trade.time || "").utc().format('DD MMM'),
+          time: moment(trade.time || "").utc().format("HH:mm:ss")
         }
       })
-      
-      // bidsSortedSet = asksSortedSet;
 
       var spread = undefined
       var spreadDollar = 0
@@ -254,7 +251,7 @@ const app = (state = initialState, action) => {
 
       return {
         ...state,
-        currentTicker:action.data.ticker,
+        // currentTicker:action.data.ticker,
         openOrders: [], // action.data.openOrders,
         orderBook: {
           ...state.orderBook,
