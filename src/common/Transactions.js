@@ -2,6 +2,7 @@ import { ChainStore } from "@quantadex/bitsharesjs";
 import { Apis } from "@quantadex/bitsharesjs-ws";
 import marketUtils from "./market_utils";
 import WalletApi from "./api/WalletApi";
+import { Price, Asset, LimitOrderCreate} from "./MarketClasses";
 
 export function createLimitOrder(
 	account,
@@ -77,5 +78,35 @@ export function signAndBroadcast(tr, pKey) {
 			.catch(err => {
 				console.error("exception ", err);
 			});
+	});
+}
+
+export function createLimitOrderWithPrice(user_id, is_buy, assets, base, counter, price, amount) {
+	const priceObj = new Price({
+		base: new Asset({
+			asset_id: assets[base].id,
+			precision: assets[base].precision
+		}),
+		quote: new Asset({
+			asset_id: assets[counter].id,
+			precision: assets[counter].precision
+		})
+	})
+
+	priceObj.setPriceFromReal(parseFloat(price))
+	const sellAmount = priceObj.base.clone()
+	sellAmount.setAmount({ real: parseFloat(amount) });
+
+	console.log("priceObj", priceObj, amount, sellAmount);
+
+	return new LimitOrderCreate({
+		for_sale: is_buy ? sellAmount : sellAmount.times(priceObj),
+		expiration: null,
+		to_receive: is_buy ? sellAmount.times(priceObj) : sellAmount,
+		seller: user_id,
+		fee: {
+			asset_id: "1.3.0",
+			amount: 0
+		}
 	});
 }

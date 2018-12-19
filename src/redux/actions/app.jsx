@@ -4,8 +4,8 @@ import SortedSet from 'js-sorted-set'
 import QuantaClient from "@quantadex/quanta_js"
 import { Apis } from "@quantadex/bitsharesjs-ws";
 import { Price, Asset, FillOrder, LimitOrderCreate } from "../../common/MarketClasses";
-import { PrivateKey, PublicKey, Aes, key } from "@quantadex/bitsharesjs";
-import { createLimitOrder2, signAndBroadcast } from "../../common/Transactions";
+import { PrivateKey, PublicKey, Aes, key, ChainStore } from "@quantadex/bitsharesjs";
+import { createLimitOrderWithPrice, createLimitOrder2, signAndBroadcast } from "../../common/Transactions";
 
 export const INIT_DATA = 'INIT_DATA';
 export const LOGIN = 'LOGIN';
@@ -91,16 +91,23 @@ export function initBalance() {
 }
 
 export function buyTransaction(market, price, amount) {
-	return function() {
-		return qClient.submitOrder(0, market, price, amount)
-			.then((e) => e.json()).then((e) => {
-				console.log("ordered ", e);
-				return e
-			}).catch((e) => {
-				console.log(e);
-				throw e
+	return (dispatch, getState) => {
+		var base = "1.3.1"
+		var counter = "1.3.0"
+		var user_id = "1.2.8";
+
+		const pKey = PrivateKey.fromWif(getState().app.private_key);
+		console.log(pKey, assets[base], price, amount);
+
+		const order = createLimitOrderWithPrice(user_id, true, window.assets, base, counter, price, amount)
+
+		console.log("order prepare", order);
+		const tr = createLimitOrder2(order)
+		return signAndBroadcast(tr, pKey)
+			.then((e) => {
+				console.log("order result ", e);
 			})
-	} 
+	}
 }
 
 export function sellTransaction(market, price, amount) {
@@ -111,33 +118,9 @@ export function sellTransaction(market, price, amount) {
 
 		const pKey = PrivateKey.fromWif(getState().app.private_key);
 		console.log(pKey, assets[base]);
-		const priceObj = new Price({ 
-			base: new Asset({
-					asset_id: assets[base].id,
-					precision: assets[base].precision
-			}),
-			quote: new Asset({
-				asset_id: assets[counter].id,
-				precision: assets[counter].precision
-			})
-		})
 
-		priceObj.setPriceFromReal(price)
-		const sellAmount = priceObj.base.clone()
-		sellAmount.setAmount({real: parseFloat(amount)});
+		const order = createLimitOrderWithPrice(user_id, false, window.assets, base, counter, price, amount)
 
-		console.log("priceObj", priceObj, amount, sellAmount);
-
-		const order = new LimitOrderCreate({
-			for_sale: sellAmount.times(priceObj),
-			expiration: null,
-			to_receive: sellAmount,
-			seller: user_id,
-			fee: {
-				asset_id: "1.3.0",
-				amount: 0
-			}
-		});
 		console.log("order prepare", order);
 		const tr = createLimitOrder2(order)
 		return signAndBroadcast(tr, pKey)
@@ -151,17 +134,44 @@ export function sellTransaction(market, price, amount) {
 var initAPI = false;
 var wsString = "ws://testnet-01.quantachain.io:8090";
 
+function updateChainState(state) {
+	// console.log("updateChainState", state);
+	// var c = ChainStore.getAccountRefsOfKey("QA6nkaBAz1vV6cb25vSHXJqHos1AeADzqRAXPvtASXMAhM3SbRFA");
+	// console.log(c);
+	// if (c){
+	// 	c.forEach(chain_account_id => {
+	// 		console.log(chain_account_id);
+	// 		ChainStore.getAccount(chain_account_id);
+	// 	})
+	// }
+}
 
 export function switchTicker(ticker) {
 	console.log("Switch ticker ", ticker);
-	return function (dispatch) {
+
+	return function (dispatch,getState) {
+		const pKey = PrivateKey.fromWif(getState().app.private_key);
+		const publicKey = pKey.toPublicKey().toString()
 
 		if (initAPI == false) {
 			Apis.instance(wsString, true).init_promise.then((res) => {
-				console.log("connected to:", res[0].network);
+				console.log("connected to:", res[0].network, publicKey);
 
 				//Apis.instance().db_api().exec("set_subscribe_callback", [updateListener, true]);
 				initAPI = true;
+				ChainStore.init(false).then(() => {
+					ChainStore.subscribe(updateChainState);
+
+					// setTimeout(() => {
+					// 	ChainStore.getAccountRefsOfKey(publicKey);
+					// }, 500)
+					Apis.instance()
+						.db_api()
+						.exec("get_key_references", [[publicKey]])
+						.then(vec_account_id => {							
+							console.log(vec_account_id);
+					});
+				});
 			}).then((e) => {
 				action()
 			});
@@ -176,7 +186,7 @@ export function switchTicker(ticker) {
 				console.log(assets);
 				window.assets = lodash.keyBy(assets, "id")
 			})
-
+			
 			const trades = Apis.instance().history_api().exec("get_fill_order_history", [base, counter, 100]).then((filled) => {
 				console.log("history filled ", filled);
 				var trade_history = [];
