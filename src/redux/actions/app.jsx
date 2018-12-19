@@ -211,6 +211,16 @@ export function switchTicker(ticker) {
 				console.log("Got a market change ", data);
 			}, base, counter])
 
+			Apis.instance()
+				.db_api()
+				.exec("get_limit_orders", [
+					base,
+					counter,
+					300
+				]).then((limitorders) => {
+					console.log("ob  ", limitorders);
+				})
+
 			return Promise.all([orderBook,trades])
 			.then((data) => {
 				dispatch({

@@ -110,3 +110,20 @@ export function createLimitOrderWithPrice(user_id, is_buy, assets, base, counter
 		}
 	});
 }
+
+export function cancelOrder(accountID, orderID) {
+	//limit_order_cancel_operation
+	const fee_asset_id = "1.3.0";
+
+	var tr = WalletApi.new_transaction();
+	tr.add_type_operation("limit_order_cancel", {
+		fee: {
+			amount: 0,
+			asset_id: fee_asset_id
+		},
+		fee_paying_account: accountID,
+		order: orderID
+	});
+
+	return tr;
+}
