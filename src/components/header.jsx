@@ -38,7 +38,7 @@ class Header extends Component {
 									type: TOGGLE_LEFT_PANEL
 								})
 							}}/></a>
-						<a href="/exchange" className="header-logo"><img src="/public/images/color-logo.svg" width="220" height="26" /></a>
+						<a href="/exchange" className="header-logo"><img src="/public/images/qdex-fantasy-light.svg" width="220" height="26" /></a>
 					</div>
 					<div className="d-flex align-items-center">
 						<span className="header-coin-name qt-font-normal qt-font-regular"><Ticker ticker={this.props.currentTicker} /></span>

@@ -18,6 +18,13 @@ const container = css`
 			border-bottom: 1px solid #333;
 			margin-bottom: 10px;
 		}
+		thead th {
+			position: sticky;
+			position: -webkit-sticky;
+			top: 0;
+			background: #191e21;
+			z-index: 1;
+		}
 	}
 `;
 

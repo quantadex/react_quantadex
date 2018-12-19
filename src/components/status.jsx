@@ -3,6 +3,8 @@ import { css } from 'emotion'
 
 const container = css`
     display: flex;
+    position: fixed;
+    bottom: 0;
     width: 100%;
     background-color: #ffffff;
     overflow: hidden;

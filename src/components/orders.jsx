@@ -11,6 +11,7 @@ import QTButton from './ui/button.jsx'
 const container = css`
   width: 100%;
   padding: 20px 35px;
+  margin-bottom: 54px;
 
   .order-list {
     margin-top: 35px;
