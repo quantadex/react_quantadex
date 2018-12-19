@@ -3,7 +3,9 @@ import API from "../../api.jsx"
 import SortedSet from 'js-sorted-set'
 import QuantaClient from "@quantadex/quanta_js"
 import { Apis } from "@quantadex/bitsharesjs-ws";
-import { FillOrder } from "../../common/MarketClasses";
+import { Price, Asset, FillOrder, LimitOrderCreate } from "../../common/MarketClasses";
+import { PrivateKey, PublicKey, Aes, key } from "@quantadex/bitsharesjs";
+import { createLimitOrder2, signAndBroadcast } from "../../common/Transactions";
 
 export const INIT_DATA = 'INIT_DATA';
 export const LOGIN = 'LOGIN';
@@ -85,70 +87,6 @@ var getMyOrders = (accoundId) => {
 
 export function initBalance() {
 	return function(dispatch) {
-	    console.log("initBalance(): initializing balance")
-
-		localStorage.removeItem("quanta_sender_publicKey")
-
-		StellarBase.Network.use(new StellarBase.Network("Test QuantaDex SDF Network ; June 2018"))
-
-		if (localStorage.getItem("quanta_sender_publicKey") == null) {
-			var sender_keypair = Keypair.random();
-			var sender_secret = sender_keypair.secret()
-			var sender_public = sender_keypair.publicKey()
-			var issuer_publicKey = "GC5YBJP4YMTVZ5DLNZDDLFQAY5MGJ66I5GAJN34FPTZIMJKEVRQ22K24"
-			console.log("initBalance() sender public key: ",sender_keypair.publicKey())
-			console.log("initBalance() sender secret key: ",sender_secret)
-			var sender_json = {
-				accountId:sender_public,
-				firstName:"sender_first",
-				lastName:"sender_last",
-				email:"sender_email",
-			}
-
-			return register(sender_json).then((data) => {
-				console.log("after register sender: ",data)
-				localStorage.setItem("quanta_sender_publicKey",sender_public)
-				localStorage.setItem("quanta_sender_secretKey",sender_secret)
-				localStorage.setItem("quanta_issuer_publicKey",issuer_publicKey)
-				var account=new StellarBase.Account(sender_public,data.seqnum.toString());
-				var opts = {
-					asset:new Asset("BTC",issuer_publicKey),
-					limit:"1000000000"
-				}
-				var opts2 = {
-					asset:new Asset("USD",issuer_publicKey),
-					limit:"1000000000"
-				}
-				var transaction = new StellarBase.TransactionBuilder(account)
-															.addOperation(StellarBase.Operation.changeTrust(opts))
-															.addOperation(StellarBase.Operation.changeTrust(opts2))
-											        .build();
-
-				var key = Keypair.fromSecret(sender_secret);
-				transaction.sign(key);
-				postTransaction(transaction).then((data) => {
-					console.log("after change trust:",data)
-					getFreeCoins(sender_public).then((data) => {
-						console.log("after get coin: ",data)
-						dispatch({
-							type: INIT_BALANCE,
-							data: data
-						})
-					})
-				})
-			})
-		} else {
-			var sender_public = localStorage.getItem("quanta_sender_publicKey")
-			var sender_secret = localStorage.getItem("quanta_sender_secretKey")
-			var issuer_public = localStorage.getItem("quanta_issuer_publicKey")
-			return getBalance(sender_public).then((data) => {
-				console.log("after get balance:",data)
-				dispatch({
-					type: INIT_BALANCE,
-					data:data
-				})
-			})
-		}
 	}
 }
 
@@ -166,16 +104,55 @@ export function buyTransaction(market, price, amount) {
 }
 
 export function sellTransaction(market, price, amount) {
-	return function() {
-		return qClient.submitOrder(1, market, price, amount)
-			.then((e) => e.json()).then((e) => {
-				console.log("ordered ", e);
-				return e
-			}).catch((e) => {
-				console.log(e);
-				throw e
+	// return function() {
+	// 	return qClient.submitOrder(1, market, price, amount)
+	// 		.then((e) => e.json()).then((e) => {
+	// 			console.log("ordered ", e);
+	// 			return e
+	// 		}).catch((e) => {
+	// 			console.log(e);
+	// 			throw e
+	// 		})
+	// }
+
+	return (dispatch, getState) => {
+		var base = "1.3.1"
+		var counter = "1.3.0"
+		var user_id = "1.2.8";
+
+		const pKey = PrivateKey.fromWif(getState().app.private_key);
+		console.log(pKey, assets[base]);
+		const priceObj = new Price({ 
+			base: new Asset({
+					asset_id: assets[base].id,
+					precision: assets[base].precision
+			}),
+			quote: new Asset({
+				asset_id: assets[counter].id,
+				precision: assets[counter].precision
+			})
+		})
+
+		priceObj.setPriceFromReal(price)
+
+		const order = new LimitOrderCreate({
+			for_sale: priceObj.base,
+			expiration: null,
+			to_receive: priceObj.quote,
+			seller: user_id,
+			fee: {
+				asset_id: "1.3.0",
+				amount: 0
+			}
+		});
+		console.log("order prepare", order);
+		const tr = createLimitOrder2(order)
+		return signAndBroadcast(tr, pKey)
+			.then((e) => {
+				console.log("order result ", e);
 			})
 	}
+
 }
 
 var initAPI = false;

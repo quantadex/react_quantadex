@@ -496,6 +496,23 @@ const MarketUtils = {
 
         const marketName = `${first.get("symbol")}_${second.get("symbol")}`;
         return {baseID, quoteID, marketName, first, second};
+    },
+    getSellAndBuy(is_buy, base, counter, assets) {
+        const baseAsset = assets[base];
+        const counterAsset = assets[counter]
+
+        if (is_buy) {
+            return {
+                selling: new Asset({
+                    asset_id: props.baseAsset.get("id"),
+                    precision: props.baseAsset.get("precision")
+                }),
+                buying: new Asset({
+                    asset_id: props.baseAsset.get("id"),
+                    precision: props.baseAsset.get("precision")
+                }),
+            }
+        }
     }
 };
 
