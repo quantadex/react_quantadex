@@ -102,6 +102,7 @@ class OrderBook extends Component {
 					<div>
 						<QTTableViewSimple key="ask_tv" dataSource={asksDataSource} 
 							columns={this.props.asks.columns} 
+							ticker={this.props.currentTicker}
 							onAction={this.setAmount.bind(this, 1)}
 						/>
 					</div>
@@ -138,6 +139,7 @@ const mapStateToProps = (state) => ({
 	spread: state.app.orderBook.spread,
 	spreadDollar:state.app.orderBook.spreadDollar,
 	mostRecentTrade: state.app.mostRecentTrade,
+	currentTicker:state.app.currentTicker,
 	});
 
 export default connect(mapStateToProps)(OrderBook);

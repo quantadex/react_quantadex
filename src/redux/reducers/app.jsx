@@ -35,7 +35,7 @@ let initialState = {
       dataSource: new SortedSet({ comparator: function(a, b) { return parseFloat(a.price) - parseFloat(b.price); }}),
 
       columns: [{
-        name:"Price BTC",
+        name: (ticker) => {return "Price " + ticker.split('/')[1].substr(0,3)},
         key:"price",
         type:"number",
         sortable:false,
@@ -44,7 +44,7 @@ let initialState = {
         fontWeight:"light",
         float:"left"
       },{
-        name:"Amount BTC",
+        name:"Amount",
         key:"amount",
         type:"number",
         sortable:false,
@@ -53,7 +53,7 @@ let initialState = {
         fontWeight:"light",
         float:"right"
       },{
-        name:"Total BTC",
+        name: (ticker) => {return "Total " + ticker.split('/')[1].substr(0,3)},
         key:"total",
         type:"number",
         sortable:false,
@@ -150,7 +150,7 @@ let initialState = {
       fontWeight:"light",
       float:"left"
     },{
-      name:"Price BTC",
+      name:"Price",
       key:"price",
       type:"number",
       sortable:false,
@@ -231,12 +231,12 @@ const app = (state = initialState, action) => {
             console.log(e)
           }
       })
-      console.log("!!!", action.data.trades)
+      
       const tradesDataSource = action.data.trades.reverse().map((trade) => {
         return {
           price: trade.getPrice(),
           amount: trade.fill_price.base.getAmount({real: true}),
-          color_key: trade.Taker,
+          color_key: trade.isBid ? 0 : 1,
           date: moment(trade.time || "").utc().format('DD MMM'),
           time: moment(trade.time || "").utc().format("HH:mm:ss")
         }
@@ -251,7 +251,7 @@ const app = (state = initialState, action) => {
 
       return {
         ...state,
-        // currentTicker:action.data.ticker,
+        currentTicker:action.data.ticker,
         openOrders: [], // action.data.openOrders,
         orderBook: {
           ...state.orderBook,

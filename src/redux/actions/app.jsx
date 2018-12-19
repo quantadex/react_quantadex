@@ -31,6 +31,10 @@ export const toggleFavoriteList = pair => ({
 })
 
 var qClient, default_market;
+var base = "1.3.1"
+var counter = "1.3.0"
+var user_id = "1.2.8";
+
 export function initMarket(key) {
 	console.log("set key =", key)
 	qClient = new QuantaClient({ orderbookUrl: "http://orderbook-api-792236404.us-west-2.elb.amazonaws.com", secretKey: key })
@@ -92,10 +96,6 @@ export function initBalance() {
 
 export function buyTransaction(market, price, amount) {
 	return (dispatch, getState) => {
-		var base = "1.3.1"
-		var counter = "1.3.0"
-		var user_id = "1.2.8";
-
 		const pKey = PrivateKey.fromWif(getState().app.private_key);
 		console.log(pKey, assets[base], price, amount);
 
@@ -112,10 +112,6 @@ export function buyTransaction(market, price, amount) {
 
 export function sellTransaction(market, price, amount) {
 	return (dispatch, getState) => {
-		var base = "1.3.1"
-		var counter = "1.3.0"
-		var user_id = "1.2.8";
-
 		const pKey = PrivateKey.fromWif(getState().app.private_key);
 		console.log(pKey, assets[base]);
 
@@ -180,8 +176,6 @@ export function switchTicker(ticker) {
 		}
 
 		function action() {
-			var base = "1.3.1"
-			var counter = "1.3.0"
 			Apis.instance().db_api().exec("list_assets", ["A", 100]).then((assets) => {
 				console.log(assets);
 				window.assets = lodash.keyBy(assets, "id")
@@ -203,7 +197,7 @@ export function switchTicker(ticker) {
 			})
 
 			const orderBook = Apis.instance().db_api().exec("get_order_book", [base, counter, 50]).then((ob) => {
-				console.log("ob  ", ob);
+				console.log("get_order_book  ", ob);
 				return ob
 			})
 
@@ -218,7 +212,8 @@ export function switchTicker(ticker) {
 					counter,
 					300
 				]).then((limitorders) => {
-					console.log("ob  ", limitorders);
+					const user_orders = limitorders.filter((order) => order.seller === user_id)
+					console.log("get_limit_orders  ", limitorders, user_orders);
 				})
 
 			return Promise.all([orderBook,trades])
@@ -228,6 +223,7 @@ export function switchTicker(ticker) {
 					data: {
 						orderBook:data[0],
 						trades:data[1],
+						ticker:ticker,
 					}
 				})
 			})

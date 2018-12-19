@@ -89,7 +89,7 @@ export default class QTTableViewSimple extends React.Component {
         <thead className={this.props.HideHeader ? "hidden" : ""}><tr>
           {
             this.props.columns.map((col) => {
-              return <th className={col.float}>{col.name}</th>
+              return <th className={col.float}>{typeof(col.name) === "string" ? col.name : col.name(this.props.ticker)}</th>
             })
           }
         </tr></thead>
