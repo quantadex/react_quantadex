@@ -5,8 +5,9 @@ export const Token = ({ name }) => {
 		return "INVALID"
 	}
 
-	const token = name.split("*")
-	return <span>{token[0]}<b>{token[1].substr(0, 4)}</b></span>
+	// const token = name.split("*")
+	// return <span>{token[0]}<b>{token[1].substr(0, 4)}</b></span>
+	return <span>{name}</span>
 }
 
 export const SmallToken = ({ name }) => {
@@ -14,18 +15,19 @@ export const SmallToken = ({ name }) => {
 		return "INVALID"
 	}
 
-	const token = name.split("*")
-	return <span>{token[0]}<span className="issuer">{token[1].substr(0, 4)}</span></span>
+	// const token = name.split("*")
+	// return <span>{token[0]}<span className="issuer">{token[1].substr(0, 4)}</span></span>
+	return <span>{name}</span>
 }
 
 export default ({ticker}) => {
 	if (ticker === undefined || ticker === null) {
 		return "INVALID"
 	}
+	return <span>{ticker}</span>
+	// const comp = ticker.split("/")
+	// const base = comp[0].split("*")
+	// const counter = comp[1].split("*")
 
-	const comp = ticker.split("/")
-	const base = comp[0].split("*")
-	const counter = comp[1].split("*")
-
-	return <span>{base[0]}<b>{base[1].substr(0, 4)}</b>/{counter[0]}<b>{counter[1].substr(0, 4)}</b></span>
+	// return <span>{base[0]}<b>{base[1].substr(0, 4)}</b>/{counter[0]}<b>{counter[1].substr(0, 4)}</b></span>
 }
