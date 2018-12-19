@@ -50,7 +50,7 @@ injectGlobal`
 	}
 
 	body {
-		font-family: SFCompactTextRegular;
+		font-family: SFCompactTextLight;
 		color: #ffffff;
 		-webkit-font-smoothing: antialiased;
 	 	-moz-osx-font-smoothing: grayscale;

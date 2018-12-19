@@ -49,7 +49,7 @@ const container = css`
             }
             .flex-center {
                 align-self: center;
-                max-width: 600px;
+                max-width: 520px;
             }
             p {
                 font-size: 18px;
