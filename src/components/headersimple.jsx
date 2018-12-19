@@ -60,7 +60,7 @@ class Header extends Component {
 
         <a href="/" className="logo"></a>
 				<div className="menu">
-					<span className="name">Afonso</span>
+					<span className="name">{this.props.name}</span>
 					<HamburgerMenu />
 				</div>
 			</div>
@@ -70,7 +70,8 @@ class Header extends Component {
 
 const mapStateToProps = (state) => ({
 		currentTicker: state.app.currentTicker,
-		currentPrice: state.app.currentPrice
+    currentPrice: state.app.currentPrice,
+    name: state.app.name
 	});
 
 export default connect(mapStateToProps)(Header);

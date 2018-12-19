@@ -23,7 +23,7 @@ class Menu extends Component {
     return (
       <div className={container}>
 				<div className="row qt-font-bold qt-font-small justify-content-end">
-					<span className="name">Afonso</span>
+					<span className="name">{this.props.name}</span>
 					<HamburgerMenu />
 				</div>
       </div>
@@ -34,7 +34,8 @@ class Menu extends Component {
 const mapStateToProps = (state) => ({
   	bids: state.app.tradeBook.bids,
   	asks: state.app.tradeBook.asks,
-		currentPrice: state.app.currentPrice
+		currentPrice: state.app.currentPrice,
+		name: state.app.name
 	});
 
 export default connect(mapStateToProps)(Menu);

@@ -1,6 +1,6 @@
 import { INIT_DATA, INIT_BALANCE, SET_MARKET_QUOTE, APPEND_TRADE, UPDATE_ORDER, UPDATE_OPEN_ORDERS, SET_AMOUNT, UPDATE_USER_ORDER, UPDATE_TICKER, UPDATE_TRADES, UPDATE_DIGITS } from "../actions/app.jsx";
 import { TOGGLE_LEFT_PANEL, TOGGLE_RIGHT_PANEL } from "../actions/app.jsx";
-import { TOGGLE_FAVORITE_LIST } from "../actions/app.jsx";
+import { TOGGLE_FAVORITE_LIST, UPDATE_ACCOUNT } from "../actions/app.jsx";
 import { LOGIN } from "../actions/app.jsx";
 import { toggleFavoriteList } from "../actions/app.jsx";
 import SortedSet from 'js-sorted-set'
@@ -10,7 +10,7 @@ import moment from 'moment'
 
 let initialState = {
   private_key: "5Ke9twHjfewQyE6YrQj9UZv5LnH2dj82jvZki3Z5g6anJ5k8K8N",
-  currentTicker: 'ETH*QB3WOAL55IVT6E7BVUNRW6TUVCAOPH5RJYPUUL643YMKMJSZFZGWDJU3/USD*QB3WOAL55IVT6E7BVUNRW6TUVCAOPH5RJYPUUL643YMKMJSZFZGWDJU3',
+  currentTicker: 'QDEX/ETH',
   tradeHistory: [],
   tradeBook: { bids: [], asks: []},
   openOrders: [], markets: [],
@@ -292,6 +292,12 @@ const app = (state = initialState, action) => {
       return {
         ...state,
         private_key: action.private_key
+      }
+    case UPDATE_ACCOUNT: 
+      return {
+        ...state,
+        userId: action.data.id,
+        name: action.data.name
       }
 
     case UPDATE_OPEN_ORDERS:
