@@ -1,5 +1,5 @@
 {
-  "presets" : ["es2015", "stage-2", "react"],
+  "presets" : ["babel-polyfill", "es2015", "stage-2", "react"],
   "plugins": ["transform-decorators-legacy"],
   "env": {
     "production": {

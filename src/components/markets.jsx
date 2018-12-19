@@ -41,17 +41,17 @@ class Markets extends Component {
 				</div>
 				<div>
 					{this.props.markets.map((e) => {
-						const fmtChange = lodash.round(e.change*100, 2);
+						//const fmtChange = lodash.round(e.change*100, 2);
 
-						return <div className="row" key={e.ticker}>
+						return <div className="row" key={e.name}>
 										<div className="col-md-4">
-											{e.ticker}
+											{e.name}
 										</div>
 										<div className="col-md-4 text-center">
-											{e.close}
+											{e.last}
 										</div>
 										<div className="col-md-4 text-right">
-											{isNaN(fmtChange) ? "N/A" : fmtChange + "%" }
+											{e.base_volume}
 										</div>
 									</div>
 					})}

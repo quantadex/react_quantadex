@@ -88,7 +88,6 @@ class Exchange extends Component {
 		} else {
 			this.props.dispatch(switchTicker("QDEX/ETH"));
 			//this.props.dispatch(initBalance());
-			//this.props.dispatch(getMarketQuotes())
 		}
 
 		document.getElementsByClassName("row flex-nowrap")[0].style.paddingBottom = document.getElementsByClassName("exchange-bottom")[0].offsetHeight + "px";

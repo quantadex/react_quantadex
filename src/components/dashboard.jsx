@@ -68,6 +68,8 @@ class Dashboard extends Component {
 	}
 
 	render() {
+		console.log("markets ", this.props.markets);
+		
 		const tabs = {
 			names: ['All','Trading','Favorites'],
 			selectedTabIndex: 0
@@ -105,11 +107,18 @@ class Dashboard extends Component {
 					</tr>
 				</thead>
 				<tbody>
-					{this.props.dashboard.dataSource.map((market) => {
-						const pair = market.market.split('/')
-						return <tr onClick={this.switchMarket.bind(this, market.market)}><td className="market"><SmallToken name={pair[0]} />/<SmallToken name={pair[1]} /></td><td className="text-right">{market.last}</td><td className="text-right"></td></tr>
-					} 
-						)}
+							{
+								this.props.markets.map((market) => {
+									const pair = market.name.split('/')
+									return <tr onClick={this.switchMarket.bind(this, market.name)}>
+										<td className="market">
+											{market.name}
+										</td>
+										<td className="text-right">{market.last}</td>
+										<td className="text-right">{market.base_volume}</td>
+									</tr>
+								})
+							}
 				</tbody>
 			</table>
         </section>
@@ -120,7 +129,7 @@ class Dashboard extends Component {
 
 
 const mapStateToProps = (state) => ({
-  dashboard: state.app.dashboard,
+	markets: state.app.markets,
 	favoriteList: state.app.favoriteList
 });
 

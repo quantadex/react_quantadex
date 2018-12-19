@@ -30,15 +30,11 @@ export const toggleFavoriteList = pair => ({
 	type: TOGGLE_FAVORITE_LIST,
 	pair
 })
+var markets = null;
 
 export function getMarketQuotes() {
 	return function(dispatch) {
-		qClient.getQuotes().then((e) => {
-			dispatch({
-				type: SET_MARKET_QUOTE,
-				data: e
-			})
-		})
+
 	} 
 }
 
@@ -147,6 +143,39 @@ export function switchTicker(ticker) {
 						window.assetsBySymbol = lodash.keyBy(assets, "symbol")
 						return assets;
 					})]);
+			})
+			.then((e) => {
+				return fetch("https://s3.amazonaws.com/quantachain.io/markets.json").then(e=> e.json())
+					.then(async (e) => {
+					markets = e;
+					var marketData = [];
+					console.log("json ", markets.markets);
+
+					for (const market of markets.markets) {
+						var { base, counter } = getBaseCounter(market.name);
+						const data = await Promise.all([Apis.instance()
+							.db_api()
+							.exec("get_ticker", [base.id, counter.id]),
+							Apis.instance()
+								.db_api()
+								.exec("get_24_volume", [base.id, counter.id])])
+						
+						marketData.push({
+							name: market.name,
+							last: data[0].latest,
+							base_volume: data[1].base_volume,
+							quote_volume: data[1].quote_volume
+						})						
+					}
+
+					console.log("market data ", marketData);
+
+					dispatch({
+						type: SET_MARKET_QUOTE,
+						data: marketData
+					})
+
+				})
 			})
 			.then((e) => {
 				action()
