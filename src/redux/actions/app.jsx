@@ -3,7 +3,7 @@ import API from "../../api.jsx"
 import SortedSet from 'js-sorted-set'
 import QuantaClient from "@quantadex/quanta_js"
 import { Apis } from "@quantadex/bitsharesjs-ws";
-import { Price, Asset, FillOrder, LimitOrderCreate } from "../../common/MarketClasses";
+import { Price, Asset, FillOrder, LimitOrderCreate, LimitOrder } from "../../common/MarketClasses";
 import { PrivateKey, PublicKey, Aes, key, ChainStore } from "@quantadex/bitsharesjs";
 import { createLimitOrderWithPrice, createLimitOrder2, signAndBroadcast } from "../../common/Transactions";
 
@@ -193,20 +193,30 @@ export function switchTicker(ticker) {
 					console.log("get_limit_orders  ", limitorders);
 				})
 
-			Apis.instance()
+			const account_data = Apis.instance()
 				.db_api()
 				.exec("get_full_accounts", [["1.2.8"], false])
 				.then(results => {
 					console.log("full accounts ", results);
+					results[0][1].limit_orders.forEach((ordered) => {
+						var order = new LimitOrder(
+							ordered,
+							window.assets,
+							counter
+						);
+						console.log("limit order normalized ", order, order.getPrice());
+					})
+					return results
 				});
 
-			return Promise.all([orderBook,trades])
+			return Promise.all([orderBook,trades,account_data])
 			.then((data) => {
 				dispatch({
 					type: INIT_DATA,
 					data: {
 						orderBook:data[0],
 						trades:data[1],
+						openOrders:account_data[0][1].limit_orders,
 						ticker:ticker,
 					}
 				})
