@@ -1,4 +1,6 @@
-"use strict";
+import { Apis } from "@quantadex/bitsharesjs-ws";
+import { transformPriceData } from "../common/PriceData";
+
 /*
 	This class implements interaction with UDF-compatible datafeed.
 
@@ -373,7 +375,7 @@ Datafeeds.UDFCompatibleDatafeed.prototype.resolveSymbol = function(
   }
 
   if (!this._configuration.supports_group_request) {
-    console.log("NOT GROUP REQUEST");
+    //console.log("NOT GROUP REQUEST");
     // this._send(
     //   this._datafeedURL +
     //     "/symbol_info/" +
@@ -448,39 +450,23 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
     ]);
   }
 
-  if (!resolution.endsWith("D")) {
-    resolution = resolution + "m";
-  } else {
-    resolution = resolution.replace("D", "d");
-  }
   const { base, counter } = getBaseCounter(symbolInfo.ticker);
 
-  console.log("Load prices ", symbolInfo.ticker, resolution);
+  console.log("Load prices ", symbolInfo, resolution, rangeStartDate, rangeEndDate);
   Apis.instance()
     .history_api()
     .exec("get_market_history", [
       base.id,
       counter.id,
       resolution,
-      new Date(rangeStartDate).toISOString().slice(0, -5),
-      new Date(rangeEndDate).toISOString().slice(0, -5)
+      new Date(rangeStartDate*1000).toISOString().slice(0, -5),
+      new Date(rangeEndDate*1000).toISOString().slice(0, -5)
     ]).then((data) => {
 
       console.log("chart data", data);
       const no_data = data.length == 0;
-      const bars = data;
-      // const bars = data.map(e => {
-      //   return {
-      //     time: e.time * 1000,
-      //     open: +e.open,
-      //     high: +e.high,
-      //     low: +e.low,
-      //     close: +e.close,
-      //     volume: +e.volume
-      //   };
-      // });
-
-      // console.log("Bars ", bars);
+      const bars = transformPriceData(data, base, counter);
+      console.log("Bars ", bars);
 
       onDataCallback(bars, {
         noData: no_data,
@@ -1001,8 +987,5 @@ Datafeeds.QuotesPulseUpdater.prototype._updateQuotes = function(symbolsGetter) {
   }
 };
 
-if (typeof module !== "undefined" && module && module.exports) {
-  module.exports = {
-    UDFCompatibleDatafeed: 
-  };
-}
+
+export default Datafeeds;
