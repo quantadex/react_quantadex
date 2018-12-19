@@ -16,6 +16,7 @@ import {buyTransaction} from "../redux/actions/app.jsx";
 import {sellTransaction} from "../redux/actions/app.jsx";
 
 const container = css`
+  font-family: SFCompactTextRegular;
   width: 360px;
   display: inline-block;
   padding: 20px;
