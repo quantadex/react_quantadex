@@ -104,17 +104,6 @@ export function buyTransaction(market, price, amount) {
 }
 
 export function sellTransaction(market, price, amount) {
-	// return function() {
-	// 	return qClient.submitOrder(1, market, price, amount)
-	// 		.then((e) => e.json()).then((e) => {
-	// 			console.log("ordered ", e);
-	// 			return e
-	// 		}).catch((e) => {
-	// 			console.log(e);
-	// 			throw e
-	// 		})
-	// }
-
 	return (dispatch, getState) => {
 		var base = "1.3.1"
 		var counter = "1.3.0"
@@ -134,11 +123,15 @@ export function sellTransaction(market, price, amount) {
 		})
 
 		priceObj.setPriceFromReal(price)
+		const sellAmount = priceObj.base.clone()
+		sellAmount.setAmount({real: parseFloat(amount)});
+
+		console.log("priceObj", priceObj, amount, sellAmount);
 
 		const order = new LimitOrderCreate({
-			for_sale: priceObj.base,
+			for_sale: sellAmount.times(priceObj),
 			expiration: null,
-			to_receive: priceObj.quote,
+			to_receive: sellAmount,
 			seller: user_id,
 			fee: {
 				asset_id: "1.3.0",
