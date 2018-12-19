@@ -231,7 +231,7 @@ const app = (state = initialState, action) => {
             console.log(e)
           }
       })
-      console.log("!!!", action.data.trades)
+      console.log(action.data.trades)
       const tradesDataSource = action.data.trades.reverse().map((trade) => {
         return {
           price: trade.getPrice(),
@@ -282,10 +282,7 @@ const app = (state = initialState, action) => {
     case SET_MARKET_QUOTE:
       return {
         ...state,
-        dashboard: {
-          ...state.dashboard,
-          dataSource: action.data
-        }
+        markets: action.data
       }
 
     case LOGIN:
