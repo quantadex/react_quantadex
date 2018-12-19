@@ -192,15 +192,12 @@ export function switchTicker(ticker) {
 					console.log("ob  ", limitorders);
 				})
 
-			Apis.instance().orders_api().exec("get_grouped_limit_orders", [
-					base.id,
-					counter.id,
-					300,
-					null,
-					60
-				]).then((limitorders) => {
-					console.log("grouped limit  ", limitorders);
-				})
+			Apis.instance()
+				.db_api()
+				.exec("get_full_accounts", [["1.2.8"], false])
+				.then(results => {
+					console.log("full accounts ", results);
+				});
 
 			return Promise.all([orderBook,trades])
 			.then((data) => {
