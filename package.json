@@ -12,6 +12,7 @@
     "@quantadex/quanta-base": "^0.8.3",
     "@quantadex/quanta_js": "^1.0.6",
     "autosuggest-highlight": "^3.1.1",
+    "babel-cli": "^6.26.0",
     "babel-loader": "^7.1.2",
     "babel-plugin-emotion": "^8.0.12",
     "babel-polyfill": "^6.26.0",
@@ -69,7 +70,8 @@
     "webpack-merge": "^4.1.2"
   },
   "scripts": {
-    "build:prod": "node_modules/.bin/webpack --config webpack.prod.js"
+    "build:prod": "node_modules/.bin/webpack --config webpack.prod.js",
+    "start": " node_modules/babel-cli/bin/babel-node.js index.js"
   },
   "author": "",
   "license": "ISC"
