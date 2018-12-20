@@ -7,6 +7,7 @@ import StellarBase from "@quantadex/quanta-base"
 import qbase from '@quantadex/quanta-base';
 import jsPDF from 'jspdf'
 import Banner from "./login_banner.jsx"
+import { PrivateKey, PublicKey, Aes, key, ChainStore } from "@quantadex/bitsharesjs";
 
 const container = css`
 	display: flex;
@@ -151,7 +152,9 @@ class Login extends Component {
 		e.preventDefault();
 
 		try {
-			const auth = qbase.Keypair.fromSecret(this.state.private_key)
+			// const auth = qbase.Keypair.fromSecret(this.state.private_key)
+			const pKey = PrivateKey.fromWif(this.state.private_key);
+
 			this.handleLogin()
 		} catch(e) {
 			console.log(e)

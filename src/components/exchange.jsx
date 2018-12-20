@@ -101,7 +101,7 @@ class Exchange extends Component {
 				</div>
 				<div className="exchange-middle">
 					<Header />
-					<Chart />
+						<Chart chartTools={true}/>
 					<Dashboard />
 					<Trade />
 				</div>

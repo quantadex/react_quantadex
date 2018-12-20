@@ -70,14 +70,12 @@ export function createLimitOrder2(order) {
 export function signAndBroadcast(tr, pKey) {
 	return tr.set_required_fees().then(() => {
 		tr.add_signer(pKey, pKey.toPublicKey().toPublicKeyString());
-		console.log("serialized transaction:", tr.serialize().operations);
+		//console.log("serialized transaction:", tr.serialize().operations);
 		return tr.broadcast()
-			.then(() => {
+			.then((res) => {
 				console.log("Call order update success!");
+				return res;
 			})
-			.catch(err => {
-				console.error("exception ", err);
-			});
 	});
 }
 
