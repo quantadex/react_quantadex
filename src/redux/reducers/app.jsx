@@ -13,7 +13,7 @@ let initialState = {
   currentTicker: 'QDEX/ETH',
   tradeHistory: [],
   tradeBook: { bids: [], asks: []},
-  openOrders: [], markets: [],
+  markets: [],
   currentPrice: "",
   balance: {},
   ui: {
@@ -22,6 +22,73 @@ let initialState = {
   },
   mostRecentTrade: {
     price: ""
+  },
+  openOrders: {
+    dataSource: [],
+    columns: [{
+      name:"PAIR",
+      key:"assets",
+      type:"string",
+      sortable:false,
+      color: (value) => {return "white"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"left"
+    },{
+      name:"PRICE",
+      key:"price",
+      type:"string",
+      sortable:false,
+      color: (value) => {return "white"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"right"
+    },{
+      name:"AMOUNT",
+      key:"amount",
+      type:"string",
+      sortable:false,
+      color: (value) => {return "white"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"right"
+    },{
+      name:"TOTAL",
+      key:"total",
+      type:"string",
+      sortable:false,
+      color: (value) => {return "white"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"right"
+    },{
+      name:"TYPE",
+      key:"type",
+      type:"string",
+      sortable:false,
+      color: (value) => {return value == "BUY" ? "theme" : "red"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"right"
+    },{
+      name:"DATE",
+      key:"date",
+      type:"string",
+      sortable:false,
+      color: (value) => {return "white"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"right"
+    },{
+      name:"",
+      key:"cancel",
+      type:"cancel",
+      sortable:false,
+      color: (value) => {return "white"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"right"
+    }]
   },
   orderBook: {
     decimals: {
@@ -249,10 +316,25 @@ const app = (state = initialState, action) => {
         spreadDollar = Math.abs(parseFloat(asksSortedSet.beginIterator().value().price) - parseFloat(bidsSortedSet.beginIterator().value().price)).toFixed(7)
       }
 
+      const limitOrdersDataSource = action.data.openOrders.map((order) => {
+        return {
+          assets: state.currentTicker,
+          price: order.getPrice() + ' ' + state.currentTicker.split('/')[0],
+          amount: (order.amountToReceive()).getAmount({real: true}) + ' ' +state.currentTicker.split('/')[0],
+          total: order.getPrice() * (order.amountToReceive()).getAmount({real: true}) + ' ' + state.currentTicker.split('/')[1],
+          type: order.isBid() ? 'BUY' : 'SELL',
+          date: (new Date(order.expiration.setFullYear(order.expiration.getFullYear() - 5))).toLocaleString('en-US', { day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false }),
+          id: order.id
+        }
+      })
+
       return {
         ...state,
         currentTicker:action.data.ticker,
-        openOrders: [], // action.data.openOrders,
+        openOrders: {
+          ...state.openOrders,
+          dataSource: limitOrdersDataSource
+        }, 
         orderBook: {
           ...state.orderBook,
           spread: spread,
