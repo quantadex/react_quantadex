@@ -7,14 +7,28 @@ import globalcss from './global-css.js'
 
 import QTTabBar from './ui/tabBar.jsx'
 import QTButton from './ui/button.jsx'
+import QTTableViewSimple from './ui/tableViewSimple.jsx'
+
+import {cancelTransaction} from "../redux/actions/app.jsx";
+
 
 const container = css`
+  position: relative;
   width: 100%;
   padding: 20px 35px;
   margin-bottom: 54px;
 
   .order-list {
-    margin-top: 35px;
+    margin-top: 15px;
+    height: 300px;
+    table {
+      tbody tr {
+        border-top: 1px solid #333;
+      }
+      tbody td {
+        padding: 4px 0;
+      }
+    }
   }
 
   .order-list.inactive {
@@ -65,16 +79,42 @@ const container = css`
       background-color: rgba(52, 62, 68, 0.4);
     }
   }
+
+  .scroll-up {
+    position: absolute;
+    right: 30px;
+    top: 25px;
+    background-image: url(/public/images/up-arrow.svg);
+    background-repeat-x: no-repeat;
+    background-position: right;
+    background-position-y: 0;
+    height: 18px;
+    padding-right: 20px;
+    line-height: 20px;
+    color: #999;
+    font-size: 12px;
+    cursor: pointer;
+  }
 `;
 
 class Orders extends Component {
   handleSwitch(index, selected) {
-    const list = document.getElementsByClassName("order-list")[0]
-    if (index != selected || list.classList.contains("inactive")) {
-      list.classList.remove("inactive")
-    } else {
-      list.classList.add("inactive")
-    }
+    window.scrollTo(0,document.body.scrollHeight);
+    // const list = document.getElementsByClassName("order-list")[0]
+    // if (index != selected || list.classList.contains("inactive")) {
+    //   list.classList.remove("inactive")
+      
+    // } else {
+    //   list.classList.add("inactive")
+    // }
+  }
+
+  goToTop() {
+    window.scrollTo(0,0);
+  }
+
+  handleCancel(market, order) {
+    this.props.dispatch(cancelTransaction(market, order))
   }
 
   render() {
@@ -82,13 +122,15 @@ class Orders extends Component {
     //   ["BNCBTC","0.234567 BTC","0.234567 BTC","0.234567 BTC","0.234567 BTC","BUY","Filled","12 JAN, 12:34:15"],
     //   ["BNCBTC","0.234567 BTC","0.234567 BTC","0.234567 BTC","0.234567 BTC","BUY","Filled","12 JAN, 12:34:15"]
     // ]
+    console.log('!!!?', this.props)
     const tabs = {
-      names: ['ACTIVE ORDERS','CLOSED ORDERS','CANCELLED ORDERS'],//,'ALERT'],
+      names: ['ACTIVE ORDERS','CLOSED ORDERS'],
       selectedTabIndex: 0,
     }
 
     return (
       <div className={container}>
+        <div className="scroll-up" onClick={this.goToTop.bind(this)}>SCROLL UP</div>
         <QTTabBar
           className="underline small static set-width qt-font-bold d-flex justify-content-center"
           width={200}
@@ -96,35 +138,11 @@ class Orders extends Component {
           tabs = {tabs}
           switchTab = {this.handleSwitch.bind(this)}
         />
-        <section className="order-list container-fluid inactive">
-					<div className="row qt-opacity-half justify-content-between qt-number-base qt-font-semibold">
-						<span className="order-list-pairs text-left">Pair</span>
-						<span className="order-list-sloss text-right">STOP LOSS</span>
-						<span className="order-list-limit text-right">LIMIT</span>
-            <span className="order-list-amount text-right">AMOUNT BTC</span>
-            <span className="order-list-total-btc text-right">TOTAL BTC</span>
-            <span className="order-list-type text-right">TYPE</span>
-            <span className="order-list-status text-right">STATUS</span>
-            <span className="order-list-date text-right">Date Time</span>
-            <span className="order-list-empty"></span>
-					</div>
-					{
-						this.props.openOrders.map((order,index) => {
-							return (
-								<div className="order-list-data row justify-content-between align-items-center qt-font-extra-small qt-font-normal">
-                  <span className="order-list-pairs text-left">{order.base + order.counter}</span>
-      						<span className="order-list-sloss text-right">-</span>
-      						<span className="order-list-limit text-right">-</span>
-                  <span className="order-list-amount text-right">{order.amount}</span>
-                  <span className="order-list-total-btc text-right">{order.amount * order.price}</span>
-                  <span className="order-list-type text-right">{order.type}</span>
-                  <span className="order-list-status text-right">-</span>
-                  <span className="order-list-date text-right">-</span>
-                  <QTButton className="grey inverse qt-font-semibold qt-font-base" borderWidth="1" width="66" height="18" label="CANCEL"/>
-								</div>
-							)
-						})
-					}
+        <section className="order-list container-fluid no-scroll-bar">
+          <div>
+            <QTTableViewSimple dataSource={this.props.openOrders.dataSource} columns={this.props.openOrders.columns}
+              cancelOrder={this.handleCancel.bind(this)} />
+          </div>
 				</section>
       </div>
     )
@@ -135,7 +153,8 @@ const mapStateToProps = (state) => ({
   	bids: state.app.tradeBook.bids,
   	asks: state.app.tradeBook.asks,
 		currentPrice: state.app.currentPrice,
-    openOrders:state.app.openOrders
+    openOrders:state.app.openOrders,
+    currentTicker: state.app.currentTicker
 	});
 
 export default connect(mapStateToProps)(Orders);

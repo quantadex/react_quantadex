@@ -5,7 +5,7 @@ import QuantaClient from "@quantadex/quanta_js"
 import { Apis } from "@quantadex/bitsharesjs-ws";
 import { Price, Asset, FillOrder, LimitOrderCreate, LimitOrder } from "../../common/MarketClasses";
 import { PrivateKey, PublicKey, Aes, key, ChainStore } from "@quantadex/bitsharesjs";
-import { createLimitOrderWithPrice, createLimitOrder2, signAndBroadcast } from "../../common/Transactions";
+import { createLimitOrderWithPrice, createLimitOrder2, cancelOrder, signAndBroadcast } from "../../common/Transactions";
 
 export const INIT_DATA = 'INIT_DATA';
 export const LOGIN = 'LOGIN';
@@ -90,6 +90,24 @@ export function sellTransaction(market, price, amount) {
 
 }
 
+export const cancelTransaction = (market, order_id) => {
+	return (dispatch, getState) => {
+		var { base, counter } = getBaseCounter(market)
+		var user_id = getState().app.userId;
+	
+		const pKey = PrivateKey.fromWif(getState().app.private_key);
+		console.log(pKey, assets[base.id], user_id);
+	
+		const order = cancelOrder(user_id, order_id)
+	
+		console.log("cancel order", order);
+		return signAndBroadcast(order, pKey)
+			.then((e) => {
+				console.log("order result ", e);
+			})
+	}
+}
+
 var initAPI = false;
 var wsString = "ws://testnet-01.quantachain.io:8090";
 
@@ -103,6 +121,10 @@ function updateChainState(state) {
 	// 		ChainStore.getAccount(chain_account_id);
 	// 	})
 	// }
+}
+
+function onUpdate(e) {
+	console.log('update',e)
 }
 
 export function switchTicker(ticker) {
@@ -224,18 +246,19 @@ export function switchTicker(ticker) {
 
 			const account_data = Apis.instance()
 				.db_api()
-				.exec("get_full_accounts", [["1.2.8"], false])
+				.exec("get_full_accounts", [["1.2.8"], true])
 				.then(results => {
-					console.log("full accounts ", results);
+					console.log("get_full_accounts")
+					var orders = [];
 					results[0][1].limit_orders.forEach((ordered) => {
 						var order = new LimitOrder(
 							ordered,
 							window.assets,
 							counter
 						);
-						console.log("limit order normalized ", order, order.getPrice());
+						orders.push(order)
 					})
-					return results
+					return orders
 				});
 
 			return Promise.all([orderBook,trades,account_data])
@@ -245,7 +268,7 @@ export function switchTicker(ticker) {
 					data: {
 						orderBook:data[0],
 						trades:data[1],
-						openOrders:account_data[0][1].limit_orders,
+						openOrders:data[2],
 						ticker:ticker,
 					}
 				})

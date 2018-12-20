@@ -75,7 +75,7 @@ const container = css`
     }
     input {
       border-radius: 2px;
-      padding-right: 35px;
+      padding-right: 40px;
     }
     input::selection {
       background-color: #fff;

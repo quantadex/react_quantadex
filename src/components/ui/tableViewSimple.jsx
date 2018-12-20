@@ -1,6 +1,7 @@
 import React, {PropTypes} from 'react';
 import styled, { css } from 'react-emotion'
 import globalcss from '../global-css'
+import QTButton from './button.jsx'
 
 const container = css`
   width:100%;
@@ -114,6 +115,18 @@ export default class QTTableViewSimple extends React.Component {
                             this.props.dispatch(col.handleClick(row.pair))
                           }} />
                         </td>
+                      )
+                    }
+                    if (col.type == "cancel") {
+                      return (
+                        <td className={col.float}>
+                          <QTButton className="grey inverse qt-font-semibold qt-font-base" 
+                          borderWidth="1" width="66" height="18" label="CANCEL"
+                          onClick={() => {
+                            this.props.cancelOrder(row.assets, row.id)
+                          }}/>
+                        </td>
+                        
                       )
                     }
                     return (

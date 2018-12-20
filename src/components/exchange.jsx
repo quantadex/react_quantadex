@@ -47,12 +47,11 @@ const container = css`
 	}
 
 	.exchange-bottom {
-		position: absolute;
-		width: 100%;
 		bottom: 0;
 		background-color: #23282c;
 		justify-content: center;
 		border-top: 3px solid black;
+		z-index: 99;
 	}
 	
 	#tv_chart_container {
@@ -90,13 +89,13 @@ class Exchange extends Component {
 			//this.props.dispatch(initBalance());
 		}
 
-		document.getElementsByClassName("row flex-nowrap")[0].style.paddingBottom = document.getElementsByClassName("exchange-bottom")[0].offsetHeight + "px";
+		// document.getElementsByClassName("row flex-nowrap")[0].style.paddingBottom = document.getElementsByClassName("exchange-bottom")[0].offsetHeight + "px";
 	}
 
 	render() {
 		return (
 		<div className={container + " container-fluid"}>
-			<div className="row flex-nowrap" style={{overflow:"hidden",minHeight:"100vh"}}>
+			<div className="row flex-nowrap" style={{overflow:"hidden",minHeight:"calc(100vh - 125px)"}}>
 				<div className="exchange-left" style={{ display: this.props.leftOpen ? 'block': 'none'}}>
 					<OrderBook />
 				</div>
