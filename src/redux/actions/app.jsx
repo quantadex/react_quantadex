@@ -113,7 +113,7 @@ export function switchTicker(ticker) {
 		const publicKey = pKey.toPublicKey().toString()
 
 		if (initAPI == false) {
-			Apis.instance(wsString, true, 1000, { enableOrders: true }).init_promise.then((res) => {
+			Apis.instance(wsString, true, 3000, { enableOrders: true }).init_promise.then((res) => {
 				console.log("connected to:", res[0].network, publicKey);
 
 				//Apis.instance().db_api().exec("set_subscribe_callback", [updateListener, true]);

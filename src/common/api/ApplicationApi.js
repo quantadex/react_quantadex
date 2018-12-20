@@ -31,6 +31,7 @@ const ApplicationApi = {
                 FetchChain("getAccount", referrer)
             ]).then(res => {
                 let [chain_registrar, chain_referrer] = res;
+                //console.log("res ", res);
 
                 let tr = new TransactionBuilder();
                 tr.add_type_operation("account_create", {
@@ -62,19 +63,7 @@ const ApplicationApi = {
                         votes: []
                     }
                 });
-                return WalletDb.process_transaction(
-                    tr,
-                    null, //signer_private_keys,
-                    broadcast
-                )
-                    .then(res => {
-                        console.log("process_transaction then", res);
-                        resolve();
-                    })
-                    .catch(err => {
-                        console.log("process_transaction catch", err);
-                        reject(err);
-                    });
+                resolve(tr);
             });
         });
     },
@@ -217,11 +206,7 @@ const ApplicationApi = {
                         tr.add_operation(transfer_op);
                     }
 
-                    return WalletDb.process_transaction(
-                        tr,
-                        null, //signer_private_keys,
-                        broadcast
-                    );
+                    return tr;
                 });
             })
             .catch(() => {});
