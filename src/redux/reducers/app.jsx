@@ -328,9 +328,17 @@ const app = (state = initialState, action) => {
         }
       })
 
+      const balances = action.data.accountData[0][1].balances.map((balance => {
+        return {
+          asset: balance.asset_type,
+          balance: balance.balance / (10 ** window.assets[balance.asset_type].precision) 
+        }
+      }))
+
       return {
         ...state,
         currentTicker:action.data.ticker,
+        balance: balances,
         openOrders: {
           ...state.openOrders,
           dataSource: limitOrdersDataSource

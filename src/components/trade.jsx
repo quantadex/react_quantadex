@@ -123,6 +123,7 @@ const container = css`
 
   .trade-balance {
     color: #838f95;
+    text-align: center;
   }
 
   .trade-balance:first-child {
@@ -285,15 +286,15 @@ class Trade extends Component {
         value: "20%"
     }
 
-		const tradingPair = this.props.currentTicker.split('/')
-		var pairBalance = []
-		tradingPair.forEach((currency) => {
+		const tradingPair = this.props.balance
+    var pairBalance = []
+		Object.keys(tradingPair).forEach((currency) => {
 			var item = {}
-			item.currency = currency
-			item.amount = this.props.balance[currency] ? this.props.balance[currency].balance : 0
+			item.currency = window.assets[tradingPair[currency].asset].symbol
+			item.amount = tradingPair[currency].balance ? tradingPair[currency].balance : 0
 			pairBalance.push(item)
-		})
-
+    })
+    
     return (
       <div className={container + " container-fluid"}>
         <div className="buy-sell-toggle">
@@ -312,7 +313,7 @@ class Trade extends Component {
                     step="0.0000001"
                      value={this.state.price}
                      onChange={this.handlePriceInputChange.bind(this)} />
-              <SmallToken name={tradingPair[1]}/>
+              <SmallToken name={this.props.currentTicker.split('/')[1]}/>
             </div>
             <div className="input-container">
                <label>AMOUNT {/*<Token name={tradingPair[0]}/>*/}</label> 
@@ -331,7 +332,7 @@ class Trade extends Component {
                       step="0.0000001"
                        value={this.state.qty}
                        onChange={this.handleQtyInputChange.bind(this)} />
-              <SmallToken name={tradingPair[0]}/>
+              <SmallToken name={this.props.currentTicker.split('/')[0]}/>
             </div>
             <div className="input-container">
                <label>TOTAL {/*<Token name={tradingPair[1]}/> */}</label>
@@ -344,7 +345,7 @@ class Trade extends Component {
                     onFocus={this.handleInputFocus.bind(this)}
 										value={((this.state.qty*10000000) * (this.state.price*10000000))/100000000000000}
 									 />
-              <SmallToken name={tradingPair[1]}/>
+              <SmallToken name={this.props.currentTicker.split('/')[1]}/>
             </div>
 
           <button id="sell-action" className="sell-btn inactive" onClick={this.handleSell.bind(this)}>PLACE SELL ORDER</button>
@@ -353,9 +354,9 @@ class Trade extends Component {
         <div className="d-flex justify-content-center align-items-center qt-font-small">
 						{
 							pairBalance.map((item) => {
-
+                
 								return (
-									<span className="trade-balance"><Token name={item.currency}/> Balance: {item.amount}</span>
+									<span className="trade-balance">{item.currency} Balance: {item.amount}</span>
 								)
 							})
 						}

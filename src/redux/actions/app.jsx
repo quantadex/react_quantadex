@@ -248,7 +248,6 @@ export function switchTicker(ticker) {
 				.db_api()
 				.exec("get_full_accounts", [["1.2.8"], true])
 				.then(results => {
-					console.log("get_full_accounts")
 					var orders = [];
 					results[0][1].limit_orders.forEach((ordered) => {
 						var order = new LimitOrder(
@@ -258,7 +257,7 @@ export function switchTicker(ticker) {
 						);
 						orders.push(order)
 					})
-					return orders
+					return [results, orders]
 				});
 
 			return Promise.all([orderBook,trades,account_data])
@@ -268,8 +267,9 @@ export function switchTicker(ticker) {
 					data: {
 						orderBook:data[0],
 						trades:data[1],
-						openOrders:data[2],
+						openOrders:data[2][1],
 						ticker:ticker,
+						accountData: data[2][0]
 					}
 				})
 			})

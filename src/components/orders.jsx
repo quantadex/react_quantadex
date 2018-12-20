@@ -20,7 +20,7 @@ const container = css`
 
   .order-list {
     margin-top: 15px;
-    height: 300px;
+    height: 265px;
     table {
       tbody tr {
         border-top: 1px solid #333;
@@ -122,7 +122,6 @@ class Orders extends Component {
     //   ["BNCBTC","0.234567 BTC","0.234567 BTC","0.234567 BTC","0.234567 BTC","BUY","Filled","12 JAN, 12:34:15"],
     //   ["BNCBTC","0.234567 BTC","0.234567 BTC","0.234567 BTC","0.234567 BTC","BUY","Filled","12 JAN, 12:34:15"]
     // ]
-    console.log('!!!?', this.props)
     const tabs = {
       names: ['ACTIVE ORDERS','CLOSED ORDERS'],
       selectedTabIndex: 0,
