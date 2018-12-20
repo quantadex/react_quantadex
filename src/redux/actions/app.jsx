@@ -138,7 +138,7 @@ export function switchTicker(ticker) {
 			Apis.instance(wsString, true, 3000, { enableOrders: true }).init_promise.then((res) => {
 				console.log("connected to:", res[0].network, publicKey);
 
-				//Apis.instance().db_api().exec("set_subscribe_callback", [updateListener, true]);
+				Apis.instance().db_api().exec("set_subscribe_callback", [onUpdate, true]);
 				initAPI = true;				
 			})
 			.then((e) => {
@@ -216,9 +216,9 @@ export function switchTicker(ticker) {
 					var fill = new FillOrder(
 						filled,
 						window.assets,
-						counter
+						counter.id
 					);
-					console.log("normalized ", fill, fill.getPrice(), fill.fill_price.toReal());
+					console.log("normalized ", filled, fill, fill.getPrice(), fill.fill_price.toReal());
 					trade_history.push(fill)
 				})
 				return trade_history
@@ -234,26 +234,28 @@ export function switchTicker(ticker) {
 			}, base.id, counter.id])
 
 			Apis.instance()
-				.db_api()
-				.exec("get_limit_orders", [
+				.orders_api()
+				.exec("get_grouped_limit_orders", [
 					base.id,
 					counter.id,
-					300
+					10,
+					null,
+					50
 				]).then((limitorders) => {
 					// const user_orders = limitorders.filter((order) => order.seller === user_id)
-					console.log("get_limit_orders  ", limitorders);
+					console.log("get_grouped_limit_orders  ", limitorders);
 				})
 
 			const account_data = Apis.instance()
 				.db_api()
-				.exec("get_full_accounts", [["1.2.8"], true])
+				.exec("get_full_accounts", [[getState().app.userId], true])
 				.then(results => {
 					var orders = [];
 					results[0][1].limit_orders.forEach((ordered) => {
 						var order = new LimitOrder(
 							ordered,
 							window.assets,
-							counter
+							counter.id
 						);
 						orders.push(order)
 					})

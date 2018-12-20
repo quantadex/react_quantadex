@@ -45,6 +45,7 @@ class Chart extends Component {
       disabled_features.push("show_pro_features");
     } else {
       enabled_features.push("study_templates");
+      disabled_features.push("left_toolbar");
       //enabled_features.push("keep_left_toolbar_visible_on_small_screens");
     }
 
