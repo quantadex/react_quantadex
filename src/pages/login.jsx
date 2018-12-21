@@ -3,11 +3,11 @@ import { Link, Redirect, withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { LOGIN } from '../redux/actions/app.jsx'
 import { css } from 'emotion'
-import StellarBase from "@quantadex/quanta-base"
 import qbase from '@quantadex/quanta-base';
 import jsPDF from 'jspdf'
 import Banner from "./login_banner.jsx"
 import { PrivateKey, PublicKey, Aes, key, ChainStore } from "@quantadex/bitsharesjs";
+import WalletApi from "../common/api/WalletApi";
 
 const container = css`
 	display: flex;
@@ -261,30 +261,40 @@ export class GenerateKey extends Component {
 	generateKeys(e) {
 		e.preventDefault();
 
-		var keys = StellarBase.Keypair.random();
-		
+		var keys = WalletApi.generate_key()
+
 		this.setState({
-			public: keys.publicKey(),
-			private: keys.secret()
+			public: keys.publicKey,
+			private: keys.privateKey,
+			brainKey: keys.brainKey
 		})
 		setTimeout(function() {this.saveToPDF()}.bind(this), 400)
 	}
 
 	saveToPDF() {
 		var doc = new jsPDF()
-		
+		const words = this.state.brainKey.split(" ");
+		const mid = words.length / 2;
+		const first = words.slice(0, mid);
+		const second = words.slice(mid, words.length);
+
 		doc.setFontSize(16)
 		// doc.addImage(window.logoData, 'JPEG', 70, 10)
 		doc.text('WALLET INFORMATION', 75, 40)
-		var tm = 50
-		doc.rect(10, tm+40, 190, 55)
+		var tm = 40
+		doc.rect(10, tm+40, 190, 75)
 		doc.setFontSize(18)
 		doc.text('Your QUANTA private key\nKeep it safe, keep it secure.', 20, tm +50)
 		doc.setFontSize(16)
 		doc.text('Do not share it with anyone, not even the QUANTA foundation.\nWe will never ask you for your private key.', 20, tm +70)
 		doc.setFontSize(12)
 		doc.setTextColor("#FF0000")
-		doc.text(this.state.private, 20, tm +85)
+		doc.text("BRAIN KEY:", 20, tm+85)
+		doc.text(first.join(" ").toUpperCase(), 20, tm + 90)
+		doc.text(second.join(" ").toUpperCase(), 20, tm + 95)
+
+		doc.text("WIF KEY:", 20, tm + 105)
+		doc.text(this.state.private, 20, tm + 110)
 
 		doc.setTextColor("#000000")
 		doc.rect(10, tm +120, 190, 40)
