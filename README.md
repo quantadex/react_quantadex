@@ -1,9 +1,14 @@
+## Install dependencies
+
+* install node v10
+* npm install
+
 ## Running project
 
 ```
 # start up express
 
-node index.js
+npm start
 
 # start webpack
 
