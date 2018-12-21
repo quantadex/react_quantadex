@@ -2,6 +2,12 @@
 	"markets": [
 		{
       "name": "QDEX/ETH"
+		},
+		{
+			"name": "ETH/USD"
+		},
+		{
+			"name": "QDEX/USD"
 		}
 	]
 }
