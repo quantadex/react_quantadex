@@ -302,8 +302,8 @@ class Trade extends Component {
     return (
       <div className={container + " container-fluid"}>
         <div className="buy-sell-toggle">
-          <button id="buy-switch" className="buy-btn" onClick={this.switchTradeTo.bind(this, 0)}>BUY {tradingPair[1]}</button>
-          <button id="sell-switch" className="sell-btn inactive" onClick={this.switchTradeTo.bind(this, 1)}>SELL {tradingPair[1]}</button>
+          <button id="buy-switch" className="buy-btn" onClick={this.switchTradeTo.bind(this, 0)}>BUY {tradingPair[0]}</button>
+          <button id="sell-switch" className="sell-btn inactive" onClick={this.switchTradeTo.bind(this, 1)}>SELL {tradingPair[0]}</button>
         </div>
 
         <div className="transac-actions">
