@@ -69,20 +69,20 @@ const login_container = css`
 	.back-nav {
 		position: absolute;
 		left: 30px;
-		top: 5px;
 		text-align: left;
 		margin-left: 30px;
 	}
 
-	form {
-		.input-container {
+	.input-container {
+			display: flex;
+			height: 45px;
 			position: relative;
 			border: 1px solid #c7c7c8;
-			border-radius: 4px
-		}
+			border-radius: 4px;
+
 		label {
 			background-color: #f9f9f9;
-			width: 135px;
+			flex: 0 0 120px;
 			height: 100%;
 			margin: 0px;
 			border-right: 1px solid #c7c7c8;
@@ -93,9 +93,8 @@ const login_container = css`
 			background: #f9f9f9 url("/public/images/lock.svg") no-repeat 15px 12px;
 		}
 		input {
-			float: right;
-			height: 45px;
-			width: calc(100% - 135px);
+			height: 100%;
+			width: 100%;
 			text-align: left;
 			color: #0a0a0a;
 			font-weight: 500;
@@ -115,18 +114,37 @@ const login_container = css`
 			color: #f0185c;
 		}
 	}
+	.keygen {
+		.input-container {
+			width: 365px;
+		}
+		label {
+			background-image: none;
+			font-size: 13px;
+			padding: 12px;
+			text-align: center;
+		}
+		button {
+			margin: 40px 0 30px;
+		}
+		#reg-success {
+			text-align: left;
+			a {
+				text-decoration: underline;
+			}
+		}
+	}
 	button {
 		display: block;
 		margin: 40px auto;
-		background-color: #00d8d0;
+		background-color: #5045d2;
 		color: #fff;
 		padding: 12px 28px;
 		border-radius: 2px;
 		cursor: pointer;
 	}
 	button:disabled {
-		opacity: 0.23;
-
+		background-color: #ddd;
 	}
 	.auth-form a {
 		padding-bottom: 5px;
@@ -134,6 +152,9 @@ const login_container = css`
 	}
 	.black {
 		color: #0a0a0a;
+	}
+	.text-theme {
+		color: #5045d2;
 	}
 	
 `
@@ -191,7 +212,7 @@ class Login extends Component {
 										QUANTA<br/>PRIVATE KEY
 									</label>
 									<input name="private-key" value={this.state.value} onChange={this.handleChange} type="text" spellCheck="false" placeholder="Enter private key …"/>
-									<span className="error" hidden={!this.state.authError}>*Invalid Key</span>
+									<span className="error" hidden={!this.state.authError}>Invalid Key</span>
 								</div>
 								<button type="submit" disabled={!this.state.has_input}>Authenticate</button>
 							</form>
@@ -206,59 +227,57 @@ class Login extends Component {
 	}
 }
 
-// class AuthForm extends Component {
-// 	constructor(props) {
-// 		super(props);
-// 		this.state = { private_key: '', authError: false }
-
-// 		this.handleChange = this.handleChange.bind(this);
-// 		this.handleSubmit = this.handleSubmit.bind(this);
-// 	}
-
-// 	handleChange(e) {
-// 		this.setState({private_key: e.target.value, has_input: e.target.value.length > 0})
-// 	}
-
-// 	handleSubmit(e) {
-// 		e.preventDefault();
-
-// 		try {
-// 			const auth = qbase.Keypair.fromSecret(this.state.private_key)
-// 			this.props.onAuth()
-// 		} catch(e) {
-// 			console.log(e)
-// 			this.setState({authError: true})
-// 		}
-		
-// 	}
-// 	render() {
-// 		return (
-// 			<div className="auth-form">
-// 				<form onSubmit={this.handleSubmit}>
-// 					<div className="input-container">
-// 						<label htmlFor="private-key">
-// 							QUANTA<br/>PRIVATE KEY
-// 						</label>
-// 						<input name="private-key" value={this.state.value} onChange={this.handleChange} type="text" spellCheck="false" placeholder="Enter private key …"/>
-// 						<span className="error" hidden={!this.state.authError}>*Invalid Key</span>
-// 					</div>
-// 					<button type="submit" disabled={!this.state.has_input}>Authenticate</button>
-// 				</form>
-				
-// 				<Link to="/keygen" className="black">I don’t have one. Generate a QUANTA Wallet.</Link>
-// 			</div>
-// 		)
-// 	}
-// }
-
 export class GenerateKey extends Component {
 	constructor(props) {
 		super(props);
-		this.state = { downloaded: false}
+		this.state = { 
+			username: "",
+			error: false,
+			downloaded: false}
+		
+		this.handleChange = this.handleChange.bind(this);
 	}
 
 	goLogin() {
 		this.props.history.push("/login")
+	}
+
+	handleChange(e) {
+		this.setState({username: e.target.value})
+	}
+
+	registerAccount() {
+		console.log(this.state)
+		fetch("/api/register", {
+			method: "post",
+			headers: {
+					"Content-Type": "application/json",
+					Accept: "application/json"
+			},
+			body: JSON.stringify({
+				user_name: this.state.username,
+				public_key: this.state.public,
+			})
+		})
+		.then(response => {
+			if (response.status == 200) {
+				document.getElementById('reg-success').classList.remove('d-none');
+				return response.json();
+			} else {
+				return response.json().then(res => {
+					var msg;
+					if (res.message.includes("already exists")) {
+						msg = "Username already exist"
+					} else {
+						msg = "Server error, Please try again."
+					}
+					this.setState({
+						error: true,
+						message: msg
+					});
+				});
+			}
+		})
 	}
 
 	generateKeys(e) {
@@ -357,10 +376,10 @@ export class GenerateKey extends Component {
 						<Link to="/login"><img src="/public/images/back-button.svg" /></Link>
 					</div>
 					
-					<div className="content">
+					<div className="keygen content">
 						<h1>QUANTA Wallet keys</h1>
-						<p>Please download your QUANTA wallet keys. Inside the .PDF you
-							will get the private key that will be used to access QDEX Exchange</p>
+						<p>Please download your QUANTA wallet keys, and register your username. 
+							Inside the .PDF you will get the private key needed to authenticate and access QDEX Fantasy.</p>
 
 						<div className="warning">
 							<ul>
@@ -372,7 +391,14 @@ export class GenerateKey extends Component {
 							</ul>
 							<button onClick={this.generateKeys.bind(this)}>Download QUANTA Wallet Keys (.pdf)</button>
 						</div>
-						<button onClick={this.goLogin.bind(this)} disabled={!this.state.downloaded}>Start Authentication</button>
+
+						<div className="input-container">
+							<label htmlFor="username">USERNAME</label>
+							<input name="username" value={this.state.value} onChange={this.handleChange} type="text" spellCheck="false" placeholder="Enter username …"/>
+							<span className="error" hidden={!this.state.error}>Username already exist</span>
+						</div>
+						<button onClick={this.registerAccount.bind(this)} disabled={(!this.state.downloaded) || this.state.username.length < 4}>Register and fund account</button>
+						<div id="reg-success" className="d-none">Account successfully created. Please continue to <Link to="/login" className="text-theme">login</Link>.</div>
 					</div>
 				</div>
 				<Banner />

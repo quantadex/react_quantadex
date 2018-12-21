@@ -9,7 +9,7 @@ import lodash from 'lodash'
 import moment from 'moment'
 
 let initialState = {
-  private_key: "5Ke9twHjfewQyE6YrQj9UZv5LnH2dj82jvZki3Z5g6anJ5k8K8N",
+  private_key: null,
   currentTicker: 'QDEX/ETH',
   tradeHistory: [],
   tradeBook: { bids: [], asks: []},

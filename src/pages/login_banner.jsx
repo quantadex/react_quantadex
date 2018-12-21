@@ -6,7 +6,7 @@ const banner_container = css `
 	justify-content: center;
 	width: 420px;
 	height: 100vh;
-	background-color: #293946;
+	background-color: #211e42;
 	color: #fff;
 	text-align: center;
 	overflow: auto;

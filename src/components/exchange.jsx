@@ -116,7 +116,7 @@ class Exchange extends Component {
 				<Orders />
 				<Status />
 			</div>
-			{/* <FirstTime /> */}
+			{ localStorage.getItem("firstTimeComplete") ? null : <FirstTime /> }
 		</div>
 		);
 	}
