@@ -219,11 +219,10 @@ export function switchTicker(ticker) {
 				data: ticker
 			})
 			var {base, counter} = getBaseCounter(getState().app.currentTicker)
-			// console.log('????????????????', base, counter)
 
 			function fetchData() {
 				var {base, counter} = getBaseCounter(getState().app.currentTicker)
-				// console.log('!!!!!!!!!!!!!!!!!', ticker, base, counter)
+
 				const trades = Apis.instance().history_api().exec("get_fill_order_history", [base.id, counter.id, 100]).then((filled) => {
 					// console.log("history filled ", filled);
 					var trade_history = [];
@@ -276,8 +275,11 @@ export function switchTicker(ticker) {
 			}
 
 			Apis.instance().db_api().exec("subscribe_to_market", [(data) => {
-				console.log("Got a market change ", data, base, counter);
-				fetchData()
+				// console.log("Got a market change ", base, counter);
+				const curr_ticker = getBaseCounter(getState().app.currentTicker)
+				if (base.id === curr_ticker.base.id && counter.id === curr_ticker.counter.id) {
+					fetchData()
+				}
 			}, base.id, counter.id])
 
 			Apis.instance()
