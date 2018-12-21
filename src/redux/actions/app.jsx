@@ -213,11 +213,18 @@ export function switchTicker(ticker) {
 		}
 
 		function action() {
+			dispatch({
+				type: UPDATE_TICKER,
+				data: ticker
+			})
 			var {base, counter} = getBaseCounter(getState().app.currentTicker)
+			// console.log('????????????????', base, counter)
 
 			function fetchData() {
+				var {base, counter} = getBaseCounter(getState().app.currentTicker)
+				// console.log('!!!!!!!!!!!!!!!!!', ticker, base, counter)
 				const trades = Apis.instance().history_api().exec("get_fill_order_history", [base.id, counter.id, 100]).then((filled) => {
-					console.log("history filled ", filled);
+					// console.log("history filled ", filled);
 					var trade_history = [];
 					filled.forEach((filled) => {
 						var fill = new FillOrder(
@@ -268,7 +275,7 @@ export function switchTicker(ticker) {
 			}
 
 			Apis.instance().db_api().exec("subscribe_to_market", [(data) => {
-				console.log("Got a market change ", data);
+				console.log("Got a market change ", data, base, counter);
 				fetchData()
 			}, base.id, counter.id])
 
@@ -284,7 +291,7 @@ export function switchTicker(ticker) {
 					// const user_orders = limitorders.filter((order) => order.seller === user_id)
 					console.log("get_grouped_limit_orders  ", limitorders);
 				})
-				
+
 			fetchData()
 
 		}
