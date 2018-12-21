@@ -19,7 +19,7 @@ export const SET_AMOUNT = 'SET_AMOUNT';
 export const UPDATE_USER_ORDER = 'UPDATE_USER_ORDER';
 export const UPDATE_TRADES = 'UPDATE_TRADES'
 export const UPDATE_DIGITS = 'UPDATE_DIGITS'
-
+export const UPDATE_BLOCK_INFO = 'UPDATE_BLOCK_INFO';
 export const TOGGLE_LEFT_PANEL = 'TOGGLE_LEFT_PANEL';
 export const TOGGLE_RIGHT_PANEL = 'TOGGLE_RIGHT_PANEL';
 
@@ -118,20 +118,57 @@ export const cancelTransaction = (market, order_id) => {
 var initAPI = false;
 var wsString = "ws://testnet-01.quantachain.io:8090";
 
-function updateChainState(state) {
-	// console.log("updateChainState", state);
-	// var c = ChainStore.getAccountRefsOfKey("QA6nkaBAz1vV6cb25vSHXJqHos1AeADzqRAXPvtASXMAhM3SbRFA");
-	// console.log(c);
-	// if (c){
-	// 	c.forEach(chain_account_id => {
-	// 		console.log(chain_account_id);
-	// 		ChainStore.getAccount(chain_account_id);
-	// 	})
-	// }
+function getAvgtime() {
+	const avgTime = blockTimes.reduce((previous, current, idx, array) => {
+		return previous + current[1] / array.length;
+	}, 0);
+	return avgTime;
+}
+const blockTimes = [];
+var previousTime = null;
+
+function updateChainState(dispatch) {
+	const object = ChainStore.getObject("2.1.0");
+
+	if (object==null) {
+		return;
+	}
+
+	const timestamp = timeStringToDate(object.get("time"))
+	
+	if (previousTime != null) {
+		blockTimes.push([
+			object.get("head_block_number"),
+			(timestamp - previousTime) / 1000
+		]);
+	}
+
+	previousTime = timestamp;
+
+	//console.log('update', timestamp, object.get("head_block_number"), Math.round(getAvgtime()*1000))
+
+	dispatch({
+		type: UPDATE_BLOCK_INFO,
+		data: {
+			blockNumber: object.get("head_block_number"),
+			blockTime: Math.round(getAvgtime() * 1000)
+		}
+	})
 }
 
-function onUpdate(e) {
-	console.log('update',e)
+
+function timeStringToDate(block_time) {
+	if (!/Z$/.test(block_time)) {
+		block_time += "Z";
+	}
+	return new Date(block_time);
+}
+
+
+var dynamicGlobal = null;
+
+function onUpdate(dispatch) {
+
 }
 
 export function switchTicker(ticker) {
@@ -147,6 +184,10 @@ export function switchTicker(ticker) {
 
 				Apis.instance().db_api().exec("set_subscribe_callback", [onUpdate, true]);
 				initAPI = true;				
+
+				ChainStore.init(false).then(() => {
+					ChainStore.subscribe(updateChainState.bind(this, dispatch));
+				});
 			})
 			.then((e) => {
 				return Promise.all([Apis.instance()
