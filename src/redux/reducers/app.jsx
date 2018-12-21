@@ -208,20 +208,20 @@ let initialState = {
   trades: {
     dataSource: [],
     columns: [{
-      name:"Amount",
-      key:"amount",
-      type:"number",
-      sortable:false,
-      color: (value) => {return value == 0 ? "theme" : "red"},
-      fontSize:"extra-small",
-      fontWeight:"light",
-      float:"left"
-    },{
       name:"Price",
       key:"price",
       type:"number",
       sortable:false,
       color: (value) => {return "white"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"left"
+    },{
+      name:"Amount",
+      key:"amount",
+      type:"number",
+      sortable:false,
+      color: (value) => {return value == 0 ? "theme" : "red"},
       fontSize:"extra-small",
       fontWeight:"light",
       float:"right"
@@ -269,7 +269,6 @@ const app = (state = initialState, action) => {
 
   switch (action.type) {
     case INIT_DATA:
-
       //console.log("Merge? ", mergeTickerData(action.data.markets, action.data.tickers));
       var asksSortedSet = state.orderBook.asks.dataSource
       asksSortedSet.clear()
@@ -299,7 +298,7 @@ const app = (state = initialState, action) => {
           }
       })
       
-      const tradesDataSource = action.data.trades.reverse().map((trade) => {
+      const tradesDataSource = action.data.trades.map((trade) => {
         return {
           price: trade.getPrice(),
           amount: trade.fill_price.base.getAmount({real: true}),

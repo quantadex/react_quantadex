@@ -47,7 +47,7 @@ const container = css`
   }
 
   .table-row {
-    margin: 40px auto;
+    margin-top: 40px;
   }
 
   .deposit-only .unite {
@@ -55,6 +55,32 @@ const container = css`
     color: #000 !important;
   }
 
+  .public-address-container {
+    margin-top: 40px;
+    background-color: #2a3135;
+    border-radius: 2px;
+    padding: 25px 30px;
+    #public-address {
+      font-size: 16px;
+      color: #bbb;
+    }
+    a {
+      vertical-align: text-bottom;
+      margin-left: 10px;
+    }
+  }
+  .erc20 .row{
+    height: 30px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .erc20 button {
+    background-color: #1cdad8;
+    border-color: #1cdad8;
+    color: #000;
+    width: 80px;
+    height: 20px;
+    border-radius: 2px;
+  }
 `;
 
 class Fund extends Component {
@@ -121,25 +147,6 @@ class Fund extends Component {
       }
     ]
 
-    // const dataSourceWallets = [{
-    //   coin: "BTC",
-    //   name: "Bitcoin",
-    //   balance: "519.55190000",
-    //   on_orders: "0.00000000",
-    //   btc_value: "0.00000000"
-    // },{
-    //   coin: "CHAT",
-    //   name: "ChatCoin",
-    //   balance: "0.97200000",
-    //   on_orders: "0.00000000",
-    //   btc_value: "0.00000000"
-    // },{
-    //   coin: "BQX",
-    //   name: "ETHOS",
-    //   balance: "519.55190000",
-    //   on_orders: "0.00000000",
-    //   btc_value: "0.00000000"
-    // }]
     const dataSourceWallets = []
     this.props.balance.forEach(currency => {
       const data = {
@@ -150,7 +157,6 @@ class Fund extends Component {
       }
       dataSourceWallets.push(data)
     });
-    dataSourceWallets.push({pairs: 'Deposit ERC20'})
 
     const columnsWallets = [{
         title: "PAIRS",
@@ -377,7 +383,35 @@ class Fund extends Component {
         columns = columnsOrders
         break;
     }
-    console.log(this.props)
+
+    const PublicAddress = () => {
+      return (
+        <div className="row public-address-container d-flex justify-content-between">
+          <div>
+            <h3>Your QUANTA Wallet Public Address</h3>
+            <span id='public-address' className="qt-font-light">QAEOKMPBMESUAYAKBN3RPOHHYIVM5753OROMXZBGE3S4XQ77QSBZWHOF</span>
+            <a><img src="/public/images/external-link-light.svg" /></a>
+          </div>
+          <div className="est-fund text-right align-self-center">
+            <span className="qt-font-extra-small qt-white-62">On-chain custody estimated  funds</span>
+            <div><span className="qt-font-huge">$12.560 </span><span className="currency">USD</span></div>
+          </div>
+          
+        </div>
+      )
+    }
+
+    const ERC20 = () => {
+      return (
+        <div className="container-fluid erc20">
+          <div className="row justify-content-between align-items-center table-body-row">
+            <div className="qt-font-extra-small">Deposit ERC20</div>
+            <button className="qt-font-base qt-font-semibold">DEPOSIT</button>
+          </div>
+        </div>
+      )
+    }
+    
 		return (
 		<div className={container + " container-fluid"}>
       <div className="row header-row">
@@ -400,8 +434,14 @@ class Fund extends Component {
         </div>
       </div>
       <div className="content">
+        {
+          this.state.page == 'wallets' ? <PublicAddress /> : null
+        }
         <div className="row table-row">
           <QTTableView dataSource={dataSource} columns={columns} />
+          {
+            this.state.page == 'wallets' ? <ERC20 /> : null
+          }
         </div>
       </div>
       

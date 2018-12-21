@@ -66,6 +66,9 @@ export function buyTransaction(market, price, amount) {
 		return signAndBroadcast(tr, pKey)
 			.then((e) => {
 				console.log("order result ", e);
+				return e[0]
+			}).catch((e) => {
+				throw e
 			})
 	}
 }
@@ -85,6 +88,9 @@ export function sellTransaction(market, price, amount) {
 		return signAndBroadcast(tr, pKey)
 			.then((e) => {
 				console.log("order result ", e);
+				return e[0]
+			}).catch((e) => {
+				throw e
 			})
 	}
 
@@ -208,29 +214,62 @@ export function switchTicker(ticker) {
 
 		function action() {
 			var {base, counter} = getBaseCounter(getState().app.currentTicker)
-			
-			const trades = Apis.instance().history_api().exec("get_fill_order_history", [base.id, counter.id, 100]).then((filled) => {
-				console.log("history filled ", filled);
-				var trade_history = [];
-				filled.forEach((filled) => {
-					var fill = new FillOrder(
-						filled,
-						window.assets,
-						counter.id
-					);
-					console.log("normalized ", filled, fill, fill.getPrice(), fill.fill_price.toReal());
-					trade_history.push(fill)
-				})
-				return trade_history
-			})
 
-			const orderBook = Apis.instance().db_api().exec("get_order_book", [base.id, counter.id, 50]).then((ob) => {
-				console.log("ob  ", ob);
-				return ob
-			})
+			function fetchData() {
+				const trades = Apis.instance().history_api().exec("get_fill_order_history", [base.id, counter.id, 100]).then((filled) => {
+					console.log("history filled ", filled);
+					var trade_history = [];
+					filled.forEach((filled) => {
+						var fill = new FillOrder(
+							filled,
+							window.assets,
+							counter.id
+						);
+						// console.log("normalized ", filled, fill, fill.getPrice(), fill.fill_price.toReal());
+						trade_history.push(fill)
+					})
+					return trade_history
+				})
+	
+				const orderBook = Apis.instance().db_api().exec("get_order_book", [base.id, counter.id, 50]).then((ob) => {
+					console.log("ob  ", ob);
+					return ob
+				})
+	
+				const account_data = Apis.instance()
+					.db_api()
+					.exec("get_full_accounts", [[getState().app.userId], true])
+					.then(results => {
+						var orders = [];
+						results[0][1].limit_orders.forEach((ordered) => {
+							var order = new LimitOrder(
+								ordered,
+								window.assets,
+								counter.id
+							);
+							orders.push(order)
+						})
+						return [results, orders]
+					});
+
+				return Promise.all([orderBook,trades,account_data])
+				.then((data) => {
+					dispatch({
+						type: INIT_DATA,
+						data: {
+							orderBook:data[0],
+							trades:data[1],
+							openOrders:data[2][1],
+							ticker:ticker,
+							accountData: data[2][0]
+						}
+					})
+				})
+			}
 
 			Apis.instance().db_api().exec("subscribe_to_market", [(data) => {
 				console.log("Got a market change ", data);
+				fetchData()
 			}, base.id, counter.id])
 
 			Apis.instance()
@@ -245,37 +284,8 @@ export function switchTicker(ticker) {
 					// const user_orders = limitorders.filter((order) => order.seller === user_id)
 					console.log("get_grouped_limit_orders  ", limitorders);
 				})
-
-			const account_data = Apis.instance()
-				.db_api()
-				.exec("get_full_accounts", [[getState().app.userId], true])
-				.then(results => {
-					var orders = [];
-					results[0][1].limit_orders.forEach((ordered) => {
-						var order = new LimitOrder(
-							ordered,
-							window.assets,
-							counter.id
-						);
-						orders.push(order)
-					})
-					return [results, orders]
-				});
-
-			return Promise.all([orderBook,trades,account_data])
-			.then((data) => {
-				dispatch({
-					type: INIT_DATA,
-					data: {
-						orderBook:data[0],
-						trades:data[1],
-						openOrders:data[2][1],
-						ticker:ticker,
-						accountData: data[2][0]
-					}
-				})
-			})
-
+				
+			fetchData()
 
 		}
 		// const orderBook = fetch("http://orderbook-api-792236404.us-west-2.elb.amazonaws.com/depth/"+ticker).then((res) => {return res.json()})
