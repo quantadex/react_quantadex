@@ -149,9 +149,12 @@ export default class QTTableView extends React.Component {
                         `
 
                         return (
-                          <div className={new_css+" d-flex justify-content-between"}>
+                          <div className={new_css+" d-flex " + (e.pairs == "Deposit ERC20" ? "deposit-only justify-content-end" : "justify-content-between")}>
                             {
                               col.buttons.map((btn) => {
+                                if(e.pairs == "Deposit ERC20" && btn.label == "WITHDRAW") { 
+                                  return null
+                                 }
                                 return (
                                   <QTButton
                                     onClick={this.toggleModal.bind(this,index,btn.handleClick())}
@@ -169,7 +172,7 @@ export default class QTTableView extends React.Component {
                       } else if (col.type == "string") {
                         const new_css = css`width:${col.width}px;text-align:left;`
                         return (
-                          <span className={new_css + " qt-font-extra-small"}>{e[col.key]}</span>
+                          <span className={new_css + " qt-font-extra-small text-nowrap"}>{e[col.key]}</span>
                         )
                       } else if (col.type == "coloredString") {
                         const color = col.colors[e[col.key]]

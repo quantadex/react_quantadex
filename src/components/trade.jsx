@@ -210,17 +210,17 @@ class Trade extends Component {
   });
 
 	handleBuy(e) {
-    const label = this.props.currentTicker.split('*')
+    const label = this.props.currentTicker.split('/')
     this.props.dispatch(buyTransaction(this.props.currentTicker, this.state.price, this.state.qty))
     .then((e) => {
       const msg = ( <div>
-                    <span>BUY {label[0]}[{label[1].substr(0,4)}] {this.state.price} @ {this.state.qty}</span><br/>
-                    <span>OrderId: {e.Id.substr(0,10)}</span>
+                    <span>BUY {label[1]} {this.state.price} @ {this.state.qty}</span><br/>
+                    <span>OrderId: {e.id.substr(0,10)}</span>
                     </div> )
       this.notify_success(msg)
     }).catch((e) => {
       const msg = ( <div>
-                    <span>BUY {label[0]}[{label[1].substr(0,4)}] {this.state.price} @ {this.state.qty}</span><br/>
+                    <span>BUY {label[1]} {this.state.price} @ {this.state.qty}</span><br/>
                     <span>Failed order: Unable to place order</span>
                     </div> )
       this.notify_failed(msg)
@@ -232,13 +232,13 @@ class Trade extends Component {
     this.props.dispatch(sellTransaction(this.props.currentTicker, this.state.price, this.state.qty))
     .then((e) => {
       const msg = ( <div>
-                    <span>SELL {label[0]}[{label[1].substr(0,4)}] {this.state.price} @ {this.state.qty}</span><br/>
-                    <span>OrderId: {e.Id.substr(0,10)}</span>
+                    <span>SELL {label[1]} {this.state.price} @ {this.state.qty}</span><br/>
+                    <span>OrderId: {e.id.substr(0,10)}</span>
                     </div> )
       this.notify_success(msg)
     }).catch((e) => {
       const msg = ( <div>
-                    <span>SELL {label[0]}[{label[1].substr(0,4)}] {this.state.price} @ {this.state.qty}</span><br/>
+                    <span>SELL {label[1]} {this.state.price} @ {this.state.qty}</span><br/>
                     <span>Failed order: Unable to place order</span>
                     </div> )
       this.notify_failed(msg)
@@ -286,20 +286,24 @@ class Trade extends Component {
         value: "20%"
     }
 
-		const tradingPair = this.props.balance
+    const tradingPair = this.props.currentTicker.split('/')
+    const balance = this.props.balance
     var pairBalance = []
-		Object.keys(tradingPair).forEach((currency) => {
+		Object.keys(balance).forEach((currency) => {
 			var item = {}
-			item.currency = window.assets[tradingPair[currency].asset].symbol
-			item.amount = tradingPair[currency].balance ? tradingPair[currency].balance : 0
+      item.currency = window.assets[balance[currency].asset].symbol
+      if (!tradingPair.includes(item.currency)) {
+        return
+      }
+			item.amount = balance[currency].balance ? balance[currency].balance : 0
 			pairBalance.push(item)
     })
     
     return (
       <div className={container + " container-fluid"}>
         <div className="buy-sell-toggle">
-          <button id="buy-switch" className="buy-btn" onClick={this.switchTradeTo.bind(this, 0)}>BUY</button>
-          <button id="sell-switch" className="sell-btn inactive" onClick={this.switchTradeTo.bind(this, 1)}>SELL</button>
+          <button id="buy-switch" className="buy-btn" onClick={this.switchTradeTo.bind(this, 0)}>BUY {tradingPair[1]}</button>
+          <button id="sell-switch" className="sell-btn inactive" onClick={this.switchTradeTo.bind(this, 1)}>SELL {tradingPair[1]}</button>
         </div>
 
         <div className="transac-actions">
@@ -313,7 +317,7 @@ class Trade extends Component {
                     step="0.0000001"
                      value={this.state.price}
                      onChange={this.handlePriceInputChange.bind(this)} />
-              <SmallToken name={this.props.currentTicker.split('/')[1]}/>
+              <SmallToken name={tradingPair[1]}/>
             </div>
             <div className="input-container">
                <label>AMOUNT {/*<Token name={tradingPair[0]}/>*/}</label> 
@@ -332,7 +336,7 @@ class Trade extends Component {
                       step="0.0000001"
                        value={this.state.qty}
                        onChange={this.handleQtyInputChange.bind(this)} />
-              <SmallToken name={this.props.currentTicker.split('/')[0]}/>
+              <SmallToken name={tradingPair[0]}/>
             </div>
             <div className="input-container">
                <label>TOTAL {/*<Token name={tradingPair[1]}/> */}</label>
@@ -345,7 +349,7 @@ class Trade extends Component {
                     onFocus={this.handleInputFocus.bind(this)}
 										value={((this.state.qty*10000000) * (this.state.price*10000000))/100000000000000}
 									 />
-              <SmallToken name={this.props.currentTicker.split('/')[1]}/>
+              <SmallToken name={tradingPair[1]}/>
             </div>
 
           <button id="sell-action" className="sell-btn inactive" onClick={this.handleSell.bind(this)}>PLACE SELL ORDER</button>

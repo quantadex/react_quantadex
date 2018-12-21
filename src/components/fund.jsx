@@ -10,7 +10,7 @@ import QTWithdraw from './ui/withdraw.jsx'
 
 const container = css`
 	background-color:${globalcss.COLOR_BACKGROUND};
-  padding-bottom:500px;
+  min-height: 100vh;
 
   .header-row {
     padding:0 20px;
@@ -19,19 +19,20 @@ const container = css`
   .tab-row {
     background-color: rgba(52, 62, 68, 0.4);
     height:72px;
+    border-top: 1px solid rgba(255,255,255,0.09);
+    border-bottom: 1px solid rgba(255,255,255,0.09);
 
 		.tabs {
 			font-size: 16px;
 			margin-top:auto;
 
 			a {
-		    padding:10px 2px;
-		    margin-right: 40px;
+		    padding:10px 30px;
 		    display:inline-block;
 		  }
 
 			a.active {
-		    border-bottom: solid 1px #2ed4cf;
+		    border-bottom: solid 1px #fff;
 		  }
 
 			a:last-child {
@@ -40,10 +41,46 @@ const container = css`
 		}
   }
 
-  .table-row {
-    padding: 40px 128px;
+  .content {
+    margin: auto;
+    max-width: 1000px;
   }
 
+  .table-row {
+    margin-top: 40px;
+  }
+
+  .deposit-only .unite {
+    background-color: #1cdad8 !important;
+    color: #000 !important;
+  }
+
+  .public-address-container {
+    margin-top: 40px;
+    background-color: #2a3135;
+    border-radius: 2px;
+    padding: 25px 30px;
+    #public-address {
+      font-size: 16px;
+      color: #bbb;
+    }
+    a {
+      vertical-align: text-bottom;
+      margin-left: 10px;
+    }
+  }
+  .erc20 .row{
+    height: 30px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .erc20 button {
+    background-color: #1cdad8;
+    border-color: #1cdad8;
+    color: #000;
+    width: 80px;
+    height: 20px;
+    border-radius: 2px;
+  }
 `;
 
 class Fund extends Component {
@@ -110,110 +147,24 @@ class Fund extends Component {
       }
     ]
 
-    const dataSourceWallets = [{
-      coin: "BTC",
-      name: "Bitcoin",
-      balance: "519.55190000",
-      on_orders: "0.00000000",
-      btc_value: "0.00000000"
-    },{
-      coin: "CHAT",
-      name: "ChatCoin",
-      balance: "0.97200000",
-      on_orders: "0.00000000",
-      btc_value: "0.00000000"
-    },{
-      coin: "BQX",
-      name: "ETHOS",
-      balance: "519.55190000",
-      on_orders: "0.00000000",
-      btc_value: "0.00000000"
-    },{
-      coin: "AMB",
-      name: "Amber",
-      balance: "0.97200000",
-      on_orders: "0.00000000",
-      btc_value: "0.00000000"
-    },{
-      coin: "SNGLS",
-      name: "SingularDTV",
-      balance: "519.55190000",
-      on_orders: "0.00000000",
-      btc_value: "0.00000000"
-    },{
-      coin: "SNT",
-      name: "Basic Attention Token",
-      balance: "0.97200000",
-      on_orders: "0.00000000",
-      btc_value: "0.00000000"
-    },{
-      coin: "BXC",
-      name: "Bitcoin X",
-      balance: "519.55190000",
-      on_orders: "0.00000000",
-      btc_value: "0.00000000"
-    },{
-      coin: "BTC",
-      name: "Bitcoin X",
-      balance: "519.55190000",
-      on_orders: "0.00000000",
-      btc_value: "0.00000000"
-    },{
-      coin: "BTC",
-      name: "Bitcoin X",
-      balance: "519.55190000",
-      on_orders: "0.00000000",
-      btc_value: "0.00000000"
-    },{
-      coin: "BTC",
-      name: "Bitcoin X",
-      balance: "519.55190000",
-      on_orders: "0.00000000",
-      btc_value: "0.00000000"
-    },{
-      coin: "BTC",
-      name: "Bitcoin X",
-      balance: "519.55190000",
-      on_orders: "0.00000000",
-      btc_value: "0.00000000"
-    },{
-      coin: "BTC",
-      name: "Bitcoin X",
-      balance: "519.55190000",
-      on_orders: "0.00000000",
-      btc_value: "0.00000000"
-    },{
-      coin: "BTC",
-      name: "Bitcoin X",
-      balance: "519.55190000",
-      on_orders: "0.00000000",
-      btc_value: "0.00000000"
-    },{
-      coin: "BTC",
-      name: "Bitcoin X",
-      balance: "519.55190000",
-      on_orders: "0.00000000",
-      btc_value: "0.00000000"
-    },{
-      coin: "BTC",
-      name: "Bitcoin X",
-      balance: "519.55190000",
-      on_orders: "0.00000000",
-      btc_value: "0.00000000"
-    }]
+    const dataSourceWallets = []
+    this.props.balance.forEach(currency => {
+      const data = {
+        pairs: window.assets[currency.asset].symbol,
+        balance: currency.balance,
+        on_orders: "0.00000000",
+        eth_value: "0.00000000"
+      }
+      dataSourceWallets.push(data)
+    });
 
     const columnsWallets = [{
-        title: "COIN",
-        key: "coin",
+        title: "PAIRS",
+        key: "pairs",
         type: "string",
         width:"80"
     }, {
-        title: "Name",
-        key: "name",
-        type: "string",
-        width:"150"
-    }, {
-        title: "TOTAL BALANCE(BXC)",
+        title: "TOTAL BALANCE",
         key: "balance",
         type: "number",
         width:"125"
@@ -223,23 +174,23 @@ class Fund extends Component {
         type: "number",
         width:"90"
     }, {
-        title: "BTC VALUE",
-        key: "btc_value",
+        title: "ETH VALUE",
+        key: "eth_value",
         type: "string",
         width:"90"
     }, {
         buttons: [{
-          label:"DEPOSIT",
-          color:"theme unite",
-          handleClick: () => {
-						return <QTDeposit />
-					}
-        }, {
           label:"WITHDRAW",
           color:"theme unite",
           handleClick: () => {
 						return <QTWithdraw />
           }
+        }, {
+          label:"DEPOSIT",
+          color:"theme unite",
+          handleClick: () => {
+						return <QTDeposit />
+					}
         }],
         type: "buttons"
     }]
@@ -268,54 +219,6 @@ class Fund extends Component {
         amount: "0.0019800",
         datetime: "Feb 13, 2018 / 21:00",
         status: "Pending"
-      },
-      {
-        coin: "BTC",
-        name: "Amber",
-        type: "Withdraw",
-        amount: "0.0019800",
-        datetime: "Feb 13, 2018 / 21:00",
-        status: "Complete"
-      },
-      {
-        coin: "BTC",
-        name: "Amber",
-        type: "Deposit",
-        amount: "0.0019800",
-        datetime: "Feb 13, 2018 / 21:00",
-        status: "Pending"
-      },
-      {
-        coin: "BTC",
-        name: "Amber",
-        type: "Withdraw",
-        amount: "0.0019800",
-        datetime: "Feb 13, 2018 / 21:00",
-        status: "Complete"
-      },
-      {
-        coin: "BTC",
-        name: "Amber",
-        type: "Deposit",
-        amount: "0.0019800",
-        datetime: "Feb 13, 2018 / 21:00",
-        status: "Pending"
-      },
-      {
-        coin: "BTC",
-        name: "Amber",
-        type: "Withdraw",
-        amount: "0.0019800",
-        datetime: "Feb 13, 2018 / 21:00",
-        status: "Complete"
-      },
-      {
-        coin: "BTC",
-        name: "Amber",
-        type: "Deposit",
-        amount: "0.0019800",
-        datetime: "Feb 13, 2018 / 21:00",
-        status: "Complete"
       }
     ]
 
@@ -396,47 +299,7 @@ class Fund extends Component {
         type:"BUY",
         status:"Filled",
         datetime:"12 Jan, 12:34:15"
-      },
-      {
-        pair: "BNCBTC",
-        stoploss: "0.234567 BTC",
-        limit: "0.234567 BTC",
-        amount: "0.234567 BTC",
-        total: "0.234567 BTC",
-        type:"SELL",
-        status:"Waiting",
-        datetime:"12 Jan, 12:34:15"
-      },
-      {
-        pair: "BNCBTC",
-        stoploss: "0.234567 BTC",
-        limit: "0.234567 BTC",
-        amount: "0.234567 BTC",
-        total: "0.234567 BTC",
-        type:"BUY",
-        status:"Waiting",
-        datetime:"12 Jan, 12:34:15"
-      },
-      {
-        pair: "BNCBTC",
-        stoploss: "0.234567 BTC",
-        limit: "0.234567 BTC",
-        amount: "0.234567 BTC",
-        total: "0.234567 BTC",
-        type:"SELL",
-        status:"Waiting",
-        datetime:"12 Jan, 12:34:15"
-      },
-      {
-        pair: "BNCBTC",
-        stoploss: "0.234567 BTC",
-        limit: "0.234567 BTC",
-        amount: "0.234567 BTC",
-        total: "0.234567 BTC",
-        type:"BUY",
-        status:"Filled",
-        datetime:"12 Jan, 12:34:15"
-      },
+      }
     ]
 
     const columnsOrders = [
@@ -521,6 +384,34 @@ class Fund extends Component {
         break;
     }
 
+    const PublicAddress = () => {
+      return (
+        <div className="row public-address-container d-flex justify-content-between">
+          <div>
+            <h3>Your QUANTA Wallet Public Address</h3>
+            <span id='public-address' className="qt-font-light">QAEOKMPBMESUAYAKBN3RPOHHYIVM5753OROMXZBGE3S4XQ77QSBZWHOF</span>
+            <a><img src="/public/images/external-link-light.svg" /></a>
+          </div>
+          <div className="est-fund text-right align-self-center">
+            <span className="qt-font-extra-small qt-white-62">On-chain custody estimated  funds</span>
+            <div><span className="qt-font-huge">$12.560 </span><span className="currency">USD</span></div>
+          </div>
+          
+        </div>
+      )
+    }
+
+    const ERC20 = () => {
+      return (
+        <div className="container-fluid erc20">
+          <div className="row justify-content-between align-items-center table-body-row">
+            <div className="qt-font-extra-small">Deposit ERC20</div>
+            <button className="qt-font-base qt-font-semibold">DEPOSIT</button>
+          </div>
+        </div>
+      )
+    }
+    
 		return (
 		<div className={container + " container-fluid"}>
       <div className="row header-row">
@@ -542,9 +433,18 @@ class Fund extends Component {
           }
         </div>
       </div>
-      <div className="row table-row">
-        <QTTableView dataSource={dataSource} columns={columns} />
+      <div className="content">
+        {
+          this.state.page == 'wallets' ? <PublicAddress /> : null
+        }
+        <div className="row table-row">
+          <QTTableView dataSource={dataSource} columns={columns} />
+          {
+            this.state.page == 'wallets' ? <ERC20 /> : null
+          }
+        </div>
       </div>
+      
 		</div>
 		);
 	}
@@ -552,7 +452,8 @@ class Fund extends Component {
 
 const mapStateToProps = (state) => ({
 		leftOpen: state.app.ui.leftOpen,
-		rightOpen: state.app.ui.rightOpen
+    rightOpen: state.app.ui.rightOpen,
+    balance: state.app.balance
 	});
 
 
