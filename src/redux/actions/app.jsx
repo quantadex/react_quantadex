@@ -6,6 +6,7 @@ import { Apis } from "@quantadex/bitsharesjs-ws";
 import { Price, Asset, FillOrder, LimitOrderCreate, LimitOrder } from "../../common/MarketClasses";
 import { PrivateKey, PublicKey, Aes, key, ChainStore } from "@quantadex/bitsharesjs";
 import { createLimitOrderWithPrice, createLimitOrder2, cancelOrder, signAndBroadcast } from "../../common/Transactions";
+import { aggregateOrderBook } from "../../common/PriceData";
 
 export const INIT_DATA = 'INIT_DATA';
 export const LOGIN = 'LOGIN';
@@ -233,7 +234,7 @@ export function switchTicker(ticker) {
 	
 				const orderBook = Apis.instance().db_api().exec("get_order_book", [base.id, counter.id, 50]).then((ob) => {
 					console.log("ob  ", ob);
-					return ob
+					return aggregateOrderBook(ob.bids, ob.asks, window.assets[base.id].precision)
 				})
 	
 				const account_data = Apis.instance()

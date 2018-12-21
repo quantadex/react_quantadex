@@ -1,4 +1,5 @@
 import utils from "./utils";
+import { LimitOrder } from "./MarketClasses";
 
 export function calculateStartDate(endDate, interval, ticks) {
 	return new Date(endDate.getTime() - (interval * ticks))
@@ -123,4 +124,49 @@ export function transformPriceData(priceHistory, baseAsset, quoteAsset) {
 	}
 
 	return prices;
+}
+
+export function aggregateOrderBook(bids, asks, precision) {
+	let constructBids = orderArray => {
+		let bids = orderArray
+			.sort((a, b) => {
+				return parseFloat(a.price) - parseFloat(b.price);
+			});
+
+		// Sum bids at same price
+		if (bids.length > 1) {
+			for (let i = bids.length - 2; i >= 0; i--) {
+				if (bids[i].price === bids[i + 1].price) {
+					bids[i].base = (parseFloat(bids[i].base) + parseFloat(bids[i + 1].base)).toFixed(precision);
+					bids[i].quote = (parseFloat(bids[i].quote) + parseFloat(bids[i + 1].quote)).toFixed(precision);
+					bids.splice(i + 1, 1);
+				}
+			}
+		}
+		return bids;
+	};
+	// Loop over limit orders and return array containing asks
+	let constructAsks = orderArray => {
+		let asks = orderArray
+			.sort((a, b) => {
+				return parseFloat(a.price) - parseFloat(b.price);
+			});
+
+		// Sum asks at same price
+		if (asks.length > 1) {
+			for (let i = asks.length - 2; i >= 0; i--) {
+				if (asks[i].price === asks[i + 1].price) {
+					asks[i].base = (parseFloat(asks[i].base) + parseFloat(asks[i + 1].base)).toFixed(precision);
+					asks[i].quote = (parseFloat(asks[i].quote) + parseFloat(asks[i + 1].quote)).toFixed(precision);
+					asks.splice(i + 1, 1);
+				}
+			}
+		}
+		return asks;
+	};
+
+	return {
+		bids: constructBids(bids),
+		asks: constructAsks(asks),
+	}
 }
