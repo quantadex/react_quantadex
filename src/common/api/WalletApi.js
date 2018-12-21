@@ -5,7 +5,24 @@ import {
 } from "@quantadex/bitsharesjs";
 import ApplicationApi from "./ApplicationApi";
 
+const dictJson = require("./dictionary_en.json");
+import { ChainStore, PrivateKey, key, Aes } from "@quantadex/bitsharesjs";
+
 const WalletApi = {
+    generate_key(brainkey_plaintext) {
+        if (!brainkey_plaintext)
+            brainkey_plaintext = key.suggest_brain_key(dictJson.en);
+        else
+            brainkey_plaintext = key.normalize_brainKey(brainkey_plaintext);
+
+        let pkey = PrivateKey.fromSeed(key.normalize_brainKey(brainkey_plaintext));
+
+        return {
+            brainKey: brainkey_plaintext,
+            privateKey: pkey.toWif(),
+            publicKey: pkey.toPublicKey().toString()
+        }
+    },
     new_transaction() {
         return new TransactionBuilder();
     },

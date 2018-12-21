@@ -24,6 +24,10 @@ var config = {
       {
         test:/\.css$/,
         use:['style-loader','css-loader']
+      },
+      {
+        test: /\.json$/,
+        loader: 'json-loader'
       }
     ]
   },
