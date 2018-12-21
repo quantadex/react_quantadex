@@ -116,7 +116,7 @@ export const cancelTransaction = (market, order_id) => {
 }
 
 var initAPI = false;
-var wsString = "ws://testnet-01.quantachain.io:8090";
+var wsString = "wss://testnet-01.quantachain.io:8095";
 
 function getAvgtime() {
 	const avgTime = blockTimes.reduce((previous, current, idx, array) => {
@@ -237,8 +237,6 @@ export function switchTicker(ticker) {
 							quote_volume: data[1].quote_volume
 						})						
 					}
-
-					console.log("market data ", marketData);
 
 					dispatch({
 						type: SET_MARKET_QUOTE,
