@@ -67,6 +67,9 @@ const login_container = css`
 	}
 
 	.back-nav {
+		position: absolute;
+		left: 30px;
+		top: 5px;
 		text-align: left;
 		margin-left: 30px;
 	}
@@ -348,7 +351,7 @@ export class GenerateKey extends Component {
 
 	render() {
 		return (
-			<div>
+			<div className="d-flex">
 				<div className={login_container}>
 					<div className="back-nav">
 						<Link to="/login"><img src="/public/images/back-button.svg" /></Link>
