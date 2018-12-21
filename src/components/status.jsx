@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { css } from 'emotion'
+import { connect } from 'react-redux'
 
 const container = css`
     display: flex;
@@ -19,6 +20,7 @@ const container = css`
 
         a {
             margin-left: 5px;
+            color: #000;
         }
     }
 
@@ -43,23 +45,19 @@ class Status extends Component {
                 </div>
                 <div className="status-info">
                     <span className="label">QUANTA </span>
-                    <div>Explorer <a><img src="/public/images/external-link.svg" /></a></div>
+                    <div><a href="http://testnet.quantadex.com" target="_blank">Explorer <img src="/public/images/external-link.svg" /></a></div>
                 </div>
                 <div className="status-info">
                     <span className="label">HIGHEST BLOCK</span>
-                    <div>995020 <a><img src="/public/images/external-link.svg" /></a></div>
+                    <div>{this.props.blockInfo.blockNumber} <a><img src="/public/images/external-link.svg" /></a></div>
                 </div>
                 <div className="status-info">
                     <span className="label">AVERAGE BLOCK LATENCY</span>
-                    <div>2000ms</div>
+                    <div>{ this.props.blockInfo.blockTime} ms</div>
                 </div>
                 <div className="status-info">
                     <span className="label">NUMBER OF NODES </span>
-                    <div>13</div>
-                </div>
-                <div className="status-info">
-                    <span className="label">ON-CHAIN ORDERBOOK LATENCY </span>
-                    <div>12 ms</div>
+                    <div>5</div>
                 </div>
                 <div className="status-info">
                     <span className="label">ON-CHAIN CUSTODY </span>
@@ -70,4 +68,8 @@ class Status extends Component {
     }
 }
 
-export default Status
+const mapStateToProps = (state) => ({
+    blockInfo: state.app.blockInfo || {}
+});
+
+export default connect(mapStateToProps)(Status);

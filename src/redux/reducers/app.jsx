@@ -1,6 +1,6 @@
 import { INIT_DATA, INIT_BALANCE, SET_MARKET_QUOTE, APPEND_TRADE, UPDATE_ORDER, UPDATE_OPEN_ORDERS, SET_AMOUNT, UPDATE_USER_ORDER, UPDATE_TICKER, UPDATE_TRADES, UPDATE_DIGITS } from "../actions/app.jsx";
 import { TOGGLE_LEFT_PANEL, TOGGLE_RIGHT_PANEL } from "../actions/app.jsx";
-import { TOGGLE_FAVORITE_LIST, UPDATE_ACCOUNT } from "../actions/app.jsx";
+import { TOGGLE_FAVORITE_LIST, UPDATE_ACCOUNT, UPDATE_BLOCK_INFO } from "../actions/app.jsx";
 import { LOGIN } from "../actions/app.jsx";
 import { toggleFavoriteList } from "../actions/app.jsx";
 import SortedSet from 'js-sorted-set'
@@ -425,6 +425,13 @@ const app = (state = initialState, action) => {
           }
         }
       }
+    case UPDATE_BLOCK_INFO: {
+      return {
+        ...state,
+        blockInfo: action.data
+      }
+    }
+    
     case UPDATE_TICKER:
       console.log("TICKER ",  action.data);
       return {
