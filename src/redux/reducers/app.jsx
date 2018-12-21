@@ -336,7 +336,7 @@ const app = (state = initialState, action) => {
 
       return {
         ...state,
-        currentTicker:action.data.ticker,
+        // currentTicker:action.data.ticker,
         balance: balances,
         openOrders: {
           ...state.openOrders,
@@ -426,9 +426,10 @@ const app = (state = initialState, action) => {
         }
       }
     case UPDATE_TICKER:
-      //console.log("TICKER ",  action.data);
+      console.log("TICKER ",  action.data);
       return {
         ...state,
+        currentTicker:action.data,
         markets: mergeTickerData(state.markets, action.data)
       }
     case APPEND_TRADE:
