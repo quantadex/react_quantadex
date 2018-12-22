@@ -389,7 +389,7 @@ class Fund extends Component {
         <div className="row public-address-container d-flex justify-content-between">
           <div>
             <h3>Your QUANTA Wallet Public Address</h3>
-            <span id='public-address' className="qt-font-light">QAEOKMPBMESUAYAKBN3RPOHHYIVM5753OROMXZBGE3S4XQ77QSBZWHOF</span>
+            <span id='public-address' className="qt-font-light">{this.props.publicKey}</span>
             <a><img src="/public/images/external-link-light.svg" /></a>
           </div>
           <div className="est-fund text-right align-self-center">
@@ -453,7 +453,8 @@ class Fund extends Component {
 const mapStateToProps = (state) => ({
 		leftOpen: state.app.ui.leftOpen,
     rightOpen: state.app.ui.rightOpen,
-    balance: state.app.balance
+    balance: state.app.balance,
+    publicKey: state.app.publicKey || ""
 	});
 
 

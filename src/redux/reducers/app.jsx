@@ -10,6 +10,7 @@ import moment from 'moment'
 
 let initialState = {
   private_key: null,
+  publicKey: "",
   currentTicker: 'QDEX/ETH',
   tradeHistory: [],
   tradeBook: { bids: [], asks: []},
@@ -383,7 +384,8 @@ const app = (state = initialState, action) => {
       return {
         ...state,
         userId: action.data.id,
-        name: action.data.name
+        name: action.data.name,
+        publicKey: action.data.owner.key_auths[0][0]
       }
 
     case UPDATE_OPEN_ORDERS:
