@@ -59,6 +59,10 @@ const container = css`
       display: none;
     }
   }
+
+  .buy-btn, .sell-btn {
+    height: 37px;
+  }
   .buy-btn {
     background-color: #50b3b7;
   }
@@ -124,10 +128,6 @@ const container = css`
   .trade-balance {
     color: #838f95;
     text-align: center;
-  }
-
-  .trade-balance:first-child {
-    margin-right:28px;
   }
 
   .trade-input-row {
@@ -209,39 +209,56 @@ class Trade extends Component {
     position: toast.POSITION.TOP_CENTER
   });
 
+  toastMsg(side, label, success, e) {
+    const msg = ( <div>
+      <span>{side} {label[1]} {this.state.price} @ {this.state.qty}</span><br/>
+      <span>{success ? "OrderId: " + e.id.substr(0,10) : 
+                      "Failed order: " +  (e.message.includes("insufficient balance") ? "Insufficient Balance" : "Unable to place order")}</span>
+      </div> )
+    return msg
+  }
+
+  startLoadStatus(target, start, text=null) {
+    if (start) {
+      target.disabled = true
+      target.innerHTML = "<div class='loader'></div>"
+    } else {
+      target.disabled = false
+      target.innerHTML = text
+    }
+  }
+
 	handleBuy(e) {
+    const target = e.target
+    const targetText = target.innerHTML
+    this.startLoadStatus(target, true)
     const label = this.props.currentTicker.split('/')
     this.props.dispatch(buyTransaction(this.props.currentTicker, this.state.price, this.state.qty))
     .then((e) => {
-      const msg = ( <div>
-                    <span>BUY {label[1]} {this.state.price} @ {this.state.qty}</span><br/>
-                    <span>OrderId: {e.id.substr(0,10)}</span>
-                    </div> )
+      const msg = this.toastMsg("BUY", label, true, e)
       this.notify_success(msg)
     }).catch((e) => {
-      const msg = ( <div>
-                    <span>BUY {label[1]} {this.state.price} @ {this.state.qty}</span><br/>
-                    <span>Failed order: Unable to place order</span>
-                    </div> )
+      const msg = this.toastMsg("BUY", label, false, e)
       this.notify_failed(msg)
+    }).finally(() => {
+      this.startLoadStatus(target, false, targetText)
     })
 	}
 
 	handleSell(e) {
-    const label = this.props.currentTicker.split('*')
+    const target = e.target
+    const targetText = target.innerHTML
+    this.startLoadStatus(target, true)
+    const label = this.props.currentTicker.split('/')
     this.props.dispatch(sellTransaction(this.props.currentTicker, this.state.price, this.state.qty))
     .then((e) => {
-      const msg = ( <div>
-                    <span>SELL {label[1]} {this.state.price} @ {this.state.qty}</span><br/>
-                    <span>OrderId: {e.id.substr(0,10)}</span>
-                    </div> )
+      const msg = this.toastMsg("SELL", label, true, e)
       this.notify_success(msg)
     }).catch((e) => {
-      const msg = ( <div>
-                    <span>SELL {label[1]} {this.state.price} @ {this.state.qty}</span><br/>
-                    <span>Failed order: Unable to place order</span>
-                    </div> )
+      const msg = this.toastMsg("SELL", label, false, e)
       this.notify_failed(msg)
+    }).finally(() => {
+      this.startLoadStatus(target, false, targetText)
     })
 	}
 

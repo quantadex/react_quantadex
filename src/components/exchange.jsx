@@ -95,7 +95,7 @@ class Exchange extends Component {
 	render() {
 		return (
 		<div className={container + " container-fluid"}>
-			<div className="row flex-nowrap" style={{overflow:"hidden",minHeight:"calc(100vh - 125px)"}}>
+			<div className="row flex-nowrap" style={{overflow:"hidden",minHeight:"calc(100vh - 120px)"}}>
 				<div className="exchange-left" style={{ display: this.props.leftOpen ? 'block': 'none'}}>
 					<OrderBook />
 				</div>

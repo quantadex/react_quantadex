@@ -15,7 +15,7 @@ import {cancelTransaction} from "../redux/actions/app.jsx";
 const container = css`
   position: relative;
   width: 100%;
-  padding: 20px 35px;
+  padding: 20px 35px 0;
   margin-bottom: 54px;
 
   .order-list {
@@ -137,7 +137,7 @@ class Orders extends Component {
           tabs = {tabs}
           switchTab = {this.handleSwitch.bind(this)}
         />
-        <section className="order-list container-fluid no-scroll-bar">
+        <section className= { (this.props.openOrders.dataSource.length == 0 ? "d-none " : "") + "order-list container-fluid no-scroll-bar"}>
           <div>
             <QTTableViewSimple dataSource={this.props.openOrders.dataSource} columns={this.props.openOrders.columns}
               cancelOrder={this.handleCancel.bind(this)} />

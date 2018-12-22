@@ -42,8 +42,8 @@ const login_container = css`
 			background-color: rgba(255, 50, 130, 0.03);
 			font-size: 16px;
 			text-align: left;
-			margin: 30px 0px;
-			padding: 33px 50px;
+			margin: 10px 0px 30px;
+			padding: 20px 30px 35px;
 			border: 2px solid #f0185c;
 			border-radius: 4px;
 
@@ -115,6 +115,10 @@ const login_container = css`
 		}
 	}
 	.keygen {
+		h3 {
+			text-align: left;
+			font-weight: bold;
+		}
 		.input-container {
 			width: 365px;
 		}
@@ -125,6 +129,8 @@ const login_container = css`
 			text-align: center;
 		}
 		button {
+			width: 275px;
+			height: 50px;
 			margin: 40px 0 30px;
 		}
 		#reg-success {
@@ -145,6 +151,12 @@ const login_container = css`
 	}
 	button:disabled {
 		background-color: #ddd;
+	}
+	button:disabled.loading {
+		background-color: #5045d2;
+	}
+	button:disabled.successful {
+		background-color: #4ec820;
 	}
 	.auth-form a {
 		padding-bottom: 5px;
@@ -248,6 +260,11 @@ export class GenerateKey extends Component {
 
 	registerAccount() {
 		console.log(this.state)
+		const btn = document.getElementById('reg-btn')
+		btn.disabled = true
+		btn.innerHTML = "<div class='loader'></div>"
+		btn.classList.add('loading')
+
 		fetch("/api/register", {
 			method: "post",
 			headers: {
@@ -262,9 +279,14 @@ export class GenerateKey extends Component {
 		.then(response => {
 			if (response.status == 200) {
 				document.getElementById('reg-success').classList.remove('d-none');
+				btn.classList.add('successful')
+				btn.innerHTML = "Registered"
+				btn.style.backgroundColor = "#4ec820"
 				return response.json();
 			} else {
 				return response.json().then(res => {
+					btn.disabled = false
+					btn.innerHTML = "Register and fund account"
 					var msg;
 					if (res.message.includes("already exists")) {
 						msg = "Username already exist"
@@ -381,6 +403,7 @@ export class GenerateKey extends Component {
 						<p>Please download your QUANTA wallet keys, and register your username. 
 							Inside the .PDF you will get the private key needed to authenticate and access QDEX Fantasy.</p>
 
+						<h3>First Step</h3>
 						<div className="warning">
 							<ul>
 								<li>Store this wallet securely. QUANTA does not have your keys.</li>
@@ -392,12 +415,18 @@ export class GenerateKey extends Component {
 							<button onClick={this.generateKeys.bind(this)}>Download QUANTA Wallet Keys (.pdf)</button>
 						</div>
 
-						<div className="input-container">
-							<label htmlFor="username">USERNAME</label>
-							<input name="username" value={this.state.value} onChange={this.handleChange} type="text" spellCheck="false" placeholder="Enter username …"/>
-							<span className="error" hidden={!this.state.error}>Username already exist</span>
+						<div className={this.state.downloaded ? "" : "qt-opacity-half"}>
+							<h3>Second Step</h3>
+							<div className="input-container">
+								<label htmlFor="username">USERNAME</label>
+								<input name="username" value={this.state.value} onChange={this.handleChange} 
+									disabled={!this.state.downloaded}
+									type="text" spellCheck="false" placeholder="Enter username …"/>
+								<span className="error" hidden={!this.state.error}>Username already exist</span>
+							</div>
 						</div>
-						<button onClick={this.registerAccount.bind(this)} disabled={(!this.state.downloaded) || this.state.username.length < 4}>Register and fund account</button>
+						
+						<button id="reg-btn" onClick={this.registerAccount.bind(this)} disabled={(!this.state.downloaded) || this.state.username.length < 4}>Register and fund account</button>
 						<div id="reg-success" className="d-none">Account successfully created. Please continue to <Link to="/login" className="text-theme">login</Link>.</div>
 					</div>
 				</div>
