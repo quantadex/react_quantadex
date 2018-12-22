@@ -118,6 +118,10 @@ const login_container = css`
 		h3 {
 			text-align: left;
 			font-weight: bold;
+			.checkmark {
+				margin-left: 10px;
+				vertical-align: text-top;
+			}
 		}
 		.input-container {
 			width: 365px;
@@ -282,6 +286,10 @@ export class GenerateKey extends Component {
 				btn.classList.add('successful')
 				btn.innerHTML = "Registered"
 				btn.style.backgroundColor = "#4ec820"
+				this.setState({
+					registered: true,
+					error: false
+				});
 				return response.json();
 			} else {
 				return response.json().then(res => {
@@ -403,7 +411,7 @@ export class GenerateKey extends Component {
 						<p>Please download your QUANTA wallet keys, and register your username. 
 							Inside the .PDF you will get the private key needed to authenticate and access QDEX Fantasy.</p>
 
-						<h3>First Step</h3>
+						<h3>First Step <img className={this.state.downloaded ? "checkmark" : "d-none"} src="/public/images/check-mark.svg" /></h3>
 						<div className="warning">
 							<ul>
 								<li>Store this wallet securely. QUANTA does not have your keys.</li>
@@ -416,7 +424,7 @@ export class GenerateKey extends Component {
 						</div>
 
 						<div className={this.state.downloaded ? "" : "qt-opacity-half"}>
-							<h3>Second Step</h3>
+							<h3>Second Step <img className={this.state.registered ? "checkmark" : "d-none"} src="/public/images/check-mark.svg" /></h3>
 							<div className="input-container">
 								<label htmlFor="username">USERNAME</label>
 								<input name="username" value={this.state.value} onChange={this.handleChange} 
