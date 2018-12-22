@@ -218,7 +218,6 @@ class Login extends Component {
 		this.props.history.push("/exchange");		
 	}
 	render() {
-		console.log(this.props)
 		return (
 			<div className={container}>
 				<div className={login_container}>
