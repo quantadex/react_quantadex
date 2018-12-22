@@ -123,7 +123,7 @@ class Orders extends Component {
     //   ["BNCBTC","0.234567 BTC","0.234567 BTC","0.234567 BTC","0.234567 BTC","BUY","Filled","12 JAN, 12:34:15"]
     // ]
     const tabs = {
-      names: ['ACTIVE ORDERS','CLOSED ORDERS'],
+      names: ['ACTIVE ORDERS'], //,'FILLED ORDERS'],
       selectedTabIndex: 0,
     }
 

@@ -95,14 +95,14 @@ export default class HamburgerMenu extends React.Component {
           {
             this.props.menuList.map((e, index) => {
 
-              if (index == 0) {
-                return (
-                  <div className="group-head d-flex flex-column align-items-center justify-content-center">
-                    <div className="header qt-font-light">{e.items[0].header}</div>
-                    <div className="subheader"><a className="qt-cursor-pointer qt-color-theme">hide</a>{e.items[0].subheader}</div>
-                  </div>
-                )
-              }
+              // if (index == 0) {
+              //   return (
+              //     <div className="group-head d-flex flex-column align-items-center justify-content-center">
+              //       <div className="header qt-font-light">{e.items[0].header}</div>
+              //       <div className="subheader"><a className="qt-cursor-pointer qt-color-theme">hide</a>{e.items[0].subheader}</div>
+              //     </div>
+              //   )
+              // }
 
               return (
                 <div className={"group " + css`background-color:${e.backgroundColor};`}>
@@ -142,12 +142,14 @@ export default class HamburgerMenu extends React.Component {
 }
 
 HamburgerMenu.defaultProps = {
-  menuList: [{
-    items: [{
-      header:"$12.560",
-      subheader:" estimated funds"
-    }]
-  },{
+  menuList: [
+  //   {
+  //   items: [{
+  //     header:"$12.560",
+  //     subheader:" estimated funds"
+  //   }]
+  // },
+  {
     items: [{
       iconPath:"/public/images/menuicons/quanta-grey.svg",
       iconPathActive:"/public/images/menuicons/quanta-white.svg",
@@ -160,36 +162,38 @@ HamburgerMenu.defaultProps = {
       iconPathActive:"/public/images/menuicons/wallet-white.svg",
       text:"Wallets",
       url:"/exchange/wallets"
-    },{
-      iconPath:"/public/images/menuicons/deposit-grey.svg",
-      iconPathActive:"/public/images/menuicons/deposit-white.svg",
-      text:"Deposit / Withdraw",
-      url:"/exchange/wallets"
-    },{
-      iconPath:"/public/images/menuicons/fund-history-grey.svg",
-      iconPathActive:"/public/images/menuicons/fund-history-white.svg",
-      text:"Funds History",
-      url:"/exchange/history"
-    },{
-      iconPath:"/public/images/menuicons/order-history-grey.svg",
-      iconPathActive:"/public/images/menuicons/order-history-white.svg",
-      text:"Orders History",
-      url:"/exchange/orders"
-    }]
-  },{
-    items: [{
-      iconPath:"/public/images/menuicons/referral-grey.svg",
-      iconPathActive:"/public/images/menuicons/referral-white.svg",
-      text:"Referrals",
-      url:"/referrals"
-    }]
-  },{
-    items: [{
-      iconPath:"/public/images/menuicons/profile-grey.svg",
-      iconPathActive:"/public/images/menuicons/profile-white.svg",
-      text:"Profile",
-      url:"/exchange/wallets"
-    }],
+    },
+  //   {
+  //     iconPath:"/public/images/menuicons/deposit-grey.svg",
+  //     iconPathActive:"/public/images/menuicons/deposit-white.svg",
+  //     text:"Deposit / Withdraw",
+  //     url:"/exchange/wallets"
+  //   },{
+  //     iconPath:"/public/images/menuicons/fund-history-grey.svg",
+  //     iconPathActive:"/public/images/menuicons/fund-history-white.svg",
+  //     text:"Funds History",
+  //     url:"/exchange/history"
+  //   },{
+  //     iconPath:"/public/images/menuicons/order-history-grey.svg",
+  //     iconPathActive:"/public/images/menuicons/order-history-white.svg",
+  //     text:"Orders History",
+  //     url:"/exchange/orders"
+  //   }]
+  // },{
+  //   items: [{
+  //     iconPath:"/public/images/menuicons/referral-grey.svg",
+  //     iconPathActive:"/public/images/menuicons/referral-white.svg",
+  //     text:"Referrals",
+  //     url:"/referrals"
+  //   }]
+  // },{
+  //   items: [{
+  //     iconPath:"/public/images/menuicons/profile-grey.svg",
+  //     iconPathActive:"/public/images/menuicons/profile-white.svg",
+  //     text:"Profile",
+  //     url:"/exchange/wallets"
+  //   }
+  ],
     backgroundColor:"rgba(40, 48, 52,0.36)"
   },{
     items: [{

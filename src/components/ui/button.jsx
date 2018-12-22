@@ -79,6 +79,13 @@ const Container = styled('button')`
   &.fluid {
     width: 100% !important;
   }
+  &:disabled {
+    background-color: #aaa;
+    border-color: #aaa;
+    color: #aaa !important;
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
 `
 
 export default class QTButton extends React.Component {
@@ -92,7 +99,8 @@ export default class QTButton extends React.Component {
                  height={this.props.height}
                  borderWidth={this.props.borderWidth}
                  className={this.props.className}
-                 onClick={this.props.onClick}>
+                 onClick={this.props.onClick}
+                 disabled={this.props.disabled}>
                  {this.props.label}</Container>
     );
   }

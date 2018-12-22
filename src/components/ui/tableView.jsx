@@ -163,7 +163,8 @@ export default class QTTableView extends React.Component {
                                     width="80"
                                     height="20"
                                     label={btn.label}
-                                    color={btn.color}/>
+                                    color={btn.color}
+                                    disabled="true"/>
                                 )
                               })
                             }
