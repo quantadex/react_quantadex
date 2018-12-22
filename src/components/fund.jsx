@@ -184,7 +184,7 @@ class Fund extends Component {
         type: "number",
         width:"90"
     }, {
-        title: "ETH VALUE",
+        title: "USD VALUE",
         key: "eth_value",
         type: "string",
         width:"90"
