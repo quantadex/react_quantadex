@@ -1,4 +1,7 @@
 import React, {PropTypes} from 'react';
+import { Redirect, withRouter } from 'react-router-dom'
+import { connect } from 'react-redux'
+import { LOGIN } from '../../redux/actions/app.jsx'
 import { css } from 'emotion'
 
 import { Link } from 'react-router-dom'
@@ -50,7 +53,7 @@ const container = css`
 
 `
 
-export default class HamburgerMenu extends React.Component {
+export class HamburgerMenu extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -141,6 +144,7 @@ export default class HamburgerMenu extends React.Component {
   }
 }
 
+
 HamburgerMenu.defaultProps = {
   menuList: [
   //   {
@@ -200,9 +204,7 @@ HamburgerMenu.defaultProps = {
       iconPath:"/public/images/menuicons/quanta-grey.svg",
       iconPathActive:"/public/images/menuicons/quanta-white.svg",
       text:"Logout",
-      onClick: () => {
-        console.log('logged out')
-      }
+      url:"/login"
     }],
     backgroundColor:"#323b40"
   }]
@@ -210,3 +212,9 @@ HamburgerMenu.defaultProps = {
 
 HamburgerMenu.propTypes = {
 };
+
+const mapStateToProps = (state) => ({
+	private_key: state.app.private_key,
+});
+
+export default connect(mapStateToProps)(withRouter(HamburgerMenu))

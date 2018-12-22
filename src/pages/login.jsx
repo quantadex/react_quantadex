@@ -184,6 +184,13 @@ class Login extends Component {
 		this.handleSubmit = this.handleSubmit.bind(this);
 	}
 
+	componentDidMount() {
+		this.props.dispatch({
+			type: LOGIN,
+			private_key: null
+		});
+	}
+
 	handleChange(e) {
 		this.setState({private_key: e.target.value, has_input: e.target.value.length > 0})
 	}
@@ -211,6 +218,7 @@ class Login extends Component {
 		this.props.history.push("/exchange");		
 	}
 	render() {
+		console.log(this.props)
 		return (
 			<div className={container}>
 				<div className={login_container}>

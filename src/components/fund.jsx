@@ -139,6 +139,9 @@ class Fund extends Component {
 	}
 
 	render() {
+    if (this.props.private_key == null) {
+			window.location.assign('/login')
+    } 
     const tabs = [
       {
         name:'Wallets / Deposit / Withdraw',
@@ -460,7 +463,8 @@ class Fund extends Component {
 const mapStateToProps = (state) => ({
 		leftOpen: state.app.ui.leftOpen,
     rightOpen: state.app.ui.rightOpen,
-    balance: state.app.balance
+    balance: state.app.balance,
+    private_key: state.app.private_key
 	});
 
 
