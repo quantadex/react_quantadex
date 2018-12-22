@@ -81,6 +81,13 @@ const container = css`
     height: 20px;
     border-radius: 2px;
   }
+  .erc20 button:disabled {
+    background-color: #aaa;
+    border-color: #aaa;
+    color: #000 !important;
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
 `;
 
 class Fund extends Component {
@@ -137,14 +144,14 @@ class Fund extends Component {
         name:'Wallets / Deposit / Withdraw',
         url:'wallets'
       },
-      {
-        name:'Fund History',
-        url:'history'
-      },
-      {
-        name:'Orders',
-        url:'orders'
-      }
+      // {
+      //   name:'Fund History',
+      //   url:'history'
+      // },
+      // {
+      //   name:'Orders',
+      //   url:'orders'
+      // }
     ]
 
     const dataSourceWallets = []
@@ -406,7 +413,7 @@ class Fund extends Component {
         <div className="container-fluid erc20">
           <div className="row justify-content-between align-items-center table-body-row">
             <div className="qt-font-extra-small">Deposit ERC20</div>
-            <button className="qt-font-base qt-font-semibold">DEPOSIT</button>
+            <button className="qt-font-base qt-font-semibold" disabled>DEPOSIT</button>
           </div>
         </div>
       )
@@ -434,9 +441,9 @@ class Fund extends Component {
         </div>
       </div>
       <div className="content">
-        {
+        {/* {
           this.state.page == 'wallets' ? <PublicAddress /> : null
-        }
+        } */}
         <div className="row table-row">
           <QTTableView dataSource={dataSource} columns={columns} />
           {

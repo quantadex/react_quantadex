@@ -4,7 +4,6 @@ import QTTabBar from './ui/tabBar.jsx'
 
 const leaderboard_container = css `
 	position: relative;
-	background-color: #3c444a;
 	padding: 20px;
 
 	h4 {
