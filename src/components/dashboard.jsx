@@ -108,9 +108,8 @@ class Dashboard extends Component {
 				</thead>
 				<tbody>
 							{
-								this.props.markets.map((market) => {
-									const pair = market.name.split('/')
-									return <tr onClick={this.switchMarket.bind(this, market.name)}>
+								this.props.markets.map((market, index) => {
+									return <tr key={index} onClick={this.switchMarket.bind(this, market.name)}>
 										<td className="market">
 											{market.name}
 										</td>

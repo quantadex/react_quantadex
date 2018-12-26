@@ -300,6 +300,7 @@ const app = (state = initialState, action) => {
       
       const tradesDataSource = action.data.trades.map((trade) => {
         return {
+          id: trade.id,
           price: trade.getPrice(),
           amount: trade.fill_price.base.getAmount({real: true}),
           color_key: trade.isBid ? 0 : 1,
