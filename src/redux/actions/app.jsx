@@ -117,6 +117,7 @@ export const cancelTransaction = (market, order_id) => {
 }
 
 var initAPI = false;
+//var wsString = "ws://localhost:8090";
 var wsString = "wss://testnet-01.quantachain.io:8095";
 
 function getAvgtime() {
