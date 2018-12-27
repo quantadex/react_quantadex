@@ -183,11 +183,16 @@ export function switchTicker(ticker) {
 		const pKey = PrivateKey.fromWif(getState().app.private_key);
 		const publicKey = pKey.toPublicKey().toString()
 
+		dispatch({
+			type: UPDATE_TICKER,
+			data: ticker
+		})
+
 		if (initAPI == false) {
 			Apis.instance(wsString, true, 3000, { enableOrders: true }).init_promise.then((res) => {
 				console.log("connected to:", res[0].network, publicKey);
 
-				Apis.instance().db_api().exec("set_subscribe_callback", [onUpdate, true]);
+				// Apis.instance().db_api().exec("set_subscribe_callback", [onUpdate, true]);
 				initAPI = true;				
 
 				ChainStore.init(false).then(() => {
@@ -201,7 +206,7 @@ export function switchTicker(ticker) {
 					.then(vec_account_id => {
 						console.log("get_key_references ", vec_account_id[0][0]);
 
-						Apis.instance()
+						return Apis.instance()
 							.db_api()
 							.exec("get_objects", [[vec_account_id[0][0]]])
 							.then((data) => {
@@ -220,21 +225,17 @@ export function switchTicker(ticker) {
 					})]);
 			})
 			.then((e) => {
-				action()
+				action(ticker)
 			});
 		} else {
-			action()
+			action(ticker)
 		}
 
-		function action() {
-			dispatch({
-				type: UPDATE_TICKER,
-				data: ticker
-			})
-			var {base, counter} = getBaseCounter(getState().app.currentTicker)
+		function action(ticker) {
+			var {base, counter} = getBaseCounter(ticker)
 
-			function fetchData() {
-				var {base, counter} = getBaseCounter(getState().app.currentTicker)
+			function fetchData(ticker) {
+				var {base, counter} = getBaseCounter(ticker)
 
 				fetch("https://s3.amazonaws.com/quantachain.io/markets.json").then(e => e.json())
 					.then(async (e) => {
@@ -300,6 +301,7 @@ export function switchTicker(ticker) {
 						return [results, orders]
 					});
 
+				console.log("Get all the data! for ", ticker);
 				return Promise.all([orderBook,trades,account_data])
 				.then((data) => {
 					dispatch({
@@ -319,14 +321,14 @@ export function switchTicker(ticker) {
 				// console.log("Got a market change ", base, counter);
 				const curr_ticker = getBaseCounter(getState().app.currentTicker)
 				if (base.id === curr_ticker.base.id && counter.id === curr_ticker.counter.id) {
-					fetchData()
+					fetchData(ticker)
 					if (Apis.instance().streamCb) {
 						Apis.instance().streamCb()
 					}
 				}
 			}, base.id, counter.id])
 
-			fetchData()
+			fetchData(ticker)
 
 		}
 		// const orderBook = fetch("http://orderbook-api-792236404.us-west-2.elb.amazonaws.com/depth/"+ticker).then((res) => {return res.json()})
