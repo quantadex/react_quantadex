@@ -275,8 +275,16 @@ export function switchTicker(ticker) {
 					//console.log("history filled ", filled);
 					const trade_history = convertHistoryToOrderedSet(filled, base.id)
 					//console.log("converted ", trade_history);
-			
-					return trade_history
+					const my_history = [];
+					(filled.filter(order => order.op.account_id == getState().app.userId)).forEach((filled) => {
+						var order = new FillOrder(
+							filled,
+							window.assets,
+							base.id
+						);
+						my_history.push(order)
+					})
+					return [trade_history, my_history]
 				})
 	
 				// selling counter
@@ -309,7 +317,8 @@ export function switchTicker(ticker) {
 						type: INIT_DATA,
 						data: {
 							orderBook:data[0],
-							trades:data[1],
+							trades:data[1][0],
+							filledOrders:data[1][1],
 							openOrders:data[2][1],
 							ticker:ticker,
 							accountData: data[2][0]

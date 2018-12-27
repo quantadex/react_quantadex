@@ -129,6 +129,7 @@ const container = css`
   .trade-balance {
     color: #838f95;
     text-align: center;
+    margin: 0 5px
   }
 
   .trade-input-row {
