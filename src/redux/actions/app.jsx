@@ -219,6 +219,7 @@ export function switchTicker(ticker) {
 					.then(async (e) => {
 					markets = e;
 					var marketData = [];
+					var USD_value = {}
 					console.log("json ", markets.markets);
 
 					for (const market of markets.markets) {
@@ -235,12 +236,15 @@ export function switchTicker(ticker) {
 							last: data[0].latest,
 							base_volume: data[1].base_volume,
 							quote_volume: data[1].quote_volume
-						})						
+						})	
+						if (counter.symbol == 'USD') {
+							USD_value[base.id] = data[0].latest
+						}
 					}
 
 					dispatch({
 						type: SET_MARKET_QUOTE,
-						data: marketData
+						data: [marketData, USD_value]
 					})
 
 				})
@@ -264,7 +268,9 @@ export function switchTicker(ticker) {
 
 				const trades = Apis.instance().history_api().exec("get_fill_order_history", [base.id, counter.id, 100]).then((filled) => {
 					// console.log("history filled ", filled);
+					// const user_id = getState().app.userId;
 					var trade_history = [];
+					// var my_orders = [];
 					filled.forEach((filled) => {
 						var fill = new FillOrder(
 							filled,
@@ -273,12 +279,15 @@ export function switchTicker(ticker) {
 						);
 						// console.log("normalized ", filled, fill, fill.getPrice(), fill.fill_price.toReal());
 						trade_history.push(fill)
+						// if (fill.account == user_id) {
+						// 	my_orders.push(fill)
+						// }
 					})
 					return trade_history
 				})
 	
 				const orderBook = Apis.instance().db_api().exec("get_order_book", [base.id, counter.id, 50]).then((ob) => {
-					console.log("ob  ", ob);
+					// console.log("ob  ", ob);
 					return aggregateOrderBook(ob.bids, ob.asks, window.assets[base.id].precision)
 				})
 	

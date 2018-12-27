@@ -204,7 +204,10 @@ HamburgerMenu.defaultProps = {
       iconPath:"/public/images/menuicons/quanta-grey.svg",
       iconPathActive:"/public/images/menuicons/quanta-white.svg",
       text:"Logout",
-      url:"/login"
+      // url:"/login"
+      onClick: () => {
+        window.location.assign('/login')
+      }
     }],
     backgroundColor:"#323b40"
   }]

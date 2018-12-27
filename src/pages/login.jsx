@@ -234,7 +234,10 @@ class Login extends Component {
 									<label htmlFor="private-key">
 										QUANTA<br/>PRIVATE KEY
 									</label>
-									<input name="private-key" value={this.state.value} onChange={this.handleChange} type="text" spellCheck="false" placeholder="Enter private key …"/>
+									<input name="private-key" value={this.state.value} 
+										onChange={this.handleChange} 
+										autoComplete="off"
+										type="text" spellCheck="false" placeholder="Enter private key …"/>
 									<span className="error" hidden={!this.state.authError}>Invalid Key</span>
 								</div>
 								<button type="submit" disabled={!this.state.has_input}>Authenticate</button>

@@ -372,7 +372,8 @@ const app = (state = initialState, action) => {
     case SET_MARKET_QUOTE:
       return {
         ...state,
-        markets: action.data
+        markets: action.data[0],
+        usd_value: action.data[1]
       }
 
     case LOGIN:
