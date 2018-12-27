@@ -1,5 +1,6 @@
 import utils from "./utils";
-import { LimitOrder } from "./MarketClasses";
+import { LimitOrder, FillOrder } from "./MarketClasses";
+import Immutable from "immutable";
 
 export function calculateStartDate(endDate, interval, ticks) {
 	return new Date(endDate.getTime() - (interval * ticks))
@@ -169,4 +170,16 @@ export function aggregateOrderBook(bids, asks, precision) {
 		bids: constructBids(bids),
 		asks: constructAsks(asks),
 	}
+}
+
+export function convertHistoryToOrderedSet(history, base) {
+	let activeMarketHistory = Immutable.OrderedSet();
+	history.forEach(order => {
+		if (!order.op.is_maker) {
+			activeMarketHistory = activeMarketHistory.add(
+				new FillOrder(order, window.assets, base)
+			);
+		}
+	})
+	return activeMarketHistory
 }

@@ -277,8 +277,8 @@ const app = (state = initialState, action) => {
         try {
           asksSortedSet.insert({
             price: ask.price,
-            amount: ask.base,
-            total: parseFloat(ask.price) * parseFloat(ask.base)
+            amount: ask.quote,
+            total: parseFloat(ask.price) * parseFloat(ask.quote)
           })
         } catch(e) {
           console.log(e)
@@ -291,8 +291,8 @@ const app = (state = initialState, action) => {
         try {
             bidsSortedSet.insert({
               price: bid.price,
-              amount: bid.base,
-              total: parseFloat(bid.price) * parseFloat(bid.base)
+              amount: bid.quote,
+              total: parseFloat(bid.price) * parseFloat(bid.quote)
             })
           } catch(e) {
             console.log(e)
@@ -302,7 +302,7 @@ const app = (state = initialState, action) => {
       const tradesDataSource = action.data.trades.map((trade) => {
         return {
           price: trade.getPrice(),
-          amount: trade.fill_price.base.getAmount({real: true}),
+          amount: trade.isBid ? trade.amountToReceive() : trade.amountToPay(),
           color_key: trade.isBid ? 0 : 1,
           date: moment(trade.time || "").utc().format('DD MMM'),
           time: moment(trade.time || "").utc().format("HH:mm:ss")
@@ -316,11 +316,16 @@ const app = (state = initialState, action) => {
         spreadDollar = Math.abs(parseFloat(asksSortedSet.beginIterator().value().price) - parseFloat(bidsSortedSet.beginIterator().value().price)).toFixed(7)
       }
 
+      //TODO: Get ticker from the order itself.
       const limitOrdersDataSource = action.data.openOrders.map((order) => {
+        const amount = order.isBid() ?
+          (order.amountToReceive()).getAmount({ real: true }) + ' ' + state.currentTicker.split('/')[0] :
+          (order.amountForSale()).getAmount({ real: true }) + ' ' + state.currentTicker.split('/')[0];
+
         return {
           assets: state.currentTicker,
           price: order.getPrice() + ' ' + state.currentTicker.split('/')[0],
-          amount: (order.amountToReceive()).getAmount({real: true}) + ' ' +state.currentTicker.split('/')[0],
+          amount: amount,
           total: order.getPrice() * (order.amountToReceive()).getAmount({real: true}) + ' ' + state.currentTicker.split('/')[1],
           type: order.isBid() ? 'BUY' : 'SELL',
           date: (new Date(order.expiration.setFullYear(order.expiration.getFullYear() - 5))).toLocaleString('en-US', { day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false }),

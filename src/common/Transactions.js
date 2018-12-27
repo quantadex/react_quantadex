@@ -79,28 +79,44 @@ export function signAndBroadcast(tr, pKey) {
 	});
 }
 
-export function createLimitOrderWithPrice(user_id, is_buy, assets, base, counter, price, amount) {
+
+function calculatePrice(assets, is_buy, base, counter, price, amount) {
 	const priceObj = new Price({
 		base: new Asset({
+			asset_id: assets[counter].id,
+			precision: assets[counter].precision
+		}),
+		quote: new Asset({
 			asset_id: assets[base].id,
 			precision: assets[base].precision
 		}),
-		quote: new Asset({
-			asset_id: assets[counter].id,
-			precision: assets[counter].precision
-		})
+		real: parseFloat(price)
 	})
 
-	priceObj.setPriceFromReal(parseFloat(price))
-	const sellAmount = priceObj.base.clone()
+	console.log(priceObj);
+
+	// USD
+	const sellAmount = priceObj.quote.clone()
 	sellAmount.setAmount({ real: parseFloat(amount) });
 
-	console.log("priceObj", priceObj, amount, sellAmount);
+	const amountBase = priceObj.quote.clone()
+	amountBase.setAmount({ real: parseFloat(amount) });
+
+	//console.log("is_buy", is_buy, priceObj.toReal(), sellAmount.getAmount(true));
+	const forSale = is_buy ? sellAmount.times(priceObj, is_buy) : amountBase;
+	const toReceive = is_buy ? amountBase : sellAmount.times(priceObj, is_buy);
+
+	return { forSale, toReceive }
+}
+
+export function createLimitOrderWithPrice(user_id, is_buy, assets, base, counter, price, amount) {
+
+	const { forSale, toReceive } = calculatePrice(assets, is_buy, base, counter, price, amount)
 
 	return new LimitOrderCreate({
-		for_sale: is_buy ? sellAmount : sellAmount.times(priceObj),
+		for_sale: forSale,
 		expiration: null,
-		to_receive: is_buy ? sellAmount.times(priceObj) : sellAmount,
+		to_receive: toReceive,
 		seller: user_id,
 		fee: {
 			asset_id: "1.3.0",

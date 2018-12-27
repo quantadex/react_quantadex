@@ -6,7 +6,7 @@ import { Apis } from "@quantadex/bitsharesjs-ws";
 import { Price, Asset, FillOrder, LimitOrderCreate, LimitOrder } from "../../common/MarketClasses";
 import { PrivateKey, PublicKey, Aes, key, ChainStore } from "@quantadex/bitsharesjs";
 import { createLimitOrderWithPrice, createLimitOrder2, cancelOrder, signAndBroadcast } from "../../common/Transactions";
-import { aggregateOrderBook } from "../../common/PriceData";
+import { aggregateOrderBook, convertHistoryToOrderedSet } from "../../common/PriceData";
 
 export const INIT_DATA = 'INIT_DATA';
 export const LOGIN = 'LOGIN';
@@ -58,7 +58,7 @@ export function buyTransaction(market, price, amount) {
 		var user_id = getState().app.userId;
 
 		const pKey = PrivateKey.fromWif(getState().app.private_key);
-		console.log(pKey, assets[base.id], price, amount, user_id);
+		console.log(pKey, assets[base.id], "price=",price, "amount=", amount, user_id);
 
 		const order = createLimitOrderWithPrice(user_id, true, window.assets, base.id, counter.id, price, amount)
 
@@ -80,7 +80,7 @@ export function sellTransaction(market, price, amount) {
 		var user_id = getState().app.userId;
 
 		const pKey = PrivateKey.fromWif(getState().app.private_key);
-		console.log(pKey, assets[base.id], user_id);
+		console.log(pKey, assets[base.id], "price=", price, "amount=", amount, user_id);
 
 		const order = createLimitOrderWithPrice(user_id, false, window.assets, base.id, counter.id, price, amount)
 
@@ -116,7 +116,7 @@ export const cancelTransaction = (market, order_id) => {
 }
 
 var initAPI = false;
-var wsString = "wss://testnet-01.quantachain.io:8095";
+var wsString = "ws://localhost:8090";
 
 function getAvgtime() {
 	const avgTime = blockTimes.reduce((previous, current, idx, array) => {
@@ -263,21 +263,15 @@ export function switchTicker(ticker) {
 				var {base, counter} = getBaseCounter(getState().app.currentTicker)
 
 				const trades = Apis.instance().history_api().exec("get_fill_order_history", [base.id, counter.id, 100]).then((filled) => {
-					// console.log("history filled ", filled);
-					var trade_history = [];
-					filled.forEach((filled) => {
-						var fill = new FillOrder(
-							filled,
-							window.assets,
-							counter.id
-						);
-						// console.log("normalized ", filled, fill, fill.getPrice(), fill.fill_price.toReal());
-						trade_history.push(fill)
-					})
+					console.log("history filled ", filled);
+					const trade_history = convertHistoryToOrderedSet(filled, base.id)
+					console.log("converted ", trade_history);
+			
 					return trade_history
 				})
 	
-				const orderBook = Apis.instance().db_api().exec("get_order_book", [base.id, counter.id, 50]).then((ob) => {
+				// selling counter
+				const orderBook = Apis.instance().db_api().exec("get_order_book", [counter.id, base.id, 50]).then((ob) => {
 					console.log("ob  ", ob);
 					return aggregateOrderBook(ob.bids, ob.asks, window.assets[base.id].precision)
 				})
@@ -287,11 +281,12 @@ export function switchTicker(ticker) {
 					.exec("get_full_accounts", [[getState().app.userId], true])
 					.then(results => {
 						var orders = [];
+						
 						results[0][1].limit_orders.forEach((ordered) => {
 							var order = new LimitOrder(
 								ordered,
 								window.assets,
-								counter.id
+								base.id
 							);
 							orders.push(order)
 						})
