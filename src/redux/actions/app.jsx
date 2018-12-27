@@ -219,6 +219,7 @@ export function switchTicker(ticker) {
 					.then(async (e) => {
 					markets = e;
 					var marketData = [];
+					var USD_value = {}
 					console.log("json ", markets.markets);
 
 					for (const market of markets.markets) {
@@ -235,12 +236,15 @@ export function switchTicker(ticker) {
 							last: data[0].latest,
 							base_volume: data[1].base_volume,
 							quote_volume: data[1].quote_volume
-						})						
+						})	
+						if (counter.symbol == 'USD') {
+							USD_value[base.id] = data[0].latest
+						}
 					}
 
 					dispatch({
 						type: SET_MARKET_QUOTE,
-						data: marketData
+						data: [marketData, USD_value]
 					})
 
 				})

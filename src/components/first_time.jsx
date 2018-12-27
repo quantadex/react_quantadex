@@ -243,9 +243,9 @@ class FirstTime extends Component {
                                 <h1>You have unlocked 10,000 QDEX to start trading.
                                     <img src="/public/images/thumb-up.svg" />
                                 </h1>
-                                <p>You can earn more initial tokens by depositing up to three Ropstein 
+                                {/* <p>You can earn more initial tokens by depositing up to three Ropstein 
                                     Testnet Ethers into the QUANTA wallet, and experience QUANTA’s cross-chain 
-                                    technology. <a>Learn more.</a> </p>
+                                    technology. <a>Learn more.</a> </p> */}
                                 <button onClick={this.statusDialog}>Continue</button>
                             </div>
                         </div>

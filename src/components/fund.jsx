@@ -82,10 +82,9 @@ const container = css`
     border-radius: 2px;
   }
   .erc20 button:disabled {
-    background-color: #aaa;
-    border-color: #aaa;
-    color: #000 !important;
-    opacity: 0.4;
+    background-color: #555;
+    border-color: #555;
+    color: #222 !important;
     cursor: not-allowed;
   }
 `;
@@ -139,6 +138,9 @@ class Fund extends Component {
 	}
 
 	render() {
+    if (this.props.private_key == null) {
+			window.location.assign('/login')
+    } 
     const tabs = [
       {
         name:'Wallets / Deposit / Withdraw',
@@ -160,7 +162,7 @@ class Fund extends Component {
         pairs: window.assets[currency.asset].symbol,
         balance: currency.balance,
         on_orders: "0.00000000",
-        eth_value: "0.00000000"
+        usd_value: currency.balance * this.props.usd_value[currency.asset]
       }
       dataSourceWallets.push(data)
     });
@@ -181,8 +183,8 @@ class Fund extends Component {
         type: "number",
         width:"90"
     }, {
-        title: "ETH VALUE",
-        key: "eth_value",
+        title: "USD VALUE",
+        key: "usd_value",
         type: "string",
         width:"90"
     }, {
@@ -400,7 +402,7 @@ class Fund extends Component {
             <a><img src="/public/images/external-link-light.svg" /></a>
           </div>
           <div className="est-fund text-right align-self-center">
-            <span className="qt-font-extra-small qt-white-62">On-chain custody estimated  funds</span>
+            <span className="qt-font-extra-small qt-white-62">On-chain custody estimated funds</span>
             <div><span className="qt-font-huge">$12.560 </span><span className="currency">USD</span></div>
           </div>
           
@@ -461,7 +463,9 @@ const mapStateToProps = (state) => ({
 		leftOpen: state.app.ui.leftOpen,
     rightOpen: state.app.ui.rightOpen,
     balance: state.app.balance,
-    publicKey: state.app.publicKey || ""
+    publicKey: state.app.publicKey || "",
+    private_key: state.app.private_key,
+    usd_value: state.app.usd_value
 	});
 
 

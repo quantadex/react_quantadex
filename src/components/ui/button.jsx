@@ -80,10 +80,9 @@ const Container = styled('button')`
     width: 100% !important;
   }
   &:disabled {
-    background-color: #aaa;
-    border-color: #aaa;
-    color: #aaa !important;
-    opacity: 0.4;
+    background-color: transparent !important;
+    border-color: #555;
+    color: #555 !important;
     cursor: not-allowed;
   }
 `

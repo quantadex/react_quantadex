@@ -9,6 +9,7 @@ const container = css`
     width: 100%;
     background-color: #ffffff;
     overflow: hidden;
+    z-index: 2;
 
     .status-info {
         width: 100%;

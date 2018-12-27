@@ -80,6 +80,14 @@ const container = css`
     }
   }
 
+  thead th {
+    position: sticky;
+    position: -webkit-sticky;
+    top: 0;
+    background: #23282c;
+    z-index: 1;
+  }
+
   .scroll-up {
     position: absolute;
     right: 30px;

@@ -301,6 +301,7 @@ const app = (state = initialState, action) => {
       
       const tradesDataSource = action.data.trades.map((trade) => {
         return {
+          id: trade.id,
           price: trade.getPrice(),
           amount: trade.isBid ? trade.amountToReceive() : trade.amountToPay(),
           color_key: trade.isBid ? 0 : 1,
@@ -381,7 +382,8 @@ const app = (state = initialState, action) => {
     case SET_MARKET_QUOTE:
       return {
         ...state,
-        markets: action.data
+        markets: action.data[0],
+        usd_value: action.data[1]
       }
 
     case LOGIN:

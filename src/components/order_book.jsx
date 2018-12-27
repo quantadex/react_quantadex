@@ -12,7 +12,8 @@ import globalcss from './global-css.js'
 const container = css`
 
 	.orderbook-ask, .orderbook-bid {
-		height:260px;
+		height: 35vh;
+		min-height:260px;
 	}
 
 	.orderbook-middle {
