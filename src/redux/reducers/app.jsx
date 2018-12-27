@@ -321,12 +321,16 @@ const app = (state = initialState, action) => {
         const amount = order.isBid() ?
           (order.amountToReceive()).getAmount({ real: true }) + ' ' + state.currentTicker.split('/')[0] :
           (order.amountForSale()).getAmount({ real: true }) + ' ' + state.currentTicker.split('/')[0];
+          
+        const total = order.isBid() ?
+          order.getPrice() * (order.amountToReceive()).getAmount({ real: true }) + ' ' + state.currentTicker.split('/')[1]:
+          order.getPrice() * (order.amountForSale()).getAmount({ real: true }) + ' ' + state.currentTicker.split('/')[1]
 
         return {
           assets: state.currentTicker,
           price: order.getPrice() + ' ' + state.currentTicker.split('/')[0],
           amount: amount,
-          total: order.getPrice() * (order.amountToReceive()).getAmount({real: true}) + ' ' + state.currentTicker.split('/')[1],
+          total: total,
           type: order.isBid() ? 'BUY' : 'SELL',
           date: (new Date(order.expiration.setFullYear(order.expiration.getFullYear() - 5))).toLocaleString('en-US', { day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false }),
           id: order.id

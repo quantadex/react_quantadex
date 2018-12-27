@@ -263,9 +263,9 @@ export function switchTicker(ticker) {
 				var {base, counter} = getBaseCounter(getState().app.currentTicker)
 
 				const trades = Apis.instance().history_api().exec("get_fill_order_history", [base.id, counter.id, 100]).then((filled) => {
-					console.log("history filled ", filled);
+					//console.log("history filled ", filled);
 					const trade_history = convertHistoryToOrderedSet(filled, base.id)
-					console.log("converted ", trade_history);
+					//console.log("converted ", trade_history);
 			
 					return trade_history
 				})
@@ -313,21 +313,11 @@ export function switchTicker(ticker) {
 				const curr_ticker = getBaseCounter(getState().app.currentTicker)
 				if (base.id === curr_ticker.base.id && counter.id === curr_ticker.counter.id) {
 					fetchData()
+					if (Apis.instance().streamCb) {
+						Apis.instance().streamCb()
+					}
 				}
 			}, base.id, counter.id])
-
-			Apis.instance()
-				.orders_api()
-				.exec("get_grouped_limit_orders", [
-					base.id,
-					counter.id,
-					10,
-					null,
-					50
-				]).then((limitorders) => {
-					// const user_orders = limitorders.filter((order) => order.seller === user_id)
-					console.log("get_grouped_limit_orders  ", limitorders);
-				})
 
 			fetchData()
 

@@ -442,38 +442,48 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
   onErrorCallback
 ) {
   //	timestamp sample: 1399939200
-  if (rangeStartDate > 0 && (rangeStartDate + "").length > 10) {
-    throw new Error([
-      "Got a JS time instead of Unix one.",
-      rangeStartDate,
-      rangeEndDate
-    ]);
-  }
+  // if (rangeStartDate > 0 && (rangeStartDate + "").length > 10) {
+  //   throw new Error([
+  //     "Got a JS time instead of Unix one.",
+  //     rangeStartDate,
+  //     rangeEndDate
+  //   ]);
+  // }
 
   const { base, counter } = getBaseCounter(symbolInfo.ticker);
+  const bucketCount = 200
+
+  const endDate = new Date(rangeEndDate * 1000)
+  const startDate = new Date(
+    endDate.getTime() -
+    resolution * bucketCount * 1000
+  );
 
   console.log("Load prices ", symbolInfo, resolution, rangeStartDate, rangeEndDate);
-  Apis.instance()
+  return Apis.instance()
     .history_api()
-    .exec("get_market_history", [
+    .exec("get_market_history", [      
       base.id,
       counter.id,
       resolution,
-      new Date(rangeStartDate*1000).toISOString().slice(0, -5),
-      new Date(rangeEndDate*1000).toISOString().slice(0, -5)
+      startDate.toISOString().slice(0, -5),
+      endDate.toISOString().slice(0, -5)
     ]).then((data) => {
 
       console.log("chart data", data);
       const no_data = data.length == 0;
-      const bars = transformPriceData(data, base, counter);
-      console.log("Bars ", bars);
+      const bars = transformPriceData(data, counter, base);
+      console.log("Bars ", bars, no_data);
 
-      onDataCallback(bars, {
-        noData: no_data,
-        nextTime: null
-      });
+      console.log("Writing Enddate");
+      Datafeeds.endDate = endDate;
+
+      if (data.length == 0) {
+        onDataCallback(bars, {noData: true})
+      } else {
+        onDataCallback(bars);
+      }
     })
-
 };
 
 Datafeeds.UDFCompatibleDatafeed.prototype.subscribeBars = function(
@@ -857,30 +867,55 @@ Datafeeds.DataPulseUpdater.prototype.subscribeDataListener = function(
     };
   }
 
-  // minutes don't have suffix, add it
-  if (Number.isInteger(parseInt(resolution))) {
-    resolution = resolution + "m";
+  Apis.instance().streamCb = () => {
+    const { base, counter } = getBaseCounter(symbolInfo.ticker);
+    const endDate = new Date()
+    const startDate = new Date(
+      endDate.getTime() -
+      resolution * 1 * 1000
+    );
+
+    // console.log("Stream Load prices ", symbolInfo, resolution);
+    return Apis.instance()
+      .history_api()
+      .exec("get_market_history", [
+        base.id,
+        counter.id,
+        resolution,
+        startDate.toISOString().slice(0, -5),
+        endDate.toISOString().slice(0, -5)
+      ]).then((data) => {
+        console.log("stream ", startDate.toISOString().slice(0, -5), endDate.toISOString().slice(0, -5), data);
+        if (data.length == 0) {
+        } else {
+          const no_data = data.length == 0;
+          const bars = transformPriceData(data, counter, base);
+          console.log("Bars ", bars, no_data);
+          newDataCallback(bars[0]);
+          Datafeeds.endDate = endDate;
+        }
+      })
   }
 
-  var streamUrl = "http://testnet-02.quantachain.io:7200/stream/chart/" + symbolInfo.ticker + "?interval=" + resolution.toLowerCase()
-  console.log("Stream Subscribe ", symbolInfo, streamUrl);
-  var stream = new EventSource(streamUrl);
+  // var streamUrl = "http://testnet-02.quantachain.io:7200/stream/chart/" + symbolInfo.ticker + "?interval=" + resolution.toLowerCase()
+  // console.log("Stream Subscribe ", symbolInfo, streamUrl);
+  // var stream = new EventSource(streamUrl);
 
-  stream.onmessage = function(event) {
-    const data = JSON.parse(event.data);
-    const res = {
-      time: data.time*1000,
-      volume: +data.volume,
-      open: +data.open,
-      high: +data.high,
-      low: +data.low,
-      close: +data.close
-    }
-    console.log(data, res);
-    newDataCallback(res);
-  };
+  // stream.onmessage = function(event) {
+  //   const data = JSON.parse(event.data);
+  //   const res = {
+  //     time: data.time*1000,
+  //     volume: +data.volume,
+  //     open: +data.open,
+  //     high: +data.high,
+  //     low: +data.low,
+  //     close: +data.close
+  //   }
+  //   console.log(data, res);
+  //   newDataCallback(res);
+  // };
 
-  this._subscribers[listenerGUID].sockets.push(stream);
+  //this._subscribers[listenerGUID].sockets.push(stream);
 };
 
 Datafeeds.DataPulseUpdater.prototype.periodLengthSeconds = function(
