@@ -106,15 +106,23 @@ const container = css`
 `;
 
 class Orders extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      selectedTabIndex: 0,
+      isFocused: false
+    };
+  }
   handleSwitch(index, selected) {
-    window.scrollTo(0,document.body.scrollHeight);
-    // const list = document.getElementsByClassName("order-list")[0]
-    // if (index != selected || list.classList.contains("inactive")) {
-    //   list.classList.remove("inactive")
-      
-    // } else {
-    //   list.classList.add("inactive")
-    // }
+    this.setState({selectedTabIndex: index})
+    if(index == selected && this.state.isFocused) {
+      window.scrollTo(0,0);
+      this.setState({isFocused: false})
+    } else {
+      window.scrollTo(0,document.body.scrollHeight);
+      this.setState({isFocused: true})
+    }
+    
   }
 
   goToTop() {
@@ -131,8 +139,21 @@ class Orders extends Component {
     //   ["BNCBTC","0.234567 BTC","0.234567 BTC","0.234567 BTC","0.234567 BTC","BUY","Filled","12 JAN, 12:34:15"]
     // ]
     const tabs = {
-      names: ['ACTIVE ORDERS'], //,'FILLED ORDERS'],
+      names: ['ACTIVE ORDERS', 'FILLED ORDERS'],
       selectedTabIndex: 0,
+    }
+
+    const OrdersList = () => {
+      if (this.state.selectedTabIndex == 0) {
+        return (
+          <QTTableViewSimple dataSource={this.props.openOrders.dataSource} columns={this.props.openOrders.columns}
+          cancelOrder={this.handleCancel.bind(this)} />
+        )
+      } else {
+        return (
+          <QTTableViewSimple dataSource={this.props.filledOrders.dataSource} columns={this.props.filledOrders.columns}/>
+        )
+      }
     }
 
     return (
@@ -147,8 +168,7 @@ class Orders extends Component {
         />
         <section className= { (this.props.openOrders.dataSource.length == 0 ? "d-none " : "") + "order-list container-fluid no-scroll-bar"}>
           <div>
-            <QTTableViewSimple dataSource={this.props.openOrders.dataSource} columns={this.props.openOrders.columns}
-              cancelOrder={this.handleCancel.bind(this)} />
+            <OrdersList />
           </div>
 				</section>
       </div>
@@ -161,6 +181,7 @@ const mapStateToProps = (state) => ({
   	asks: state.app.tradeBook.asks,
 		currentPrice: state.app.currentPrice,
     openOrders:state.app.openOrders,
+    filledOrders:state.app.filledOrders,
     currentTicker: state.app.currentTicker
 	});
 

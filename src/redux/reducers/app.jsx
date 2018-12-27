@@ -91,6 +91,64 @@ let initialState = {
       float:"right"
     }]
   },
+  filledOrders: {
+    dataSource: [],
+    columns: [{
+      name:"PAIR",
+      key:"assets",
+      type:"string",
+      sortable:false,
+      color: (value) => {return "white"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"left"
+    },{
+      name:"PRICE",
+      key:"price",
+      type:"string",
+      sortable:false,
+      color: (value) => {return "white"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"right"
+    },{
+      name:"AMOUNT",
+      key:"amount",
+      type:"string",
+      sortable:false,
+      color: (value) => {return "white"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"right"
+    },{
+      name:"TOTAL",
+      key:"total",
+      type:"string",
+      sortable:false,
+      color: (value) => {return "white"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"right"
+    },{
+      name:"TYPE",
+      key:"type",
+      type:"string",
+      sortable:false,
+      color: (value) => {return value == "BUY" ? "theme" : "red"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"right"
+    },{
+      name:"DATE",
+      key:"date",
+      type:"string",
+      sortable:false,
+      color: (value) => {return "white"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"right"
+    }]
+  },
   orderBook: {
     decimals: {
       allowedDecimals: ["8","7","6","5"],
@@ -316,20 +374,20 @@ const app = (state = initialState, action) => {
         spread = Math.abs((parseFloat(asksSortedSet.beginIterator().value().price)/parseFloat(bidsSortedSet.beginIterator().value().price) - 1)*100)
         spreadDollar = Math.abs(parseFloat(asksSortedSet.beginIterator().value().price) - parseFloat(bidsSortedSet.beginIterator().value().price)).toFixed(7)
       }
-
-      //TODO: Get ticker from the order itself.
+      
       const limitOrdersDataSource = action.data.openOrders.map((order) => {
+        const ticker = [order.assets[order.sell_price.base.asset_id].symbol, order.assets[order.sell_price.quote.asset_id].symbol]
         const amount = order.isBid() ?
-          (order.amountToReceive()).getAmount({ real: true }) + ' ' + state.currentTicker.split('/')[0] :
-          (order.amountForSale()).getAmount({ real: true }) + ' ' + state.currentTicker.split('/')[0];
+          (order.amountToReceive()).getAmount({ real: true }) + ' ' + ticker[0] :
+          (order.amountForSale()).getAmount({ real: true }) + ' ' + ticker[0];
           
         const total = order.isBid() ?
-          order.getPrice() * (order.amountToReceive()).getAmount({ real: true }) + ' ' + state.currentTicker.split('/')[1]:
-          order.getPrice() * (order.amountForSale()).getAmount({ real: true }) + ' ' + state.currentTicker.split('/')[1]
+          order.getPrice() * (order.amountToReceive()).getAmount({ real: true }) + ' ' + ticker[1]:
+          order.getPrice() * (order.amountForSale()).getAmount({ real: true }) + ' ' + ticker[1]
 
         return {
-          assets: state.currentTicker,
-          price: order.getPrice() + ' ' + state.currentTicker.split('/')[0],
+          assets: ticker.join('/'),
+          price: order.getPrice() + ' ' + ticker[0],
           amount: amount,
           total: total,
           type: order.isBid() ? 'BUY' : 'SELL',
@@ -338,6 +396,26 @@ const app = (state = initialState, action) => {
         }
       })
 
+      const filledOrdersDataSource = action.data.filledOrders.map((order) => {
+        const amount = order.isBid ?
+          (order.amountToReceive()) + ' ' + state.currentTicker.split('/')[0] :
+          (order.amountToPay()) + ' ' + state.currentTicker.split('/')[0];
+          
+        const total = order.isBid ?
+          order.getPrice() * (order.amountToReceive()) + ' ' + state.currentTicker.split('/')[1]:
+          order.getPrice() * (order.amountToPay()) + ' ' + state.currentTicker.split('/')[1]
+
+        return {
+          assets: state.currentTicker,
+          price: order.getPrice() + ' ' + state.currentTicker.split('/')[0],
+          amount: amount,
+          total: total,
+          type: order.isBid ? 'BUY' : 'SELL',
+          date: order.time.toLocaleString('en-US', { day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false }),
+          id: order.id
+        }
+      })
+      
       const balances = action.data.accountData[0][1].balances.map((balance => {
         return {
           asset: balance.asset_type,
@@ -353,6 +431,10 @@ const app = (state = initialState, action) => {
           ...state.openOrders,
           dataSource: limitOrdersDataSource
         }, 
+        filledOrders: {
+          ...state.filledOrders,
+          dataSource: filledOrdersDataSource
+        },
         orderBook: {
           ...state.orderBook,
           spread: spread,
