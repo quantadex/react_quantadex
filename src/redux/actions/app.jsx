@@ -7,6 +7,7 @@ import { Price, Asset, FillOrder, LimitOrderCreate, LimitOrder } from "../../com
 import { PrivateKey, PublicKey, Aes, key, ChainStore } from "@quantadex/bitsharesjs";
 import { createLimitOrderWithPrice, createLimitOrder2, cancelOrder, signAndBroadcast } from "../../common/Transactions";
 import { aggregateOrderBook, convertHistoryToOrderedSet } from "../../common/PriceData";
+import ReactGA from 'react-ga';
 
 export const INIT_DATA = 'INIT_DATA';
 export const LOGIN = 'LOGIN';
@@ -172,6 +173,10 @@ function onUpdate(dispatch) {
 }
 
 export function switchTicker(ticker) {
+
+	// send GA
+	ReactGA.set({ page: "exchange/" + ticker });
+	ReactGA.pageview("exchange/" + ticker);
 	console.log("Switch ticker ", ticker);
 
 	return function (dispatch,getState) {
@@ -215,41 +220,6 @@ export function switchTicker(ticker) {
 					})]);
 			})
 			.then((e) => {
-				return fetch("https://s3.amazonaws.com/quantachain.io/markets.json").then(e=> e.json())
-					.then(async (e) => {
-					markets = e;
-					var marketData = [];
-					var USD_value = {}
-					console.log("json ", markets.markets);
-
-					for (const market of markets.markets) {
-						var { base, counter } = getBaseCounter(market.name);
-						const data = await Promise.all([Apis.instance()
-							.db_api()
-							.exec("get_ticker", [counter.id, base.id]),
-							Apis.instance()
-								.db_api()
-								.exec("get_24_volume", [counter.id, base.id])])
-						
-						marketData.push({
-							name: market.name,
-							last: data[0].latest,
-							base_volume: data[1].base_volume,
-							quote_volume: data[1].quote_volume
-						})	
-						if (counter.symbol == 'USD') {
-							USD_value[base.id] = data[0].latest
-						}
-					}
-
-					dispatch({
-						type: SET_MARKET_QUOTE,
-						data: [marketData, USD_value]
-					})
-
-				})
-			})
-			.then((e) => {
 				action()
 			});
 		} else {
@@ -266,8 +236,41 @@ export function switchTicker(ticker) {
 			function fetchData() {
 				var {base, counter} = getBaseCounter(getState().app.currentTicker)
 
-				const trades = Apis.instance().history_api().exec("get_fill_order_history", [base.id, counter.id, 1000]).then((filled) => {
-					// console.log("history filled ", filled);
+				fetch("https://s3.amazonaws.com/quantachain.io/markets.json").then(e => e.json())
+					.then(async (e) => {
+						markets = e;
+						var marketData = [];
+						var USD_value = {}
+						console.log("json ", markets.markets);
+
+						for (const market of markets.markets) {
+							var { base, counter } = getBaseCounter(market.name);
+							const data = await Promise.all([Apis.instance()
+								.db_api()
+								.exec("get_ticker", [counter.id, base.id]),
+							Apis.instance()
+								.db_api()
+								.exec("get_24_volume", [counter.id, base.id])])
+
+							marketData.push({
+								name: market.name,
+								last: data[0].latest,
+								base_volume: data[1].base_volume,
+								quote_volume: data[1].quote_volume
+							})
+							if (counter.symbol == 'USD') {
+								USD_value[base.id] = data[0].latest
+							}
+						}
+
+						dispatch({
+							type: SET_MARKET_QUOTE,
+							data: [marketData, USD_value]
+						})
+					})
+					
+				const trades = Apis.instance().history_api().exec("get_fill_order_history", [base.id, counter.id, 100]).then((filled) => {
+					//console.log("history filled ", filled);
 					const trade_history = convertHistoryToOrderedSet(filled, base.id)
 					//console.log("converted ", trade_history);
 					const my_history = [];

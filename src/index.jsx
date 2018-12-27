@@ -10,10 +10,14 @@ import reducer from './redux/index.jsx'
 import thunk from 'redux-thunk';
 import DevTools from './redux/devtools.jsx';
 import logger from 'redux-logger'
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
+import { Router, Route, Switch,withRouter } from 'react-router-dom'
 
 import { injectGlobal } from 'emotion'
 import globalcss from './components/global-css.js'
+import createHistory from 'history/createBrowserHistory'
+import ReactGA from 'react-ga';
+
+ReactGA.initialize('UA-114919036-3');
 
 // , applyMiddleware(logger)
 
@@ -221,12 +225,21 @@ const FundPage = (page,props) => {
 	)
 }
 
+const history = createHistory()
+history.listen((location, action) => {
+	//console.log("history change ", location.pathname);
+	ReactGA.set({ page: location.pathname });
+	ReactGA.pageview(location.pathname);
+});
+
+
 class Container extends React.Component {
+
 
   render () {
     return (
     <Provider store={store}>
-      <Router>
+				<Router history={history}>
         <Switch>
 					<Route exact path="/" component={Exchange} />
           <Route exact path="/exchange" component={Exchange} />
@@ -234,11 +247,12 @@ class Container extends React.Component {
           <Route path="/exchange/history" render={FundPage.bind(this,"history")} />
           <Route path="/exchange/orders" render={FundPage.bind(this,"orders")} />
           <Route exact path="/login" component={Login} />
-		  <Route exact path="/keygen" component={GenerateKey} />
+		  		<Route exact path="/keygen" component={GenerateKey} />
         </Switch>
       </Router>
     </Provider>);
   }
 }
+
 
 render(<Container/>, document.getElementById('app'));

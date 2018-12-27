@@ -85,7 +85,7 @@ class Exchange extends Component {
 		if (!this.props.private_key) {
 			this.props.history.push("/login")
 		} else {
-			this.props.dispatch(switchTicker("QDEX/ETH"));
+			this.props.dispatch(switchTicker("ETH/USD"));
 			//this.props.dispatch(initBalance());
 		}
 

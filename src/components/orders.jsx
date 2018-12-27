@@ -10,6 +10,7 @@ import QTButton from './ui/button.jsx'
 import QTTableViewSimple from './ui/tableViewSimple.jsx'
 
 import {cancelTransaction} from "../redux/actions/app.jsx";
+import ReactGA from 'react-ga';
 
 
 const container = css`
@@ -130,6 +131,10 @@ class Orders extends Component {
   }
 
   handleCancel(market, order) {
+    ReactGA.event({
+      category: 'CANCEL',
+      action: market
+    });
     this.props.dispatch(cancelTransaction(market, order))
   }
 
@@ -145,11 +150,17 @@ class Orders extends Component {
 
     const OrdersList = () => {
       if (this.state.selectedTabIndex == 0) {
+        if (this.props.openOrders.dataSource.length == 0) {
+          return null
+        }
         return (
           <QTTableViewSimple dataSource={this.props.openOrders.dataSource} columns={this.props.openOrders.columns}
           cancelOrder={this.handleCancel.bind(this)} />
         )
       } else {
+        if (this.props.filledOrders.dataSource.length == 0) {
+          return null
+        }
         return (
           <QTTableViewSimple dataSource={this.props.filledOrders.dataSource} columns={this.props.filledOrders.columns}/>
         )
@@ -166,7 +177,7 @@ class Orders extends Component {
           tabs = {tabs}
           switchTab = {this.handleSwitch.bind(this)}
         />
-        <section className= { (this.props.openOrders.dataSource.length == 0 ? "d-none " : "") + "order-list container-fluid no-scroll-bar"}>
+        <section className= { (this.props.openOrders.dataSource.length == 0 && this.props.filledOrders.dataSource.length == 0 ? "d-none " : "") + "order-list container-fluid no-scroll-bar"}>
           <div>
             <OrdersList />
           </div>

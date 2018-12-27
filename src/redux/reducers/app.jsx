@@ -11,7 +11,7 @@ import moment from 'moment'
 let initialState = {
   private_key: null,
   publicKey: "",
-  currentTicker: 'QDEX/ETH',
+  currentTicker: 'ETH/USD',
   tradeHistory: [],
   tradeBook: { bids: [], asks: []},
   markets: [],
