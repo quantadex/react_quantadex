@@ -225,10 +225,10 @@ export function switchTicker(ticker) {
 						var { base, counter } = getBaseCounter(market.name);
 						const data = await Promise.all([Apis.instance()
 							.db_api()
-							.exec("get_ticker", [base.id, counter.id]),
+							.exec("get_ticker", [counter.id, base.id]),
 							Apis.instance()
 								.db_api()
-								.exec("get_24_volume", [base.id, counter.id])])
+								.exec("get_24_volume", [counter.id, base.id])])
 						
 						marketData.push({
 							name: market.name,
