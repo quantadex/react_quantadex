@@ -41,7 +41,8 @@ const leaderboard_container = css `
 		justify-content: space-between;
 		margin-top: 20px;
 
-		button {
+		a {
+			text-align: center;
 			font-size: 12px;
 			color: #fff;
 			background-color: transparent;
@@ -98,8 +99,8 @@ class Leaderboard extends Component {
 					</table>
 
 					<div className="leaderboard-actions">
-						<button>Join Conversation</button>
-						<button>See Full List</button>
+						<a href="https://t.me/quantaexchange" target="_blank">Join Conversation</a>
+						<a>See Full List</a>
 					</div>
 			</div>
 		)
