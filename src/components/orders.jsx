@@ -10,6 +10,7 @@ import QTButton from './ui/button.jsx'
 import QTTableViewSimple from './ui/tableViewSimple.jsx'
 
 import {cancelTransaction} from "../redux/actions/app.jsx";
+import ReactGA from 'react-ga';
 
 
 const container = css`
@@ -122,6 +123,10 @@ class Orders extends Component {
   }
 
   handleCancel(market, order) {
+    ReactGA.event({
+      category: 'CANCEL',
+      action: market
+    });
     this.props.dispatch(cancelTransaction(market, order))
   }
 

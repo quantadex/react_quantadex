@@ -7,6 +7,7 @@ import { Price, Asset, FillOrder, LimitOrderCreate, LimitOrder } from "../../com
 import { PrivateKey, PublicKey, Aes, key, ChainStore } from "@quantadex/bitsharesjs";
 import { createLimitOrderWithPrice, createLimitOrder2, cancelOrder, signAndBroadcast } from "../../common/Transactions";
 import { aggregateOrderBook, convertHistoryToOrderedSet } from "../../common/PriceData";
+import ReactGA from 'react-ga';
 
 export const INIT_DATA = 'INIT_DATA';
 export const LOGIN = 'LOGIN';
@@ -172,6 +173,10 @@ function onUpdate(dispatch) {
 }
 
 export function switchTicker(ticker) {
+
+	// send GA
+	ReactGA.set({ page: "exchange/" + ticker });
+	ReactGA.pageview("exchange/" + ticker);
 	console.log("Switch ticker ", ticker);
 
 	return function (dispatch,getState) {

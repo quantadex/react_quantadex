@@ -14,6 +14,7 @@ import {Token, SmallToken} from './ui/ticker.jsx'
 
 import {buyTransaction} from "../redux/actions/app.jsx";
 import {sellTransaction} from "../redux/actions/app.jsx";
+import ReactGA from 'react-ga';
 
 const container = css`
   font-family: SFCompactTextRegular;
@@ -229,6 +230,11 @@ class Trade extends Component {
   }
 
 	handleBuy(e) {
+    ReactGA.event({
+      category: 'BUY',
+      action: this.props.currentTicker
+    });
+
     const target = e.target
     const targetText = target.innerHTML
     this.startLoadStatus(target, true)
@@ -246,6 +252,11 @@ class Trade extends Component {
 	}
 
 	handleSell(e) {
+    ReactGA.event({
+      category: 'SELL',
+      action: this.props.currentTicker
+    });
+
     const target = e.target
     const targetText = target.innerHTML
     this.startLoadStatus(target, true)
