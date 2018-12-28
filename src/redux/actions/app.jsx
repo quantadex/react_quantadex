@@ -243,7 +243,7 @@ export function switchTicker(ticker) {
 						markets = e;
 						var marketData = [];
 						var USD_value = {}
-						console.log("json ", markets.markets);
+						// console.log("json ", markets.markets);
 
 						for (const market of markets.markets) {
 							var { base, counter } = getBaseCounter(market.name);
