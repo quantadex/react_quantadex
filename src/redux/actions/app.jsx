@@ -328,7 +328,24 @@ export function switchTicker(ticker) {
 							);
 							orders.push(order)
 						})
+						return [results, orders]
 					})
+
+				console.log("Get all the data! for ", ticker);
+				return Promise.all([orderBook, trades, account_data])
+					.then((data) => {
+						dispatch({
+							type: INIT_DATA,
+							data: {
+								orderBook: data[0],
+								trades: data[1][0],
+								filledOrders: data[1][1],
+								openOrders: data[2][1],
+								ticker: ticker,
+								accountData: data[2][0]
+							}
+						})
+					})					
 			}
 
 			Apis.instance().db_api().exec("subscribe_to_market", [(data) => {
