@@ -114,20 +114,21 @@ class Orders extends Component {
       isFocused: false
     };
   }
+
+  goToTop() {
+    window.scrollTo(0,0);
+    this.setState({isFocused: false})
+  }
+
   handleSwitch(index, selected) {
     this.setState({selectedTabIndex: index})
     if(index == selected && this.state.isFocused) {
-      window.scrollTo(0,0);
-      this.setState({isFocused: false})
+      this.goToTop()
     } else {
       window.scrollTo(0,document.body.scrollHeight);
       this.setState({isFocused: true})
     }
     
-  }
-
-  goToTop() {
-    window.scrollTo(0,0);
   }
 
   handleCancel(market, order) {

@@ -85,7 +85,7 @@ class Exchange extends Component {
 		if (!this.props.private_key) {
 			this.props.history.push("/login")
 		} else {
-			this.props.dispatch(switchTicker("ETH/USD"));
+			this.props.dispatch(switchTicker(this.props.currentTicker));
 			//this.props.dispatch(initBalance());
 		}
 
@@ -126,6 +126,7 @@ const mapStateToProps = (state) => ({
 		private_key: state.app.private_key,
 		leftOpen: state.app.ui.leftOpen,
 		rightOpen: state.app.ui.rightOpen,
+		currentTicker: state.app.currentTicker,
 	});
 
 

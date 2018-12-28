@@ -98,14 +98,14 @@ export class HamburgerMenu extends React.Component {
           {
             this.props.menuList.map((e, index) => {
 
-              // if (index == 0) {
-              //   return (
-              //     <div className="group-head d-flex flex-column align-items-center justify-content-center">
-              //       <div className="header qt-font-light">{e.items[0].header}</div>
-              //       <div className="subheader"><a className="qt-cursor-pointer qt-color-theme">hide</a>{e.items[0].subheader}</div>
-              //     </div>
-              //   )
-              // }
+              if (index == 0) {
+                return (
+                  <div className="group-head d-flex flex-column align-items-center justify-content-center">
+                    <div className="header qt-font-light">${this.props.total_fund ? (this.props.total_fund).toFixed(0): "N/A"}</div>
+                    <div className="subheader">{e.items[0].subheader}</div> {/*<a className="qt-cursor-pointer qt-color-theme">hide</a>*/}
+                  </div>
+                )
+              }
 
               return (
                 <div className={"group " + css`background-color:${e.backgroundColor};`}>
@@ -147,12 +147,12 @@ export class HamburgerMenu extends React.Component {
 
 HamburgerMenu.defaultProps = {
   menuList: [
-  //   {
-  //   items: [{
-  //     header:"$12.560",
-  //     subheader:" estimated funds"
-  //   }]
-  // },
+    {
+    items: [{
+      header:"$12.560",
+      subheader:" estimated funds"
+    }]
+  },
   {
     items: [{
       iconPath:"/public/images/menuicons/quanta-grey.svg",
@@ -217,7 +217,7 @@ HamburgerMenu.propTypes = {
 };
 
 const mapStateToProps = (state) => ({
-	private_key: state.app.private_key,
+  total_fund: state.app.totalFundValue
 });
 
 export default connect(mapStateToProps)(withRouter(HamburgerMenu))

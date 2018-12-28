@@ -247,7 +247,7 @@ export function switchTicker(ticker) {
 						
 						var marketData = [];
 						var USD_value = {}
-						console.log("json ", markets.markets);
+						// console.log("json ", markets.markets);
 
 						for (const market of markets.markets) {
 							var { base, counter } = getBaseCounter(market.name);
@@ -328,24 +328,7 @@ export function switchTicker(ticker) {
 							);
 							orders.push(order)
 						})
-						return [results, orders]
-					});
-
-				console.log("Get all the data! for ", ticker);
-				return Promise.all([orderBook,trades,account_data])
-				.then((data) => {
-					dispatch({
-						type: INIT_DATA,
-						data: {
-							orderBook:data[0],
-							trades:data[1][0],
-							filledOrders:data[1][1],
-							openOrders:data[2][1],
-							ticker:ticker,
-							accountData: data[2][0]
-						}
 					})
-				})
 			}
 
 			Apis.instance().db_api().exec("subscribe_to_market", [(data) => {
@@ -360,7 +343,7 @@ export function switchTicker(ticker) {
 			}, base.id, counter.id])
 
 			fetchData(ticker)
-
+			
 		}
 		// const orderBook = fetch("http://orderbook-api-792236404.us-west-2.elb.amazonaws.com/depth/"+ticker).then((res) => {return res.json()})
 		// const trades = fetch("http://orderbook-api-792236404.us-west-2.elb.amazonaws.com/settlement/"+ticker).then((res) => {return res.json()})
