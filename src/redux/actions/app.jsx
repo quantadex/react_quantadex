@@ -235,12 +235,16 @@ export function switchTicker(ticker) {
 		function action(ticker) {
 			var {base, counter} = getBaseCounter(ticker)
 
-			function fetchData(ticker) {
+			async function fetchData(ticker) {
 				var {base, counter} = getBaseCounter(ticker)
 
-				fetch("https://s3.amazonaws.com/quantachain.io/markets.json").then(e => e.json())
+				await fetch("https://s3.amazonaws.com/quantachain.io/markets.json").then(e => e.json())
 					.then(async (e) => {
+						// save for later
 						markets = e;
+						window.markets = markets.markets
+						window.marketsHash = lodash.keyBy(markets.markets, "name")
+						
 						var marketData = [];
 						var USD_value = {}
 						console.log("json ", markets.markets);
@@ -300,10 +304,27 @@ export function switchTicker(ticker) {
 						var orders = [];
 						
 						results[0][1].limit_orders.forEach((ordered) => {
+							// search both market pairs to see what makes sense
+							// as the trading pair
+							const base = assets[ordered.sell_price.base.asset_id].symbol
+							const counter = assets[ordered.sell_price.quote.asset_id].symbol
+							const symbolA = [base, counter]
+							const symbolB = [counter, base]
+
+							const foundA = window.marketsHash[symbolA.join("/")]
+							const foundB = window.marketsHash[symbolB.join("/")]
+
+							let baseId = base.id;
+							if (foundA) {
+								baseId = assetsBySymbol[base].id
+							}else if (foundB) {
+								baseId = assetsBySymbol[counter].id
+							}
+							//console.log("ordered", ordered, foundA, foundB, baseId);
 							var order = new LimitOrder(
 								ordered,
 								window.assets,
-								base.id
+								baseId
 							);
 							orders.push(order)
 						})
