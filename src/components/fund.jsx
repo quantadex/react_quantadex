@@ -155,14 +155,14 @@ class Fund extends Component {
       //   url:'orders'
       // }
     ]
-
+    console.log()
     const dataSourceWallets = []
     this.props.balance.forEach(currency => {
       const data = {
         pairs: window.assets[currency.asset].symbol,
         balance: currency.balance,
         on_orders: "0.00000000",
-        usd_value: currency.balance * this.props.usd_value[currency.asset]
+        usd_value: currency.usd
       }
       dataSourceWallets.push(data)
     });
@@ -403,7 +403,7 @@ class Fund extends Component {
           </div>
           <div className="est-fund text-right align-self-center">
             <span className="qt-font-extra-small qt-white-62">On-chain custody estimated funds</span>
-            <div><span className="qt-font-huge">$12.560 </span><span className="currency">USD</span></div>
+            <div><span className="qt-font-huge">${this.props.estimated_fund} </span><span className="currency">USD</span></div>
           </div>
           
         </div>
@@ -443,9 +443,9 @@ class Fund extends Component {
         </div>
       </div>
       <div className="content">
-        {/* {
+        {
           this.state.page == 'wallets' ? <PublicAddress /> : null
-        } */}
+        }
         <div className="row table-row">
           <QTTableView dataSource={dataSource} columns={columns} />
           {
@@ -465,6 +465,7 @@ const mapStateToProps = (state) => ({
     balance: state.app.balance,
     publicKey: state.app.publicKey || "",
     private_key: state.app.private_key,
+    estimated_fund: state.app.totalFundValue,
     usd_value: state.app.usd_value
 	});
 

@@ -50,6 +50,7 @@ const leaderboard_container = css `
 			border-radius: 2px;
 			padding: 5px;
 			flex: 0 0 48%;
+			white-space: nowrap;
 			cursor: pointer;
 		}
 	}

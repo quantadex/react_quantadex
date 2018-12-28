@@ -416,10 +416,15 @@ const app = (state = initialState, action) => {
         }
       })
       
+      var total_fund_value = 0
       const balances = action.data.accountData[0][1].balances.map((balance => {
+        const real_balance = balance.balance / (10 ** window.assets[balance.asset_type].precision)
+        const usd = state.usd_value[balance.asset_type] ? real_balance * state.usd_value[balance.asset_type] : real_balance
+        total_fund_value += usd
         return {
           asset: balance.asset_type,
-          balance: balance.balance / (10 ** window.assets[balance.asset_type].precision) 
+          balance: real_balance,
+          usd: usd
         }
       }))
 
@@ -427,6 +432,7 @@ const app = (state = initialState, action) => {
         ...state,
         // currentTicker:action.data.ticker,
         balance: balances,
+        totalFundValue: total_fund_value,
         openOrders: {
           ...state.openOrders,
           dataSource: limitOrdersDataSource

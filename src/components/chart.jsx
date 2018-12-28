@@ -125,7 +125,9 @@ class Chart extends Component {
 
   componentDidUpdate() {
     console.log("change chart to ", this.props.currentTicker);
-    window.chartWidget.setSymbol(this.props.currentTicker, "60")
+    setTimeout(() => {
+      window.chartWidget.setSymbol(this.props.currentTicker, "3600")
+    }, 0)
   }
   
   render() {
