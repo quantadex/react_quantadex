@@ -9,7 +9,7 @@ import QTTableViewSimple from './ui/tableViewSimple.jsx'
 
 const container = css`
 	height: 360px;
-	padding: 18px 21px;
+	padding: 18px 20px;
 
 	.trading-history-table-container {
 		height: 100%;

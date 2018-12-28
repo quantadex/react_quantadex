@@ -6,10 +6,16 @@ var wsString = "ws://testnet-01.quantachain.io:8090";
 var assets = null;
 var assetsBySymbol = null;
 var markets = null;
+// const blacklist = [];
+const blacklist = [ "bitcherry", "quanta_foundation", "quanta_labs",
+                    "quantasg-witness", "quantalabs-witness", "bitcherry-witness", 
+                    "clockbound-witness", "flash-witness",
+                    "witness-account", "long", "pooja", "crosschain1", "crosschain2",
+                    "market-maker", "market-maker2", "market-maker3", 
+                    "tokensale"];
 
 function getAssets() {
     return Apis.instance().db_api().exec("list_assets", ["A", 100]).then((assets) => {
-        console.log("assets ", assets);
         assets = lodash.keyBy(assets, "id")
         assetsBySymbol = lodash.keyBy(assets, "symbol")
         return assets;
@@ -62,7 +68,6 @@ function getMarkets() {
 }
 
 function computeTotalBalance(assets, USD_value, balance) {
-    // console.log('!!!!!', USD_value, balance)
     var total = 0
     balance.forEach((asset) => {
         const precision = assets[asset.asset_id].precision
@@ -96,13 +101,10 @@ export function GetLeaderboard() {
         var acc_freq = {}
     
         var assets = await getAssets()
-        //console.log(assets)
     
         var  {marketData, USD_value} = await getMarkets()
-        // console.log(marketData, USD_value)
     
         var accounts = await getAccounts('')
-        // console.log(accounts)
         var list = accounts.slice(0, accounts.length -1)
         
         while (accounts.length > 1) {
@@ -111,16 +113,9 @@ export function GetLeaderboard() {
             list = list.concat(accounts)
         }
     
-        // console.log(list, list.length)
-        
-        // loop by market
-        // loop through the limited orders
-        // increment by userId to +1
         for (var market of marketData) {
             var { base, counter } = getBaseCounter(market.name);
-            //console.log(base, counter)
             const filled = await getFilledHistory(base.id, counter.id)
-            // console.log("Got # of filled ", filled.length)
     
             for (var order of filled) {
                 const accountId = order.op.account_id
@@ -129,10 +124,13 @@ export function GetLeaderboard() {
          }
     
         for (let i=0; i <= list.length-1; i++) {
-            // use [1] = user_id
             const [username, userId] = [list[i][0], list[i][1]]
+            
+            if (blacklist.includes(username)) {
+                continue
+            }
+
             let balance = await getBalance(userId)
-            // console.log("balance ", list[i], balance)
             let totalBalance = computeTotalBalance(assets, USD_value, balance)
             
             acc_data.push({
