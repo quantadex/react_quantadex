@@ -235,12 +235,16 @@ export function switchTicker(ticker) {
 		function action(ticker) {
 			var {base, counter} = getBaseCounter(ticker)
 
-			function fetchData(ticker) {
+			async function fetchData(ticker) {
 				var {base, counter} = getBaseCounter(ticker)
 
-				fetch("https://s3.amazonaws.com/quantachain.io/markets.json").then(e => e.json())
+				await fetch("https://s3.amazonaws.com/quantachain.io/markets.json").then(e => e.json())
 					.then(async (e) => {
+						// save for later
 						markets = e;
+						window.markets = markets.markets
+						window.marketsHash = lodash.keyBy(markets.markets, "name")
+						
 						var marketData = [];
 						var USD_value = {}
 						// console.log("json ", markets.markets);
@@ -270,62 +274,78 @@ export function switchTicker(ticker) {
 							data: [marketData, USD_value]
 						})
 					})
-					.then(async () => {
-						const trades = Apis.instance().history_api().exec("get_fill_order_history", [base.id, counter.id, 100]).then((filled) => {
-							//console.log("history filled ", filled);
-							const trade_history = convertHistoryToOrderedSet(filled, base.id)
-							//console.log("converted ", trade_history);
-							const my_history = [];
-							(filled.filter(order => order.op.account_id == getState().app.userId)).forEach((filled) => {
-								var order = new FillOrder(
-									filled,
-									window.assets,
-									base.id
-								);
-								my_history.push(order)
-							})
-							return [trade_history, my_history]
-						})
-			
-						// selling counter
-						const orderBook = Apis.instance().db_api().exec("get_order_book", [counter.id, base.id, 50]).then((ob) => {
-							console.log("ob  ", ob);
-							return aggregateOrderBook(ob.bids, ob.asks, window.assets[base.id].precision)
-						})
-			
-						const account_data = Apis.instance()
-							.db_api()
-							.exec("get_full_accounts", [[getState().app.userId], true])
-							.then(results => {
-								var orders = [];
-								
-								results[0][1].limit_orders.forEach((ordered) => {
-									var order = new LimitOrder(
-										ordered,
-										window.assets,
-										base.id
-									);
-									orders.push(order)
-								})
-								return [results, orders]
-							});
-		
-						console.log("Get all the data! for ", ticker);
-						return Promise.all([orderBook,trades,account_data])
-						.then((data) => {
-							dispatch({
-								type: INIT_DATA,
-								data: {
-									orderBook:data[0],
-									trades:data[1][0],
-									filledOrders:data[1][1],
-									openOrders:data[2][1],
-									ticker:ticker,
-									accountData: data[2][0]
-								}
-							})
-						})
+					
+				const trades = Apis.instance().history_api().exec("get_fill_order_history", [base.id, counter.id, 100]).then((filled) => {
+					//console.log("history filled ", filled);
+					const trade_history = convertHistoryToOrderedSet(filled, base.id)
+					//console.log("converted ", trade_history);
+					const my_history = [];
+					(filled.filter(order => order.op.account_id == getState().app.userId)).forEach((filled) => {
+						var order = new FillOrder(
+							filled,
+							window.assets,
+							base.id
+						);
+						my_history.push(order)
 					})
+					return [trade_history, my_history]
+				})
+	
+				// selling counter
+				const orderBook = Apis.instance().db_api().exec("get_order_book", [counter.id, base.id, 50]).then((ob) => {
+					console.log("ob  ", ob);
+					return aggregateOrderBook(ob.bids, ob.asks, window.assets[base.id].precision)
+				})
+	
+				const account_data = Apis.instance()
+					.db_api()
+					.exec("get_full_accounts", [[getState().app.userId], true])
+					.then(results => {
+						var orders = [];
+						
+						results[0][1].limit_orders.forEach((ordered) => {
+							// search both market pairs to see what makes sense
+							// as the trading pair
+							const base = assets[ordered.sell_price.base.asset_id].symbol
+							const counter = assets[ordered.sell_price.quote.asset_id].symbol
+							const symbolA = [base, counter]
+							const symbolB = [counter, base]
+
+							const foundA = window.marketsHash[symbolA.join("/")]
+							const foundB = window.marketsHash[symbolB.join("/")]
+
+							let baseId = base.id;
+							if (foundA) {
+								baseId = assetsBySymbol[base].id
+							}else if (foundB) {
+								baseId = assetsBySymbol[counter].id
+							}
+							//console.log("ordered", ordered, foundA, foundB, baseId);
+							var order = new LimitOrder(
+								ordered,
+								window.assets,
+								baseId
+							);
+							orders.push(order)
+						})
+						return [results, orders]
+					})
+
+				console.log("Get all the data! for ", ticker);
+				return Promise.all([orderBook, trades, account_data])
+					.then((data) => {
+						dispatch({
+							type: INIT_DATA,
+							data: {
+								orderBook: data[0],
+								trades: data[1][0],
+								filledOrders: data[1][1],
+								openOrders: data[2][1],
+								ticker: ticker,
+								accountData: data[2][0]
+							}
+						})
+					})					
 			}
 
 			Apis.instance().db_api().exec("subscribe_to_market", [(data) => {

@@ -376,15 +376,17 @@ const app = (state = initialState, action) => {
       }
       
       const limitOrdersDataSource = action.data.openOrders.map((order) => {
-        const ticker = [order.assets[order.sell_price.base.asset_id].symbol, order.assets[order.sell_price.quote.asset_id].symbol]
+        const tickerPair = [order.assets[order.sell_price.base.asset_id].symbol, order.assets[order.sell_price.quote.asset_id].symbol]
+        const ticker = order.isBid() ? tickerPair.reverse() : tickerPair
+        
         const amount = order.isBid() ?
           (order.amountToReceive()).getAmount({ real: true }) + ' ' + ticker[0] :
           (order.amountForSale()).getAmount({ real: true }) + ' ' + ticker[0];
-          
+        
         const total = order.isBid() ?
           order.getPrice() * (order.amountToReceive()).getAmount({ real: true }) + ' ' + ticker[1]:
           order.getPrice() * (order.amountForSale()).getAmount({ real: true }) + ' ' + ticker[1]
-
+        
         return {
           assets: ticker.join('/'),
           price: order.getPrice() + ' ' + ticker[0],
