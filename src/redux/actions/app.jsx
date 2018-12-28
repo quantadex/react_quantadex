@@ -270,61 +270,62 @@ export function switchTicker(ticker) {
 							data: [marketData, USD_value]
 						})
 					})
-					
-				const trades = Apis.instance().history_api().exec("get_fill_order_history", [base.id, counter.id, 100]).then((filled) => {
-					//console.log("history filled ", filled);
-					const trade_history = convertHistoryToOrderedSet(filled, base.id)
-					//console.log("converted ", trade_history);
-					const my_history = [];
-					(filled.filter(order => order.op.account_id == getState().app.userId)).forEach((filled) => {
-						var order = new FillOrder(
-							filled,
-							window.assets,
-							base.id
-						);
-						my_history.push(order)
-					})
-					return [trade_history, my_history]
-				})
-	
-				// selling counter
-				const orderBook = Apis.instance().db_api().exec("get_order_book", [counter.id, base.id, 50]).then((ob) => {
-					console.log("ob  ", ob);
-					return aggregateOrderBook(ob.bids, ob.asks, window.assets[base.id].precision)
-				})
-	
-				const account_data = Apis.instance()
-					.db_api()
-					.exec("get_full_accounts", [[getState().app.userId], true])
-					.then(results => {
-						var orders = [];
-						
-						results[0][1].limit_orders.forEach((ordered) => {
-							var order = new LimitOrder(
-								ordered,
-								window.assets,
-								base.id
-							);
-							orders.push(order)
+					.then(async () => {
+						const trades = Apis.instance().history_api().exec("get_fill_order_history", [base.id, counter.id, 100]).then((filled) => {
+							//console.log("history filled ", filled);
+							const trade_history = convertHistoryToOrderedSet(filled, base.id)
+							//console.log("converted ", trade_history);
+							const my_history = [];
+							(filled.filter(order => order.op.account_id == getState().app.userId)).forEach((filled) => {
+								var order = new FillOrder(
+									filled,
+									window.assets,
+									base.id
+								);
+								my_history.push(order)
+							})
+							return [trade_history, my_history]
 						})
-						return [results, orders]
-					});
-
-				console.log("Get all the data! for ", ticker);
-				return Promise.all([orderBook,trades,account_data])
-				.then((data) => {
-					dispatch({
-						type: INIT_DATA,
-						data: {
-							orderBook:data[0],
-							trades:data[1][0],
-							filledOrders:data[1][1],
-							openOrders:data[2][1],
-							ticker:ticker,
-							accountData: data[2][0]
-						}
+			
+						// selling counter
+						const orderBook = Apis.instance().db_api().exec("get_order_book", [counter.id, base.id, 50]).then((ob) => {
+							console.log("ob  ", ob);
+							return aggregateOrderBook(ob.bids, ob.asks, window.assets[base.id].precision)
+						})
+			
+						const account_data = Apis.instance()
+							.db_api()
+							.exec("get_full_accounts", [[getState().app.userId], true])
+							.then(results => {
+								var orders = [];
+								
+								results[0][1].limit_orders.forEach((ordered) => {
+									var order = new LimitOrder(
+										ordered,
+										window.assets,
+										base.id
+									);
+									orders.push(order)
+								})
+								return [results, orders]
+							});
+		
+						console.log("Get all the data! for ", ticker);
+						return Promise.all([orderBook,trades,account_data])
+						.then((data) => {
+							dispatch({
+								type: INIT_DATA,
+								data: {
+									orderBook:data[0],
+									trades:data[1][0],
+									filledOrders:data[1][1],
+									openOrders:data[2][1],
+									ticker:ticker,
+									accountData: data[2][0]
+								}
+							})
+						})
 					})
-				})
 			}
 
 			Apis.instance().db_api().exec("subscribe_to_market", [(data) => {
@@ -339,7 +340,7 @@ export function switchTicker(ticker) {
 			}, base.id, counter.id])
 
 			fetchData(ticker)
-
+			
 		}
 		// const orderBook = fetch("http://orderbook-api-792236404.us-west-2.elb.amazonaws.com/depth/"+ticker).then((res) => {return res.json()})
 		// const trades = fetch("http://orderbook-api-792236404.us-west-2.elb.amazonaws.com/settlement/"+ticker).then((res) => {return res.json()})
