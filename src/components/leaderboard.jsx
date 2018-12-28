@@ -138,7 +138,7 @@ class Leaderboard extends Component {
 					{this.state.freqLeaderboard.slice(0,10).map((row, index) => {
 						return (
 							<tr key={index} className={row.username == this.props.name ? "is-user" : ""}><td className="place">{index+1}</td><td className="name">{row.username + (row.username == this.props.name ? " (You)" : "")}</td>
-							<td className="balance">${row.totalBalance.toFixed(2)}</td></tr>
+							<td className="balance">{row.frequency}</td></tr>
 						)
 						
 					})}
@@ -181,7 +181,7 @@ class Leaderboard extends Component {
 							/>
 						<table>
 							<thead>
-								<tr><th className="place">Rank</th><th className="name">Name</th><th className="balance">Balance</th></tr>
+								<tr><th className="place">Rank</th><th className="name">Name</th><th className="balance">{this.state.selectedTabIndex == 0 ? "Balance" : "# of Trades"}</th></tr>
 							</thead>
 							{this.state.selectedTabIndex == 0 ? <Balance /> : <Frequency />}
 							

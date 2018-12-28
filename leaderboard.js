@@ -126,7 +126,7 @@ export function GetLeaderboard() {
         for (let i=0; i <= list.length-1; i++) {
             const [username, userId] = [list[i][0], list[i][1]]
             
-            if (blacklist.includes(username)) {
+            if (blacklist.includes(username) || username.startsWith('test')) {
                 continue
             }
 
