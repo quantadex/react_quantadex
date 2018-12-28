@@ -17,7 +17,7 @@ currentApp.get('/api/leaderboard', function (req, res) {
 			res.json(currentLeaderboard)
 			return
 		}
-		console.log("Fetching leaderboard.")
+		// console.log("Fetching leaderboard.")
 		lockFetch = true
 		GetLeaderboard().then((result) => {
 			currentLeaderboard = result
@@ -32,7 +32,7 @@ currentApp.get('/api/leaderboard', function (req, res) {
 	} else {
 		var seconds = (new Date().getTime() - currentLeaderboard.timestamp.getTime()) / 1000;
 		if (seconds > 300) {
-			console.log("Over 5 minutes, fetch data again.")
+			// console.log("Over 5 minutes, fetch data again.")
 			fetchLeaderboard()
 		} else {
 			res.json(currentLeaderboard)

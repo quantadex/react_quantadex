@@ -309,7 +309,7 @@ export class GenerateKey extends Component {
 					if (res.message.includes("already exists")) {
 						msg = "Username already exist"
 					} else {
-						msg = "Server error, Please try again."
+						msg = "Server error. Please try again."
 					}
 					this.setState({
 						error: true,
@@ -392,7 +392,7 @@ export class GenerateKey extends Component {
 						} else {
 								self.setState({
 										error: true,
-										message: "Server error, Please try again."
+										message: "Server error. Please try again."
 								});
 								return null;
 						}
@@ -403,7 +403,7 @@ export class GenerateKey extends Component {
 							self.setState({ error: false, message: "" });
 							self.props.history.push("/crowdsale");
 						} else {
-								self.setState({error: true, message: "Server error, Please try again."});
+								self.setState({error: true, message: "Server error Please try again."});
 						}
 				});		
 	}
@@ -440,7 +440,7 @@ export class GenerateKey extends Component {
 								<input name="username" value={this.state.value} onChange={this.handleChange} 
 									disabled={!this.state.downloaded}
 									type="text" spellCheck="false" placeholder="Enter username …"/>
-								<span className="error" hidden={!this.state.error}>Username already exist</span>
+								<span className="error" hidden={!this.state.error}>{this.state.message}</span>
 							</div>
 						</div>
 						

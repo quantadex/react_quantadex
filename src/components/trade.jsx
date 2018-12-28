@@ -11,6 +11,7 @@ import QTTabBar from './ui/tabBar.jsx'
 import QTDropdown from './ui/dropdown.jsx'
 import QTButton from './ui/button.jsx'
 import {Token, SmallToken} from './ui/ticker.jsx'
+import Loader from './ui/loader.jsx'
 
 import {buyTransaction} from "../redux/actions/app.jsx";
 import {sellTransaction} from "../redux/actions/app.jsx";
@@ -187,6 +188,7 @@ class Trade extends Component {
   constructor(props) {
     super(props);
     this.state = {
+        processing: false,
         qty: 0.05,
         price: 1,
         inputSetTime: 0
@@ -220,25 +222,13 @@ class Trade extends Component {
     return msg
   }
 
-  startLoadStatus(target, start, text=null) {
-    if (start) {
-      target.disabled = true
-      target.innerHTML = "<div class='loader'></div>"
-    } else {
-      target.disabled = false
-      target.innerHTML = text
-    }
-  }
-
 	handleBuy(e) {
     ReactGA.event({
       category: 'BUY',
       action: this.props.currentTicker
     });
 
-    const target = e.target
-    const targetText = target.innerHTML
-    this.startLoadStatus(target, true)
+    this.setState({processing: true})
     const label = this.props.currentTicker.split('/')
     this.props.dispatch(buyTransaction(this.props.currentTicker, this.state.price, this.state.qty))
     .then((e) => {
@@ -248,7 +238,7 @@ class Trade extends Component {
       const msg = this.toastMsg("BUY", label, false, e)
       this.notify_failed(msg)
     }).finally(() => {
-      this.startLoadStatus(target, false, targetText)
+      this.setState({processing: false})
     })
 	}
 
@@ -258,9 +248,7 @@ class Trade extends Component {
       action: this.props.currentTicker
     });
 
-    const target = e.target
-    const targetText = target.innerHTML
-    this.startLoadStatus(target, true)
+    this.setState({processing: true})
     const label = this.props.currentTicker.split('/')
     this.props.dispatch(sellTransaction(this.props.currentTicker, this.state.price, this.state.qty))
     .then((e) => {
@@ -270,7 +258,7 @@ class Trade extends Component {
       const msg = this.toastMsg("SELL", label, false, e)
       this.notify_failed(msg)
     }).finally(() => {
-      this.startLoadStatus(target, false, targetText)
+      this.setState({processing: false})
     })
 	}
 
@@ -381,8 +369,8 @@ class Trade extends Component {
               <SmallToken name={tradingPair[1]}/>
             </div>
 
-          <button id="sell-action" className="sell-btn inactive" onClick={this.handleSell.bind(this)}>PLACE SELL ORDER</button>
-          <button id="buy-action" className="buy-btn" onClick={this.handleBuy.bind(this)}>PLACE BUY ORDER</button>
+          <button id="sell-action" className="sell-btn inactive" onClick={this.handleSell.bind(this)}>{this.state.processing ? <Loader /> : "PLACE SELL ORDER"}</button>
+          <button id="buy-action" className="buy-btn" onClick={this.handleBuy.bind(this)}>{this.state.processing ? <Loader /> : "PLACE BUY ORDER"}</button>
         </div>
         <div className="d-flex justify-content-center align-items-center qt-font-small">
 						{

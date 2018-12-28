@@ -128,7 +128,6 @@ class Orders extends Component {
       window.scrollTo(0,document.body.scrollHeight);
       this.setState({isFocused: true})
     }
-    
   }
 
   handleCancel(market, order) {

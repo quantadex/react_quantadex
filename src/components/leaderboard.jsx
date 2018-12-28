@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux'
 import { css } from 'emotion'
 import QTTabBar from './ui/tabBar.jsx'
+import Loader from './ui/loader.jsx'
 
 const leaderboard_container = css `
 	position: relative;
-	padding: 20px;
+	padding: 20px 0;
 
 	h4 {
 		margin: 0;
@@ -12,6 +14,9 @@ const leaderboard_container = css `
 	span#last-updated {
 		font-size: 11px;
 		opacity: 0.35;
+	}
+	.pad-sides {
+		padding: 0 20px;
 	}
 	.leaderboard-share {
 		display: flex;
@@ -27,12 +32,27 @@ const leaderboard_container = css `
 	table {
 		width: 100%;
 		margin-top: 20px;
+		font-size: 11px;
 		thead {
-			font-size: 11px;
 			opacity: 0.45;
+		}
+		.place {
+			padding-left: 20px;
+		}
+		tbody .name {
+			font-size: 12px;
 		}
 		.balance {
 			text-align: right;
+			padding-right: 20px;
+		}
+		
+	}
+
+	.is-user {
+		background-color: rgba(102, 215, 215, 0.61);
+		.name {
+			font-weight: bold;
 		}
 	}
 
@@ -57,55 +77,131 @@ const leaderboard_container = css `
 `
 
 class Leaderboard extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			isReady: false,
+			selectedTabIndex: 0,
+			balanceLeaderboard: [],
+			freqLeaderboard: [],
+			last_update: 1
+		};
+	  }
+	componentDidMount() {
+		fetch("/api/leaderboard", {
+			method: "get",
+			headers: {
+					"Content-Type": "application/json",
+					Accept: "application/json"
+			}
+		})
+		.then(res => res.json())
+		.then(data => {
+			const {balanceLeaderboard, freqLeaderboard, timestamp} = data
+			const last_update = Math.floor((new Date() - new Date(timestamp))/1000/60)
+			this.setState({
+				balanceLeaderboard: balanceLeaderboard,
+				freqLeaderboard: freqLeaderboard,
+				last_update: last_update,
+				isReady: true
+			})
+		})
+	}
+
+	handleSwitch(index) {
+		this.setState({selectedTabIndex: index})
+	  }
+
 	render() {
 		const tabs = {
 			names: ['BALANCE','FREQUENCY'],
 			selectedTabIndex: 0,
-		  }
+		}
+
+		const Balance = () => {
+			return (
+				<tbody>
+					{this.state.balanceLeaderboard.slice(0,10).map((row, index) => {
+						return (
+							<tr key={index} className={row.username == this.props.name ? "is-user" : ""}><td className="place">{index+1}</td><td className="name">{row.username + (row.username == this.props.name ? " (You)" : "")}</td>
+							<td className="balance">${row.totalBalance.toFixed(2)}</td></tr>
+						)
+						
+					})}
+				</tbody>
+			)
+		}
+
+		const Frequency = () => {
+			return (
+				<tbody>
+					{this.state.freqLeaderboard.slice(0,10).map((row, index) => {
+						return (
+							<tr key={index} className={row.username == this.props.name ? "is-user" : ""}><td className="place">{index+1}</td><td className="name">{row.username + (row.username == this.props.name ? " (You)" : "")}</td>
+							<td className="balance">${row.totalBalance.toFixed(2)}</td></tr>
+						)
+						
+					})}
+				</tbody>
+			)
+		}
+
+		const Header = () => {
+			if (this.props.inBanner) {
+				return <h4>CURRENT LEADERS</h4>
+			} 
+			return (
+				<div>
+					<div className="pad-sides">
+						<h4>LEADERBOARD</h4>
+						<span id="last-updated">Updated {this.state.last_update == 0 ? 1 : this.state.last_update} min ago</span><br/><br/>
+					</div>
+					<div className="leaderboard-share">
+						<span>Share</span>
+						<a><img src="/public/images/share/twitter.svg" /></a>
+						<a><img src="/public/images/share/fbook.svg" /></a>
+					</div>
+				</div>
+			)
+		}
+
+		
 		return (
 			<div className={leaderboard_container}>
-				<div>
-					<h4>LEADERBOARD</h4>
-					<span id="last-updated">Updated 5 min ago</span><br/><br/>
-				</div>
-				<div className="leaderboard-share">
-					<span>Share</span>
-					<a><img src="/public/images/share/twitter.svg" /></a>
-					<a><img src="/public/images/share/fbook.svg" /></a>
-				</div>
-					
-					
-					<QTTabBar
-							className="underline small fluid even-width qt-font-semibold d-flex justify-content-between"
-							width={85}
-							tabs = {tabs}
-						/>
-					<table>
-						<thead>
-							<tr><th className="place">Rank</th><th className="name">Name</th><th className="balance">Balance</th></tr>
-						</thead>
-						<tbody>
-							<tr><td className="place">1</td><td className="name">Place</td><td className="balance">$111,800.00</td></tr>
-							<tr><td className="place">2</td><td className="name">Holder</td><td className="balance">$111,700.00</td></tr>
-							<tr><td className="place">1</td><td className="name">Place</td><td className="balance">$111,800.00</td></tr>
-							<tr><td className="place">2</td><td className="name">Holder</td><td className="balance">$111,700.00</td></tr>
-							<tr><td className="place">1</td><td className="name">Place</td><td className="balance">$111,800.00</td></tr>
-							<tr><td className="place">2</td><td className="name">Holder</td><td className="balance">$111,700.00</td></tr>
-							<tr><td className="place">1</td><td className="name">Place</td><td className="balance">$111,800.00</td></tr>
-							<tr><td className="place">2</td><td className="name">Holder</td><td className="balance">$111,700.00</td></tr>
-							<tr><td className="place">1</td><td className="name">Place</td><td className="balance">$111,800.00</td></tr>
-							<tr><td className="place">2</td><td className="name">Holder</td><td className="balance">$111,700.00</td></tr>
-						</tbody>
-						
-					</table>
+				
+				<Header />
 
-					<div className="leaderboard-actions">
+				{ this.state.isReady ? 
+					<div>
+						<QTTabBar
+								className="pad-sides underline small fluid even-width qt-font-semibold d-flex justify-content-between"
+								width={85}
+								tabs = {tabs}
+								switchTab = {this.handleSwitch.bind(this)}
+							/>
+						<table>
+							<thead>
+								<tr><th className="place">Rank</th><th className="name">Name</th><th className="balance">Balance</th></tr>
+							</thead>
+							{this.state.selectedTabIndex == 0 ? <Balance /> : <Frequency />}
+							
+						</table>
+					</div>
+					: <Loader size="50px" margin="118px auto"/>
+				}
+				{this.props.inBanner ? "" :
+					<div className="leaderboard-actions pad-sides">
 						<a href="https://t.me/quantaexchange" target="_blank">Join Conversation</a>
 						<a>See Full List</a>
 					</div>
+				}
 			</div>
 		)
 	}
 }
 
-export default Leaderboard
+const mapStateToProps = (state) => ({
+	name: state.app.name
+  });
+
+export default connect(mapStateToProps)(Leaderboard)
