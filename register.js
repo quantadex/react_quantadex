@@ -3,7 +3,7 @@ import { Apis } from "@quantadex/bitsharesjs-ws";
 import { signAndBroadcast } from "./src/common/Transactions";
 import { PrivateKey, PublicKey, Aes, key, ChainStore } from "@quantadex/bitsharesjs";
 
-var wsString = "wss://testnet-01.quantachain.io:8095";
+var wsString = "ws://testnet-01.quantachain.io:8090";
 const registrar = "1.2.6";
 
 /*
