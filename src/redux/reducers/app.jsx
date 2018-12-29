@@ -357,7 +357,12 @@ const app = (state = initialState, action) => {
           }
       })
       
+      var lastTradePrice = undefined
       const tradesDataSource = action.data.trades.map((trade) => {
+        if (lastTradePrice === undefined) {
+          lastTradePrice = trade.getPrice()
+        }
+        
         return {
           id: trade.id,
           price: trade.getPrice(),
@@ -435,6 +440,9 @@ const app = (state = initialState, action) => {
         // currentTicker:action.data.ticker,
         balance: balances,
         totalFundValue: total_fund_value,
+        mostRecentTrade: {
+          price: lastTradePrice
+        },
         openOrders: {
           ...state.openOrders,
           dataSource: limitOrdersDataSource

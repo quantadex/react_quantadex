@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { css } from 'emotion'
 import QTTabBar from './ui/tabBar.jsx'
 import Loader from './ui/loader.jsx'
 
 const leaderboard_container = css `
-	position: relative;
 	padding: 20px 0;
 
 	h4 {
@@ -21,9 +21,8 @@ const leaderboard_container = css `
 	.leaderboard-share {
 		display: flex;
 		justify-content: space-between;
-		position: absolute;
-		top: 23px;
-		right: 20px;
+		float: right;
+		margin: 10px 20px;
 		width: 77px;
 		span {
 			opacity: 0.30;
@@ -34,7 +33,7 @@ const leaderboard_container = css `
 		margin-top: 20px;
 		font-size: 11px;
 		thead {
-			opacity: 0.45;
+			color: #777;
 		}
 		.place {
 			padding-left: 20px;
@@ -100,8 +99,8 @@ class Leaderboard extends Component {
 			const {balanceLeaderboard, freqLeaderboard, timestamp} = data
 			const last_update = Math.floor((new Date() - new Date(timestamp))/1000/60)
 			this.setState({
-				balanceLeaderboard: balanceLeaderboard.slice(0,10),
-				freqLeaderboard: freqLeaderboard.slice(0,10),
+				balanceLeaderboard: this.props.complete ? balanceLeaderboard : balanceLeaderboard.slice(0,10),
+				freqLeaderboard: this.props.complete ? freqLeaderboard : freqLeaderboard.slice(0,10),
 				last_update: last_update,
 				isReady: true
 			})
@@ -122,6 +121,9 @@ class Leaderboard extends Component {
 			return (
 				<tbody>
 					{this.state.balanceLeaderboard.map((row, index) => {
+						if (row.totalBalance == 0) {
+							return
+						}
 						return (
 							<tr key={index} className={row.username == this.props.name ? "is-user" : ""}><td className="place">{index+1}</td><td className="name">{row.username + (row.username == this.props.name ? " (You)" : "")}</td>
 							<td className="balance">${row.totalBalance.toFixed(2)}</td></tr>
@@ -136,6 +138,9 @@ class Leaderboard extends Component {
 			return (
 				<tbody>
 					{this.state.freqLeaderboard.map((row, index) => {
+						if (row.frequency == 0) {
+							return
+						}
 						return (
 							<tr key={index} className={row.username == this.props.name ? "is-user" : ""}><td className="place">{index+1}</td><td className="name">{row.username + (row.username == this.props.name ? " (You)" : "")}</td>
 							<td className="balance">{row.frequency}</td></tr>
@@ -147,19 +152,19 @@ class Leaderboard extends Component {
 		}
 
 		const Header = () => {
-			if (this.props.inBanner) {
-				return <h4>CURRENT LEADERS</h4>
+			if (this.props.tableOnly) {
+				return <h4>CURRENT LEADERS<span id="last-updated">Updated {this.state.last_update == 0 ? 1 : this.state.last_update} min ago</span></h4>
 			} 
 			return (
 				<div>
-					<div className="pad-sides">
-						<h4>LEADERBOARD</h4>
-						<span id="last-updated">Updated {this.state.last_update == 0 ? 1 : this.state.last_update} min ago</span><br/><br/>
-					</div>
 					<div className="leaderboard-share">
 						<span>Share</span>
 						<a><img src="/public/images/share/twitter.svg" /></a>
 						<a><img src="/public/images/share/fbook.svg" /></a>
+					</div>
+					<div className="pad-sides">
+						<h4>LEADERBOARD</h4>
+						<span id="last-updated">Updated {this.state.last_update == 0 ? 1 : this.state.last_update} min ago</span><br/><br/>
 					</div>
 				</div>
 			)
@@ -170,7 +175,7 @@ class Leaderboard extends Component {
 			<div className={leaderboard_container}>
 				
 				<Header />
-				
+
 				{ this.state.isReady ? 
 					<div>
 						<QTTabBar
@@ -189,10 +194,10 @@ class Leaderboard extends Component {
 					</div>
 					: <Loader size="50px" margin="118px auto"/>
 				}
-				{this.props.inBanner ? "" :
+				{this.props.tableOnly ? "" :
 					<div className="leaderboard-actions pad-sides">
 						<a href="https://t.me/quantaexchange" target="_blank">Join Conversation</a>
-						<a>See Full List</a>
+						<Link to="/leaderboard" >See Full List</Link>
 					</div>
 				}
 			</div>

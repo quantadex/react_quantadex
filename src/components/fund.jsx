@@ -155,7 +155,7 @@ class Fund extends Component {
       //   url:'orders'
       // }
     ]
-    console.log()
+    
     const dataSourceWallets = []
     this.props.balance.forEach(currency => {
       const data = {

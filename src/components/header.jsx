@@ -41,8 +41,8 @@ class Header extends Component {
 						<a href="/exchange" className="header-logo"><img src="/public/images/qdex-fantasy-light.svg" width="220" height="26" /></a>
 					</div>
 					<div className="d-flex align-items-center">
-						<span className="header-coin-name qt-font-normal qt-font-regular"><Ticker ticker={this.props.currentTicker} /></span>
-						<span className="header-coin-value qt-font-normal qt-font-regular qt-color-theme">{this.props.currentPrice}</span>
+						<span className="header-coin-name qt-font-normal qt-font-bold"><Ticker ticker={this.props.currentTicker} /></span>
+						<span className="header-coin-value qt-font-normal qt-font-light qt-color-theme">{this.props.currentPrice}</span>
 						<a><img src="/public/images/close-right.svg" width="20" height="20" onClick={() => {
 								this.props.dispatch({
 									type: TOGGLE_RIGHT_PANEL

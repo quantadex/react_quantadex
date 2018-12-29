@@ -62,6 +62,10 @@ const banner_container = css `
 	.pad-sides, .place, .balance {
 		padding: 0 !important;
 	}
+
+	#last-updated {
+		display: none;
+	}
 `
 
 class Banner extends Component {
@@ -72,7 +76,7 @@ class Banner extends Component {
 					<img src="/public/images/trophy.svg"/>
 					<p className="info">Participate QDEX Fantasy and<br/> <b>win up to $50K USD*</b></p>
 
-					<Leaderboard inBanner={true}/>
+					<Leaderboard tableOnly={true}/>
 					
 					<p className="disclaimer">
 						QDEX token is currently valued at $0.3USD based on pre-sale value, and is redeemable upon MainNet launch.  

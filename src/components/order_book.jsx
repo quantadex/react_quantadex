@@ -14,6 +14,13 @@ const container = css`
 	.orderbook-ask, .orderbook-bid {
 		height: 35vh;
 		min-height:260px;
+		thead th{
+			position: -webkit-sticky;
+			position: sticky;
+			top: 0;
+			background: #22282c;
+			z-index: 1;
+		}
 	}
 
 	.orderbook-middle {
@@ -110,8 +117,8 @@ class OrderBook extends Component {
 				</section>
 				<section className="orderbook-middle d-flex justify-content-between">
 					<div className="d-flex flex-column justify-content-center">
-						<div className="qt-color-theme qt-font-huge">{this.props.mostRecentTrade.price}</div>
-						<div className="qt-number-normal qt-opacity-64">{this.props.spreadDollar}</div>
+						<div className="qt-color-theme qt-font-huge qt-font-light">{this.props.mostRecentTrade.price}</div>
+						{/* <div className="qt-number-normal qt-opacity-64">{this.props.spreadDollar}</div> */}
 					</div>
 					<div className="d-flex flex-column justify-content-center">
 						<div className="qt-opacity-half qt-font-base text-right">Spread</div>
