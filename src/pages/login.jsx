@@ -8,6 +8,7 @@ import jsPDF from 'jspdf'
 import Banner from "./login_banner.jsx"
 import { PrivateKey, PublicKey, Aes, key, ChainStore } from "@quantadex/bitsharesjs";
 import WalletApi from "../common/api/WalletApi";
+import Loader from '../components/ui/loader.jsx'
 
 const container = css`
 	display: flex;
@@ -257,6 +258,7 @@ export class GenerateKey extends Component {
 	constructor(props) {
 		super(props);
 		this.state = { 
+			processing: false,
 			username: "",
 			error: false,
 			downloaded: false}
@@ -274,9 +276,10 @@ export class GenerateKey extends Component {
 
 	registerAccount() {
 		console.log(this.state)
+		this.setState({processing: true})
 		const btn = document.getElementById('reg-btn')
 		btn.disabled = true
-		btn.innerHTML = "<div class='loader'></div>"
+		// btn.innerHTML = "<div class='loader'></div>"
 		btn.classList.add('loading')
 
 		fetch("/api/register", {
@@ -286,7 +289,7 @@ export class GenerateKey extends Component {
 					Accept: "application/json"
 			},
 			body: JSON.stringify({
-				user_name: this.state.username,
+				user_name: this.state.username.toLowerCase(),
 				public_key: this.state.public,
 			})
 		})
@@ -294,7 +297,7 @@ export class GenerateKey extends Component {
 			if (response.status == 200) {
 				document.getElementById('reg-success').classList.remove('d-none');
 				btn.classList.add('successful')
-				btn.innerHTML = "Registered"
+				// btn.innerHTML = "Registered"
 				btn.style.backgroundColor = "#4ec820"
 				this.setState({
 					registered: true,
@@ -304,7 +307,7 @@ export class GenerateKey extends Component {
 			} else {
 				return response.json().then(res => {
 					btn.disabled = false
-					btn.innerHTML = "Register and fund account"
+					// btn.innerHTML = "Register and fund account"
 					var msg;
 					if (res.message.includes("already exists")) {
 						msg = "Username already exist"
@@ -317,6 +320,9 @@ export class GenerateKey extends Component {
 					});
 				});
 			}
+		})
+		.finally(() => {
+			this.setState({processing: false})
 		})
 	}
 
@@ -444,7 +450,7 @@ export class GenerateKey extends Component {
 							</div>
 						</div>
 						
-						<button id="reg-btn" onClick={this.registerAccount.bind(this)} disabled={(!this.state.downloaded) || this.state.username.length < 4}>Register and fund account</button>
+						<button id="reg-btn" onClick={this.registerAccount.bind(this)} disabled={(!this.state.downloaded) || this.state.username.length < 4}>{this.state.processing ? <Loader /> : this.state.registered ? "Registed" : "Register and fund account"}</button>
 						<div id="reg-success" className="d-none">Account successfully created. Please continue to <Link to="/login" className="text-theme">login</Link>.</div>
 					</div>
 				</div>

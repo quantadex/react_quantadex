@@ -100,8 +100,8 @@ class Leaderboard extends Component {
 			const {balanceLeaderboard, freqLeaderboard, timestamp} = data
 			const last_update = Math.floor((new Date() - new Date(timestamp))/1000/60)
 			this.setState({
-				balanceLeaderboard: balanceLeaderboard,
-				freqLeaderboard: freqLeaderboard,
+				balanceLeaderboard: balanceLeaderboard.slice(0,10),
+				freqLeaderboard: freqLeaderboard.slice(0,10),
 				last_update: last_update,
 				isReady: true
 			})
@@ -121,7 +121,7 @@ class Leaderboard extends Component {
 		const Balance = () => {
 			return (
 				<tbody>
-					{this.state.balanceLeaderboard.slice(0,10).map((row, index) => {
+					{this.state.balanceLeaderboard.map((row, index) => {
 						return (
 							<tr key={index} className={row.username == this.props.name ? "is-user" : ""}><td className="place">{index+1}</td><td className="name">{row.username + (row.username == this.props.name ? " (You)" : "")}</td>
 							<td className="balance">${row.totalBalance.toFixed(2)}</td></tr>
@@ -135,7 +135,7 @@ class Leaderboard extends Component {
 		const Frequency = () => {
 			return (
 				<tbody>
-					{this.state.freqLeaderboard.slice(0,10).map((row, index) => {
+					{this.state.freqLeaderboard.map((row, index) => {
 						return (
 							<tr key={index} className={row.username == this.props.name ? "is-user" : ""}><td className="place">{index+1}</td><td className="name">{row.username + (row.username == this.props.name ? " (You)" : "")}</td>
 							<td className="balance">{row.frequency}</td></tr>
@@ -170,7 +170,7 @@ class Leaderboard extends Component {
 			<div className={leaderboard_container}>
 				
 				<Header />
-
+				
 				{ this.state.isReady ? 
 					<div>
 						<QTTabBar
