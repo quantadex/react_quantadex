@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import moment from 'moment';
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { css } from 'emotion'
 import globalcss from './global-css.js'
 
@@ -104,6 +105,12 @@ const container = css`
     font-size: 12px;
     cursor: pointer;
   }
+
+  .empty-list {
+    text-align: center;
+    font-size: 16px;
+    color: #777;
+  }
 `;
 
 class Orders extends Component {
@@ -130,12 +137,33 @@ class Orders extends Component {
     }
   }
 
+  notify_success = () => toast.success("Order cancelled", {
+    position: toast.POSITION.TOP_CENTER
+  });
+  notify_failed = () => toast.error("Unable to cancel order", {
+    position: toast.POSITION.TOP_CENTER
+  });
+
+  toastMsg(side, label, success, e) {
+    const msg = ( <div>
+      <span>{side} {label[1]} {this.state.price} @ {this.state.qty}</span><br/>
+      <span>{success ? "OrderId: " + e.id.substr(0,10) : 
+                      "Failed order: " +  (e.message.includes("insufficient balance") ? "Insufficient Balance" : "Unable to place order")}</span>
+      </div> )
+    return msg
+  }
+
   handleCancel(market, order) {
     ReactGA.event({
       category: 'CANCEL',
       action: market
     });
     this.props.dispatch(cancelTransaction(market, order))
+    .then((e) => {
+      this.notify_success()
+    }).catch((e) => {
+      this.notify_failed()
+    })
   }
 
   render() {
@@ -151,7 +179,7 @@ class Orders extends Component {
     const OrdersList = () => {
       if (this.state.selectedTabIndex == 0) {
         if (this.props.openOrders.dataSource.length == 0) {
-          return null
+          return <div className="empty-list">You have no active orders</div>
         }
         return (
           <QTTableViewSimple dataSource={this.props.openOrders.dataSource} columns={this.props.openOrders.columns}
@@ -159,7 +187,7 @@ class Orders extends Component {
         )
       } else {
         if (this.props.filledOrders.dataSource.length == 0) {
-          return null
+          return <div className="empty-list">You have no filled orders</div>
         }
         return (
           <QTTableViewSimple dataSource={this.props.filledOrders.dataSource} columns={this.props.filledOrders.columns}/>
@@ -177,11 +205,12 @@ class Orders extends Component {
           tabs = {tabs}
           switchTab = {this.handleSwitch.bind(this)}
         />
-        <section className= { (this.props.openOrders.dataSource.length == 0 && this.props.filledOrders.dataSource.length == 0 ? "d-none " : "") + "order-list container-fluid no-scroll-bar"}>
+        <section className="order-list container-fluid no-scroll-bar">
           <div>
             <OrdersList />
           </div>
 				</section>
+        <ToastContainer />
       </div>
     )
   }
