@@ -21,8 +21,7 @@ const container = css`
   margin-bottom: 54px;
 
   .order-list {
-    margin-top: 15px;
-    height: 265px;
+    margin: 15px 0;
     table {
       tbody tr {
         border-top: 1px solid #333;
@@ -82,18 +81,25 @@ const container = css`
     }
   }
 
-  thead th {
+  .sticky, thead th {
     position: sticky;
     position: -webkit-sticky;
-    top: 0;
     background: #23282c;
+  }
+
+  .sticky {
+    top: 0;
+    z-index: 2;
+  }
+  thead th {
+    top: 28px;
     z-index: 1;
   }
 
   .scroll-up {
     position: absolute;
-    right: 30px;
-    top: 25px;
+    right: 15px;
+    top: 4px;
     background-image: url(/public/images/up-arrow.svg);
     background-repeat-x: no-repeat;
     background-position: right;
@@ -111,6 +117,29 @@ const container = css`
     font-size: 16px;
     color: #777;
   }
+  
+  .loader {
+    display: none;
+    border: 2px solid rgba(255,255,255,0.5);
+    border-radius: 50%;
+    border-top: 2px solid #fff;
+    width: 15px;
+    height: 15px;
+    float: right;
+    margin-right: 28px;
+    -webkit-animation: spin 2s linear infinite;
+    animation: spin 2s linear infinite;
+  }
+  
+  @-webkit-keyframes spin {
+      0% { -webkit-transform: rotate(0deg); }
+      100% { -webkit-transform: rotate(360deg); }
+  }
+      
+  @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+  }
 `;
 
 class Orders extends Component {
@@ -118,7 +147,8 @@ class Orders extends Component {
     super(props);
     this.state = {
       selectedTabIndex: 0,
-      isFocused: false
+      isFocused: false,
+      cancelling: []
     };
   }
 
@@ -137,32 +167,45 @@ class Orders extends Component {
     }
   }
 
-  notify_success = () => toast.success("Order cancelled", {
+  notify_success = (toastId) => toast.update(toastId, {
+    render: "Order cancelled",
+    type: toast.TYPE.SUCCESS,
+    autoClose: 5000,
+    className: css({
+      transform: "rotateY(360deg)",
+      transition: "transform 0.6s"
+    }),
     position: toast.POSITION.TOP_CENTER
   });
-  notify_failed = () => toast.error("Unable to cancel order", {
+  notify_failed = (toastId) => toast.update(toastId, {
+    render: "Unable to cancel order",
+    type: toast.TYPE.ERROR,
+    autoClose: 5000,
+    className: css({
+      transform: "rotateY(360deg)",
+      transition: "transform 0.6s"
+    }),
     position: toast.POSITION.TOP_CENTER
   });
-
-  toastMsg(side, label, success, e) {
-    const msg = ( <div>
-      <span>{side} {label[1]} {this.state.price} @ {this.state.qty}</span><br/>
-      <span>{success ? "OrderId: " + e.id.substr(0,10) : 
-                      "Failed order: " +  (e.message.includes("insufficient balance") ? "Insufficient Balance" : "Unable to place order")}</span>
-      </div> )
-    return msg
-  }
 
   handleCancel(market, order) {
+    const toastId = toast("CANCELING...", { autoClose: false, position: toast.POSITION.TOP_CENTER });
+    var id = order.replace(/\./g, '-')
+    document.querySelectorAll('#cancel-' + id + ' button')[0].style.display = 'none';
+    document.querySelectorAll('#cancel-' + id + ' .loader')[0].style.display = 'block';
+    
     ReactGA.event({
       category: 'CANCEL',
       action: market
     });
     this.props.dispatch(cancelTransaction(market, order))
     .then((e) => {
-      this.notify_success()
+      document.querySelectorAll('#cancel-' + id + ' .loader')[0].style.display = 'none';
+      this.notify_success(toastId)
     }).catch((e) => {
-      this.notify_failed()
+      document.querySelectorAll('#cancel-' + id + ' button')[0].style.display = 'inherit';
+      document.querySelectorAll('#cancel-' + id + ' .loader')[0].style.display = 'none';
+      this.notify_failed(toastId)
     })
   }
 
@@ -197,18 +240,18 @@ class Orders extends Component {
 
     return (
       <div className={container}>
-        <div className="scroll-up" onClick={this.goToTop.bind(this)}>SCROLL UP</div>
-        <QTTabBar
-          className="underline small static set-width qt-font-bold d-flex justify-content-center"
-          width={200}
-          gutter={10}
-          tabs = {tabs}
-          switchTab = {this.handleSwitch.bind(this)}
-        />
-        <section className="order-list container-fluid no-scroll-bar">
-          <div>
-            <OrdersList />
-          </div>
+      <div className="sticky">
+          <div className="scroll-up" onClick={this.goToTop.bind(this)}>SCROLL UP</div>
+          <QTTabBar
+            className="underline small static set-width qt-font-bold d-flex justify-content-center"
+            width={200}
+            gutter={10}
+            tabs = {tabs}
+            switchTab = {this.handleSwitch.bind(this)}
+          />
+        </div>
+        <section className="order-list container-fluid">
+          <OrdersList />
 				</section>
         <ToastContainer />
       </div>

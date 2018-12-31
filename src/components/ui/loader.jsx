@@ -7,7 +7,7 @@ const loader = css `
     border-top: 3px solid #fff;
     width: 20px;
     height: 20px;
-    margin: auto
+    margin: auto;
     -webkit-animation: spin 2s linear infinite;
     animation: spin 2s linear infinite;
         
