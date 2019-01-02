@@ -80,7 +80,7 @@ class Chart extends Component {
 				loading_screen: { backgroundColor: 'black' },
         disabled_features: disabled_features,
         enabled_features: enabled_features,
-        charts_storage_url: "http://saveload.tradingview.com",
+        charts_storage_url: "https://saveload.tradingview.com",
         charts_storage_api_version: "1.1",
         custom_css_url: "/public/vendor/charting_library/theme_dark.css",
         client_id: "tradingview.com",
