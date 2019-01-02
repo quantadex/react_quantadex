@@ -95,6 +95,8 @@ function getBalance(id) {
 }
 
 export function GetLeaderboard() {
+    Apis.setAutoReconnect(true)
+    
     return Apis.instance(wsString, true, 3000, { enableOrders: false }).init_promise
     .then(async (e) => {
         var acc_data = []

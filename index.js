@@ -27,11 +27,18 @@ currentApp.get('/api/leaderboard', function (req, res) {
 
 		// console.log("Fetching leaderboard.")
 		GetLeaderboard().then((result) => {
+			result.timestamp = new Date()
+			// if leaderboard was there already, don't send it
+			if (currentLeaderboard == null) {
+				cb(result)
+			}
+
 			currentLeaderboard = result
-			currentLeaderboard.timestamp = new Date()
 			lockFetch = false
-			cb(currentLeaderboard)
-		})	
+		})
+		.catch(ex => {
+			console.log("error: ", ex);
+		})
 	}
 	
 	if (currentLeaderboard == null) {
