@@ -27,7 +27,7 @@ const banner_container = css `
 		}
 
 		h4 {
-			margin: 50px 0 20px;
+			margin: 30px 0 20px;
 		}
 		table {
 			width: 100%;
@@ -49,7 +49,7 @@ const banner_container = css `
 		font-size: 12px;
 		color: #aaa;
 		text-align: left;
-		margin-top: 70px;
+		margin-top: 40px;
 	}
 	.disclaimer::before {
 		content: '*';
