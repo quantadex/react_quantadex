@@ -25,7 +25,7 @@ const container = css`
     }
     .content {
         position: relative;
-        max-width: 1300px;
+        max-width: 1100px;
         max-height: 100%;
         align-self: center;
         background-color: #fff;
@@ -72,19 +72,21 @@ const container = css`
                 width: 150px;
             }
             a {
-                color: #00d8d0;
+                color: #5045d2;
                 text-decoration: underline;
             }
         }
 
         .left {
-            width: calc(100% - 500px);
-            padding: 75px;
+            padding: 100px 75px;
             padding-bottom: 35px;
             overflow: auto;
-
+            p {
+                font-size: 18px;
+            }
             a {
                 float: right;
+                color: #292626;
                 margin-top: 20px;
                 font-size: 14px;
 		        border-bottom: 1px solid #979797;
@@ -93,31 +95,21 @@ const container = css`
 
         .right {
             align-items: center;
-            width: 500px;
             background-color: #f7f7f7;
-            padding: 75px;
-            text-align: center;
+            padding: 100px 75px;
+            text-align: left;
             border-radius: 0 7px 7px 0;
 
-            input, button {
-                width: 100%;
+            button {
+                width: 150px;
+                margin-left: 70px;
                 border-radius: 2px;
             }
-            input {
-                background-color: #fff;
-                border: 1px solid #c7c7c8;
-                padding: 20px;
-                color: #292626;
-                font-size: 23px;
-                line-height: 25px;
-                text-align: center;
-            }
-            
         }
     }
     button {
         margin-top: 10px;
-        background-color: #00d8d0;
+        background-color: #5045d2;
         color: #fff;
         font-size: 18px;
         border-radius: 2px;
@@ -127,13 +119,13 @@ const container = css`
     }
 
     .leaderboard-rule {
-        padding-left: 75px;
+        padding-left: 70px;
         margin-bottom: 30px;
         
         .header {
             font-size: 20px;
             font-weight: bold;
-            color: #00d8d0;
+            color: #5045d2;
         }
     }
 
@@ -145,7 +137,7 @@ const container = css`
     }
     
     .disclaimer {
-        font-size: 14px;
+        font-size: 12px;
 		letter-spacing: -0.3px;
     }
     .disclaimer::before {
@@ -202,6 +194,7 @@ class FirstTime extends Component {
     letsGo() {
         document.getElementById("first-time").style.display = "none";
         // window.scrollTo(0,0);
+        localStorage.setItem("firstTimeComplete", true);
     }
 
 
@@ -209,14 +202,23 @@ class FirstTime extends Component {
         return (
             <div id="first-time" className={container}>
                 <div className="content">
-                    <div id="username-select" className="flex">
+                    <div id="contest-rules" className="d-flex">
                         <div className="left">
                             <h2>Welcome to </h2>
                             <img src="/public/images/qdex-fantasy.svg" alt="QDEX Fantasy" />
-                            <p style={{margin: '10px 0 20px'}}>We are currently on the Warm-up Contest where you can win a grand prize $500 USD + 40,000 
-                                QDEX tokens, with total value of $12,500 USD*.  The Main Contest will start when 
-                                this contest ends, which is Jan 18th 2019, with a grand prize of $1000 USD + 60,000 QDEX tokens.</p>
+                            <p style={{margin: '30px 0 30px'}}>We are currently on the Warm-up Contest where 
+                            you can win a grand prize $500 USD + 40,000 QDEX tokens, with total value of $12,500 USD*.</p>
 
+                            <p style={{margin: '30px 0 40px'}}>The Main Contest will start when this contest ends, 
+                            which is Jan 18th 2019, with a grand prize of $1000 USD + 60,000 QDEX tokens.</p>
+
+                            <div class="disclaimer">
+                                QDEX token is currently valued at $0.3USD based on pre-sale value, and is redeemable upon MainNet launch.  
+                                Actual QDEX token value will depend on market pricing at time of redemption.     
+                            </div>
+                            <a href="https://quantadex.com/fantasy" target="_blank">Full Details</a>
+                        </div>
+                        <div className="right">
                             <h1>Two ways to win</h1>
                             <div className="leaderboard-rule balance">
                                 <span className="header">Balance Leaderboard</span>
@@ -229,21 +231,7 @@ class FirstTime extends Component {
                                     maintaining a balance of at least 8,000 QDEX (80% of initial balance).</p>
                                 <b>Prize: $500 USD + 20,000 QDEX tokens*</b>
                             </div>
-                            <div class="disclaimer">
-                                QDEX token is currently valued at $0.3USD based on pre-sale value, and is redeemable 
-                                upon MainNet launch.  Actual QDEX token value will depend on market pricing at time of redemption.    
-                            </div>
-                            <a>Read Full Rules</a>
-                        </div>
-                        <div className="right flex">
-                            <div>
-                                <h1>Confirm your leaderboard username</h1>
-                                <p>This is your default username on the leaderboard 
-                                    based on the first 10 characters of your public key. 
-                                    You may change it to easily identify yourself.</p>
-                                <input type="text" />
-                                <button onClick={this.openFund}>Confirm</button>
-                            </div>
+                             <button onClick={this.openFund}>Continue</button>
                         </div>
                     </div>
 
@@ -255,9 +243,9 @@ class FirstTime extends Component {
                                 <h1>You have unlocked 10,000 QDEX to start trading.
                                     <img src="/public/images/thumb-up.svg" />
                                 </h1>
-                                <p>You can earn more initial tokens by depositing up to three Ropstein 
+                                {/* <p>You can earn more initial tokens by depositing up to three Ropstein 
                                     Testnet Ethers into the QUANTA wallet, and experience QUANTA’s cross-chain 
-                                    technology. <a>Learn more.</a> </p>
+                                    technology. <a>Learn more.</a> </p> */}
                                 <button onClick={this.statusDialog}>Continue</button>
                             </div>
                         </div>

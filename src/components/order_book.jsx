@@ -12,7 +12,15 @@ import globalcss from './global-css.js'
 const container = css`
 
 	.orderbook-ask, .orderbook-bid {
-		height:260px;
+		height: 35vh;
+		min-height:260px;
+		thead th{
+			position: -webkit-sticky;
+			position: sticky;
+			top: 0;
+			background: #22282c;
+			z-index: 1;
+		}
 	}
 
 	.orderbook-middle {
@@ -102,14 +110,15 @@ class OrderBook extends Component {
 					<div>
 						<QTTableViewSimple key="ask_tv" dataSource={asksDataSource} 
 							columns={this.props.asks.columns} 
+							ticker={this.props.currentTicker}
 							onAction={this.setAmount.bind(this, 1)}
 						/>
 					</div>
 				</section>
 				<section className="orderbook-middle d-flex justify-content-between">
 					<div className="d-flex flex-column justify-content-center">
-						<div className="qt-color-theme qt-font-huge">{this.props.mostRecentTrade.price}</div>
-						<div className="qt-number-normal qt-opacity-64">{this.props.spreadDollar}</div>
+						<div className="qt-color-theme qt-font-huge qt-font-light">{this.props.mostRecentTrade.price}</div>
+						{/* <div className="qt-number-normal qt-opacity-64">{this.props.spreadDollar}</div> */}
 					</div>
 					<div className="d-flex flex-column justify-content-center">
 						<div className="qt-opacity-half qt-font-base text-right">Spread</div>
@@ -138,6 +147,7 @@ const mapStateToProps = (state) => ({
 	spread: state.app.orderBook.spread,
 	spreadDollar:state.app.orderBook.spreadDollar,
 	mostRecentTrade: state.app.mostRecentTrade,
+	currentTicker:state.app.currentTicker,
 	});
 
 export default connect(mapStateToProps)(OrderBook);

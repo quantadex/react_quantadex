@@ -1,4 +1,7 @@
 import React, {PropTypes} from 'react';
+import { Redirect, withRouter } from 'react-router-dom'
+import { connect } from 'react-redux'
+import { LOGIN } from '../../redux/actions/app.jsx'
 import { css } from 'emotion'
 
 import { Link } from 'react-router-dom'
@@ -50,7 +53,7 @@ const container = css`
 
 `
 
-export default class HamburgerMenu extends React.Component {
+export class HamburgerMenu extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -98,8 +101,8 @@ export default class HamburgerMenu extends React.Component {
               if (index == 0) {
                 return (
                   <div className="group-head d-flex flex-column align-items-center justify-content-center">
-                    <div className="header qt-font-light">{e.items[0].header}</div>
-                    <div className="subheader"><a className="qt-cursor-pointer qt-color-theme">hide</a>{e.items[0].subheader}</div>
+                    <div className="header qt-font-light">${this.props.total_fund ? (this.props.total_fund).toFixed(0): "N/A"}</div>
+                    <div className="subheader">{e.items[0].subheader}</div> {/*<a className="qt-cursor-pointer qt-color-theme">hide</a>*/}
                   </div>
                 )
               }
@@ -141,13 +144,16 @@ export default class HamburgerMenu extends React.Component {
   }
 }
 
+
 HamburgerMenu.defaultProps = {
-  menuList: [{
+  menuList: [
+    {
     items: [{
       header:"$12.560",
       subheader:" estimated funds"
     }]
-  },{
+  },
+  {
     items: [{
       iconPath:"/public/images/menuicons/quanta-grey.svg",
       iconPathActive:"/public/images/menuicons/quanta-white.svg",
@@ -160,44 +166,47 @@ HamburgerMenu.defaultProps = {
       iconPathActive:"/public/images/menuicons/wallet-white.svg",
       text:"Wallets",
       url:"/exchange/wallets"
-    },{
-      iconPath:"/public/images/menuicons/deposit-grey.svg",
-      iconPathActive:"/public/images/menuicons/deposit-white.svg",
-      text:"Deposit / Withdraw",
-      url:"/exchange/wallets"
-    },{
-      iconPath:"/public/images/menuicons/fund-history-grey.svg",
-      iconPathActive:"/public/images/menuicons/fund-history-white.svg",
-      text:"Funds History",
-      url:"/exchange/history"
-    },{
-      iconPath:"/public/images/menuicons/order-history-grey.svg",
-      iconPathActive:"/public/images/menuicons/order-history-white.svg",
-      text:"Orders History",
-      url:"/exchange/orders"
-    }]
-  },{
-    items: [{
-      iconPath:"/public/images/menuicons/referral-grey.svg",
-      iconPathActive:"/public/images/menuicons/referral-white.svg",
-      text:"Referrals",
-      url:"/referrals"
-    }]
-  },{
-    items: [{
-      iconPath:"/public/images/menuicons/profile-grey.svg",
-      iconPathActive:"/public/images/menuicons/profile-white.svg",
-      text:"Profile",
-      url:"/exchange/wallets"
-    }],
+    },
+  //   {
+  //     iconPath:"/public/images/menuicons/deposit-grey.svg",
+  //     iconPathActive:"/public/images/menuicons/deposit-white.svg",
+  //     text:"Deposit / Withdraw",
+  //     url:"/exchange/wallets"
+  //   },{
+  //     iconPath:"/public/images/menuicons/fund-history-grey.svg",
+  //     iconPathActive:"/public/images/menuicons/fund-history-white.svg",
+  //     text:"Funds History",
+  //     url:"/exchange/history"
+  //   },{
+  //     iconPath:"/public/images/menuicons/order-history-grey.svg",
+  //     iconPathActive:"/public/images/menuicons/order-history-white.svg",
+  //     text:"Orders History",
+  //     url:"/exchange/orders"
+  //   }]
+  // },{
+  //   items: [{
+  //     iconPath:"/public/images/menuicons/referral-grey.svg",
+  //     iconPathActive:"/public/images/menuicons/referral-white.svg",
+  //     text:"Referrals",
+  //     url:"/referrals"
+  //   }]
+  // },{
+  //   items: [{
+  //     iconPath:"/public/images/menuicons/profile-grey.svg",
+  //     iconPathActive:"/public/images/menuicons/profile-white.svg",
+  //     text:"Profile",
+  //     url:"/exchange/wallets"
+  //   }
+  ],
     backgroundColor:"rgba(40, 48, 52,0.36)"
   },{
     items: [{
       iconPath:"/public/images/menuicons/quanta-grey.svg",
       iconPathActive:"/public/images/menuicons/quanta-white.svg",
       text:"Logout",
+      // url:"/login"
       onClick: () => {
-        console.log('logged out')
+        window.location.assign('/login')
       }
     }],
     backgroundColor:"#323b40"
@@ -206,3 +215,9 @@ HamburgerMenu.defaultProps = {
 
 HamburgerMenu.propTypes = {
 };
+
+const mapStateToProps = (state) => ({
+  total_fund: state.app.totalFundValue
+});
+
+export default connect(mapStateToProps)(withRouter(HamburgerMenu))

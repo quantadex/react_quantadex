@@ -47,12 +47,11 @@ const container = css`
 	}
 
 	.exchange-bottom {
-		position: absolute;
-		width: 100%;
 		bottom: 0;
 		background-color: #23282c;
 		justify-content: center;
 		border-top: 3px solid black;
+		z-index: 99;
 	}
 	
 	#tv_chart_container {
@@ -86,26 +85,28 @@ class Exchange extends Component {
 		if (!this.props.private_key) {
 			this.props.history.push("/login")
 		} else {
-			this.props.dispatch(switchTicker("ETH*QB3WOAL55IVT6E7BVUNRW6TUVCAOPH5RJYPUUL643YMKMJSZFZGWDJU3/USD*QB3WOAL55IVT6E7BVUNRW6TUVCAOPH5RJYPUUL643YMKMJSZFZGWDJU3"));
+			this.props.dispatch(switchTicker(this.props.currentTicker));
 			//this.props.dispatch(initBalance());
-			this.props.dispatch(getMarketQuotes())
 		}
 
-		document.getElementsByClassName("row flex-nowrap")[0].style.paddingBottom = document.getElementsByClassName("exchange-bottom")[0].offsetHeight + "px";
+		// document.getElementsByClassName("row flex-nowrap")[0].style.paddingBottom = document.getElementsByClassName("exchange-bottom")[0].offsetHeight + "px";
 	}
 
 	render() {
 		return (
 		<div className={container + " container-fluid"}>
-			<div className="row flex-nowrap" style={{overflow:"hidden",minHeight:"100vh"}}>
+			<div className="row flex-nowrap" style={{overflow:"hidden",minHeight:"calc(100vh - 120px)"}}>
 				<div className="exchange-left" style={{ display: this.props.leftOpen ? 'block': 'none'}}>
 					<OrderBook />
 				</div>
 				<div className="exchange-middle">
 					<Header />
-					<Chart />
-					<Dashboard />
-					<Trade />
+						<Chart chartTools={true}/>
+					<div className="d-flex">
+						<Dashboard />
+						<Trade />
+					</div>
+					
 				</div>
 				<div className="exchange-right" style={{ display: this.props.rightOpen ? 'block' : 'none'}}>
 					<Menu />
@@ -118,7 +119,7 @@ class Exchange extends Component {
 				<Orders />
 				<Status />
 			</div>
-			<FirstTime />
+			{ localStorage.getItem("firstTimeComplete") ? null : <FirstTime /> }
 		</div>
 		);
 	}
@@ -128,6 +129,7 @@ const mapStateToProps = (state) => ({
 		private_key: state.app.private_key,
 		leftOpen: state.app.ui.leftOpen,
 		rightOpen: state.app.ui.rightOpen,
+		currentTicker: state.app.currentTicker,
 	});
 
 

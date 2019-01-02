@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
 import { css } from 'emotion'
 
+import Leaderboard from '../components/leaderboard.jsx'
+
 const banner_container = css `
 	display: flex;
 	justify-content: center;
 	width: 420px;
 	height: 100vh;
-	background-color: #293946;
+	background-color: #211e42;
 	color: #fff;
 	text-align: center;
 	overflow: auto;
@@ -24,10 +26,8 @@ const banner_container = css `
 			letter-spacing: -0.7px;
 		}
 
-		h5 {
-			margin: 72px 0 20px 0;
-			text-align: left;
-			border-bottom: 1px solid #fff;
+		h4 {
+			margin: 50px 0 20px;
 		}
 		table {
 			width: 100%;
@@ -59,6 +59,13 @@ const banner_container = css `
 		font-size: 20px;
 		margin-top: -5px;
 	}
+	.pad-sides, .place, .balance {
+		padding: 0 !important;
+	}
+
+	#last-updated {
+		display: none;
+	}
 `
 
 class Banner extends Component {
@@ -69,25 +76,7 @@ class Banner extends Component {
 					<img src="/public/images/trophy.svg"/>
 					<p className="info">Participate QDEX Fantasy and<br/> <b>win up to $50K USD*</b></p>
 
-					<h5>CURRENT LEADERS</h5>
-					<table>
-						<thead>
-							<tr><th className="place">#</th><th className="name">Name</th><th className="balance">Balance</th></tr>
-						</thead>
-						<tbody>
-							<tr><td className="place">1</td><td className="name">Place</td><td className="balance">$111,800.00</td></tr>
-							<tr><td className="place">2</td><td className="name">Holder</td><td className="balance">$111,700.00</td></tr>
-							<tr><td className="place">1</td><td className="name">Place</td><td className="balance">$111,800.00</td></tr>
-							<tr><td className="place">2</td><td className="name">Holder</td><td className="balance">$111,700.00</td></tr>
-							<tr><td className="place">1</td><td className="name">Place</td><td className="balance">$111,800.00</td></tr>
-							<tr><td className="place">2</td><td className="name">Holder</td><td className="balance">$111,700.00</td></tr>
-							<tr><td className="place">1</td><td className="name">Place</td><td className="balance">$111,800.00</td></tr>
-							<tr><td className="place">2</td><td className="name">Holder</td><td className="balance">$111,700.00</td></tr>
-							<tr><td className="place">1</td><td className="name">Place</td><td className="balance">$111,800.00</td></tr>
-							<tr><td className="place">2</td><td className="name">Holder</td><td className="balance">$111,700.00</td></tr>
-						</tbody>
-						
-					</table>
+					<Leaderboard tableOnly={true}/>
 					
 					<p className="disclaimer">
 						QDEX token is currently valued at $0.3USD based on pre-sale value, and is redeemable upon MainNet launch.  

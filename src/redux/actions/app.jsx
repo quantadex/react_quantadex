@@ -2,8 +2,16 @@ import lodash from 'lodash';
 import API from "../../api.jsx"
 import SortedSet from 'js-sorted-set'
 import QuantaClient from "@quantadex/quanta_js"
+import { Apis } from "@quantadex/bitsharesjs-ws";
+import { Price, Asset, FillOrder, LimitOrderCreate, LimitOrder } from "../../common/MarketClasses";
+import { PrivateKey, PublicKey, Aes, key, ChainStore } from "@quantadex/bitsharesjs";
+import { createLimitOrderWithPrice, createLimitOrder2, cancelOrder, signAndBroadcast } from "../../common/Transactions";
+import { aggregateOrderBook, convertHistoryToOrderedSet } from "../../common/PriceData";
+import ReactGA from 'react-ga';
+
 export const INIT_DATA = 'INIT_DATA';
 export const LOGIN = 'LOGIN';
+export const UPDATE_ACCOUNT = 'UPDATE_ACCOUNT';
 export const SET_MARKET_QUOTE = 'SET_MARKET_QUOTE';
 export const APPEND_TRADE = 'APPEND_TRADE';
 export const UPDATE_TICKER = 'UPDATE_TICKER';
@@ -12,7 +20,7 @@ export const SET_AMOUNT = 'SET_AMOUNT';
 export const UPDATE_USER_ORDER = 'UPDATE_USER_ORDER';
 export const UPDATE_TRADES = 'UPDATE_TRADES'
 export const UPDATE_DIGITS = 'UPDATE_DIGITS'
-
+export const UPDATE_BLOCK_INFO = 'UPDATE_BLOCK_INFO';
 export const TOGGLE_LEFT_PANEL = 'TOGGLE_LEFT_PANEL';
 export const TOGGLE_RIGHT_PANEL = 'TOGGLE_RIGHT_PANEL';
 
@@ -24,312 +32,382 @@ export const toggleFavoriteList = pair => ({
 	type: TOGGLE_FAVORITE_LIST,
 	pair
 })
-
-import StellarBase, {Keypair, Asset, Operation} from 'stellar-base'
-StellarBase.Network.use(new StellarBase.Network("Test QuantaDex SDF Network ; June 2018"))
-
-var qClient, default_market;
-export function initMarket(key) {
-	console.log("set key =", key)
-	qClient = new QuantaClient({ orderbookUrl: "http://orderbook-api-792236404.us-west-2.elb.amazonaws.com", secretKey: key })
-	default_market = (qClient.showMarkets().then((e) => {
-		return e[0].Name
-	}))
-}
+var markets = null;
 
 export function getMarketQuotes() {
 	return function(dispatch) {
-		qClient.getQuotes().then((e) => {
-			dispatch({
-				type: SET_MARKET_QUOTE,
-				data: e
-			})
-		})
+
 	} 
-}
-
-var getFreeCoins = (accountId) => {
-	return fetch("http://backend-dev.env.quantadex.com:8080/api/v1/demo/freecoins/" + accountId)
-					.then((res) => {return res.json()})
-}
-
-var register = (json) => {
-	return fetch("http://backend-dev.env.quantadex.com:8080/api/v1/account/register",{
-						method: 'POST',
-						body: JSON.stringify(json), // must match 'Content-Type' header
-						headers: {
-							"Content-Type" : "application/json"
-						},
-					}).then((res) => {return res.json()})
-}
-
-var postTransaction = (tx) => {
-	return fetch("http://backend-dev.env.quantadex.com:8080/api/v1/tx",{
-						method: 'POST',
-						body: JSON.stringify({tx:tx.toEnvelope().toXDR('base64')}), // must match 'Content-Type' header
-						headers: {
-							"Content-Type" : "application/json"
-						},
-					}).then((res) => {return res.json()})
-}
-
-var getBalance = (accountId) => {
-	return fetch("http://backend-dev.env.quantadex.com:8080/api/v1/account/balance/" + accountId)
-					.then((res) => {return res.json()})
-}
-
-var getMyOrders = (accoundId) => {
-	return fetch("http://backend-dev.env.quantadex.com:8080/api/v1/account/orders/" + accoundId)
-	.then((res) => {return res.json()})
 }
 
 export function initBalance() {
 	return function(dispatch) {
-	    console.log("initBalance(): initializing balance")
+	}
+}
 
-		localStorage.removeItem("quanta_sender_publicKey")
-
-		StellarBase.Network.use(new StellarBase.Network("Test QuantaDex SDF Network ; June 2018"))
-
-		if (localStorage.getItem("quanta_sender_publicKey") == null) {
-			var sender_keypair = Keypair.random();
-			var sender_secret = sender_keypair.secret()
-			var sender_public = sender_keypair.publicKey()
-			var issuer_publicKey = "GC5YBJP4YMTVZ5DLNZDDLFQAY5MGJ66I5GAJN34FPTZIMJKEVRQ22K24"
-			console.log("initBalance() sender public key: ",sender_keypair.publicKey())
-			console.log("initBalance() sender secret key: ",sender_secret)
-			var sender_json = {
-				accountId:sender_public,
-				firstName:"sender_first",
-				lastName:"sender_last",
-				email:"sender_email",
-			}
-
-			return register(sender_json).then((data) => {
-				console.log("after register sender: ",data)
-				localStorage.setItem("quanta_sender_publicKey",sender_public)
-				localStorage.setItem("quanta_sender_secretKey",sender_secret)
-				localStorage.setItem("quanta_issuer_publicKey",issuer_publicKey)
-				var account=new StellarBase.Account(sender_public,data.seqnum.toString());
-				var opts = {
-					asset:new Asset("BTC",issuer_publicKey),
-					limit:"1000000000"
-				}
-				var opts2 = {
-					asset:new Asset("USD",issuer_publicKey),
-					limit:"1000000000"
-				}
-				var transaction = new StellarBase.TransactionBuilder(account)
-															.addOperation(StellarBase.Operation.changeTrust(opts))
-															.addOperation(StellarBase.Operation.changeTrust(opts2))
-											        .build();
-
-				var key = Keypair.fromSecret(sender_secret);
-				transaction.sign(key);
-				postTransaction(transaction).then((data) => {
-					console.log("after change trust:",data)
-					getFreeCoins(sender_public).then((data) => {
-						console.log("after get coin: ",data)
-						dispatch({
-							type: INIT_BALANCE,
-							data: data
-						})
-					})
-				})
-			})
-		} else {
-			var sender_public = localStorage.getItem("quanta_sender_publicKey")
-			var sender_secret = localStorage.getItem("quanta_sender_secretKey")
-			var issuer_public = localStorage.getItem("quanta_issuer_publicKey")
-			return getBalance(sender_public).then((data) => {
-				console.log("after get balance:",data)
-				dispatch({
-					type: INIT_BALANCE,
-					data:data
-				})
-			})
-		}
+function getBaseCounter(market) {
+	const parts = market.split("/")
+	return {
+		base: assetsBySymbol[parts[0]],
+		counter: assetsBySymbol[parts[1]]
 	}
 }
 
 export function buyTransaction(market, price, amount) {
-	return function() {
-		return qClient.submitOrder(0, market, price, amount)
-			.then((e) => e.json()).then((e) => {
-				console.log("ordered ", e);
-				return e
+	return (dispatch, getState) => {
+		var {base, counter} = getBaseCounter(market)
+		var user_id = getState().app.userId;
+
+		const pKey = PrivateKey.fromWif(getState().app.private_key);
+		console.log(pKey, assets[base.id], "price=",price, "amount=", amount, user_id);
+
+		const order = createLimitOrderWithPrice(user_id, true, window.assets, base.id, counter.id, price, amount)
+
+		console.log("order prepare", order);
+		const tr = createLimitOrder2(order)
+		return signAndBroadcast(tr, pKey)
+			.then((e) => {
+				console.log("order result ", e);
+				return e[0]
 			}).catch((e) => {
-				console.log(e);
 				throw e
 			})
-	} 
+	}
 }
 
 export function sellTransaction(market, price, amount) {
-	return function() {
-		return qClient.submitOrder(1, market, price, amount)
-			.then((e) => e.json()).then((e) => {
-				console.log("ordered ", e);
-				return e
+	return (dispatch, getState) => {
+		var { base, counter } = getBaseCounter(market)
+		var user_id = getState().app.userId;
+
+		const pKey = PrivateKey.fromWif(getState().app.private_key);
+		console.log(pKey, assets[base.id], "price=", price, "amount=", amount, user_id);
+
+		const order = createLimitOrderWithPrice(user_id, false, window.assets, base.id, counter.id, price, amount)
+
+		console.log("order prepare", order);
+		const tr = createLimitOrder2(order)
+		return signAndBroadcast(tr, pKey)
+			.then((e) => {
+				console.log("order result ", e);
+				return e[0]
 			}).catch((e) => {
-				console.log(e);
 				throw e
+			})
+	}
+
+}
+
+export const cancelTransaction = (market, order_id) => {
+	return (dispatch, getState) => {
+		var { base, counter } = getBaseCounter(market)
+		var user_id = getState().app.userId;
+	
+		const pKey = PrivateKey.fromWif(getState().app.private_key);
+		console.log(pKey, assets[base.id], user_id);
+	
+		const order = cancelOrder(user_id, order_id)
+	
+		console.log("cancel order", order);
+		return signAndBroadcast(order, pKey)
+			.then((e) => {
+				console.log("order result ", e);
 			})
 	}
 }
 
-// export function sellTransaction(publicKey,secretKey,issuerKey, qty, price) {
-// 	return function(dispatch) {
-// 		return getBalance(publicKey).then((data) => {
-// 			var account=new StellarBase.Account(publicKey,data.seqnum.toString());
-// 			var buying = new Asset("USD",issuerKey)
-// 			var selling = new Asset("BTC",issuerKey)
-// 			var opt3 = {
-// 				buying: buying,
-// 				selling: selling,
-// 				amount: (1.0 * qty).toString(),
-// 				price: (1.0 * price).toString()
-// 			}
-// 		    console.log("sellTransaction(" + publicKey + ", seq=" + data.seqnum.toString() + "): SELL " + qty + " @ " + price + " | " + opt3.amount + " @ " + opt3.price);
-// 			var transaction = new StellarBase.TransactionBuilder(account)
-// 				.addOperation(StellarBase.Operation.manageOffer(opt3))
-// 				.build();
-// 			var key = Keypair.fromSecret(secretKey);
-// 			transaction.sign(key);
-// 			postTransaction(transaction).then((data) => {
-// 				console.log("after making one sell transaction: ",data)
-// 				getMyOrders(publicKey).then((data) => {
-// 					console.log("open orders: ", data)
-// 					dispatch({
-// 						type: UPDATE_OPEN_ORDERS,
-// 						data:data
-// 					})
-// 				})
-// 			})
-// 		})
-// 	}
-// }
+var initAPI = false;
+//var wsString = "ws://localhost:8090";
+var wsString = "wss://testnet-01.quantachain.io:8095";
 
-// var mockTransaction =  (publicKey,secretKey,issuerKey) => {
-//
-// 	getBalance(publicKey).then((data) => {
-// 		var account=new StellarBase.Account(publicKey,data.seqnum.toString());
-// 		var selling = new Asset("USD",issuerKey)
-// 		var buying = new Asset("BTC",issuerKey)
-// 		var opt3 = {
-// 			selling: selling,
-// 			buying: buying,
-// 			amount: "2",
-// 			price: {
-// 				n:1,
-// 				d:1
-// 			},
-// 		}
-// 		var transaction = new StellarBase.TransactionBuilder(account)
-// 			.addOperation(StellarBase.Operation.manageOffer(opt3))
-// 			.build();
-// 		var key = Keypair.fromSecret(secretKey);
-// 		transaction.sign(key);
-// 		postTransaction(transaction).then((data) => {
-// 			console.log("after making one transaction: ",data)
-// 			getBalance(sender_public).then((data) => {
-// 				console.log("balance: ", data)
-// 			})
-// 			getOpenOrders(sender_public).then((data) => {
-// 				console.log("open orders: ", data)
-// 			})
-// 		})
-// 	})
-// }
-// mockTransaction(sender_public,sender_secret,issuer_public)
+function getAvgtime() {
+	const avgTime = blockTimes.reduce((previous, current, idx, array) => {
+		return previous + current[1] / array.length;
+	}, 0);
+	return avgTime;
+}
+const blockTimes = [];
+var previousTime = null;
 
-export function switchTicker(ticker) {
-	console.log("Switch ticker ", ticker);
-	return function (dispatch) {
+function updateChainState(dispatch) {
+	const object = ChainStore.getObject("2.1.0");
 
-		const orderBook = fetch("http://orderbook-api-792236404.us-west-2.elb.amazonaws.com/depth/"+ticker).then((res) => {return res.json()})
-		const trades = fetch("http://orderbook-api-792236404.us-west-2.elb.amazonaws.com/settlement/"+ticker).then((res) => {return res.json()})
-		const openOrders = fetch("http://orderbook-api-792236404.us-west-2.elb.amazonaws.com/status").then((res) => {return res.json()})
-
-		return Promise.all([orderBook,trades,openOrders])
-			.then((data) => {
-				dispatch({
-					type: INIT_DATA,
-					data: {
-						orderBook:data[0],
-						trades:data[1],
-						openOrders:data[2],
-						ticker:ticker,
-					}
-				})
-
-				var orderbookws = new EventSource('http://testnet-02.quantachain.io:7200/stream/depth/'+ticker);
-
-				// Log errors
-				orderbookws.onerror = function (error) {
-				  console.log('EventSource Error ' + error);
-				};
-
-				// Log messages from the server
-				orderbookws.onmessage = function (e) {
-					dispatch({
-						type: UPDATE_ORDER,
-						data: e.data
-					})
-				};
-
-				var tradesws = new WebSocket('ws://backend-dev.env.quantadex.com:8080/ws/v1/trades/BTC/USD');
-
-				// Log errors
-				tradesws.onerror = function (error) {
-				  console.log('WebSocket Error ' + error);
-				};
-
-				// Log messages from the server
-				tradesws.onmessage = function (e) {
-					dispatch({
-						type: UPDATE_TRADES,
-						data: e.data
-					})
-				};
-			})
+	if (object==null) {
+		return;
 	}
 
-	// const [first, second] = ticker.split("/");
-	//
-	// return function (dispatch) {
-	//     const base = new StellarSdk.Asset(first, "GBQWAJ7I7BKKGBBXX64HCIVQB6ENC5ZX44CTZ3VKMOU6HO5UN4ILNHI6");
-  //       const counter = new StellarSdk.Asset(second, "GBQWAJ7I7BKKGBBXX64HCIVQB6ENC5ZX44CTZ3VKMOU6HO5UN4ILNHI6");
-	//
-  //       orderStream = server.orderbook(base, counter)
-  //           .stream({
-  //               onmessage: function (message) {
-  //                   //console.log("ORDERBOOK ", message)
-	//
-  //                   dispatch({
-  //                       type: UPDATE_ORDER,
-  //                       data : message
-  //                   })
-  //               }
-  //           })
-	//
-	// 	return Promise.all([API.open_trades(first, second), API.trade_history(), API.balance(), API.pending_trades(), API.pairs(), API.ticker()])
-	// 		.then((data) => {
-	// 			console.log("data ", data, first, second);
-	// 			dispatch({
-	// 				type: INIT_DATA,
-	// 				data : {
-	// 					ticker: ticker,
-	// 					tradeBook: data[0],
-	// 					tradeHistory: data[1],
-	// 					balance: lodash.keyBy(data[2],'currency'),
-	// 					openOrders: data[3],
-	// 					markets: data[4],
-	// 					tickers: data[5]
-	// 				}
-	// 			})
-	//
-	// 				streaming here/
-	// 	});
-	// }
+	const timestamp = timeStringToDate(object.get("time"))
+	
+	if (previousTime != null) {
+		blockTimes.push([
+			object.get("head_block_number"),
+			(timestamp - previousTime) / 1000
+		]);
+	}
+
+	previousTime = timestamp;
+
+	//console.log('update', timestamp, object.get("head_block_number"), Math.round(getAvgtime()*1000))
+
+	dispatch({
+		type: UPDATE_BLOCK_INFO,
+		data: {
+			blockNumber: object.get("head_block_number"),
+			blockTime: Math.round(getAvgtime() * 1000)
+		}
+	})
+}
+
+
+function timeStringToDate(block_time) {
+	if (!/Z$/.test(block_time)) {
+		block_time += "Z";
+	}
+	return new Date(block_time);
+}
+
+
+var dynamicGlobal = null;
+
+function onUpdate(dispatch) {
+
+}
+
+export function switchTicker(ticker) {
+
+	// send GA
+	ReactGA.set({ page: "exchange/" + ticker });
+	ReactGA.pageview("exchange/" + ticker);
+	console.log("Switch ticker ", ticker);
+
+	return function (dispatch,getState) {
+		const pKey = PrivateKey.fromWif(getState().app.private_key);
+		const publicKey = pKey.toPublicKey().toString()
+
+		dispatch({
+			type: UPDATE_TICKER,
+			data: ticker
+		})
+
+		if (initAPI == false) {
+			Apis.instance(wsString, true, 3000, { enableOrders: true }).init_promise.then((res) => {
+				console.log("connected to:", res[0].network, publicKey);
+
+				// Apis.instance().db_api().exec("set_subscribe_callback", [onUpdate, true]);
+				initAPI = true;				
+
+				ChainStore.init(false).then(() => {
+					ChainStore.subscribe(updateChainState.bind(this, dispatch));
+				});
+			})
+			.then((e) => {
+				return Promise.all([Apis.instance()
+					.db_api()
+					.exec("get_key_references", [[publicKey]])
+					.then(vec_account_id => {
+						console.log("get_key_references ", vec_account_id[0][0]);
+
+						return Apis.instance()
+							.db_api()
+							.exec("get_objects", [[vec_account_id[0][0]]])
+							.then((data) => {
+								console.log("get account ", data);
+								dispatch({
+									type: UPDATE_ACCOUNT,
+									data: data[0]
+								})
+							})
+
+					}), Apis.instance().db_api().exec("list_assets", ["A", 100]).then((assets) => {
+						console.log("assets ", assets);
+						window.assets = lodash.keyBy(assets, "id")
+						window.assetsBySymbol = lodash.keyBy(assets, "symbol")
+						return assets;
+					})]);
+			})
+			.then((e) => {
+				action(ticker)
+			});
+		} else {
+			action(ticker)
+		}
+
+		function action(ticker) {
+			var {base, counter} = getBaseCounter(ticker)
+
+			async function fetchData(ticker) {
+				var {base, counter} = getBaseCounter(ticker)
+
+				await fetch("https://s3.amazonaws.com/quantachain.io/markets.json").then(e => e.json())
+					.then(async (e) => {
+						// save for later
+						markets = e;
+						window.markets = markets.markets
+						window.marketsHash = lodash.keyBy(markets.markets, "name")
+						
+						var marketData = [];
+						var USD_value = {}
+						// console.log("json ", markets.markets);
+
+						for (const market of markets.markets) {
+							var { base, counter } = getBaseCounter(market.name);
+							const data = await Promise.all([Apis.instance()
+								.db_api()
+								.exec("get_ticker", [counter.id, base.id]),
+							Apis.instance()
+								.db_api()
+								.exec("get_24_volume", [counter.id, base.id])])
+
+							marketData.push({
+								name: market.name,
+								last: data[0].latest,
+								base_volume: data[1].base_volume,
+								quote_volume: data[1].quote_volume
+							})
+							if (counter.symbol == 'USD') {
+								USD_value[base.id] = data[0].latest
+							}
+						}
+
+						dispatch({
+							type: SET_MARKET_QUOTE,
+							data: [marketData, USD_value]
+						})
+					})
+					
+				const trades = Apis.instance().history_api().exec("get_fill_order_history", [base.id, counter.id, 100]).then((filled) => {
+					//console.log("history filled ", filled);
+					const trade_history = convertHistoryToOrderedSet(filled, base.id)
+					//console.log("converted ", trade_history);
+					const my_history = [];
+					(filled.filter(order => order.op.account_id == getState().app.userId)).forEach((filled) => {
+						var order = new FillOrder(
+							filled,
+							window.assets,
+							base.id
+						);
+						my_history.push(order)
+					})
+					return [trade_history, my_history]
+				})
+	
+				// selling counter
+				const orderBook = Apis.instance().db_api().exec("get_order_book", [counter.id, base.id, 50]).then((ob) => {
+					console.log("ob  ", ob);
+					return aggregateOrderBook(ob.bids, ob.asks, window.assets[base.id].precision)
+				})
+	
+				const account_data = Apis.instance()
+					.db_api()
+					.exec("get_full_accounts", [[getState().app.userId], true])
+					.then(results => {
+						var orders = [];
+						
+						results[0][1].limit_orders.forEach((ordered) => {
+							// search both market pairs to see what makes sense
+							// as the trading pair
+							const base = assets[ordered.sell_price.base.asset_id].symbol
+							const counter = assets[ordered.sell_price.quote.asset_id].symbol
+							const symbolA = [base, counter]
+							const symbolB = [counter, base]
+
+							const foundA = window.marketsHash[symbolA.join("/")]
+							const foundB = window.marketsHash[symbolB.join("/")]
+
+							let baseId = base.id;
+							if (foundA) {
+								baseId = assetsBySymbol[base].id
+							}else if (foundB) {
+								baseId = assetsBySymbol[counter].id
+							}
+							//console.log("ordered", ordered, foundA, foundB, baseId);
+							var order = new LimitOrder(
+								ordered,
+								window.assets,
+								baseId
+							);
+							orders.push(order)
+						})
+						return [results, orders]
+					})
+
+				console.log("Get all the data! for ", ticker);
+				return Promise.all([orderBook, trades, account_data])
+					.then((data) => {
+						dispatch({
+							type: INIT_DATA,
+							data: {
+								orderBook: data[0],
+								trades: data[1][0],
+								filledOrders: data[1][1],
+								openOrders: data[2][1],
+								ticker: ticker,
+								accountData: data[2][0]
+							}
+						})
+					})					
+			}
+
+			Apis.instance().db_api().exec("subscribe_to_market", [(data) => {
+				// console.log("Got a market change ", base, counter);
+				const curr_ticker = getBaseCounter(getState().app.currentTicker)
+				if (base.id === curr_ticker.base.id && counter.id === curr_ticker.counter.id) {
+					fetchData(ticker)
+					if (Apis.instance().streamCb) {
+						Apis.instance().streamCb()
+					}
+				}
+			}, base.id, counter.id])
+
+			fetchData(ticker)
+			
+		}
+		// const orderBook = fetch("http://orderbook-api-792236404.us-west-2.elb.amazonaws.com/depth/"+ticker).then((res) => {return res.json()})
+		// const trades = fetch("http://orderbook-api-792236404.us-west-2.elb.amazonaws.com/settlement/"+ticker).then((res) => {return res.json()})
+		// const openOrders = fetch("http://orderbook-api-792236404.us-west-2.elb.amazonaws.com/status").then((res) => {return res.json()})
+
+		// return Promise.all([orderBook,trades,openOrders])
+		// 	.then((data) => {
+		// 		dispatch({
+		// 			type: INIT_DATA,
+		// 			data: {
+		// 				orderBook:data[0],
+		// 				trades:data[1],
+		// 				openOrders:data[2],
+		// 				ticker:ticker,
+		// 			}
+		// 		})
+
+		// 		var orderbookws = new EventSource('http://testnet-02.quantachain.io:7200/stream/depth/'+ticker);
+
+		// 		// Log errors
+		// 		orderbookws.onerror = function (error) {
+		// 		  console.log('EventSource Error ' + error);
+		// 		};
+
+		// 		// Log messages from the server
+		// 		orderbookws.onmessage = function (e) {
+		// 			dispatch({
+		// 				type: UPDATE_ORDER,
+		// 				data: e.data
+		// 			})
+		// 		};
+
+		// 		var tradesws = new WebSocket('ws://backend-dev.env.quantadex.com:8080/ws/v1/trades/BTC/USD');
+
+		// 		// Log errors
+		// 		tradesws.onerror = function (error) {
+		// 		  console.log('WebSocket Error ' + error);
+		// 		};
+
+		// 		// Log messages from the server
+		// 		tradesws.onmessage = function (e) {
+		// 			dispatch({
+		// 				type: UPDATE_TRADES,
+		// 				data: e.data
+		// 			})
+		// 		};
+		// 	})
+	}
+
 }

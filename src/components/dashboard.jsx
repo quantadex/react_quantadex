@@ -11,7 +11,6 @@ import {switchTicker} from "../redux/actions/app.jsx";
 
 const container = css`
 	width: calc(100% - 360px);
-	height: 100%;
 	float: left;
 	padding: 20px;
 	overflow: auto;
@@ -20,13 +19,18 @@ const container = css`
 		padding:10px 21px;
 	}
 
-  .price {
-		h4 {
-			padding-bottom: 10px;
-			border-bottom: 1px solid #333;
-		}
-  }
-  table {
+	.search-box {
+		width: 150px;
+		border-radius: 50px;
+		text-align: left;
+		padding: 0 20px;
+		margin: -7px 0 7px;
+		font-size: 13px;
+		border: 0;
+		background: rgba(255,255,255,0.07) url(../public/images/search.png) no-repeat calc(100% - 15px) 50%;
+	}
+
+ 	table {
 	  width: 100%;
 	  thead {
 		  color: #777;
@@ -51,7 +55,7 @@ const container = css`
 			  opacity: 0.7;
 		  }
 	  }
-  }
+  	}
 `;
 
 class Dashboard extends Component {
@@ -59,12 +63,17 @@ class Dashboard extends Component {
 	constructor(props) {
 		super(props)
 		this.state = {
-			selectedTab:"All"
+			selectedTab:"All",
+			filter: ""
 		}
 	}
 
 	switchMarket(e) {
 		this.props.dispatch(switchTicker(e))
+	}
+
+	handleChange(e) {
+		this.setState({filter: e.target.value})
 	}
 
 	render() {
@@ -95,7 +104,12 @@ class Dashboard extends Component {
 				</section> */}
 				
         <section className="price">
-			<h4>MARKETS</h4>
+			<div className="d-flex justify-content-between border-bottom border-dark">
+				<h4>MARKETS</h4>
+				<input className="search-box" spellCheck="false"
+				value={this.state.filter} onChange={this.handleChange.bind(this)} placeholder="Search Pairs" />
+			</div>
+			
 			<table>
 				<thead>
 					<tr>
@@ -105,11 +119,17 @@ class Dashboard extends Component {
 					</tr>
 				</thead>
 				<tbody>
-					{this.props.dashboard.dataSource.map((market) => {
-						const pair = market.market.split('/')
-						return <tr onClick={this.switchMarket.bind(this, market.market)}><td className="market"><SmallToken name={pair[0]} />/<SmallToken name={pair[1]} /></td><td className="text-right">{market.last}</td><td className="text-right"></td></tr>
-					} 
-						)}
+							{
+								this.props.markets.filter(market => market.name.toLowerCase().includes(this.state.filter)).map((market, index) => {
+									return <tr key={index} onClick={this.switchMarket.bind(this, market.name)}>
+										<td className="market">
+											{market.name}
+										</td>
+										<td className="text-right">{market.last}</td>
+										<td className="text-right">{market.base_volume}</td>
+									</tr>
+								})
+							}
 				</tbody>
 			</table>
         </section>
@@ -120,7 +140,7 @@ class Dashboard extends Component {
 
 
 const mapStateToProps = (state) => ({
-  dashboard: state.app.dashboard,
+	markets: state.app.markets,
 	favoriteList: state.app.favoriteList
 });
 

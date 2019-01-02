@@ -423,6 +423,14 @@ Datafeeds.UDFCompatibleDatafeed.prototype.resolveSymbol = function(
 
 Datafeeds.UDFCompatibleDatafeed.prototype._historyURL = "/chart";
 
+function getBaseCounter(market) {
+  const parts = market.split("/")
+  return {
+    base: assetsBySymbol[parts[0]],
+    counter: assetsBySymbol[parts[1]]
+  }
+}
+
 Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
   symbolInfo,
   resolution,
@@ -445,28 +453,32 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
   } else {
     resolution = resolution.replace("D", "d");
   }
+  const { base, counter } = getBaseCounter(symbolInfo.ticker);
 
   console.log("Load prices ", symbolInfo.ticker, resolution);
-  this._sendCors("http://orderbook-api-792236404.us-west-2.elb.amazonaws.com/chart/" + symbolInfo.ticker, {
-    start: Math.round(rangeStartDate),
-    end: Math.round(rangeEndDate),
-    interval: resolution,
-  })
-    .then(function(response) {
-      return response.json();
-    })
-    .then(function(data) {
+  Apis.instance()
+    .history_api()
+    .exec("get_market_history", [
+      base.id,
+      counter.id,
+      resolution,
+      new Date(rangeStartDate).toISOString().slice(0, -5),
+      new Date(rangeEndDate).toISOString().slice(0, -5)
+    ]).then((data) => {
+
+      console.log("chart data", data);
       const no_data = data.length == 0;
-      const bars = data.map(e => {
-        return {
-          time: e.time*1000,
-          open: +e.open,
-          high: +e.high,
-          low: +e.low,
-          close: +e.close,
-          volume: +e.volume
-        };
-      });
+      const bars = data;
+      // const bars = data.map(e => {
+      //   return {
+      //     time: e.time * 1000,
+      //     open: +e.open,
+      //     high: +e.high,
+      //     low: +e.low,
+      //     close: +e.close,
+      //     volume: +e.volume
+      //   };
+      // });
 
       // console.log("Bars ", bars);
 
@@ -475,13 +487,7 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
         nextTime: null
       });
     })
-    .catch(function(arg) {
-      console.warn(["getBars(): HTTP error", arg]);
 
-      if (!!onErrorCallback) {
-        onErrorCallback("network error: " + JSON.stringify(arg));
-      }
-    });
 };
 
 Datafeeds.UDFCompatibleDatafeed.prototype.subscribeBars = function(
@@ -876,9 +882,16 @@ Datafeeds.DataPulseUpdater.prototype.subscribeDataListener = function(
 
   stream.onmessage = function(event) {
     const data = JSON.parse(event.data);
-    data.message.time *= 1000;
-    console.log(data.message);
-    newDataCallback(data.message);
+    const res = {
+      time: data.time*1000,
+      volume: +data.volume,
+      open: +data.open,
+      high: +data.high,
+      low: +data.low,
+      close: +data.close
+    }
+    console.log(data, res);
+    newDataCallback(res);
   };
 
   this._subscribers[listenerGUID].sockets.push(stream);
@@ -990,6 +1003,6 @@ Datafeeds.QuotesPulseUpdater.prototype._updateQuotes = function(symbolsGetter) {
 
 if (typeof module !== "undefined" && module && module.exports) {
   module.exports = {
-    UDFCompatibleDatafeed: Datafeeds.UDFCompatibleDatafeed
+    UDFCompatibleDatafeed: 
   };
 }

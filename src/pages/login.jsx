@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
 import { Link, Redirect, withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
-import { LOGIN, initMarket } from '../redux/actions/app.jsx'
+import { LOGIN } from '../redux/actions/app.jsx'
 import { css } from 'emotion'
-import StellarBase from "@quantadex/quanta-base"
 import qbase from '@quantadex/quanta-base';
 import jsPDF from 'jspdf'
 import Banner from "./login_banner.jsx"
+import { PrivateKey, PublicKey, Aes, key, ChainStore } from "@quantadex/bitsharesjs";
+import WalletApi from "../common/api/WalletApi";
+import Loader from '../components/ui/loader.jsx'
 
 const container = css`
 	display: flex;
@@ -41,8 +43,8 @@ const login_container = css`
 			background-color: rgba(255, 50, 130, 0.03);
 			font-size: 16px;
 			text-align: left;
-			margin: 30px 0px;
-			padding: 33px 50px;
+			margin: 10px 0px 30px;
+			padding: 20px 30px 35px;
 			border: 2px solid #f0185c;
 			border-radius: 4px;
 
@@ -66,19 +68,22 @@ const login_container = css`
 	}
 
 	.back-nav {
+		position: absolute;
+		left: 30px;
 		text-align: left;
 		margin-left: 30px;
 	}
 
-	form {
-		.input-container {
+	.input-container {
+			display: flex;
+			height: 45px;
 			position: relative;
 			border: 1px solid #c7c7c8;
-			border-radius: 4px
-		}
+			border-radius: 4px;
+
 		label {
 			background-color: #f9f9f9;
-			width: 135px;
+			flex: 0 0 120px;
 			height: 100%;
 			margin: 0px;
 			border-right: 1px solid #c7c7c8;
@@ -89,9 +94,8 @@ const login_container = css`
 			background: #f9f9f9 url("/public/images/lock.svg") no-repeat 15px 12px;
 		}
 		input {
-			float: right;
-			height: 45px;
-			width: calc(100% - 135px);
+			height: 100%;
+			width: 100%;
 			text-align: left;
 			color: #0a0a0a;
 			font-weight: 500;
@@ -111,18 +115,53 @@ const login_container = css`
 			color: #f0185c;
 		}
 	}
+	.keygen {
+		h3 {
+			text-align: left;
+			font-weight: bold;
+			.checkmark {
+				margin-left: 10px;
+				vertical-align: text-top;
+			}
+		}
+		.input-container {
+			width: 365px;
+		}
+		label {
+			background-image: none;
+			font-size: 13px;
+			padding: 12px;
+			text-align: center;
+		}
+		button {
+			width: 275px;
+			height: 50px;
+			margin: 40px 0 30px;
+		}
+		#reg-success {
+			text-align: left;
+			a {
+				text-decoration: underline;
+			}
+		}
+	}
 	button {
 		display: block;
 		margin: 40px auto;
-		background-color: #00d8d0;
+		background-color: #5045d2;
 		color: #fff;
 		padding: 12px 28px;
 		border-radius: 2px;
 		cursor: pointer;
 	}
 	button:disabled {
-		opacity: 0.23;
-
+		background-color: #ddd;
+	}
+	button:disabled.loading {
+		background-color: #5045d2;
+	}
+	button:disabled.successful {
+		background-color: #4ec820;
 	}
 	.auth-form a {
 		padding-bottom: 5px;
@@ -130,6 +169,9 @@ const login_container = css`
 	}
 	.black {
 		color: #0a0a0a;
+	}
+	.text-theme {
+		color: #5045d2;
 	}
 	
 `
@@ -143,6 +185,13 @@ class Login extends Component {
 		this.handleSubmit = this.handleSubmit.bind(this);
 	}
 
+	componentDidMount() {
+		this.props.dispatch({
+			type: LOGIN,
+			private_key: null
+		});
+	}
+
 	handleChange(e) {
 		this.setState({private_key: e.target.value, has_input: e.target.value.length > 0})
 	}
@@ -151,7 +200,9 @@ class Login extends Component {
 		e.preventDefault();
 
 		try {
-			const auth = qbase.Keypair.fromSecret(this.state.private_key)
+			// const auth = qbase.Keypair.fromSecret(this.state.private_key)
+			const pKey = PrivateKey.fromWif(this.state.private_key);
+
 			this.handleLogin()
 		} catch(e) {
 			console.log(e)
@@ -165,9 +216,7 @@ class Login extends Component {
 			type: LOGIN,
 			private_key: this.state.private_key
 		});
-		this.props.history.push("/exchange");
-		this.props.dispatch(initMarket(this.state.private_key));
-		
+		this.props.history.push("/exchange");		
 	}
 	render() {
 		return (
@@ -186,8 +235,11 @@ class Login extends Component {
 									<label htmlFor="private-key">
 										QUANTA<br/>PRIVATE KEY
 									</label>
-									<input name="private-key" value={this.state.value} onChange={this.handleChange} type="text" spellCheck="false" placeholder="Enter private key …"/>
-									<span className="error" hidden={!this.state.authError}>*Invalid Key</span>
+									<input name="private-key" value={this.state.value} 
+										onChange={this.handleChange} 
+										autoComplete="off"
+										type="text" spellCheck="false" placeholder="Enter private key …"/>
+									<span className="error" hidden={!this.state.authError}>Invalid Key</span>
 								</div>
 								<button type="submit" disabled={!this.state.has_input}>Authenticate</button>
 							</form>
@@ -202,88 +254,115 @@ class Login extends Component {
 	}
 }
 
-// class AuthForm extends Component {
-// 	constructor(props) {
-// 		super(props);
-// 		this.state = { private_key: '', authError: false }
-
-// 		this.handleChange = this.handleChange.bind(this);
-// 		this.handleSubmit = this.handleSubmit.bind(this);
-// 	}
-
-// 	handleChange(e) {
-// 		this.setState({private_key: e.target.value, has_input: e.target.value.length > 0})
-// 	}
-
-// 	handleSubmit(e) {
-// 		e.preventDefault();
-
-// 		try {
-// 			const auth = qbase.Keypair.fromSecret(this.state.private_key)
-// 			this.props.onAuth()
-// 		} catch(e) {
-// 			console.log(e)
-// 			this.setState({authError: true})
-// 		}
-		
-// 	}
-// 	render() {
-// 		return (
-// 			<div className="auth-form">
-// 				<form onSubmit={this.handleSubmit}>
-// 					<div className="input-container">
-// 						<label htmlFor="private-key">
-// 							QUANTA<br/>PRIVATE KEY
-// 						</label>
-// 						<input name="private-key" value={this.state.value} onChange={this.handleChange} type="text" spellCheck="false" placeholder="Enter private key …"/>
-// 						<span className="error" hidden={!this.state.authError}>*Invalid Key</span>
-// 					</div>
-// 					<button type="submit" disabled={!this.state.has_input}>Authenticate</button>
-// 				</form>
-				
-// 				<Link to="/keygen" className="black">I don’t have one. Generate a QUANTA Wallet.</Link>
-// 			</div>
-// 		)
-// 	}
-// }
-
 export class GenerateKey extends Component {
 	constructor(props) {
 		super(props);
-		this.state = { downloaded: false}
+		this.state = { 
+			processing: false,
+			username: "",
+			error: false,
+			downloaded: false}
+		
+		this.handleChange = this.handleChange.bind(this);
 	}
 
 	goLogin() {
 		this.props.history.push("/login")
 	}
 
+	handleChange(e) {
+		this.setState({username: e.target.value})
+	}
+
+	registerAccount() {
+		console.log(this.state)
+		this.setState({processing: true})
+		const btn = document.getElementById('reg-btn')
+		btn.disabled = true
+		// btn.innerHTML = "<div class='loader'></div>"
+		btn.classList.add('loading')
+
+		fetch("/api/register", {
+			method: "post",
+			headers: {
+					"Content-Type": "application/json",
+					Accept: "application/json"
+			},
+			body: JSON.stringify({
+				user_name: this.state.username.toLowerCase(),
+				public_key: this.state.public,
+			})
+		})
+		.then(response => {
+			if (response.status == 200) {
+				document.getElementById('reg-success').classList.remove('d-none');
+				btn.classList.add('successful')
+				// btn.innerHTML = "Registered"
+				btn.style.backgroundColor = "#4ec820"
+				this.setState({
+					registered: true,
+					error: false
+				});
+				return response.json();
+			} else {
+				return response.json().then(res => {
+					btn.disabled = false
+					// btn.innerHTML = "Register and fund account"
+					var msg;
+					if (res.message.includes("already exists")) {
+						msg = "Username already exist"
+					} else {
+						msg = "Server error. Please try again."
+					}
+					this.setState({
+						error: true,
+						message: msg
+					});
+				});
+			}
+		})
+		.finally(() => {
+			this.setState({processing: false})
+		})
+	}
+
 	generateKeys(e) {
 		e.preventDefault();
 
-		var keys = StellarBase.Keypair.random();
-		
+		var keys = WalletApi.generate_key()
+
 		this.setState({
-			public: keys.publicKey(),
-			private: keys.secret()
+			public: keys.publicKey,
+			private: keys.privateKey,
+			brainKey: keys.brainKey
 		})
 		setTimeout(function() {this.saveToPDF()}.bind(this), 400)
 	}
 
 	saveToPDF() {
 		var doc = new jsPDF()
-		
+		const words = this.state.brainKey.split(" ");
+		const mid = words.length / 2;
+		const first = words.slice(0, mid);
+		const second = words.slice(mid, words.length);
+
 		doc.setFontSize(16)
 		// doc.addImage(window.logoData, 'JPEG', 70, 10)
 		doc.text('WALLET INFORMATION', 75, 40)
-		var tm = 50
-		doc.rect(10, tm+40, 190, 55)
+		var tm = 40
+		doc.rect(10, tm+40, 190, 75)
 		doc.setFontSize(18)
 		doc.text('Your QUANTA private key\nKeep it safe, keep it secure.', 20, tm +50)
 		doc.setFontSize(16)
 		doc.text('Do not share it with anyone, not even the QUANTA foundation.\nWe will never ask you for your private key.', 20, tm +70)
 		doc.setFontSize(12)
 		doc.setTextColor("#FF0000")
-		doc.text(this.state.private, 20, tm +85)
+		doc.text("BRAIN KEY:", 20, tm+85)
+		doc.text(first.join(" ").toUpperCase(), 20, tm + 90)
+		doc.text(second.join(" ").toUpperCase(), 20, tm + 95)
+
+		doc.text("WIF KEY:", 20, tm + 105)
+		doc.text(this.state.private, 20, tm + 110)
 
 		doc.setTextColor("#000000")
 		doc.rect(10, tm +120, 190, 40)
@@ -319,7 +398,7 @@ export class GenerateKey extends Component {
 						} else {
 								self.setState({
 										error: true,
-										message: "Server error, Please try again."
+										message: "Server error. Please try again."
 								});
 								return null;
 						}
@@ -330,24 +409,25 @@ export class GenerateKey extends Component {
 							self.setState({ error: false, message: "" });
 							self.props.history.push("/crowdsale");
 						} else {
-								self.setState({error: true, message: "Server error, Please try again."});
+								self.setState({error: true, message: "Server error Please try again."});
 						}
 				});		
 	}
 
 	render() {
 		return (
-			<div>
+			<div className="d-flex">
 				<div className={login_container}>
 					<div className="back-nav">
 						<Link to="/login"><img src="/public/images/back-button.svg" /></Link>
 					</div>
 					
-					<div className="content">
+					<div className="keygen content">
 						<h1>QUANTA Wallet keys</h1>
-						<p>Please download your QUANTA wallet keys. Inside the .PDF you
-							will get the private key that will be used to access QDEX Exchange</p>
+						<p>Please download your QUANTA wallet keys, and register your username. 
+							Inside the .PDF you will get the private key needed to authenticate and access QDEX Fantasy.</p>
 
+						<h3>First Step <img className={this.state.downloaded ? "checkmark" : "d-none"} src="/public/images/check-mark.svg" /></h3>
 						<div className="warning">
 							<ul>
 								<li>Store this wallet securely. QUANTA does not have your keys.</li>
@@ -358,7 +438,20 @@ export class GenerateKey extends Component {
 							</ul>
 							<button onClick={this.generateKeys.bind(this)}>Download QUANTA Wallet Keys (.pdf)</button>
 						</div>
-						<button onClick={this.goLogin.bind(this)} disabled={!this.state.downloaded}>Start Authentication</button>
+
+						<div className={this.state.downloaded ? "" : "qt-opacity-half"}>
+							<h3>Second Step <img className={this.state.registered ? "checkmark" : "d-none"} src="/public/images/check-mark.svg" /></h3>
+							<div className="input-container">
+								<label htmlFor="username">USERNAME</label>
+								<input name="username" value={this.state.value} onChange={this.handleChange} 
+									disabled={!this.state.downloaded}
+									type="text" spellCheck="false" placeholder="Enter username …"/>
+								<span className="error" hidden={!this.state.error}>{this.state.message}</span>
+							</div>
+						</div>
+						
+						<button id="reg-btn" onClick={this.registerAccount.bind(this)} disabled={(!this.state.downloaded) || this.state.username.length < 4}>{this.state.processing ? <Loader /> : this.state.registered ? "Registed" : "Register and fund account"}</button>
+						<div id="reg-success" className="d-none">Account successfully created. Please continue to <Link to="/login" className="text-theme">login</Link>.</div>
 					</div>
 				</div>
 				<Banner />

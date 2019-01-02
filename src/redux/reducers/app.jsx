@@ -1,6 +1,6 @@
 import { INIT_DATA, INIT_BALANCE, SET_MARKET_QUOTE, APPEND_TRADE, UPDATE_ORDER, UPDATE_OPEN_ORDERS, SET_AMOUNT, UPDATE_USER_ORDER, UPDATE_TICKER, UPDATE_TRADES, UPDATE_DIGITS } from "../actions/app.jsx";
 import { TOGGLE_LEFT_PANEL, TOGGLE_RIGHT_PANEL } from "../actions/app.jsx";
-import { TOGGLE_FAVORITE_LIST } from "../actions/app.jsx";
+import { TOGGLE_FAVORITE_LIST, UPDATE_ACCOUNT, UPDATE_BLOCK_INFO } from "../actions/app.jsx";
 import { LOGIN } from "../actions/app.jsx";
 import { toggleFavoriteList } from "../actions/app.jsx";
 import SortedSet from 'js-sorted-set'
@@ -9,10 +9,12 @@ import lodash from 'lodash'
 import moment from 'moment'
 
 let initialState = {
-  currentTicker: 'ETH*QB3WOAL55IVT6E7BVUNRW6TUVCAOPH5RJYPUUL643YMKMJSZFZGWDJU3/USD*QB3WOAL55IVT6E7BVUNRW6TUVCAOPH5RJYPUUL643YMKMJSZFZGWDJU3',
+  private_key: null,
+  publicKey: "",
+  currentTicker: 'ETH/USD',
   tradeHistory: [],
   tradeBook: { bids: [], asks: []},
-  openOrders: [], markets: [],
+  markets: [],
   currentPrice: "",
   balance: {},
   ui: {
@@ -21,6 +23,131 @@ let initialState = {
   },
   mostRecentTrade: {
     price: ""
+  },
+  openOrders: {
+    dataSource: [],
+    columns: [{
+      name:"PAIR",
+      key:"assets",
+      type:"string",
+      sortable:false,
+      color: (value) => {return "white"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"left"
+    },{
+      name:"PRICE",
+      key:"price",
+      type:"string",
+      sortable:false,
+      color: (value) => {return "white"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"right"
+    },{
+      name:"AMOUNT",
+      key:"amount",
+      type:"string",
+      sortable:false,
+      color: (value) => {return "white"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"right"
+    },{
+      name:"TOTAL",
+      key:"total",
+      type:"string",
+      sortable:false,
+      color: (value) => {return "white"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"right"
+    },{
+      name:"TYPE",
+      key:"type",
+      type:"string",
+      sortable:false,
+      color: (value) => {return value == "BUY" ? "theme" : "red"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"right"
+    },{
+      name:"DATE",
+      key:"date",
+      type:"string",
+      sortable:false,
+      color: (value) => {return "white"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"right"
+    },{
+      name:"",
+      key:"cancel",
+      type:"cancel",
+      sortable:false,
+      color: (value) => {return "white"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"right"
+    }]
+  },
+  filledOrders: {
+    dataSource: [],
+    columns: [{
+      name:"PAIR",
+      key:"assets",
+      type:"string",
+      sortable:false,
+      color: (value) => {return "white"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"left"
+    },{
+      name:"PRICE",
+      key:"price",
+      type:"string",
+      sortable:false,
+      color: (value) => {return "white"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"right"
+    },{
+      name:"AMOUNT",
+      key:"amount",
+      type:"string",
+      sortable:false,
+      color: (value) => {return "white"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"right"
+    },{
+      name:"TOTAL",
+      key:"total",
+      type:"string",
+      sortable:false,
+      color: (value) => {return "white"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"right"
+    },{
+      name:"TYPE",
+      key:"type",
+      type:"string",
+      sortable:false,
+      color: (value) => {return value == "BUY" ? "theme" : "red"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"right"
+    },{
+      name:"DATE",
+      key:"date",
+      type:"string",
+      sortable:false,
+      color: (value) => {return "white"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"right"
+    }]
   },
   orderBook: {
     decimals: {
@@ -34,7 +161,7 @@ let initialState = {
       dataSource: new SortedSet({ comparator: function(a, b) { return parseFloat(a.price) - parseFloat(b.price); }}),
 
       columns: [{
-        name:"Price BTC",
+        name: (ticker) => {return "Price " + ticker.split('/')[1].substr(0,3)},
         key:"price",
         type:"number",
         sortable:false,
@@ -43,7 +170,7 @@ let initialState = {
         fontWeight:"light",
         float:"left"
       },{
-        name:"Amount BTC",
+        name:"Amount",
         key:"amount",
         type:"number",
         sortable:false,
@@ -52,7 +179,7 @@ let initialState = {
         fontWeight:"light",
         float:"right"
       },{
-        name:"Total BTC",
+        name: (ticker) => {return "Total " + ticker.split('/')[1].substr(0,3)},
         key:"total",
         type:"number",
         sortable:false,
@@ -140,20 +267,20 @@ let initialState = {
   trades: {
     dataSource: [],
     columns: [{
+      name:"Price",
+      key:"price",
+      type:"number",
+      sortable:false,
+      color: (value) => {return "white"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"left"
+    },{
       name:"Amount",
       key:"amount",
       type:"number",
       sortable:false,
       color: (value) => {return value == 0 ? "theme" : "red"},
-      fontSize:"extra-small",
-      fontWeight:"light",
-      float:"left"
-    },{
-      name:"Price BTC",
-      key:"price",
-      type:"number",
-      sortable:false,
-      color: (value) => {return "white"},
       fontSize:"extra-small",
       fontWeight:"light",
       float:"right"
@@ -201,17 +328,15 @@ const app = (state = initialState, action) => {
 
   switch (action.type) {
     case INIT_DATA:
-
       //console.log("Merge? ", mergeTickerData(action.data.markets, action.data.tickers));
-      console.log(action.data.orderBook)
       var asksSortedSet = state.orderBook.asks.dataSource
       asksSortedSet.clear()
       action.data.orderBook.asks.map((ask) => {
         try {
           asksSortedSet.insert({
-            price: ask[1],
-            amount: ask[0],
-            total: parseFloat(ask[1]) * parseFloat(ask[0])
+            price: ask.price,
+            amount: ask.quote,
+            total: parseFloat(ask.price) * parseFloat(ask.quote)
           })
         } catch(e) {
           console.log(e)
@@ -223,26 +348,30 @@ const app = (state = initialState, action) => {
       action.data.orderBook.bids.map((bid) => {          
         try {
             bidsSortedSet.insert({
-              price: bid[1],
-              amount: bid[0],
-              total: parseFloat(bid[1]) * parseFloat(bid[0])
+              price: bid.price,
+              amount: bid.quote,
+              total: parseFloat(bid.price) * parseFloat(bid.quote)
             })
           } catch(e) {
             console.log(e)
           }
       })
-
-      const tradesDataSource = action.data.trades.reverse().map((trade) => {
+      
+      var lastTradePrice = undefined
+      const tradesDataSource = action.data.trades.map((trade) => {
+        if (lastTradePrice === undefined) {
+          lastTradePrice = trade.getPrice()
+        }
+        
         return {
-          price: (trade.Price/10000000).toFixed(7),
-          amount: trade.Amount/10000000,
-          color_key: trade.Taker,
-          date: moment(trade.SettledAt || "").utc().format('DD MMM'),
-          time: moment(trade.SettledAt || "").utc().format("HH:mm:ss")
+          id: trade.id,
+          price: trade.getPrice(),
+          amount: trade.isBid ? trade.amountToReceive() : trade.amountToPay(),
+          color_key: trade.isBid ? 0 : 1,
+          date: moment(trade.time || "").utc().format('DD MMM'),
+          time: moment(trade.time || "").utc().format("HH:mm:ss")
         }
       })
-      
-      // bidsSortedSet = asksSortedSet;
 
       var spread = undefined
       var spreadDollar = 0
@@ -250,11 +379,78 @@ const app = (state = initialState, action) => {
         spread = Math.abs((parseFloat(asksSortedSet.beginIterator().value().price)/parseFloat(bidsSortedSet.beginIterator().value().price) - 1)*100)
         spreadDollar = Math.abs(parseFloat(asksSortedSet.beginIterator().value().price) - parseFloat(bidsSortedSet.beginIterator().value().price)).toFixed(7)
       }
+      
+      const limitOrdersDataSource = action.data.openOrders.map((order) => {
+        const tickerPair = [order.assets[order.sell_price.base.asset_id].symbol, order.assets[order.sell_price.quote.asset_id].symbol]
+        const ticker = order.isBid() ? tickerPair.reverse() : tickerPair
+        
+        const amount = order.isBid() ?
+          (order.amountToReceive()).getAmount({ real: true }) + ' ' + ticker[0] :
+          (order.amountForSale()).getAmount({ real: true }) + ' ' + ticker[0];
+        
+        const total = order.isBid() ?
+          order.getPrice() * (order.amountToReceive()).getAmount({ real: true }) + ' ' + ticker[1]:
+          order.getPrice() * (order.amountForSale()).getAmount({ real: true }) + ' ' + ticker[1]
+        
+        return {
+          assets: ticker.join('/'),
+          price: order.getPrice() + ' ' + ticker[0],
+          amount: amount,
+          total: total,
+          type: order.isBid() ? 'BUY' : 'SELL',
+          date: (new Date(order.expiration.setFullYear(order.expiration.getFullYear() - 5))).toLocaleString('en-US', { day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false }),
+          id: order.id
+        }
+      })
+
+      const filledOrdersDataSource = action.data.filledOrders.map((order) => {
+        const amount = order.isBid ?
+          (order.amountToReceive()) + ' ' + state.currentTicker.split('/')[0] :
+          (order.amountToPay()) + ' ' + state.currentTicker.split('/')[0];
+          
+        const total = order.isBid ?
+          order.getPrice() * (order.amountToReceive()) + ' ' + state.currentTicker.split('/')[1]:
+          order.getPrice() * (order.amountToPay()) + ' ' + state.currentTicker.split('/')[1]
+
+        return {
+          assets: state.currentTicker,
+          price: order.getPrice() + ' ' + state.currentTicker.split('/')[0],
+          amount: amount,
+          total: total,
+          type: order.isBid ? 'BUY' : 'SELL',
+          date: order.time.toLocaleString('en-US', { day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false }),
+          id: order.id
+        }
+      })
+      
+      var total_fund_value = 0
+      const balances = action.data.accountData[0][1].balances.map((balance => {
+        const real_balance = balance.balance / (10 ** window.assets[balance.asset_type].precision)
+        const usd = state.usd_value[balance.asset_type] ? real_balance * state.usd_value[balance.asset_type] : real_balance
+        total_fund_value += usd
+        return {
+          asset: balance.asset_type,
+          balance: real_balance,
+          usd: usd
+        }
+      }))
 
       return {
         ...state,
-        currentTicker:action.data.ticker,
-        openOrders: [], // action.data.openOrders,
+        // currentTicker:action.data.ticker,
+        balance: balances,
+        totalFundValue: total_fund_value,
+        mostRecentTrade: {
+          price: lastTradePrice
+        },
+        openOrders: {
+          ...state.openOrders,
+          dataSource: limitOrdersDataSource
+        }, 
+        filledOrders: {
+          ...state.filledOrders,
+          dataSource: filledOrdersDataSource
+        },
         orderBook: {
           ...state.orderBook,
           spread: spread,
@@ -284,16 +480,21 @@ const app = (state = initialState, action) => {
     case SET_MARKET_QUOTE:
       return {
         ...state,
-        dashboard: {
-          ...state.dashboard,
-          dataSource: action.data
-        }
+        markets: action.data[0],
+        usd_value: action.data[1]
       }
 
     case LOGIN:
       return {
         ...state,
         private_key: action.private_key
+      }
+    case UPDATE_ACCOUNT: 
+      return {
+        ...state,
+        userId: action.data.id,
+        name: action.data.name,
+        publicKey: action.data.owner.key_auths[0][0]
       }
 
     case UPDATE_OPEN_ORDERS:
@@ -335,10 +536,18 @@ const app = (state = initialState, action) => {
           }
         }
       }
-    case UPDATE_TICKER:
-      //console.log("TICKER ",  action.data);
+    case UPDATE_BLOCK_INFO: {
       return {
         ...state,
+        blockInfo: action.data
+      }
+    }
+    
+    case UPDATE_TICKER:
+      console.log("TICKER ",  action.data);
+      return {
+        ...state,
+        currentTicker:action.data,
         markets: mergeTickerData(state.markets, action.data)
       }
     case APPEND_TRADE:
@@ -373,7 +582,9 @@ const app = (state = initialState, action) => {
 
             if (parseFloat(item[0]) == 0.0) {
               console.log("iter ", it, item[1]);
-              orderSet.remove(it.node.value)
+              if (it.node != null) {
+                orderSet.remove(it.node.value)
+              }
             } else {
               try {
                 if (it.node) {

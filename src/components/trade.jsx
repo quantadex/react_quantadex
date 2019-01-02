@@ -11,9 +11,11 @@ import QTTabBar from './ui/tabBar.jsx'
 import QTDropdown from './ui/dropdown.jsx'
 import QTButton from './ui/button.jsx'
 import {Token, SmallToken} from './ui/ticker.jsx'
+import Loader from './ui/loader.jsx'
 
 import {buyTransaction} from "../redux/actions/app.jsx";
 import {sellTransaction} from "../redux/actions/app.jsx";
+import ReactGA from 'react-ga';
 
 const container = css`
   font-family: SFCompactTextRegular;
@@ -59,6 +61,10 @@ const container = css`
       display: none;
     }
   }
+
+  .buy-btn, .sell-btn {
+    height: 37px;
+  }
   .buy-btn {
     background-color: #50b3b7;
   }
@@ -75,7 +81,7 @@ const container = css`
     }
     input {
       border-radius: 2px;
-      padding-right: 35px;
+      padding-right: 40px;
     }
     input::selection {
       background-color: #fff;
@@ -97,6 +103,9 @@ const container = css`
       border-right: 0;
       border-radius: 2px 0 0 2px;
       padding: 5px 5px;
+    }
+    button.qt-dropdown-item {
+      border-radius: 0;
     }
     .up .qt-dropdown-menu {
       bottom: 37px;
@@ -123,10 +132,8 @@ const container = css`
 
   .trade-balance {
     color: #838f95;
-  }
-
-  .trade-balance:first-child {
-    margin-right:28px;
+    text-align: center;
+    margin: 0 5px
   }
 
   .trade-input-row {
@@ -184,6 +191,7 @@ class Trade extends Component {
   constructor(props) {
     super(props);
     this.state = {
+        processing: false,
         qty: 0.05,
         price: 1,
         inputSetTime: 0
@@ -201,46 +209,69 @@ class Trade extends Component {
     }
 	}
 
-  notify_success = (msg) => toast.success(msg, {
+  notify_success = (toastId, msg) => toast.update(toastId, {
+    render: msg,
+    type: toast.TYPE.SUCCESS,
+    autoClose: 5000,
     position: toast.POSITION.TOP_CENTER
   });
-  notify_failed = (msg) => toast.error(msg, {
+  notify_failed = (toastId, msg) => toast.update(toastId, {
+    render: msg,
+    type: toast.TYPE.ERROR,
+    autoClose: 5000,
     position: toast.POSITION.TOP_CENTER
   });
 
+  toastMsg(label, success, e) {
+    const msg = ( <div>
+      <span>{label}</span><br/>
+      <span>{success ? "OrderId: " + e.id.substr(0,10) : 
+                      "Failed order: " +  (e.message.includes("insufficient balance") ? "Insufficient Balance" : "Unable to place order")}</span>
+      </div> )
+    return msg
+  }
+
 	handleBuy(e) {
-    const label = this.props.currentTicker.split('*')
+    const label = this.props.currentTicker.split('/')[1] + " " + this.state.price + " @ " + this.state.qty
+    const toastId = toast("BUYING " + label, { autoClose: false, position: toast.POSITION.TOP_CENTER });
+
+    ReactGA.event({
+      category: 'BUY',
+      action: this.props.currentTicker
+    });
+
+    this.setState({processing: true})
     this.props.dispatch(buyTransaction(this.props.currentTicker, this.state.price, this.state.qty))
     .then((e) => {
-      const msg = ( <div>
-                    <span>BUY {label[0]}[{label[1].substr(0,4)}] {this.state.price} @ {this.state.qty}</span><br/>
-                    <span>OrderId: {e.Id.substr(0,10)}</span>
-                    </div> )
-      this.notify_success(msg)
+      const msg = this.toastMsg("BUY " + label, true, e)
+      this.notify_success(toastId, msg)
     }).catch((e) => {
-      const msg = ( <div>
-                    <span>BUY {label[0]}[{label[1].substr(0,4)}] {this.state.price} @ {this.state.qty}</span><br/>
-                    <span>Failed order: Unable to place order</span>
-                    </div> )
-      this.notify_failed(msg)
+      const msg = this.toastMsg("BUY " + label, false, e)
+      this.notify_failed(toastId, msg)
+    }).finally(() => {
+      this.setState({processing: false})
     })
 	}
 
 	handleSell(e) {
-    const label = this.props.currentTicker.split('*')
+    const label = this.props.currentTicker.split('/')[1] + " " + this.state.price + " @ " + this.state.qty
+    const toastId = toast("SELLING " + label, { autoClose: false, position: toast.POSITION.TOP_CENTER });
+
+    ReactGA.event({
+      category: 'SELL',
+      action: this.props.currentTicker
+    });
+
+    this.setState({processing: true})
     this.props.dispatch(sellTransaction(this.props.currentTicker, this.state.price, this.state.qty))
     .then((e) => {
-      const msg = ( <div>
-                    <span>SELL {label[0]}[{label[1].substr(0,4)}] {this.state.price} @ {this.state.qty}</span><br/>
-                    <span>OrderId: {e.Id.substr(0,10)}</span>
-                    </div> )
-      this.notify_success(msg)
+      const msg = this.toastMsg("SELL " + label, true, e)
+      this.notify_success(toastId, msg)
     }).catch((e) => {
-      const msg = ( <div>
-                    <span>SELL {label[0]}[{label[1].substr(0,4)}] {this.state.price} @ {this.state.qty}</span><br/>
-                    <span>Failed order: Unable to place order</span>
-                    </div> )
-      this.notify_failed(msg)
+      const msg = this.toastMsg("SELL " + label, false, e)
+      this.notify_failed(toastId, msg)
+    }).finally(() => {
+      this.setState({processing: false})
     })
 	}
 
@@ -285,20 +316,24 @@ class Trade extends Component {
         value: "20%"
     }
 
-		const tradingPair = this.props.currentTicker.split('/')
-		var pairBalance = []
-		tradingPair.forEach((currency) => {
+    const tradingPair = this.props.currentTicker.split('/')
+    const balance = this.props.balance
+    var pairBalance = []
+		Object.keys(balance).forEach((currency) => {
 			var item = {}
-			item.currency = currency
-			item.amount = this.props.balance[currency] ? this.props.balance[currency].balance : 0
+      item.currency = window.assets[balance[currency].asset].symbol
+      if (!tradingPair.includes(item.currency)) {
+        return
+      }
+			item.amount = balance[currency].balance ? balance[currency].balance : 0
 			pairBalance.push(item)
-		})
-
+    })
+    
     return (
       <div className={container + " container-fluid"}>
         <div className="buy-sell-toggle">
-          <button id="buy-switch" className="buy-btn" onClick={this.switchTradeTo.bind(this, 0)}>BUY</button>
-          <button id="sell-switch" className="sell-btn inactive" onClick={this.switchTradeTo.bind(this, 1)}>SELL</button>
+          <button id="buy-switch" className="buy-btn" onClick={this.switchTradeTo.bind(this, 0)}>BUY {tradingPair[0]}</button>
+          <button id="sell-switch" className="sell-btn inactive" onClick={this.switchTradeTo.bind(this, 1)}>SELL {tradingPair[0]}</button>
         </div>
 
         <div className="transac-actions">
@@ -347,15 +382,15 @@ class Trade extends Component {
               <SmallToken name={tradingPair[1]}/>
             </div>
 
-          <button id="sell-action" className="sell-btn inactive" onClick={this.handleSell.bind(this)}>PLACE SELL ORDER</button>
-          <button id="buy-action" className="buy-btn" onClick={this.handleBuy.bind(this)}>PLACE BUY ORDER</button>
+          <button id="sell-action" className="sell-btn inactive" onClick={this.handleSell.bind(this)}>{this.state.processing ? <Loader /> : "PLACE SELL ORDER"}</button>
+          <button id="buy-action" className="buy-btn" onClick={this.handleBuy.bind(this)}>{this.state.processing ? <Loader /> : "PLACE BUY ORDER"}</button>
         </div>
         <div className="d-flex justify-content-center align-items-center qt-font-small">
 						{
 							pairBalance.map((item) => {
-
+                
 								return (
-									<span className="trade-balance"><Token name={item.currency}/> Balance: {item.amount}</span>
+									<span className="trade-balance">{item.currency} Balance: {item.amount}</span>
 								)
 							})
 						}

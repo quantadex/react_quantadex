@@ -1,6 +1,7 @@
 import React, {PropTypes} from 'react';
 import styled, { css } from 'react-emotion'
 import globalcss from '../global-css'
+import QTButton from './button.jsx'
 
 const container = css`
   width:100%;
@@ -89,15 +90,15 @@ export default class QTTableViewSimple extends React.Component {
         <thead className={this.props.HideHeader ? "hidden" : ""}><tr>
           {
             this.props.columns.map((col) => {
-              return <th className={col.float}>{col.name}</th>
+              return <th className={col.float}>{typeof(col.name) === "string" ? col.name : col.name(this.props.ticker)}</th>
             })
           }
         </tr></thead>
         <tbody>
         {
-          this.props.dataSource.map((row) => {
+          this.props.dataSource.map((row, index) => {
             return (
-              <tr>
+              <tr key={row.id ? row.id : index}>
                 {
                   this.props.columns.map((col) => {
                     var col_color = row[col.key];
@@ -114,6 +115,19 @@ export default class QTTableViewSimple extends React.Component {
                             this.props.dispatch(col.handleClick(row.pair))
                           }} />
                         </td>
+                      )
+                    }
+                    if (col.type == "cancel") {
+                      return (
+                        <td id={"cancel-" + row.id.replace(/\./g, '-')} className={col.float}>
+                            <div className="loader"></div>
+                            <QTButton className="grey inverse qt-font-semibold qt-font-base" 
+                            borderWidth="1" width="66" height="18" label="CANCEL"
+                            onClick={() => {
+                              this.props.cancelOrder(row.assets, row.id)
+                            }}/>
+                        </td>
+                        
                       )
                     }
                     return (
