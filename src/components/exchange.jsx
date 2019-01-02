@@ -102,8 +102,11 @@ class Exchange extends Component {
 				<div className="exchange-middle">
 					<Header />
 						<Chart chartTools={true}/>
-					<Dashboard />
-					<Trade />
+					<div className="d-flex">
+						<Dashboard />
+						<Trade />
+					</div>
+					
 				</div>
 				<div className="exchange-right" style={{ display: this.props.rightOpen ? 'block' : 'none'}}>
 					<Menu />
