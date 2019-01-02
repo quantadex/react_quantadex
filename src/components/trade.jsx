@@ -206,16 +206,30 @@ class Trade extends Component {
     }
 	}
 
-  notify_success = (msg) => toast.success(msg, {
+  notify_success = (toastId, msg) => toast.update(toastId, {
+    render: msg,
+    type: toast.TYPE.SUCCESS,
+    autoClose: 5000,
+    className: css({
+      transform: "rotateY(360deg)",
+      transition: "transform 0.6s"
+    }),
     position: toast.POSITION.TOP_CENTER
   });
-  notify_failed = (msg) => toast.error(msg, {
+  notify_failed = (toastId, msg) => toast.update(toastId, {
+    render: msg,
+    type: toast.TYPE.ERROR,
+    autoClose: 5000,
+    className: css({
+      transform: "rotateY(360deg)",
+      transition: "transform 0.6s"
+    }),
     position: toast.POSITION.TOP_CENTER
   });
 
-  toastMsg(side, label, success, e) {
+  toastMsg(label, success, e) {
     const msg = ( <div>
-      <span>{side} {label[1]} {this.state.price} @ {this.state.qty}</span><br/>
+      <span>{label}</span><br/>
       <span>{success ? "OrderId: " + e.id.substr(0,10) : 
                       "Failed order: " +  (e.message.includes("insufficient balance") ? "Insufficient Balance" : "Unable to place order")}</span>
       </div> )
@@ -223,40 +237,44 @@ class Trade extends Component {
   }
 
 	handleBuy(e) {
+    const label = this.props.currentTicker.split('/')[1] + " " + this.state.price + " @ " + this.state.qty
+    const toastId = toast("BUYING " + label, { autoClose: false, position: toast.POSITION.TOP_CENTER });
+
     ReactGA.event({
       category: 'BUY',
       action: this.props.currentTicker
     });
 
     this.setState({processing: true})
-    const label = this.props.currentTicker.split('/')
     this.props.dispatch(buyTransaction(this.props.currentTicker, this.state.price, this.state.qty))
     .then((e) => {
-      const msg = this.toastMsg("BUY", label, true, e)
-      this.notify_success(msg)
+      const msg = this.toastMsg("BUY " + label, true, e)
+      this.notify_success(toastId, msg)
     }).catch((e) => {
-      const msg = this.toastMsg("BUY", label, false, e)
-      this.notify_failed(msg)
+      const msg = this.toastMsg("BUY " + label, false, e)
+      this.notify_failed(toastId, msg)
     }).finally(() => {
       this.setState({processing: false})
     })
 	}
 
 	handleSell(e) {
+    const label = this.props.currentTicker.split('/')[1] + " " + this.state.price + " @ " + this.state.qty
+    const toastId = toast("SELLING " + label, { autoClose: false, position: toast.POSITION.TOP_CENTER });
+
     ReactGA.event({
       category: 'SELL',
       action: this.props.currentTicker
     });
 
     this.setState({processing: true})
-    const label = this.props.currentTicker.split('/')
     this.props.dispatch(sellTransaction(this.props.currentTicker, this.state.price, this.state.qty))
     .then((e) => {
-      const msg = this.toastMsg("SELL", label, true, e)
-      this.notify_success(msg)
+      const msg = this.toastMsg("SELL " + label, true, e)
+      this.notify_success(toastId, msg)
     }).catch((e) => {
-      const msg = this.toastMsg("SELL", label, false, e)
-      this.notify_failed(msg)
+      const msg = this.toastMsg("SELL " + label, false, e)
+      this.notify_failed(toastId, msg)
     }).finally(() => {
       this.setState({processing: false})
     })
