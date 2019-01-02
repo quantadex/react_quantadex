@@ -8,6 +8,7 @@ import globalcss from './global-css.js'
 import QTTabBar from './ui/tabBar.jsx'
 import QTTableViewSimple from './ui/tableViewSimple.jsx'
 import {switchTicker} from "../redux/actions/app.jsx";
+import SearchBox from "./ui/searchBox.jsx";
 
 const container = css`
 	width: calc(100% - 360px);
@@ -17,17 +18,6 @@ const container = css`
 	border-right: 1px solid #333;
 	.coin-tabbar {
 		padding:10px 21px;
-	}
-
-	.search-box {
-		width: 150px;
-		border-radius: 50px;
-		text-align: left;
-		padding: 0 35px 0 20px;
-		margin: -7px 0 7px;
-		font-size: 13px;
-		border: 0;
-		background: rgba(255,255,255,0.07) url(../public/images/search.png) no-repeat calc(100% - 15px) 50%;
 	}
 
  	table {
@@ -106,8 +96,8 @@ class Dashboard extends Component {
         <section className="price">
 			<div className="d-flex justify-content-between border-bottom border-dark mb-3">
 				<h4>MARKETS</h4>
-				<input className="search-box" spellCheck="false"
-				value={this.state.filter} onChange={this.handleChange.bind(this)} placeholder="Search Pairs" />
+				<SearchBox onChange={this.handleChange.bind(this)} placeholder="Search Pairs" 
+					style={{margin: "-7px 0 7px", border: 0, backgroundColor: "rgba(255,255,255,0.07)"}} />
 			</div>
 			
 			<table>

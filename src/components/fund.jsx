@@ -7,6 +7,7 @@ import globalcss from './global-css.js'
 import { Link } from 'react-router-dom'
 import QTDeposit from './ui/deposit.jsx'
 import QTWithdraw from './ui/withdraw.jsx'
+import SearchBox from "./ui/searchBox.jsx";
 
 const container = css`
 	background-color:${globalcss.COLOR_BACKGROUND};
@@ -87,15 +88,6 @@ const container = css`
     color: #222 !important;
     cursor: not-allowed;
   }
-
-  .search-box {
-		width: 150px;
-		border-radius: 50px;
-		text-align: left;
-    padding: 0 35px 0 20px;
-		font-size: 13px;
-		background: url(../public/images/search.png) no-repeat calc(100% - 15px) 50%;
-	}
 `;
 
 class Fund extends Component {
@@ -459,8 +451,8 @@ class Fund extends Component {
       <div className="content">
         { this.state.page == 'wallets' ? <PublicAddress /> : null }
         
-        <input className="search-box mt-5" spellCheck="false"
-				value={this.state.filter} onChange={this.handleChange.bind(this)} placeholder="Search Coin" />
+        <SearchBox placeholder="Search Coin" onChange={this.handleChange.bind(this)} style={{marginTop: "40px"}}/>
+
         <div className="table-row">
           <QTTableView dataSource={dataSource.filter(data => data.pairs.toLowerCase().includes(this.state.filter))} columns={columns} />
           {
