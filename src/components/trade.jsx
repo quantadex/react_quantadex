@@ -104,6 +104,9 @@ const container = css`
       border-radius: 2px 0 0 2px;
       padding: 5px 5px;
     }
+    button.qt-dropdown-item {
+      border-radius: 0;
+    }
     .up .qt-dropdown-menu {
       bottom: 37px;
       width: 58px;

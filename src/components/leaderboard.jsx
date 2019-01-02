@@ -121,9 +121,6 @@ class Leaderboard extends Component {
 			return (
 				<tbody>
 					{this.state.balanceLeaderboard.map((row, index) => {
-						if (row.totalBalance == 0) {
-							return
-						}
 						return (
 							<tr key={index} className={row.username == this.props.name ? "is-user" : ""}><td className="place">{index+1}</td><td className="name">{row.username + (row.username == this.props.name ? " (You)" : "")}</td>
 							<td className="balance">${row.totalBalance.toFixed(2)}</td></tr>
@@ -138,9 +135,6 @@ class Leaderboard extends Component {
 			return (
 				<tbody>
 					{this.state.freqLeaderboard.map((row, index) => {
-						if (row.frequency == 0) {
-							return
-						}
 						return (
 							<tr key={index} className={row.username == this.props.name ? "is-user" : ""}><td className="place">{index+1}</td><td className="name">{row.username + (row.username == this.props.name ? " (You)" : "")}</td>
 							<td className="balance">{row.frequency}</td></tr>
