@@ -6,11 +6,12 @@ var wsString = "ws://testnet-01.quantachain.io:8090";
 var assets = null;
 var assetsBySymbol = null;
 var markets = null;
-// const blacklist = [];
+
 const blacklist = [ "bitcherry", "quanta_foundation", "quanta_labs",
                     "quantasg-witness", "quantalabs-witness", "bitcherry-witness", 
                     "clockbound-witness", "flash-witness",
-                    "witness-account", "long", "pooja", "crosschain1", "crosschain2",
+                    "long", 
+                    "witness-account", "pooja", "crosschain1", "crosschain2",
                     "market-maker", "market-maker2", "market-maker3", 
                     "tokensale"];
 
@@ -31,7 +32,7 @@ function getBaseCounter(market) {
 }
 
 function getFilledHistory(base, counter) {
-    return Apis.instance().history_api().exec("get_fill_order_history", [base, counter, 100])
+    return Apis.instance().history_api().exec("get_fill_order_history", [base, counter, 1000])
 }
 
 function getMarkets() {

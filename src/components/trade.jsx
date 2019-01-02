@@ -213,20 +213,12 @@ class Trade extends Component {
     render: msg,
     type: toast.TYPE.SUCCESS,
     autoClose: 5000,
-    className: css({
-      transform: "rotateY(360deg)",
-      transition: "transform 0.6s"
-    }),
     position: toast.POSITION.TOP_CENTER
   });
   notify_failed = (toastId, msg) => toast.update(toastId, {
     render: msg,
     type: toast.TYPE.ERROR,
     autoClose: 5000,
-    className: css({
-      transform: "rotateY(360deg)",
-      transition: "transform 0.6s"
-    }),
     position: toast.POSITION.TOP_CENTER
   });
 
