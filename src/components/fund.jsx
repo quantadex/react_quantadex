@@ -87,6 +87,15 @@ const container = css`
     color: #222 !important;
     cursor: not-allowed;
   }
+
+  .search-box {
+		width: 150px;
+		border-radius: 50px;
+		text-align: left;
+    padding: 0 35px 0 20px;
+		font-size: 13px;
+		background: url(../public/images/search.png) no-repeat calc(100% - 15px) 50%;
+	}
 `;
 
 class Fund extends Component {
@@ -110,7 +119,8 @@ class Fund extends Component {
 		}
     this.state = {
       selectedTabIndex: selectedTabIndex,
-      page: this.props.page
+      page: this.props.page,
+      filter: ""
     }
 
   }
@@ -135,6 +145,10 @@ class Fund extends Component {
 			page:nextProps.page,
 			selectedTabIndex:selectedTabIndex,
 		})
+  }
+  
+  handleChange(e) {
+		this.setState({filter: e.target.value})
 	}
 
 	render() {
@@ -395,7 +409,7 @@ class Fund extends Component {
 
     const PublicAddress = () => {
       return (
-        <div className="row public-address-container d-flex justify-content-between">
+        <div className="public-address-container d-flex justify-content-between">
           <div>
             <h3>Your QUANTA Wallet Public Address</h3>
             <span id='public-address' className="qt-font-light">{this.props.publicKey}</span>
@@ -443,11 +457,12 @@ class Fund extends Component {
         </div>
       </div>
       <div className="content">
-        {
-          this.state.page == 'wallets' ? <PublicAddress /> : null
-        }
-        <div className="row table-row">
-          <QTTableView dataSource={dataSource} columns={columns} />
+        { this.state.page == 'wallets' ? <PublicAddress /> : null }
+        
+        <input className="search-box mt-5" spellCheck="false"
+				value={this.state.filter} onChange={this.handleChange.bind(this)} placeholder="Search Coin" />
+        <div className="table-row">
+          <QTTableView dataSource={dataSource.filter(data => data.pairs.toLowerCase().includes(this.state.filter))} columns={columns} />
           {
             this.state.page == 'wallets' ? <ERC20 /> : null
           }

@@ -23,7 +23,7 @@ const container = css`
 		width: 150px;
 		border-radius: 50px;
 		text-align: left;
-		padding: 0 20px;
+		padding: 0 35px 0 20px;
 		margin: -7px 0 7px;
 		font-size: 13px;
 		border: 0;
@@ -104,7 +104,7 @@ class Dashboard extends Component {
 				</section> */}
 				
         <section className="price">
-			<div className="d-flex justify-content-between border-bottom border-dark">
+			<div className="d-flex justify-content-between border-bottom border-dark mb-3">
 				<h4>MARKETS</h4>
 				<input className="search-box" spellCheck="false"
 				value={this.state.filter} onChange={this.handleChange.bind(this)} placeholder="Search Pairs" />
