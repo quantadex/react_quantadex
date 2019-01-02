@@ -129,7 +129,7 @@ class Leaderboard extends Component {
                 <div className="content">
                     <div className="banner">
                         <div className="headline qt-font-light">
-                            Participate on the Paper Trading Contest <br/> and <b>win up to $5000 USD</b>
+                            Participate on the Paper Trading Contest <br/> and <b>win up to $50,000 USD*</b>
                         </div>
 
                         <div className="leaderboard-share d-flex justify-content-between float-right">
