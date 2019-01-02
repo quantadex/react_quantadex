@@ -171,10 +171,6 @@ class Orders extends Component {
     render: "Order cancelled",
     type: toast.TYPE.SUCCESS,
     autoClose: 5000,
-    className: css({
-      transform: "rotateY(360deg)",
-      transition: "transform 0.6s"
-    }),
     position: toast.POSITION.TOP_CENTER
   });
   notify_failed = (toastId) => toast.update(toastId, {
