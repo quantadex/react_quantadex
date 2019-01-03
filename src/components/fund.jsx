@@ -7,7 +7,8 @@ import globalcss from './global-css.js'
 import { Link } from 'react-router-dom'
 import QTDeposit from './ui/deposit.jsx'
 import QTWithdraw from './ui/withdraw.jsx'
-import SearchBox from "./ui/searchBox.jsx";
+import SearchBox from "./ui/searchBox.jsx"
+import Switch from "./ui/switch.jsx"
 
 const container = css`
 	background-color:${globalcss.COLOR_BACKGROUND};
@@ -112,7 +113,8 @@ class Fund extends Component {
     this.state = {
       selectedTabIndex: selectedTabIndex,
       page: this.props.page,
-      filter: ""
+      filter: "",
+      hideZero: false
     }
 
   }
@@ -141,7 +143,11 @@ class Fund extends Component {
   
   handleChange(e) {
 		this.setState({filter: e.target.value})
-	}
+  }
+  
+  hideZeroBalance(hide) {
+    this.setState({hideZero: hide})
+  }
 
 	render() {
     if (this.props.private_key == null) {
@@ -451,10 +457,15 @@ class Fund extends Component {
       <div className="content">
         { this.state.page == 'wallets' ? <PublicAddress /> : null }
         
-        <SearchBox placeholder="Search Coin" onChange={this.handleChange.bind(this)} style={{marginTop: "40px"}}/>
+        <div class='d-flex mt-5 align-items-center'>
+          <SearchBox placeholder="Search Coin" onChange={this.handleChange.bind(this)} style={{marginRight: "20px"}}/>
+          <Switch label="Hide Zero Balances" onToggle={this.hideZeroBalance.bind(this)} />
+        </div>
+        
 
         <div className="table-row">
-          <QTTableView dataSource={dataSource.filter(data => data.pairs.toLowerCase().includes(this.state.filter))} columns={columns} />
+          <QTTableView dataSource={dataSource.filter(data => data.pairs.toLowerCase().includes(this.state.filter) && 
+            (!this.state.hideZero || data.balance > 0))} columns={columns} />
           {
             this.state.page == 'wallets' ? <ERC20 /> : null
           }
