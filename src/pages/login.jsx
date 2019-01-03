@@ -311,6 +311,8 @@ export class GenerateKey extends Component {
 					var msg;
 					if (res.message.includes("already exists")) {
 						msg = "Username already exist"
+					} else if (res.message.includes("is_valid_name")) {
+						msg = "Invalid name"
 					} else {
 						msg = "Server error. Please try again."
 					}
@@ -441,12 +443,18 @@ export class GenerateKey extends Component {
 
 						<div className={this.state.downloaded ? "" : "qt-opacity-half"}>
 							<h3>Second Step <img className={this.state.registered ? "checkmark" : "d-none"} src="/public/images/check-mark.svg" /></h3>
-							<div className="input-container">
-								<label htmlFor="username">USERNAME</label>
-								<input name="username" value={this.state.value} onChange={this.handleChange} 
-									disabled={!this.state.downloaded}
-									type="text" spellCheck="false" placeholder="Enter username …"/>
-								<span className="error" hidden={!this.state.error}>{this.state.message}</span>
+							<div className="d-flex">
+								<div className="input-container">
+									<label htmlFor="username">USERNAME</label>
+									<input name="username" value={this.state.value} onChange={this.handleChange} 
+										disabled={!this.state.downloaded}
+										type="text" spellCheck="false" placeholder="Enter username …"/>
+									<span className="error" hidden={!this.state.error}>{this.state.message}</span>
+								</div>
+								<div class="text-left qt-font-small align-self-center ml-3 qt-opacity-64">
+									<span>* Must start with a letter</span><br/>
+									<span>* Can only contains alpha numeric, dash, and dot</span>
+								</div>
 							</div>
 						</div>
 						
