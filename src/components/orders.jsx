@@ -140,6 +140,57 @@ const container = css`
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
   }
+
+  &.mobile {
+    padding: 15px;
+    margin: 0;
+    .scroll-up {
+      display: none;
+    }
+
+    .order-list {
+      padding: 0;
+
+      .list-row {
+        padding: 5px 0;
+        border-bottom: 1px solid #333;
+      }
+
+      .item-assets {
+        width: 30%;
+      }
+      .item-price {
+        width:50%;
+      }
+
+      .item-type-BUY, .item-type-SELL {
+        width: 20%;
+        padding-right: 15px;
+        background: url("../public/images/menu-arrow-down.svg") no-repeat 100% 50%;
+      }
+
+      .item-type-BUY {
+        color: #2ed4cf;
+      }
+      .item-type-SELL {
+        color: #ff3282;
+      }
+
+      .item-details {
+        display: none;
+        .label {
+          color: #777;
+          padding-right: 10px;
+        }
+        .item {
+          margin-right: 20px;
+        }
+      }
+      .item-details.active {
+        display: block;
+      }
+    }
+  }
 `;
 
 class Orders extends Component {
@@ -148,7 +199,8 @@ class Orders extends Component {
     this.state = {
       selectedTabIndex: 0,
       isFocused: false,
-      cancelling: []
+      cancelling: [],
+      selectedRow: null
     };
   }
 
@@ -201,6 +253,14 @@ class Orders extends Component {
     })
   }
 
+  toggleDetails(id) {
+    if (this.state.selectedRow == id) {
+      this.setState({selectedRow: null})
+    } else {
+      this.setState({selectedRow: id})
+    }
+  }
+
   render() {
     // const orders_data = [
     //   ["BNCBTC","0.234567 BTC","0.234567 BTC","0.234567 BTC","0.234567 BTC","BUY","Filled","12 JAN, 12:34:15"],
@@ -210,16 +270,39 @@ class Orders extends Component {
       names: ['ACTIVE ORDERS', 'FILLED ORDERS'],
       selectedTabIndex: 0,
     }
-
+    
     const OrdersList = () => {
       if (this.state.selectedTabIndex == 0) {
         if (this.props.openOrders.dataSource.length == 0) {
           return <div className="empty-list">You have no active orders</div>
         }
-        return (
-          <QTTableViewSimple dataSource={this.props.openOrders.dataSource} columns={this.props.openOrders.columns}
-          cancelOrder={this.handleCancel.bind(this)} />
-        )
+        if (this.props.mobile) {
+          return (
+            <div>
+              {this.props.openOrders.dataSource.map(row => {
+                return (
+                  <div key={row.id} className="list-row" onClick={() => this.toggleDetails(row.id)}>
+                    <div className="d-flex list-item">
+                      <span className="item-assets">{row.assets}</span>
+                      <span className="item-price text-right">{row.price}</span>
+                      <span className={"text-right item-type-" + row.type}>{row.type}</span>
+                    </div>
+                    <div className={"item-details" + (this.state.selectedRow == row.id ? " active" : "")}>
+                      <span className="item"><span className="label">AMOUNT</span> {row.amount}</span>
+                      <span className="item"><span className="label">TOTAL</span> {row.total}</span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )
+        } else {
+          return (
+            <QTTableViewSimple dataSource={this.props.openOrders.dataSource} columns={this.props.openOrders.columns}
+            cancelOrder={this.handleCancel.bind(this)} />
+          )
+        }
+          
       } else {
         if (this.props.filledOrders.dataSource.length == 0) {
           return <div className="empty-list">You have no filled orders</div>
@@ -231,7 +314,7 @@ class Orders extends Component {
     }
 
     return (
-      <div className={container}>
+      <div className={container + (this.props.mobile ? " mobile" : "")}>
       <div className="sticky">
           <div className="scroll-up" onClick={this.goToTop.bind(this)}>SCROLL UP</div>
           <QTTabBar

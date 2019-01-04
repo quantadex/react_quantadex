@@ -185,6 +185,10 @@ const container = css`
     box-shadow: 0 0 14px 0 rgba(46, 212, 207, 0.08);
     border: solid 2px #1cdad8;
   }
+
+  &.mobile {
+    width: 100%;
+  }
 `;
 
 class Trade extends Component {
@@ -330,7 +334,7 @@ class Trade extends Component {
     })
     
     return (
-      <div className={container + " container-fluid"}>
+      <div className={container + " container-fluid" + (this.props.mobile ? " mobile" : "")}>
         <div className="buy-sell-toggle">
           <button id="buy-switch" className="buy-btn" onClick={this.switchTradeTo.bind(this, 0)}>BUY {tradingPair[0]}</button>
           <button id="sell-switch" className="sell-btn inactive" onClick={this.switchTradeTo.bind(this, 1)}>SELL {tradingPair[0]}</button>

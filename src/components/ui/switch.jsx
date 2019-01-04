@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { css } from 'emotion'
-import { element } from 'prop-types';
 
 const container = css `
     #container {

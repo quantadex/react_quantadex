@@ -22,9 +22,13 @@ const container = css`
 			position: sticky;
 			position: -webkit-sticky;
 			top: 0;
-			background: #191e21;
+			background: #22282c;
 			z-index: 1;
 		}
+	}
+
+	&.mobile {
+		height: 100%;
 	}
 `;
 
@@ -50,7 +54,7 @@ class TradingHistory extends Component {
 		}
 
 		return (
-			<div className={container}>
+			<div className={container + (this.props.mobile ? " mobile" : "")}>
 				{/* <QTTabBar
 					className="underline small fluid even-width qt-font-bold d-flex justify-content-between"
 					width={122.9}

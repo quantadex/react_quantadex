@@ -34,17 +34,41 @@ const container = css`
         color: #999;
         font-weight: 100;
     }
+
+    &.mobile {
+        position: relative;
+        font-size: 13px;
+        justify-content: space-evenly;
+
+        .status-info {
+            display: none;
+            padding: 5px 0;
+            width: auto;
+            .label {
+                margin-right: 5px;
+            }
+            a {
+                margin: 0;
+            }
+        }
+        .explorer, .avg-lat {
+            display: inline-block;
+        }
+        div {
+            display: inline-block;
+        }
+    }
 `;
 
 class Status extends Component {
     render() {
         return (
-            <div id="quanta-status" className={container}>
+            <div id="quanta-status" className={container + (this.props.mobile ? " mobile" : "")}>
                 <div className="status-info brand">
                     <span className="label">Powered by </span>
                     <div>QUANTA - Fair Trading Protocol</div>
                 </div>
-                <div className="status-info">
+                <div className="status-info explorer">
                     <span className="label">QUANTA </span>
                     <div><a href="http://testnet.quantadex.com" target="_blank">Explorer <img src="/public/images/external-link.svg" /></a></div>
                 </div>
@@ -52,8 +76,8 @@ class Status extends Component {
                     <span className="label">HIGHEST BLOCK</span>
                     <div>{this.props.blockInfo.blockNumber} <a><img src="/public/images/external-link.svg" /></a></div>
                 </div>
-                <div className="status-info">
-                    <span className="label">AVERAGE BLOCK LATENCY</span>
+                <div className="status-info avg-lat">
+                    <span className="label">{this.props.mobile ? "Avg. Block latency" : "AVERAGE BLOCK LATENCY"}</span>
                     <div>{ this.props.blockInfo.blockTime} ms</div>
                 </div>
                 <div className="status-info">

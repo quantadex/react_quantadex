@@ -11,9 +11,8 @@ import {switchTicker} from "../redux/actions/app.jsx";
 import SearchBox from "./ui/searchBox.jsx";
 
 const container = css`
-	width: calc(100% - 360px);
-	float: left;
 	padding: 20px;
+	flex: auto;
 	overflow: auto;
 	border-right: 1px solid #333;
 	.coin-tabbar {
@@ -45,7 +44,19 @@ const container = css`
 			  opacity: 0.7;
 		  }
 	  }
-  	}
+	}
+	
+	&.mobile {
+		h4 {
+			display: none;
+		}
+		input {
+			flex: auto;
+		}
+		table tr {
+			border-bottom: 1px solid #333;
+		}
+	}
 `;
 
 class Dashboard extends Component {
@@ -60,6 +71,14 @@ class Dashboard extends Component {
 
 	switchMarket(e) {
 		this.props.dispatch(switchTicker(e))
+		if (this.props.mobile) {
+			const list = document.getElementById("market-list")
+			if (list.classList.contains("active")) {
+				list.classList.remove("active")
+			} else {
+				list.classList.add("active")
+			}
+		}
 	}
 
 	handleChange(e) {
@@ -78,7 +97,7 @@ class Dashboard extends Component {
 		}
 
 		return (
-			<div className={container}>
+			<div className={container + (this.props.mobile ? " mobile" : "")}>
         {/* <section className="menu d-flex justify-content-start qt-font-extra-small qt-font-light text-center">
 					<QTTabBar
 						className="block medium fluid qt-font-regular d-flex justify-content-start"
