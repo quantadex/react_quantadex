@@ -19,10 +19,18 @@ export default class MobileNav extends Component {
     constructor(props) {
         super(props);
         this.state = {
-          selectedTabIndex:this.props.tabs.selectedTabIndex,
+          selectedTabIndex:this.props.selectedTabIndex,
         }
     }
 
+    componentWillReceiveProps(nextProps) {
+		if (nextProps.selectedTabIndex != undefined && nextProps.selectedTabIndex != this.state.selectedTabIndex) {
+			this.setState({
+				selectedTabIndex: nextProps.selectedTabIndex
+			  })
+		}
+    }
+    
     render() {
         return (
             <div className={container + " d-flex"}>

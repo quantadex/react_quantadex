@@ -20,15 +20,15 @@ const container = css`
     opacity: 0.5;
   }
 
-  .theader:after {
-    background-image: url('/public/images/menu-arrow-down.svg');
-    width:6px;
-    height:10px;
-    background-size: 6px 10px;
-    display:inline-block;
-    margin-left:5px;
-    content:"";
-  }
+  // .theader:after {
+  //   background-image: url('/public/images/menu-arrow-down.svg');
+  //   width:6px;
+  //   height:10px;
+  //   background-size: 6px 10px;
+  //   display:inline-block;
+  //   margin-left:5px;
+  //   content:"";
+  // }
 
   .table-body-row: hover {
     border-radius: 2px;
@@ -48,9 +48,18 @@ export default class QTTableView extends React.Component {
         index: -1,
         block: "",
         name: ""
-      }
+      },
+      selectedIndex: null
     }
 
+  }
+
+  handleClick(index) {
+    if (this.state.selectedIndex == index) {
+      this.setState({selectedIndex: null})
+    } else {
+      this.setState({selectedIndex: index})
+    }
   }
 
   sortArr(e) {
@@ -123,12 +132,12 @@ export default class QTTableView extends React.Component {
                 } else if (col.type == "string" || col.type == "coloredString") {
                   const new_css = css`width:${col.width}px;text-align:left;`
                   return (
-                    <div className={new_css +" theader qt-font-semibold qt-cursor-pointer"} data-key={col.key} onClick={this.sortArr.bind(this)}>{col.title}</div>
+                    <div className={new_css +" theader qt-font-semibold qt-cursor-pointer"} data-key={col.key}>{col.title}</div> // onClick={this.sortArr.bind(this)}>{col.title}</div>
                   )
                 } else if (col.type == "number") {
                   const new_css = css`width:${col.width}px;text-align:right;`
                   return (
-                    <div className={new_css +" theader qt-font-semibold qt-cursor-pointer"} data-key={col.key} onClick={this.sortArr.bind(this)}>{col.title}</div>
+                    <div className={new_css +" theader qt-font-semibold qt-cursor-pointer"} data-key={col.key} >{col.title}</div> // onClick={this.sortArr.bind(this)}
                   )
                 }
               })
@@ -138,7 +147,7 @@ export default class QTTableView extends React.Component {
           this.state.dataSource.map((e,index) => {
             return (
               <div>
-                <div id={index} className="row justify-content-between align-items-center table-body-row">
+                <div id={index} className={"row justify-content-between align-items-center table-body-row" + (this.state.selectedIndex == index ? " active" : "")}  onClick={() => this.handleClick(index)}>
                   {
                     this.state.columns.map((col) => {
                       if (col.type == "buttons") {
@@ -149,7 +158,7 @@ export default class QTTableView extends React.Component {
                         `
 
                         return (
-                          <div className={new_css+" d-flex " + (e.pairs == "Deposit ERC20" ? "deposit-only justify-content-end" : "justify-content-between")}>
+                          <div className={new_css+" d-flex  action-btn " + (e.pairs == "Deposit ERC20" ? "deposit-only justify-content-end" : "justify-content-between")}>
                             {
                               col.buttons.map((btn) => {
                                 if(e.pairs == "Deposit ERC20" && btn.label == "WITHDRAW") { 
@@ -173,7 +182,7 @@ export default class QTTableView extends React.Component {
                       } else if (col.type == "string") {
                         const new_css = css`width:${col.width}px;text-align:left;`
                         return (
-                          <span className={new_css + " qt-font-extra-small text-nowrap"}>{e[col.key]}</span>
+                          <span className={new_css + " qt-font-extra-small text-nowrap " + (this.props.mobile ? col.key : "")}>{e[col.key]}</span>
                         )
                       } else if (col.type == "coloredString") {
                         const color = col.colors[e[col.key]]
@@ -185,7 +194,7 @@ export default class QTTableView extends React.Component {
                       } else if (col.type == "number") {
                         const new_css = css`width:${col.width}px;text-align:right;`
                         return (
-                          <span className={new_css + " qt-font-extra-small"}>{e[col.key]}</span>
+                          <span className={new_css + " qt-font-extra-small " + (this.props.mobile ? col.key : "")}>{e[col.key]}</span>
                         )
                       }
                     })

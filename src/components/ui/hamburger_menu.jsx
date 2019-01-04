@@ -167,6 +167,13 @@ HamburgerMenu.defaultProps = {
       text:"Wallets",
       url:"/exchange/wallets"
     },
+    {
+      iconPath:"/public/images/menuicons/wallet-grey.svg",
+      iconPathActive:"/public/images/menuicons/wallet-white.svg",
+      text:"Leaderboard",
+      url:"/leaderboard"
+    },
+    
   //   {
   //     iconPath:"/public/images/menuicons/deposit-grey.svg",
   //     iconPathActive:"/public/images/menuicons/deposit-white.svg",

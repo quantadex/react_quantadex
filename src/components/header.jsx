@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
+import { Link } from 'react-router-dom'
 import { TOGGLE_LEFT_PANEL, TOGGLE_RIGHT_PANEL } from '../redux/actions/app.jsx'
 import { css } from 'emotion'
 import Ticker from './ui/ticker.jsx';
@@ -38,7 +39,7 @@ class Header extends Component {
 									type: TOGGLE_LEFT_PANEL
 								})
 							}}/></a>
-						<a href="/exchange" className="header-logo"><img src="/public/images/qdex-fantasy-light.svg" width="220" height="26" /></a>
+						<Link to="/exchange" className="header-logo"><img src="/public/images/qdex-fantasy-light.svg" width="220" height="26" /></Link>
 					</div>
 					<div className="d-flex align-items-center">
 						<span className="header-coin-name qt-font-normal qt-font-bold"><Ticker ticker={this.props.currentTicker} /></span>

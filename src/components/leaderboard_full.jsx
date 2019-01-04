@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom'
 import QTDeposit from './ui/deposit.jsx'
 import QTWithdraw from './ui/withdraw.jsx'
 import LeaderboardTable from './leaderboard.jsx'
+import MobileHeader from './ui/mobileHeader.jsx';
 
 const container = css`
     background-color:${globalcss.COLOR_BACKGROUND};
@@ -106,9 +107,41 @@ const container = css`
             width: 70px;
         }
     }
+
+    &.mobile {
+        .tab-row, .headline {
+            display: none !important;
+        }
+        .banner {
+            display: flex;
+            flex-direction: row-reverse;
+            padding: 0;
+            border: 0;
+        }
+        .content {
+            padding: 15px;
+        }
+        h4 {
+            font-size: 18px;
+            margin: 10px 0;
+            span {
+                display: block;
+                padding: 0 !important;
+            }
+        }
+    }
 `
 
+const screenWidth = screen.width
+
 class Leaderboard extends Component {
+    constructor(props) {
+		super(props);
+		this.state = {
+			isMobile: screenWidth <= 992
+		};
+      }
+      
     componentDidMount() {
 		if (!this.props.private_key) {
 			this.props.history.push("/login")
@@ -117,11 +150,15 @@ class Leaderboard extends Component {
 
     render() {
         return(
-            <div className={container}>
-                <div className="row header-row">
-                    <Header />
-                </div>
-
+            <div className={container + (this.state.isMobile ? " mobile" : "")}>
+                {this.state.isMobile ?
+                    <MobileHeader />
+                    :
+                    <div className="row header-row">
+                        <Header />
+                    </div>
+                }
+                
                 <div className="row tab-row d-flex flex-column align-items-center">
                     <h4>Leaderboard</h4>
                 </div>

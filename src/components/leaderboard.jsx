@@ -40,6 +40,7 @@ const leaderboard_container = css `
 		}
 		tbody .name {
 			font-size: 12px;
+			word-break: break-word;
 		}
 		.balance {
 			text-align: right;

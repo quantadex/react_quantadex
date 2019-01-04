@@ -4,7 +4,7 @@ import Chart from './chart.jsx';
 import TradingHistory from './trading_history.jsx';
 import OrderBook from './order_book.jsx';
 import Dashboard from './dashboard.jsx';
-import Menu from './menu.jsx';
+import MobileHeader from './ui/mobileHeader.jsx';
 import Orders from './orders.jsx';
 import Trade from './trade.jsx';
 import Leaderboard from './leaderboard.jsx'
@@ -79,10 +79,6 @@ const container = css`
 		overflow-y: scroll;
 	}
 
-	.header-logo {
-		margin-bottom: -2px;
-	}
-
 	#market-dropdown {
 		padding-right: 15px;
 		background: url('../public/images/menu-arrow-down.svg') no-repeat 100% 50%;
@@ -151,10 +147,7 @@ class Exchange extends Component {
 						 <OrderBook mobile={true}/>, <TradingHistory mobile={true}/>]
 		return (
 		<div className={container}>
-			<div className="d-flex p-4 justify-content-between border-bottom border-dark">
-				<a href="/exchange" className="header-logo"><img src="/public/images/qdex-fantasy-light.svg" height="26" /></a>
-				<Menu style={{padding: 0, alignSelf: "center"}}/>
-			</div>
+			<MobileHeader />
 			<div className="d-flex qt-font-normal qt-font-bold p-4 justify-content-between border-bottom border-dark">
 				<div id="market-dropdown" onClick={this.toggleMarketsList}>MARKETS</div>
 				<div>{this.props.currentTicker}</div>
@@ -169,35 +162,11 @@ class Exchange extends Component {
 			</div>
 
 			<div className="exchange-bottom">
-				<MobileNav tabs={tabs} switchTab={this.handleSwitch.bind(this)} />
+				<MobileNav tabs={tabs} selectedTabIndex={this.state.selectedTabIndex} switchTab={this.handleSwitch.bind(this)} />
 				<Status mobile={true} />
 			</div>
 
-			{/* <div className="row flex-nowrap" style={{overflow:"hidden",minHeight:"calc(100vh - 120px)"}}>
-				<div className="exchange-left" style={{ display: this.props.leftOpen ? 'block': 'none'}}>
-					<OrderBook />
-				</div>
-				<div className="exchange-middle">
-					<Header />
-						<Chart chartTools={true}/>
-					<div className="d-flex">
-						<Dashboard />
-						<Trade />
-					</div>
-					
-				</div>
-				<div className="exchange-right" style={{ display: this.props.rightOpen ? 'block' : 'none'}}>
-					<Menu />
-					<Leaderboard />
-
-					<TradingHistory />
-				</div>
-			</div>
-			<div className="row exchange-bottom">
-				<Orders />
-				<Status />
-			</div>
-			{ localStorage.getItem("firstTimeComplete") ? null : <FirstTime /> } */}
+			{/* { localStorage.getItem("firstTimeComplete") ? null : <FirstTime /> } */}
 		</div>
 		);
 	}

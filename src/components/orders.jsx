@@ -305,11 +305,34 @@ class Orders extends Component {
           
       } else {
         if (this.props.filledOrders.dataSource.length == 0) {
-          return <div className="empty-list">You have no filled orders</div>
+          return <div className="empty-list">You have no recent filled orders in this market</div>
         }
-        return (
-          <QTTableViewSimple dataSource={this.props.filledOrders.dataSource} columns={this.props.filledOrders.columns}/>
-        )
+
+        if (this.props.mobile) {
+          return (
+            <div>
+              {this.props.filledOrders.dataSource.map(row => {
+                return (
+                  <div key={row.id} className="list-row" onClick={() => this.toggleDetails(row.id)}>
+                    <div className="d-flex list-item">
+                      <span className="item-assets">{row.assets}</span>
+                      <span className="item-price text-right">{row.price}</span>
+                      <span className={"text-right item-type-" + row.type}>{row.type}</span>
+                    </div>
+                    <div className={"item-details" + (this.state.selectedRow == row.id ? " active" : "")}>
+                      <span className="item"><span className="label">AMOUNT</span> {row.amount}</span>
+                      <span className="item"><span className="label">TOTAL</span> {row.total}</span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )
+        } else {
+          return (
+            <QTTableViewSimple dataSource={this.props.filledOrders.dataSource} columns={this.props.filledOrders.columns}/>
+          )
+        }
       }
     }
 

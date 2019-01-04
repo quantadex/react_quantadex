@@ -22,13 +22,17 @@ const container = css`
 			position: sticky;
 			position: -webkit-sticky;
 			top: 0;
-			background: #22282c;
+			background: #191e21;
 			z-index: 1;
 		}
 	}
 
 	&.mobile {
 		height: 100%;
+
+		thead th {
+			background: #22282c;
+		}
 	}
 `;
 
