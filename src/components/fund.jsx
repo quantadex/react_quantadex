@@ -139,7 +139,7 @@ const container = css`
 
     [data-key="usd_value"], span.usd_value {
       text-align: right;
-      padding-right: 15px;
+      padding-right: 20px;
     }
 
     span.usd_value {

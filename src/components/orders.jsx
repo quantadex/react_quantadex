@@ -165,7 +165,7 @@ const container = css`
 
       .item-type-BUY, .item-type-SELL {
         width: 20%;
-        padding-right: 15px;
+        padding-right: 20px;
         background: url("../public/images/menu-arrow-down.svg") no-repeat 100% 50%;
       }
 
@@ -184,6 +184,14 @@ const container = css`
         }
         .item {
           margin-right: 20px;
+        }
+        button {
+          float: right;
+          border: 1px solid #aaa;
+          border-radius: 2px;
+          color: #aaa;
+          background-color: transparent;
+          padding: 0 10px;
         }
       }
       .item-details.active {
@@ -234,28 +242,35 @@ class Orders extends Component {
 
   handleCancel(market, order) {
     const toastId = toast("CANCELING...", { autoClose: false, position: toast.POSITION.TOP_CENTER });
-    var id = order.replace(/\./g, '-')
-    document.querySelectorAll('#cancel-' + id + ' button')[0].style.display = 'none';
-    document.querySelectorAll('#cancel-' + id + ' .loader')[0].style.display = 'block';
-    
+    if (!this.props.mobile) {
+      var id = order.replace(/\./g, '-')
+      document.querySelectorAll('#cancel-' + id + ' button')[0].style.display = 'none';
+      document.querySelectorAll('#cancel-' + id + ' .loader')[0].style.display = 'block';
+    }
+
     ReactGA.event({
       category: 'CANCEL',
       action: market
     });
     this.props.dispatch(cancelTransaction(market, order))
     .then((e) => {
-      document.querySelectorAll('#cancel-' + id + ' .loader')[0].style.display = 'none';
+      if (!this.props.mobile) {
+        document.querySelectorAll('#cancel-' + id + ' .loader')[0].style.display = 'none';
+      }
+      
       this.notify_success(toastId)
     }).catch((e) => {
-      document.querySelectorAll('#cancel-' + id + ' button')[0].style.display = 'inherit';
-      document.querySelectorAll('#cancel-' + id + ' .loader')[0].style.display = 'none';
+      if (!this.props.mobile) {
+        document.querySelectorAll('#cancel-' + id + ' button')[0].style.display = 'inherit';
+        document.querySelectorAll('#cancel-' + id + ' .loader')[0].style.display = 'none';
+      }
       this.notify_failed(toastId)
     })
   }
 
   toggleDetails(id) {
     if (this.state.selectedRow == id) {
-      this.setState({selectedRow: null})
+      return // this.setState({selectedRow: null})
     } else {
       this.setState({selectedRow: id})
     }
@@ -290,6 +305,7 @@ class Orders extends Component {
                     <div className={"item-details" + (this.state.selectedRow == row.id ? " active" : "")}>
                       <span className="item"><span className="label">AMOUNT</span> {row.amount}</span>
                       <span className="item"><span className="label">TOTAL</span> {row.total}</span>
+                      <button onClick={() => this.handleCancel(row.assets, row.id)}>CANCEL</button>
                     </div>
                   </div>
                 )
