@@ -166,7 +166,7 @@ class Exchange extends Component {
 				<Status mobile={true} />
 			</div>
 
-			{/* { localStorage.getItem("firstTimeComplete") ? null : <FirstTime /> } */}
+			{ localStorage.getItem("firstTimeComplete") ? null : <FirstTime mobile={true}/> }
 		</div>
 		);
 	}

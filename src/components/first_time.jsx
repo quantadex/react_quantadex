@@ -23,7 +23,7 @@ const container = css`
         font-weight: bold;
         margin-bottom: 30px;
     }
-    .content {
+    .content-ft {
         position: relative;
         max-width: 1100px;
         max-height: 100%;
@@ -168,16 +168,73 @@ const container = css`
         bottom: -48px;
         left: 200px;
     }
+
+    &.mobile {
+        height: calc(100% - 32px) !important;
+        overflow: auto;
+        
+        .content-ft {
+            width: 100%;
+            max-width: 100%;
+            height: 100%;
+            border-radius: 0;
+            .left, .right {
+                overflow: hidden;
+                padding: 40px 20px;
+                border-radius: 0;
+            }
+            img {
+                max-width: 90%;
+            }
+            button {
+                margin: auto;
+                width: 100%;
+            }
+
+            .go-back {
+                width: 50px;
+                top: 0 !important;
+                left: 15px !important;
+            }
+        }
+
+        #contest-rules {
+            flex-flow: column;
+        }
+
+        #starting-fund {
+            padding: 20px;
+        }
+
+        #status-dialog {
+            width: calc(100% - 20px);
+        }
+
+        #status-dialog::after {
+            left: calc(50% - 25px);
+        }
+    }
 `
 
 class FirstTime extends Component {
-    openFund() {
+    openFund(isMobile) {
         const el = document.getElementById("starting-fund");
+        const rl = document.getElementById("contest-rules");
         if (el.style.display !== "block") {
             el.style.display = "block";
+            if (isMobile) {
+                rl.classList.remove("d-flex")
+                rl.classList.add("d-none")
+            }
         } else {
             el.style.display = "none";
+            if (isMobile) {
+                rl.classList.remove("d-none")
+                rl.classList.add("d-flex")
+            }
         }
+
+        
     }
 
     // acceptFund() {
@@ -186,7 +243,7 @@ class FirstTime extends Component {
 
     statusDialog() {
         // window.scrollTo(0,document.body.scrollHeight);
-        document.getElementsByClassName("content")[0].style.display = "none";
+        document.getElementsByClassName("content-ft")[0].style.display = "none";
         document.getElementById("status-dialog").style.display = "block";
         document.getElementById("first-time").style.height = "calc(100% - 54px)"
     }
@@ -200,8 +257,8 @@ class FirstTime extends Component {
 
     render() {
         return (
-            <div id="first-time" className={container}>
-                <div className="content">
+            <div id="first-time" className={container + (this.props.mobile ? " mobile" : "")}>
+                <div className="content-ft">
                     <div id="contest-rules" className="d-flex">
                         <div className="left">
                             <h2>Welcome to </h2>
@@ -231,13 +288,13 @@ class FirstTime extends Component {
                                     maintaining a balance of at least 8,000 QDEX (80% of initial balance).</p>
                                 <b>Prize: $500 USD + 20,000 QDEX tokens*</b>
                             </div>
-                             <button onClick={this.openFund}>Continue</button>
+                             <button onClick={() => this.openFund(this.props.mobile)}>Continue</button>
                         </div>
                     </div>
 
                     <div id="starting-fund">
                         <div className="flex justify-center">
-                            <img onClick={this.openFund} className="go-back" src="/public/images/back-button.svg"/>
+                            <img onClick={() => this.openFund(this.props.mobile)} className="go-back" src="/public/images/back-button.svg"/>
                             <div class="flex-center">
                                 <img src="/public/images/coins.svg" />
                                 <h1>You have unlocked 10,000 QDEX to start trading.
