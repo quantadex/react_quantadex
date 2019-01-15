@@ -355,14 +355,14 @@ class Trade extends Component {
             </div>
             <div className="input-container">
                <label>AMOUNT {/*<Token name={tradingPair[0]}/>*/}</label> 
-              <QTDropdown
+              {/* <QTDropdown
 									items={dropdown_items.items}
 									value={dropdown_items.value}
 									className="up bordered dark qt-font-base qt-font-bold"
 									reverse={true}
 									width="50"
 									height="32"
-									onChange={() => {console.log("dropdown changed value")}}/>
+									onChange={() => {console.log("dropdown changed value")}}/> */}
               <input type="number" className="trade-input qt-number-bold qt-font-small"
                       name="amount"
                       onFocus={this.handleInputFocus.bind(this)}
