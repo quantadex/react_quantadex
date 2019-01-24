@@ -219,7 +219,7 @@ export function switchTicker(ticker) {
 							})
 
 					}), Apis.instance().db_api().exec("list_assets", ["A", 100]).then((assets) => {
-						console.log("assets ", assets);
+						// console.log("assets ", assets);
 						window.assets = lodash.keyBy(assets, "id")
 						window.assetsBySymbol = lodash.keyBy(assets, "symbol")
 						return assets;
@@ -235,7 +235,7 @@ export function switchTicker(ticker) {
 		function action(ticker) {
 			var {base, counter} = getBaseCounter(ticker)
 
-			async function fetchData(ticker) {
+			async function fetchData(ticker, first=false) {
 				var {base, counter} = getBaseCounter(ticker)
 
 				await fetch("https://s3.amazonaws.com/quantachain.io/markets.json").then(e => e.json())
@@ -345,11 +345,16 @@ export function switchTicker(ticker) {
 								accountData: data[2][0]
 							}
 						})
+						if (first) {
+							const ask_section = document.getElementById("ask-section")
+							ask_section.scrollTop = ask_section.scrollHeight;
+						}
+						
 					})					
 			}
 
 			Apis.instance().db_api().exec("subscribe_to_market", [(data) => {
-				// console.log("Got a market change ", base, counter);
+				// console.log("Got a market change ", base, counter, data);
 				const curr_ticker = getBaseCounter(getState().app.currentTicker)
 				if (base.id === curr_ticker.base.id && counter.id === curr_ticker.counter.id) {
 					fetchData(ticker)
@@ -359,8 +364,7 @@ export function switchTicker(ticker) {
 				}
 			}, base.id, counter.id])
 
-			fetchData(ticker)
-			
+			fetchData(ticker, true)
 		}
 		// const orderBook = fetch("http://orderbook-api-792236404.us-west-2.elb.amazonaws.com/depth/"+ticker).then((res) => {return res.json()})
 		// const trades = fetch("http://orderbook-api-792236404.us-west-2.elb.amazonaws.com/settlement/"+ticker).then((res) => {return res.json()})

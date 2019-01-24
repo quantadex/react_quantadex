@@ -68,16 +68,36 @@ const container = css`
 	.no-scroll-bar {
 		position: relative;
 		overflow: hidden;
+		margin-right: -10px;
 	}
 	.no-scroll-bar > div {
 		height: 100%;
-		padding-right: 10px;
-		box-sizing: content-box;
 		position: absolute;
+		padding-right: 5px;
 		left: 0;
-		right: -25px;
+		right: 0;
 		overflow-y: scroll;
+
+		::-webkit-scrollbar {
+			width: 6px;
+			height: 6px;
+		  }
+		  
+		  ::-webkit-scrollbar-track {
+			background: transparent; 
+		  }
+		  
+		  ::-webkit-scrollbar-thumb {
+			background: rgba(255,255,255,0.1); 
+			border-radius: 10px;
+		  }
+		  
+		  ::-webkit-scrollbar-thumb:hover {
+			background: rgba(255,255,255,0.2); 
+		  }
 	}
+
+	
 `;
 
 class Exchange extends Component {

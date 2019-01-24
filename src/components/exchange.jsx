@@ -57,11 +57,8 @@ const container = css`
 	}
 	.no-scroll-bar > div {
 		height: 100%;
-		padding-right: 10px;
-		box-sizing: content-box;
 		position: absolute;
 		left: 0;
-		right: -25px;
 		overflow-y: scroll;
 	}
 `;

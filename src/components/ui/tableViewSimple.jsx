@@ -83,6 +83,15 @@ export default class QTTableViewSimple extends React.Component {
       this.props.onAction(e)
   }
 
+  formatNumber(n) {
+    let num = Number(n)
+    if (isNaN(Number(n))) {
+      return n
+    } else {
+      return num.toLocaleString(navigator.language, { maximumFractionDigits: 20 })
+    }
+  }
+
   render() {
     return (
       <table className={container}>
@@ -130,11 +139,12 @@ export default class QTTableViewSimple extends React.Component {
                         
                       )
                     }
+                    
                     return (
                       <td
                         onClick={this.props.onAction ? () => this.props.onAction(row) : null}
                         className={[col.float,col.color(col_color),col.fontWeight,col.fontSize].join(" ")}>
-                        {row[col.key]}
+                        {this.formatNumber(row[col.key])}
                       </td>
                     )
                   })

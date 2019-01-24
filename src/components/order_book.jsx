@@ -115,7 +115,7 @@ class OrderBook extends Component {
 					</div>
 				</section>
 				<section className="orderbook-ask no-scroll-bar">
-					<div>
+					<div id="ask-section">
 						<QTTableViewSimple key="ask_tv" dataSource={asksDataSource} 
 							columns={this.props.asks.columns} 
 							ticker={this.props.currentTicker}
