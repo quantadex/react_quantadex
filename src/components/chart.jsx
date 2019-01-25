@@ -28,6 +28,7 @@ class Chart extends Component {
       disabled_features.push("chart_events");
       disabled_features.push("footer_share_buttons");
       disabled_features.push("footer_screenshot");
+      disabled_features.push("header_screenshot");
       disabled_features.push("footer_publish_idea_button");
       disabled_features.push("caption_buttons_text_if_possible");
       disabled_features.push("line_tool_templates");
@@ -46,6 +47,7 @@ class Chart extends Component {
     } else {
       enabled_features.push("study_templates");
       disabled_features.push("left_toolbar");
+      disabled_features.push("header_screenshot");
       //enabled_features.push("keep_left_toolbar_visible_on_small_screens");
     }
 
@@ -92,10 +94,12 @@ class Chart extends Component {
           "paneProperties.background": "rgba(17,20,22,1)",
           "paneProperties.vertGridProperties.color": "#333",
           "paneProperties.horzGridProperties.color": "#333",
-          "paneProperties.crossHairProperties.color": "#333",
+          "paneProperties.vertGridProperties.style": 2,
+          "paneProperties.horzGridProperties.style": 2,
+          "paneProperties.crossHairProperties.color": "#444",
           "scalesProperties.backgroundColor": "rgba(17,20,22,1)",
           "scalesProperties.lineColor": "rgba(17,20,22,1)",
-          "scalesProperties.textColor": "#777",
+          "scalesProperties.textColor": "#999",
           "symbolWatermarkProperties.color": "rgba(0, 0, 0, 0)",
           "mainSeriesProperties.style": 1, //  Candles styles
           "mainSeriesProperties.candleStyle.upColor": "#50b3b7",

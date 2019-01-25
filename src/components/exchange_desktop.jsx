@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Header from './header.jsx';
 import Chart from './chart.jsx';
+import DepthChart from './chart_depth.jsx';
 import TradingHistory from './trading_history.jsx';
 import OrderBook from './order_book.jsx';
 import Dashboard from './dashboard.jsx';
@@ -35,6 +36,7 @@ const container = css`
 	}
 
 	.exchange-middle {
+		position: relative;
 		padding: 21px 19px;
 		flex-grow:1;
 		background-color:rgba(17,20,22,1);
@@ -54,11 +56,33 @@ const container = css`
 		z-index: 99;
 	}
 	
-	#tv_chart_container {
+	#tv_chart_container, #depth_chart_container {
 		height: calc(100vh - 530px);
 		min-height: 370px !important;
 		padding-bottom: 20px;
 		border-bottom: 1px solid #333;
+	}
+
+	.switch-chart {
+		position: absolute;
+		right: 20px;
+		margin-top: 10px;
+		z-index: 1;
+
+		button {
+			margin-left: 10px;
+			padding: 5px 10px;
+			font-size: 12px;
+			border-radius: 20px;
+			font-weight: bold;
+			background: #111;
+			color: #ddd;
+			border: 2px solid #333;
+		}
+		button.active {
+			color: #50b3b7;
+			border-color: #50b3b7;
+		}
 	}
 
 	.exchange-dashboard {
@@ -81,28 +105,51 @@ const container = css`
 		::-webkit-scrollbar {
 			width: 6px;
 			height: 6px;
-		  }
-		  
-		  ::-webkit-scrollbar-track {
-			background: transparent; 
-		  }
-		  
-		  ::-webkit-scrollbar-thumb {
-			background: rgba(255,255,255,0.1); 
-			border-radius: 10px;
-		  }
-		  
-		  ::-webkit-scrollbar-thumb:hover {
-			background: rgba(255,255,255,0.2); 
-		  }
+		}
+		
+		::-webkit-scrollbar-track {
+		background: transparent; 
+		}
+		
+		::-webkit-scrollbar-thumb {
+		background: rgba(255,255,255,0.1); 
+		border-radius: 10px;
+		}
+		
+		::-webkit-scrollbar-thumb:hover {
+		background: rgba(255,255,255,0.2); 
+		}
+
+		scrollbar-width: thin;
+		scrollbar-color: rgba(255,255,255,0.1) transparent;
 	}
 
 	
 `;
 
 class Exchange extends Component {
+	constructor(props) {
+		super(props)
+		this.state = {
+			chart: "tv"
+		}
+		
+	}
+
+	toggleChart(chart) {
+		console.log(chart)
+		this.setState({ chart: chart })
+	}
 
 	render() {
+		const Switchchart = () => {
+			return(
+				<div className="switch-chart d-flex" >
+					<button className={this.state.chart === "tv" ? "active": ""} onClick={() => this.toggleChart("tv")}>TradingView</button>
+					<button className={this.state.chart === "depth" ? "active": ""} onClick={() => this.toggleChart("depth")}>Depth</button>
+				</div>
+			)
+		}
 		return (
 		<div className={container + " container-fluid"}>
 			<div className="row flex-nowrap" style={{overflow:"hidden",minHeight:"calc(100vh - 120px)"}}>
@@ -111,7 +158,9 @@ class Exchange extends Component {
 				</div>
 				<div className="exchange-middle">
 					<Header />
-						<Chart chartTools={true}/>
+						<Switchchart />
+						<Chart chartTools={true} className={this.state.chart === "tv" ? "d-block": "d-none"} />
+						<DepthChart  className={this.state.chart === "depth" ? "d-block": "d-none"} />
 					<div className="d-flex">
 						<Dashboard />
 						<Trade />

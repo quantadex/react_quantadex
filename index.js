@@ -43,18 +43,13 @@ currentApp.get('/api/leaderboard', function (req, res) {
 	
 	if (currentLeaderboard == null) {
 		fetchLeaderboard((data) => {
-			res.json(currentLeaderboard)
+			res.json(data)
 		})
+		setInterval(() => {
+			fetchLeaderboard((data) => {})
+		}, 15*60*1000)
 	} else {
-		var seconds = (new Date().getTime() - currentLeaderboard.timestamp.getTime()) / 1000;
-		if (seconds > 300) {
-			console.log("Over 5 minutes, fetch data again.")
-			fetchLeaderboard((data) => {
-				res.json(data)
-			})
-		} else {
-			res.json(currentLeaderboard)
-		}
+		res.json(currentLeaderboard)
 	}
 })
 

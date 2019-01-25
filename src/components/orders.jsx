@@ -100,10 +100,7 @@ const container = css`
     position: absolute;
     right: 15px;
     top: 4px;
-    background-image: url(/public/images/up-arrow.svg);
-    background-repeat-x: no-repeat;
-    background-position: right;
-    background-position-y: 0;
+    background: url(/public/images/up-arrow.svg) repeat-y 100%;
     height: 18px;
     padding-right: 20px;
     line-height: 20px;
