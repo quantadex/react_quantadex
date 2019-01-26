@@ -78,6 +78,7 @@ const container = css`
 			background: #111;
 			color: #ddd;
 			border: 2px solid #333;
+			cursor: pointer;
 		}
 		button.active {
 			color: #50b3b7;
@@ -137,14 +138,13 @@ class Exchange extends Component {
 	}
 
 	toggleChart(chart) {
-		console.log(chart)
 		this.setState({ chart: chart })
 	}
 
 	render() {
 		const Switchchart = () => {
 			return(
-				<div className="switch-chart d-flex" >
+				<div className="switch-chart d-flex">
 					<button className={this.state.chart === "tv" ? "active": ""} onClick={() => this.toggleChart("tv")}>TradingView</button>
 					<button className={this.state.chart === "depth" ? "active": ""} onClick={() => this.toggleChart("depth")}>Depth</button>
 				</div>

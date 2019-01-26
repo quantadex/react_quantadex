@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Header from './header.jsx';
 import Chart from './chart.jsx';
+import DepthChart from './chart_depth.jsx';
 import TradingHistory from './trading_history.jsx';
 import OrderBook from './order_book.jsx';
 import Dashboard from './dashboard.jsx';
@@ -57,9 +58,33 @@ const container = css`
 		z-index: 99;
 	}
 	
-	#tv_chart_container {
+	#tv_chart_container, #depth_chart_container {
 		height: calc(100vh - 180px);
 		min-height: 370px !important;
+	}
+
+	.switch-chart {
+		position: absolute;
+		flex-flow: column;
+		right: 20px;
+		margin-top: 10px;
+		z-index: 1;
+
+		button {
+			margin-bottom: 10px;
+			padding: 5px 10px;
+			font-size: 12px;
+			border-radius: 20px;
+			font-weight: bold;
+			background: #111;
+			color: #ddd;
+			border: 2px solid #333;
+			cursor: pointer;
+		}
+		button.active {
+			color: #50b3b7;
+			border-color: #50b3b7;
+		}
 	}
 
 	.exchange-dashboard {
@@ -108,7 +133,8 @@ class Exchange extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			selectedTabIndex: 2
+			selectedTabIndex: 2,
+			chart: "tv"
 		};
 	  }
 
@@ -119,6 +145,10 @@ class Exchange extends Component {
 				selectedTabIndex: 0
 			  })
 		}
+	}
+
+	toggleChart(chart) {
+		this.setState({ chart: chart })
 	}
 
 	handleSwitch(index) {
@@ -143,8 +173,26 @@ class Exchange extends Component {
 	render() {
 		const tabs = {	names: ["Trade", "Orders", "Chart", "Book", "History"],
 						selectedTabIndex: 2 }
-		const content = [<Trade mobile={true}/>, <Orders mobile={true}/>, <Chart chartTools={false}/>,
+
+		const ChartContent = () => {
+			return (
+				<div>
+					<Switchchart />
+					<Chart chartTools={false}  className={this.state.chart === "tv" ? "d-block": "d-none"} />
+					<DepthChart  className={this.state.chart === "depth" ? "d-block": "d-none"} />
+				</div>
+			)
+		}
+		const content = [<Trade mobile={true} />, <Orders mobile={true}/>, <ChartContent />,
 						 <OrderBook mobile={true}/>, <TradingHistory mobile={true}/>]
+		const Switchchart = () => {
+			return(
+				<div className="switch-chart d-flex">
+					<button className={this.state.chart === "tv" ? "active": ""} onClick={() => this.toggleChart("tv")}>TradingView</button>
+					<button className={this.state.chart === "depth" ? "active": ""} onClick={() => this.toggleChart("depth")}>Depth</button>
+				</div>
+			)
+		}
 		return (
 		<div className={container}>
 			<MobileHeader />
