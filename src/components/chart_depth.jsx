@@ -4,9 +4,14 @@ import Highchart from 'highcharts'
 import lodash from 'lodash';
 
 class DepthChart extends Component {
-    update(bids, asks, ticker) {
+    constructor(props) {
+        super(props)
+        this.state = {
+            currentTicker: this.props.currentTicker
+        }
+    }
 
-        // console.log("!!!", props.bids.dataSource[1])
+    update(bids, asks, ticker, init = false) {
         let bidsData = []
         let asksData = []
         let totalBids = 0
@@ -22,7 +27,7 @@ class DepthChart extends Component {
             totalAsks += parseFloat(order.amount)
             asksData.push([parseFloat(order.price), totalAsks])
         })
-        // console.log("!!!", bidsData, asksData)
+        
         if (bidsData.length > 0 && asksData.length > 0) {
             mid = (asksData[0][0] + bidsData[bidsData.length - 1][0])/2
             min = mid * 0.4
@@ -40,14 +45,9 @@ class DepthChart extends Component {
 		} else if (asksData.length && !bidsData.length) {
 			min = 0;
 			max = asksData[0][0] * 2;
-		}
-
-        window.depthChartWidget.update({
-            title: {text: ticker},
-            xAxis: {
-                min: min,
-                max: max
-            },
+        }
+        
+        const options = {
             series: [{
                 name: 'Bids',
                 data: bidsData,
@@ -57,7 +57,14 @@ class DepthChart extends Component {
                 data: asksData,
                 color: '#fc5857'
             }]
-        })
+        }
+        
+        if (init || window.depthChartWidget.xAxis[0].min == undefined) {
+            options.title = { text: ticker }
+            options.xAxis = { min: min,  max: max }
+        }
+        
+        window.depthChartWidget.update(options)
     }
 
     componentDidMount() {
@@ -118,6 +125,11 @@ class DepthChart extends Component {
                     fillOpacity: 0.2,
                     lineWidth: 1,
                     step: 'center'
+                },
+                series: {
+                    marker: {
+                        enabled: false
+                    }
                 }
             },
             tooltip: {
@@ -135,38 +147,52 @@ class DepthChart extends Component {
         })
         
         setTimeout(() => {
-            this.update(this.props.bids, this.props.asks, this.props.currentTicker)
+            this.update(this.props.bids, this.props.asks, this.props.currentTicker, true)
         }, 1000)
     }
 
     componentWillReceiveProps(nextProp) {
         setTimeout(() => {
-            this.update(nextProp.bids, nextProp.asks, nextProp.currentTicker)
+            if (nextProp.currentTicker != this.state.currentTicker) {
+                this.setState({currentTicker: nextProp.currentTicker})
+                this.update(nextProp.bids, nextProp.asks, nextProp.currentTicker, true)
+            } else {
+                this.update(nextProp.bids, nextProp.asks, nextProp.currentTicker)
+            }
         }, 1000)
     }
 
-    handleScroll = lodash.throttle((e) => {
+    handleScroll = lodash.throttle((delta) => {
         let min = window.depthChartWidget.xAxis[0].min
         let max = window.depthChartWidget.xAxis[0].max
+        let mid = (min + max)/2
+        let inc = mid * 0.2
 
-        min = min * 0.4
-        max = max * 1.6
+        if (delta > 0) {
+            min -= inc
+            max += inc
+        } else {
+            min += inc
+            max -= inc
+        }
 
-        window.depthChartWidget.update({
-            xAxis: {
-                min: min,
-                max: max
-            }
-        })
-    }, 1000)
+        if (min < mid && max > mid) {
+            window.depthChartWidget.update({
+                xAxis: {
+                    min: min,
+                    max: max
+                }
+            })
+        }
+        
+    }, 200, {leading: true, trailing: false})
 
     render() {
         return (
-            <div {...this.props}>
-             {/* onWheel={(e) => {
+            <div {...this.props} onWheel={(e) => {
                 e.preventDefault();
-                this.handleScroll(e);
-            }} > */}
+                this.handleScroll(e.deltaY);
+            }} >
             <div id="depth_chart_container"/>
           </div>
         );
