@@ -100,10 +100,7 @@ const container = css`
     position: absolute;
     right: 15px;
     top: 4px;
-    background-image: url(/public/images/up-arrow.svg);
-    background-repeat-x: no-repeat;
-    background-position: right;
-    background-position-y: 0;
+    background: url(/public/images/up-arrow.svg) repeat-y 100%;
     height: 18px;
     padding-right: 20px;
     line-height: 20px;
@@ -140,6 +137,65 @@ const container = css`
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
   }
+
+  &.mobile {
+    padding: 15px;
+    margin: 0;
+    .scroll-up {
+      display: none;
+    }
+
+    .order-list {
+      padding: 0;
+
+      .list-row {
+        padding: 5px 0;
+        border-bottom: 1px solid #333;
+      }
+
+      .item-assets {
+        width: 30%;
+      }
+      .item-price {
+        width:50%;
+      }
+
+      .item-type-BUY, .item-type-SELL {
+        width: 20%;
+        padding-right: 20px;
+        background: url("../public/images/menu-arrow-down.svg") no-repeat 100% 50%;
+      }
+
+      .item-type-BUY {
+        color: #2ed4cf;
+      }
+      .item-type-SELL {
+        color: #ff3282;
+      }
+
+      .item-details {
+        display: none;
+        .label {
+          color: #777;
+          padding-right: 10px;
+        }
+        .item {
+          margin-right: 20px;
+        }
+        button {
+          float: right;
+          border: 1px solid #aaa;
+          border-radius: 2px;
+          color: #aaa;
+          background-color: transparent;
+          padding: 0 10px;
+        }
+      }
+      .item-details.active {
+        display: block;
+      }
+    }
+  }
 `;
 
 class Orders extends Component {
@@ -148,7 +204,8 @@ class Orders extends Component {
     this.state = {
       selectedTabIndex: 0,
       isFocused: false,
-      cancelling: []
+      cancelling: [],
+      selectedRow: null
     };
   }
 
@@ -171,10 +228,6 @@ class Orders extends Component {
     render: "Order cancelled",
     type: toast.TYPE.SUCCESS,
     autoClose: 5000,
-    className: css({
-      transform: "rotateY(360deg)",
-      transition: "transform 0.6s"
-    }),
     position: toast.POSITION.TOP_CENTER
   });
   notify_failed = (toastId) => toast.update(toastId, {
@@ -186,23 +239,38 @@ class Orders extends Component {
 
   handleCancel(market, order) {
     const toastId = toast("CANCELING...", { autoClose: false, position: toast.POSITION.TOP_CENTER });
-    var id = order.replace(/\./g, '-')
-    document.querySelectorAll('#cancel-' + id + ' button')[0].style.display = 'none';
-    document.querySelectorAll('#cancel-' + id + ' .loader')[0].style.display = 'block';
-    
+    if (!this.props.mobile) {
+      var id = order.replace(/\./g, '-')
+      document.querySelectorAll('#cancel-' + id + ' button')[0].style.display = 'none';
+      document.querySelectorAll('#cancel-' + id + ' .loader')[0].style.display = 'block';
+    }
+
     ReactGA.event({
       category: 'CANCEL',
       action: market
     });
     this.props.dispatch(cancelTransaction(market, order))
     .then((e) => {
-      document.querySelectorAll('#cancel-' + id + ' .loader')[0].style.display = 'none';
+      if (!this.props.mobile) {
+        document.querySelectorAll('#cancel-' + id + ' .loader')[0].style.display = 'none';
+      }
+      
       this.notify_success(toastId)
     }).catch((e) => {
-      document.querySelectorAll('#cancel-' + id + ' button')[0].style.display = 'inherit';
-      document.querySelectorAll('#cancel-' + id + ' .loader')[0].style.display = 'none';
+      if (!this.props.mobile) {
+        document.querySelectorAll('#cancel-' + id + ' button')[0].style.display = 'inherit';
+        document.querySelectorAll('#cancel-' + id + ' .loader')[0].style.display = 'none';
+      }
       this.notify_failed(toastId)
     })
+  }
+
+  toggleDetails(id) {
+    if (this.state.selectedRow == id) {
+      return // this.setState({selectedRow: null})
+    } else {
+      this.setState({selectedRow: id})
+    }
   }
 
   render() {
@@ -214,28 +282,75 @@ class Orders extends Component {
       names: ['ACTIVE ORDERS', 'FILLED ORDERS'],
       selectedTabIndex: 0,
     }
-
+    
     const OrdersList = () => {
       if (this.state.selectedTabIndex == 0) {
         if (this.props.openOrders.dataSource.length == 0) {
           return <div className="empty-list">You have no active orders</div>
         }
-        return (
-          <QTTableViewSimple dataSource={this.props.openOrders.dataSource} columns={this.props.openOrders.columns}
-          cancelOrder={this.handleCancel.bind(this)} />
-        )
+        if (this.props.mobile) {
+          return (
+            <div>
+              {this.props.openOrders.dataSource.map(row => {
+                return (
+                  <div key={row.id} className="list-row" onClick={() => this.toggleDetails(row.id)}>
+                    <div className="d-flex list-item">
+                      <span className="item-assets">{row.assets}</span>
+                      <span className="item-price text-right">{row.price}</span>
+                      <span className={"text-right item-type-" + row.type}>{row.type}</span>
+                    </div>
+                    <div className={"item-details" + (this.state.selectedRow == row.id ? " active" : "")}>
+                      <span className="item"><span className="label">AMOUNT</span> {row.amount}</span>
+                      <span className="item"><span className="label">TOTAL</span> {row.total}</span>
+                      <button onClick={() => this.handleCancel(row.assets, row.id)}>CANCEL</button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )
+        } else {
+          return (
+            <QTTableViewSimple dataSource={this.props.openOrders.dataSource} columns={this.props.openOrders.columns}
+            cancelOrder={this.handleCancel.bind(this)} />
+          )
+        }
+          
       } else {
         if (this.props.filledOrders.dataSource.length == 0) {
-          return <div className="empty-list">You have no filled orders</div>
+          return <div className="empty-list">You have no recent filled orders in this market</div>
         }
-        return (
-          <QTTableViewSimple dataSource={this.props.filledOrders.dataSource} columns={this.props.filledOrders.columns}/>
-        )
+
+        if (this.props.mobile) {
+          return (
+            <div>
+              {this.props.filledOrders.dataSource.map(row => {
+                return (
+                  <div key={row.id} className="list-row" onClick={() => this.toggleDetails(row.id)}>
+                    <div className="d-flex list-item">
+                      <span className="item-assets">{row.assets}</span>
+                      <span className="item-price text-right">{row.price}</span>
+                      <span className={"text-right item-type-" + row.type}>{row.type}</span>
+                    </div>
+                    <div className={"item-details" + (this.state.selectedRow == row.id ? " active" : "")}>
+                      <span className="item"><span className="label">AMOUNT</span> {row.amount}</span>
+                      <span className="item"><span className="label">TOTAL</span> {row.total}</span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )
+        } else {
+          return (
+            <QTTableViewSimple dataSource={this.props.filledOrders.dataSource} columns={this.props.filledOrders.columns}/>
+          )
+        }
       }
     }
 
     return (
-      <div className={container}>
+      <div className={container + (this.props.mobile ? " mobile" : "")}>
       <div className="sticky">
           <div className="scroll-up" onClick={this.goToTop.bind(this)}>SCROLL UP</div>
           <QTTabBar

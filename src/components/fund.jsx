@@ -7,6 +7,9 @@ import globalcss from './global-css.js'
 import { Link } from 'react-router-dom'
 import QTDeposit from './ui/deposit.jsx'
 import QTWithdraw from './ui/withdraw.jsx'
+import SearchBox from "./ui/searchBox.jsx"
+import Switch from "./ui/switch.jsx"
+import MobileHeader from './ui/mobileHeader.jsx';
 
 const container = css`
 	background-color:${globalcss.COLOR_BACKGROUND};
@@ -87,7 +90,79 @@ const container = css`
     color: #222 !important;
     cursor: not-allowed;
   }
+
+  &.mobile {
+    padding: 0;
+
+    .tab-row {
+      display: none !important;
+    }
+    .public-address-container {
+      margin: 0;
+      padding: 10px 0;
+      flex-direction: column;
+      background-color: transparent;
+      border-bottom: 1px solid #333;
+      text-align: center;
+      
+      h3 {
+        font-size: 13px;
+      }
+
+      #public-address {
+        word-wrap: break-word;
+        padding: 0 15px;
+        line-height: 20px;
+      }
+
+      .est-fund {
+        margin-top: 10px;
+        padding-top: 10px;
+        width: 100%;
+        border-top: 1px solid #333;
+        text-align: center !important;
+      }
+    }
+
+    .filter-container, .table-row {
+      padding: 0 15px;
+      margin-top: 20px !important;
+    }
+
+    .filter-container input {
+      flex: auto;
+    }
+
+    [data-key="on_orders"], span.on_orders {
+      display: none;
+    }
+
+    [data-key="usd_value"], span.usd_value {
+      text-align: right;
+      padding-right: 20px;
+    }
+
+    span.usd_value {
+      background: url("../public/images/menu-arrow-down.svg") no-repeat 100% 50%;
+    }
+
+    .table-row .row {
+      height: auto;
+      padding: 5px 0;
+    }
+
+    .action-btn {
+      display: none !important;
+      margin-top: 5px;
+    }
+
+    .active .action-btn {
+      display: flex !important;
+    }
+  }
 `;
+
+const screenWidth = screen.width
 
 class Fund extends Component {
 
@@ -110,7 +185,10 @@ class Fund extends Component {
 		}
     this.state = {
       selectedTabIndex: selectedTabIndex,
-      page: this.props.page
+      page: this.props.page,
+      filter: "",
+      hideZero: false,
+      isMobile: screenWidth <= 992
     }
 
   }
@@ -135,7 +213,15 @@ class Fund extends Component {
 			page:nextProps.page,
 			selectedTabIndex:selectedTabIndex,
 		})
-	}
+  }
+  
+  handleChange(e) {
+		this.setState({filter: e.target.value})
+  }
+  
+  hideZeroBalance(hide) {
+    this.setState({hideZero: hide})
+  }
 
 	render() {
     if (this.props.private_key == null) {
@@ -162,7 +248,7 @@ class Fund extends Component {
         pairs: window.assets[currency.asset].symbol,
         balance: currency.balance,
         on_orders: "0.00000000",
-        usd_value: currency.usd
+        usd_value: currency.usd.toFixed(2)
       }
       dataSourceWallets.push(data)
     });
@@ -395,15 +481,15 @@ class Fund extends Component {
 
     const PublicAddress = () => {
       return (
-        <div className="row public-address-container d-flex justify-content-between">
-          <div>
+        <div className="public-address-container d-flex justify-content-between">
+          <div id='public-address'>
             <h3>Your QUANTA Wallet Public Address</h3>
-            <span id='public-address' className="qt-font-light">{this.props.publicKey}</span>
+            <span className="qt-font-light">{this.props.publicKey}</span>
             <a><img src="/public/images/external-link-light.svg" /></a>
           </div>
           <div className="est-fund text-right align-self-center">
             <span className="qt-font-extra-small qt-white-62">On-chain custody estimated funds</span>
-            <div><span className="qt-font-huge">${this.props.estimated_fund} </span><span className="currency">USD</span></div>
+            <div><span className="qt-font-huge">${this.props.estimated_fund.toFixed(4)} </span><span className="currency">USD</span></div>
           </div>
           
         </div>
@@ -422,10 +508,15 @@ class Fund extends Component {
     }
     
 		return (
-		<div className={container + " container-fluid"}>
-      <div className="row header-row">
-        <Header />
-      </div>
+		<div className={container + " container-fluid" + (this.state.isMobile ? " mobile" : "")}>
+      {this.state.isMobile ? 
+          <MobileHeader />
+        :
+        <div className="row header-row">
+          <Header />
+        </div>
+      }
+      
       <div className="row tab-row d-flex flex-column align-items-center">
         <div className="tabs">
           {
@@ -443,11 +534,17 @@ class Fund extends Component {
         </div>
       </div>
       <div className="content">
-        {
-          this.state.page == 'wallets' ? <PublicAddress /> : null
-        }
-        <div className="row table-row">
-          <QTTableView dataSource={dataSource} columns={columns} />
+        { this.state.page == 'wallets' ? <PublicAddress /> : null }
+        
+        <div class='filter-container d-flex mt-5 align-items-center'>
+          <SearchBox placeholder="Search Coin" onChange={this.handleChange.bind(this)} style={{marginRight: "20px"}}/>
+          <Switch label="Hide Zero Balances" onToggle={this.hideZeroBalance.bind(this)} />
+        </div>
+        
+
+        <div className="table-row">
+          <QTTableView dataSource={dataSource.filter(data => data.pairs.toLowerCase().includes(this.state.filter) && 
+            (!this.state.hideZero || data.balance > 0))} columns={columns} mobile={this.state.isMobile}/>
           {
             this.state.page == 'wallets' ? <ERC20 /> : null
           }

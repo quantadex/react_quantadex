@@ -174,12 +174,79 @@ const login_container = css`
 		color: #5045d2;
 	}
 	
+	&.key-reg {
+		display: block;
+		text-align: left;
+
+		.input-container {
+			width: 100%;
+			margin-top: 30px;
+			
+			label {
+				padding: 0 !important;
+				top: -20px !important;
+			}
+
+			span.error {
+				top: -20px;
+			}
+		}
+		.warning {
+			margin-left: -30px;
+			margin-right: -30px;
+		}
+
+		.name-restrictions {
+			display: none;
+		}
+	}
+	&.mobile {
+		width: 100%;
+		padding: 0 20px 20px;
+		#logo {
+			width: 90%;
+		}
+
+		.back-nav {
+			position: relative;
+			left: 0;
+			margin: 0 0 10px;
+			img {
+				height: 40px;
+			}
+		}
+		
+		p {
+			margin-bottom: 50px;
+		}
+
+		.input-container label {
+			position: absolute;
+			background-color: transparent;
+			top: -40px;
+			border: 0;
+			font-size: 13px;
+			background-position: 0;
+			padding: 15px 0 0 25px;
+			margin-left: 5px;
+		}
+
+		button {
+			width: 100%;
+			margin-top: 10px;
+		}
+
+		
+	}
 `
+
+const screenWidth = screen.width
 
 class Login extends Component {
 	constructor(props) {
 		super(props);
-		this.state = { private_key: '', authError: false }
+		this.state = { private_key: '', authError: false,
+						isMobile: screenWidth <= 992 }
 
 		this.handleChange = this.handleChange.bind(this);
 		this.handleSubmit = this.handleSubmit.bind(this);
@@ -221,7 +288,7 @@ class Login extends Component {
 	render() {
 		return (
 			<div className={container}>
-				<div className={login_container}>
+				<div className={login_container + (this.state.isMobile ? " mobile qt-font-light" : "")}>
 					<div className="content">
 					<div>
 						<img id="logo" src="/public/images/qdex-fantasy.svg" alt="QDEX Fantasy"/>
@@ -231,9 +298,10 @@ class Login extends Component {
 					</div>
 						<div className="auth-form">
 							<form onSubmit={this.handleSubmit}>
+								{}
 								<div className="input-container">
 									<label htmlFor="private-key">
-										QUANTA<br/>PRIVATE KEY
+										QUANTA{this.state.isMobile ? " " : <br/>}PRIVATE KEY
 									</label>
 									<input name="private-key" value={this.state.value} 
 										onChange={this.handleChange} 
@@ -244,11 +312,11 @@ class Login extends Component {
 								<button type="submit" disabled={!this.state.has_input}>Authenticate</button>
 							</form>
 							
-							<Link to="/keygen" className="black">I don’t have one. Generate a QUANTA Wallet.</Link>
+							<Link to="/keygen" className={"black" + (this.state.isMobile ? " qt-font-small" : "")}>I don’t have one. Generate a QUANTA Wallet.</Link>
 						</div>
 					</div>
 				</div>
-				<Banner />
+				{(this.state.isMobile ? null : <Banner />)}
 			</div>
 		)
 	}
@@ -261,7 +329,8 @@ export class GenerateKey extends Component {
 			processing: false,
 			username: "",
 			error: false,
-			downloaded: false}
+			downloaded: false,
+			isMobile: screenWidth <= 992 }
 		
 		this.handleChange = this.handleChange.bind(this);
 	}
@@ -311,6 +380,8 @@ export class GenerateKey extends Component {
 					var msg;
 					if (res.message.includes("already exists")) {
 						msg = "Username already exist"
+					} else if (res.message.includes("is_valid_name")) {
+						msg = "Invalid name"
 					} else {
 						msg = "Server error. Please try again."
 					}
@@ -417,7 +488,7 @@ export class GenerateKey extends Component {
 	render() {
 		return (
 			<div className="d-flex">
-				<div className={login_container}>
+				<div className={login_container + (this.state.isMobile ? " mobile key-reg" : "")}>
 					<div className="back-nav">
 						<Link to="/login"><img src="/public/images/back-button.svg" /></Link>
 					</div>
@@ -441,12 +512,18 @@ export class GenerateKey extends Component {
 
 						<div className={this.state.downloaded ? "" : "qt-opacity-half"}>
 							<h3>Second Step <img className={this.state.registered ? "checkmark" : "d-none"} src="/public/images/check-mark.svg" /></h3>
-							<div className="input-container">
-								<label htmlFor="username">USERNAME</label>
-								<input name="username" value={this.state.value} onChange={this.handleChange} 
-									disabled={!this.state.downloaded}
-									type="text" spellCheck="false" placeholder="Enter username …"/>
-								<span className="error" hidden={!this.state.error}>{this.state.message}</span>
+							<div className="d-flex">
+								<div className="input-container">
+									<label htmlFor="username">USERNAME</label>
+									<input name="username" value={this.state.value} onChange={this.handleChange} 
+										disabled={!this.state.downloaded}
+										type="text" spellCheck="false" placeholder="Enter username …"/>
+									<span className="error" hidden={!this.state.error}>{this.state.message}</span>
+								</div>
+								<div className="text-left qt-font-small align-self-center ml-3 qt-opacity-64" hidden={!(this.state.message == "Invalid name")}>
+									<span>* Must start with a letter</span><br/>
+									<span>* Can only contains alpha numeric, dash, and dot</span>
+								</div>
 							</div>
 						</div>
 						
@@ -454,7 +531,7 @@ export class GenerateKey extends Component {
 						<div id="reg-success" className="d-none">Account successfully created. Please continue to <Link to="/login" className="text-theme">login</Link>.</div>
 					</div>
 				</div>
-				<Banner />
+				{(this.state.isMobile ? null : <Banner />)}
 			</div>
 		)
 	}

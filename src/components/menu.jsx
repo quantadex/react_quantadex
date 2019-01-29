@@ -15,13 +15,16 @@ const container = css`
 
 	.name {
 		margin-right:10px;
+		max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
 	}
 `;
 
 class Menu extends Component {
   render() {
     return (
-      <div className={container}>
+      <div className={container}  style={this.props.style}>
 				<div className="row qt-font-bold qt-font-small justify-content-end">
 					<span className="name">{this.props.name}</span>
 					<HamburgerMenu />
@@ -32,9 +35,9 @@ class Menu extends Component {
 }
 
 const mapStateToProps = (state) => ({
-  	bids: state.app.tradeBook.bids,
-  	asks: state.app.tradeBook.asks,
-		currentPrice: state.app.currentPrice,
+  	// bids: state.app.tradeBook.bids,
+  	// asks: state.app.tradeBook.asks,
+		// currentPrice: state.app.currentPrice,
 		name: state.app.name
 	});
 

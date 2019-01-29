@@ -167,6 +167,13 @@ HamburgerMenu.defaultProps = {
       text:"Wallets",
       url:"/exchange/wallets"
     },
+    {
+      iconPath:"/public/images/menuicons/quanta-grey.svg",
+      iconPathActive:"/public/images/menuicons/quanta-white.svg",
+      text:"Leaderboard",
+      url:"/leaderboard"
+    },
+    
   //   {
   //     iconPath:"/public/images/menuicons/deposit-grey.svg",
   //     iconPathActive:"/public/images/menuicons/deposit-white.svg",

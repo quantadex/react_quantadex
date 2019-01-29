@@ -8,26 +8,15 @@ import globalcss from './global-css.js'
 import QTTabBar from './ui/tabBar.jsx'
 import QTTableViewSimple from './ui/tableViewSimple.jsx'
 import {switchTicker} from "../redux/actions/app.jsx";
+import SearchBox from "./ui/searchBox.jsx";
 
 const container = css`
-	width: calc(100% - 360px);
-	float: left;
 	padding: 20px;
+	flex: auto;
 	overflow: auto;
 	border-right: 1px solid #333;
 	.coin-tabbar {
 		padding:10px 21px;
-	}
-
-	.search-box {
-		width: 150px;
-		border-radius: 50px;
-		text-align: left;
-		padding: 0 20px;
-		margin: -7px 0 7px;
-		font-size: 13px;
-		border: 0;
-		background: rgba(255,255,255,0.07) url(../public/images/search.png) no-repeat calc(100% - 15px) 50%;
 	}
 
  	table {
@@ -55,7 +44,19 @@ const container = css`
 			  opacity: 0.7;
 		  }
 	  }
-  	}
+	}
+	
+	&.mobile {
+		h4 {
+			display: none;
+		}
+		input {
+			flex: auto;
+		}
+		table tr {
+			border-bottom: 1px solid #333;
+		}
+	}
 `;
 
 class Dashboard extends Component {
@@ -70,6 +71,14 @@ class Dashboard extends Component {
 
 	switchMarket(e) {
 		this.props.dispatch(switchTicker(e))
+		if (this.props.mobile) {
+			const list = document.getElementById("market-list")
+			if (list.classList.contains("active")) {
+				list.classList.remove("active")
+			} else {
+				list.classList.add("active")
+			}
+		}
 	}
 
 	handleChange(e) {
@@ -88,7 +97,7 @@ class Dashboard extends Component {
 		}
 
 		return (
-			<div className={container}>
+			<div className={container + (this.props.mobile ? " mobile" : "")}>
         {/* <section className="menu d-flex justify-content-start qt-font-extra-small qt-font-light text-center">
 					<QTTabBar
 						className="block medium fluid qt-font-regular d-flex justify-content-start"
@@ -104,10 +113,10 @@ class Dashboard extends Component {
 				</section> */}
 				
         <section className="price">
-			<div className="d-flex justify-content-between border-bottom border-dark">
+			<div className="d-flex justify-content-between border-bottom border-dark mb-3">
 				<h4>MARKETS</h4>
-				<input className="search-box" spellCheck="false"
-				value={this.state.filter} onChange={this.handleChange.bind(this)} placeholder="Search Pairs" />
+				<SearchBox onChange={this.handleChange.bind(this)} placeholder="Search Pairs" 
+					style={{margin: "-7px 0 7px", border: 0, backgroundColor: "rgba(255,255,255,0.07)"}} />
 			</div>
 			
 			<table>

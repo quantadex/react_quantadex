@@ -40,6 +40,7 @@ const leaderboard_container = css `
 		}
 		tbody .name {
 			font-size: 12px;
+			word-break: break-word;
 		}
 		.balance {
 			text-align: right;
@@ -123,7 +124,7 @@ class Leaderboard extends Component {
 					{this.state.balanceLeaderboard.map((row, index) => {
 						return (
 							<tr key={index} className={row.username == this.props.name ? "is-user" : ""}><td className="place">{index+1}</td><td className="name">{row.username + (row.username == this.props.name ? " (You)" : "")}</td>
-							<td className="balance">${row.totalBalance.toFixed(2)}</td></tr>
+							<td className="balance">${row.totalBalance && row.totalBalance.toFixed(2)}</td></tr>
 						)
 						
 					})}

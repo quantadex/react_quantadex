@@ -1165,3 +1165,7 @@ to {
 .header-chart-panel-sizer {
     background-color: rgba(17,20,22,1);
 }
+
+.pane-legend-line span {
+    font-weight: bolder;
+}

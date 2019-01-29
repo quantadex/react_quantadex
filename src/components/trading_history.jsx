@@ -10,20 +10,28 @@ import QTTableViewSimple from './ui/tableViewSimple.jsx'
 const container = css`
 	height: 360px;
 	padding: 18px 20px;
-
+	h4 {
+		padding-bottom: 10px;
+		border-bottom: 1px solid #333;
+		margin-bottom: 10px;
+	}
 	.trading-history-table-container {
-		height: 100%;
-		h4 {
-			padding-bottom: 10px;
-			border-bottom: 1px solid #333;
-			margin-bottom: 10px;
-		}
+		height: 88%;
+		
 		thead th {
 			position: sticky;
 			position: -webkit-sticky;
 			top: 0;
 			background: #191e21;
 			z-index: 1;
+		}
+	}
+
+	&.mobile {
+		height: 100%;
+
+		thead th {
+			background: #22282c;
 		}
 	}
 `;
@@ -36,7 +44,7 @@ class TradingHistory extends Component {
 			type: 'SET_AMOUNT',
 			data: {
 				inputBuy: e.price,
-				inputBuyAmount: e.amount,
+				inputBuyAmount: e.amount.replace(/,/g, ""),
 				inputSide: e.color_key,
 				setTime: set_time
 			}
@@ -50,15 +58,15 @@ class TradingHistory extends Component {
 		}
 
 		return (
-			<div className={container}>
+			<div className={container + (this.props.mobile ? " mobile" : "")}>
 				{/* <QTTabBar
 					className="underline small fluid even-width qt-font-bold d-flex justify-content-between"
 					width={122.9}
 					tabs = {tabs}
 				/> */}
-
+				<h4>TRADING HISTORY</h4>
 				<section className="trading-history-table-container no-scroll-bar">
-					<h4>TRADING HISTORY</h4>
+					
 					<div>
 						<QTTableViewSimple dataSource={this.props.trades.dataSource} columns={this.props.trades.columns}
 											onAction={this.setAmount.bind(this)} />

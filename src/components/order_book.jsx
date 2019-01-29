@@ -28,6 +28,14 @@ const container = css`
 		border-top: 1px solid rgba(255, 255, 255, .09);
 		border-bottom: 1px solid rgba(255, 255, 255, .09);
 	}
+
+	&.mobile {
+		padding: 0 15px;
+		.orderbook-ask, .orderbook-bid {
+			height: calc(50vh - 132px);
+			min-height: auto;
+		}
+	}
 `;
 
 class OrderBook extends Component {
@@ -93,7 +101,7 @@ class OrderBook extends Component {
 		}
 
 		return (
-			<div className={container}>
+			<div className={container + (this.props.mobile ? " mobile" : "")}>
 				<section className="orderbook-title">
 					<div className="d-flex justify-content-between align-items-center">
 						<div className="qt-font-bold qt-font-normal">ORDER BOOK</div>
@@ -107,7 +115,7 @@ class OrderBook extends Component {
 					</div>
 				</section>
 				<section className="orderbook-ask no-scroll-bar">
-					<div>
+					<div id="ask-section">
 						<QTTableViewSimple key="ask_tv" dataSource={asksDataSource} 
 							columns={this.props.asks.columns} 
 							ticker={this.props.currentTicker}

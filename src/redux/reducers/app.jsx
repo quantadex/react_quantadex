@@ -389,8 +389,8 @@ const app = (state = initialState, action) => {
           (order.amountForSale()).getAmount({ real: true }) + ' ' + ticker[0];
         
         const total = order.isBid() ?
-          order.getPrice() * (order.amountToReceive()).getAmount({ real: true }) + ' ' + ticker[1]:
-          order.getPrice() * (order.amountForSale()).getAmount({ real: true }) + ' ' + ticker[1]
+          ((order.getPrice() * 10000000) * ((order.amountToReceive()).getAmount({ real: true }) * 10000000))/100000000000000 + ' ' + ticker[1]:
+          ((order.getPrice() * 10000000) * ((order.amountForSale()).getAmount({ real: true }) * 10000000))/100000000000000 + ' ' + ticker[1]
         
         return {
           assets: ticker.join('/'),
@@ -409,8 +409,8 @@ const app = (state = initialState, action) => {
           (order.amountToPay()) + ' ' + state.currentTicker.split('/')[0];
           
         const total = order.isBid ?
-          order.getPrice() * (order.amountToReceive()) + ' ' + state.currentTicker.split('/')[1]:
-          order.getPrice() * (order.amountToPay()) + ' ' + state.currentTicker.split('/')[1]
+          ((order.getPrice() * 10000000) * ((order.amountToReceive()) * 10000000))/100000000000000 + ' ' + state.currentTicker.split('/')[1]:
+          ((order.getPrice() * 10000000) * ((order.amountToPay()) * 10000000))/100000000000000 + ' ' + state.currentTicker.split('/')[1]
 
         return {
           assets: state.currentTicker,
