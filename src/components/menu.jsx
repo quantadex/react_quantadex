@@ -7,7 +7,9 @@ import globalcss from './global-css.js'
 import HamburgerMenu from './ui/hamburger_menu.jsx'
 
 const container = css`
-	padding: 22px 20px;
+	padding: 0 20px;
+	min-width: 150px;
+	align-self: center;
 
 	.row {
 		margin: 0;

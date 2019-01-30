@@ -71,7 +71,7 @@ class DepthChart extends Component {
         window.depthChartWidget = Highchart.chart("depth_chart_container", {
             chart: {
                 type: 'area',
-                backgroundColor: 'rgb(17,20,22)'
+                backgroundColor: '#23282c'
             },
             title: {
                 text: this.props.currentTicker,
@@ -143,7 +143,7 @@ class DepthChart extends Component {
                 name: 'Asks',
                 data: [],
                 color: '#fc5857'
-            }]
+            }],
         })
         
         setTimeout(() => {
@@ -189,7 +189,7 @@ class DepthChart extends Component {
 
     render() {
         return (
-            <div {...this.props} onWheel={(e) => {
+            <div className={this.props.className} onWheel={(e) => {
                 e.preventDefault();
                 this.handleScroll(e.deltaY);
             }} >

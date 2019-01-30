@@ -11,7 +11,7 @@ const blacklist = [ "bitcherry", "quanta_foundation", "quanta_labs",
                     "quantasg-witness", "quantalabs-witness", "bitcherry-witness", 
                     "clockbound-witness", "flash-witness",
                     "long", 
-                    "witness-account", "pooja", "crosschain1", "crosschain2",
+                    "witness-account", "pooja", "alpha", "crosschain1", "crosschain2",
                     "market-maker", "market-maker2", "market-maker3", 
                     "tokensale"];
 

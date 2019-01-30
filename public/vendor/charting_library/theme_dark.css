@@ -56,8 +56,8 @@ a:hover {
 }
 
 .chart-page .chart-container {
-  background-color: #1b262d !important;
-  border-color: rgba(17,20,22,1) !important;
+  background-color: #23282c !important;
+  border-color: #23282c !important;
 }
 
 .header-chart-panel {
@@ -97,7 +97,7 @@ a:hover {
 }
 
 .chart-controls-bar {
-  background: rgba(17,20,22,1) !important;
+  background: #23282c !important;
 }
 
 input.symbol-edit,
@@ -1104,7 +1104,7 @@ to {
 #library-container .save-load-buttons .active,
 #library-container .symbol-edit-widget .button.active,
 .feature-no-touch .chart-controls-bar-buttons a:not(.disabled):hover {
-  background: rgba(17,20,22,1) !important;
+  background: #23282c !important;
 }
 
 /* layout */
@@ -1163,7 +1163,7 @@ to {
 }
 
 .header-chart-panel-sizer {
-    background-color: rgba(17,20,22,1);
+    background-color: #23282c;
 }
 
 .pane-legend-line span {

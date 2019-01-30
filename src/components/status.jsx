@@ -4,36 +4,36 @@ import { connect } from 'react-redux'
 
 const container = css`
     display: flex;
-    position: fixed;
     bottom: 0;
     width: 100%;
-    background-color: #ffffff;
+    white-space: nowrap;
     overflow: hidden;
+    line-height: 25px;
     z-index: 2;
 
-    .status-info {
+    .blocknum, .avg-lat, .net-select {
+        border-left: 1px solid #444;
+        padding-right: 10px;
+    }
+
+    .brand {
         width: 100%;
-        padding: 5px 0px 5px 30px;
-        color: #000;
-        font-size: 15px;
-        font-weight: bold;
-        white-space: nowrap;
-
-        a {
-            margin-left: 5px;
-            color: #000;
-        }
+        padding-left: 10px;
     }
-
-    .status-info.brand {
-        background: #eeeeef linear-gradient(to right, #ffffff, #eeeeef);
-        flex: 0 0 260px;
+    .blocknum {
+        background: url('/public/images/blockchain.svg') no-repeat 10px;
+        padding-left: 40px;
     }
-    .label {
-        font-size: 12px;
-        color: #999;
-        font-weight: 100;
+    .avg-lat {
+        background: url('/public/images/time.svg') no-repeat 10px;
+        padding-left: 32px;
     }
+    .net-select {
+        background: url('/public/images/menu-arrow-down.svg') no-repeat 100% 9px;
+        padding: 0 15px 0 10px;
+        margin-right: 10px;
+    }
+    
 
     &.mobile {
         position: relative;
@@ -64,30 +64,10 @@ class Status extends Component {
     render() {
         return (
             <div id="quanta-status" className={container + (this.props.mobile ? " mobile" : "")}>
-                <div className="status-info brand">
-                    <span className="label">Powered by </span>
-                    <div>QUANTA - Fair Trading Protocol</div>
-                </div>
-                <div className="status-info explorer">
-                    <span className="label">QUANTA </span>
-                    <div><a href="http://testnet.quantadex.com" target="_blank">Explorer <img src="/public/images/external-link.svg" /></a></div>
-                </div>
-                <div className="status-info">
-                    <span className="label">HIGHEST BLOCK</span>
-                    <div>{this.props.blockInfo.blockNumber} <a><img src="/public/images/external-link.svg" /></a></div>
-                </div>
-                <div className="status-info avg-lat">
-                    <span className="label">{this.props.mobile ? "Avg. Block latency" : "AVERAGE BLOCK LATENCY"}</span>
-                    <div>{ this.props.blockInfo.blockTime} ms</div>
-                </div>
-                <div className="status-info">
-                    <span className="label">NUMBER OF NODES </span>
-                    <div>5</div>
-                </div>
-                <div className="status-info">
-                    <span className="label">ON-CHAIN CUSTODY </span>
-                    <div>2 tokens <a><img src="/public/images/external-link.svg" /></a></div>
-                </div>
+                <div className="brand">QUANTA Fair Trading Protocol</div>
+                <div className="blocknum" title="Highest Block">{this.props.blockInfo.blockNumber}</div>
+                <div className="avg-lat" title="Average Block Latency">{ this.props.blockInfo.blockTime}ms</div>
+                <div className="net-select">MAINNET</div>
             </div>
         )
     }

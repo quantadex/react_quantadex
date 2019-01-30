@@ -17,14 +17,17 @@ import ReactGA from 'react-ga';
 const container = css`
   position: relative;
   width: 100%;
-  padding: 20px 35px 0;
-  margin-bottom: 54px;
+  padding: 10px;
 
   .order-list {
-    margin: 15px 0;
+    margin-top: 13px;
+    height: 241px;
+    overflow: hidden;
+    overflow-y: scroll;
+
     table {
-      tbody tr {
-        border-top: 1px solid #333;
+      tr {
+        border-bottom: 1px solid #333;
       }
       tbody td {
         padding: 4px 0;
@@ -92,7 +95,7 @@ const container = css`
     z-index: 2;
   }
   thead th {
-    top: 28px;
+    top: 0;
     z-index: 1;
   }
 
@@ -279,7 +282,7 @@ class Orders extends Component {
     //   ["BNCBTC","0.234567 BTC","0.234567 BTC","0.234567 BTC","0.234567 BTC","BUY","Filled","12 JAN, 12:34:15"]
     // ]
     const tabs = {
-      names: ['ACTIVE ORDERS', 'FILLED ORDERS'],
+      names: ['Open Orders', 'Order History'],
       selectedTabIndex: 0,
     }
     
@@ -352,17 +355,19 @@ class Orders extends Component {
     return (
       <div className={container + (this.props.mobile ? " mobile" : "")}>
       <div className="sticky">
-          <div className="scroll-up" onClick={this.goToTop.bind(this)}>SCROLL UP</div>
           <QTTabBar
-            className="underline small static set-width qt-font-bold d-flex justify-content-center"
-            width={200}
+            className="button small static set-width qt-font-bold d-flex justify-content-left"
+            width={120}
             gutter={10}
             tabs = {tabs}
             switchTab = {this.handleSwitch.bind(this)}
           />
         </div>
-        <section className="order-list container-fluid">
-          <OrdersList />
+        <section className="order-list no-scroll-bar">
+          <div>
+            <OrdersList />
+          </div>
+          
 				</section>
         <ToastContainer />
       </div>

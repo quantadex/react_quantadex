@@ -14,7 +14,10 @@ const container = css`
 	padding: 20px;
 	flex: auto;
 	overflow: auto;
-	border-right: 1px solid #333;
+	border: 3px solid #000;
+	background-color: #23282c;
+	cursor: initial;
+	
 	.coin-tabbar {
 		padding:10px 21px;
 	}
@@ -25,7 +28,7 @@ const container = css`
 		  color: #777;
 	  }
 	  tr {
-		  border-bottom: 1px solid #222;
+		  border-bottom: 1px solid #333;
 		  cursor: pointer;
 	  }
 	  tbody tr:hover {

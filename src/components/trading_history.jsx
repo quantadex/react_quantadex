@@ -8,21 +8,22 @@ import QTTabBar from './ui/tabBar.jsx'
 import QTTableViewSimple from './ui/tableViewSimple.jsx'
 
 const container = css`
-	height: 360px;
-	padding: 18px 20px;
+	height: 100%;
+	padding: 10px;
 	h4 {
 		padding-bottom: 10px;
 		border-bottom: 1px solid #333;
 		margin-bottom: 10px;
+		visibility: hidden;
 	}
 	.trading-history-table-container {
-		height: 88%;
+		height: 92%;
 		
 		thead th {
 			position: sticky;
 			position: -webkit-sticky;
 			top: 0;
-			background: #191e21;
+			background: #23282c;
 			z-index: 1;
 		}
 	}
@@ -64,7 +65,7 @@ class TradingHistory extends Component {
 					width={122.9}
 					tabs = {tabs}
 				/> */}
-				<h4>TRADING HISTORY</h4>
+				<h4>TRADE HISTORY</h4>
 				<section className="trading-history-table-container no-scroll-bar">
 					
 					<div>

@@ -192,6 +192,9 @@ injectGlobal`
 		border-bottom: 2px solid rgba(255,255,255,1) !important;
 	}
 
+	.cursor-pointer {
+		cursor: pointer;
+	}
 `
 
 const store = createStore(reducer, compose(applyMiddleware(thunk)))

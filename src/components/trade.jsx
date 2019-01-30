@@ -19,9 +19,9 @@ import ReactGA from 'react-ga';
 
 const container = css`
   font-family: SFCompactTextRegular;
-  width: 360px;
+  width: 100%;
   display: inline-block;
-  padding: 20px;
+  padding: 0;
   
   .buy-sell-toggle {
     width: 100%;
@@ -73,15 +73,11 @@ const container = css`
   }
 
   .input-container {
-    display: flex;
     margin: 15px 0;
-    label {
-      flex: 0 0 70px;
-      line-height: 32px;
-    }
     input {
       border-radius: 2px;
-      padding-right: 40px;
+      padding: 0 40px 0 10px;
+      text-align: left;
     }
     input::selection {
       background-color: #fff;

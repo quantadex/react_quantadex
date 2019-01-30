@@ -84,6 +84,23 @@ const Container = styled('div')`
 
   }
 
+  &.button {
+    .item {
+      padding:4px 0;
+      margin-right: 10px;
+      text-align: center;
+      border: 2px solid #4a4a4a;
+      border-radius: 20px;
+      color: #ddd;
+
+      &.selected {
+        border: solid 2px #50b3b7;
+        color:white;
+      }
+    }
+
+  }
+
   &.even-width {
 
     .item {
