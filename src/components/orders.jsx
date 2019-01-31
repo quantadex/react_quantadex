@@ -151,6 +151,7 @@ const container = css`
 
     .order-list {
       padding: 0;
+      height: calc(100vh - 235px);
 
       .list-row {
         padding: 5px 0;

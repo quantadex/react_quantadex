@@ -34,6 +34,15 @@ const container = css`
         margin-right: 20px;
         background: url('/public/images/right-arrow.svg') no-repeat 100% 52%;
     }
+    &.link.mobile {
+        background: none;
+    }
+
+    &.mobile  {
+        padding: 0;
+        margin: 0;
+    }
+
 `
 
 const dialog = css`
@@ -94,7 +103,21 @@ const dialog = css`
                 color: #fff;
                 border-radius: 4px;
                 margin: 0 150px;
+                white-space: nowrap;
                 cursor: pointer;
+            }
+        }
+    }
+
+    &.mobile {
+        .container {
+            width: 100% !important;
+
+            .input-container {
+                button {
+                    margin: 0;
+                    width: 100%;
+                }
             }
         }
     }
@@ -113,7 +136,7 @@ function toggleDialog() {
 class ConnectLink extends Component {
     render() {
         return (
-            <div className={container + " link cursor-pointer"} onClick={toggleDialog}>CONNECT WALLET</div>
+            <div className={container + " link cursor-pointer" + (this.props.isMobile ? " mobile" : "")} onClick={toggleDialog}>CONNECT WALLET</div>
         )
     }
     
@@ -169,7 +192,7 @@ class ConnectDialog extends Component {
         }
 
         return (
-            <div id="connect-dialog" className={dialog} style={{display: "none"}}>
+            <div id="connect-dialog" className={dialog + (this.props.isMobile ? " mobile" : "")} style={{display: "none"}}>
                 <div className="container">
                     <div className="close-btn" onClick={toggleDialog}><img src="/public/images/close_btn.svg" /></div>
                     <h4>CONNECT WALLET</h4>

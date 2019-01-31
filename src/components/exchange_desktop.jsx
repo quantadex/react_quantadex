@@ -238,37 +238,6 @@ class Exchange extends Component {
 				</section>
 				{this.props.private_key ? "" : <ConnectDialog />}
 			</div>
-
-
-		// <div className={container + " container-fluid"}>
-		// 	<div className="row flex-nowrap" style={{overflow:"hidden",minHeight:"calc(100vh - 120px)"}}>
-		// 		<div className="exchange-left" style={{ display: this.props.leftOpen ? 'block': 'none'}}>
-		// 			<OrderBook />
-		// 		</div>
-		// 		<div className="exchange-middle">
-		// 			<Header />
-		// 			<Switchchart />
-		// 			<Chart chartTools={true} className={this.state.chart === "tv" ? "d-block": "d-none"} />
-		// 			<DepthChart  className={this.state.chart === "depth" ? "d-block": "d-none"} />
-		// 			<div className="d-flex">
-		// 				<Dashboard />
-		// 				<Trade />
-		// 			</div>
-					
-		// 		</div>
-		// 		<div className="exchange-right" style={{ display: this.props.rightOpen ? 'block' : 'none'}}>
-		// 			<Menu />
-		// 			<Leaderboard />
-
-		// 			<TradingHistory />
-		// 		</div>
-		// 	</div>
-		// 	<div className="row exchange-bottom">
-		// 		<Orders />
-		// 		<Status />
-		// 	</div>
-		// 	{ localStorage.getItem("firstTimeComplete") ? null : <FirstTime /> }
-		// </div>
 		);
 	}
 }

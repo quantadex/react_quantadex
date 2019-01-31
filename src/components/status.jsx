@@ -38,19 +38,11 @@ const container = css`
     &.mobile {
         position: relative;
         font-size: 13px;
-        justify-content: space-evenly;
-
-        .status-info {
+        justify-content: space-between;
+        .brand {
             display: none;
-            padding: 5px 0;
-            width: auto;
-            .label {
-                margin-right: 5px;
-            }
-            a {
-                margin: 0;
-            }
         }
+
         .explorer, .avg-lat {
             display: inline-block;
         }

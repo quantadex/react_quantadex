@@ -193,6 +193,7 @@ const container = css`
 
   &.mobile {
     width: 100%;
+    padding: 10px;
   }
 `;
 

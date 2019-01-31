@@ -8,6 +8,7 @@ import Dashboard from './dashboard.jsx';
 import MobileHeader from './ui/mobileHeader.jsx';
 import Orders from './orders.jsx';
 import Trade from './trade.jsx';
+import ConnectDialog, { ConnectLink, Connect } from './connect.jsx';
 import Leaderboard from './leaderboard.jsx'
 import Status from './status.jsx'
 import FirstTime from './first_time.jsx'
@@ -33,25 +34,8 @@ const container = css`
 	height: 100vh;
 	width: 100%;
 
-	.exchange-left {
-		width:281px;
-		padding:22px 20px;
-	}
-
-	.exchange-middle {
-		padding: 21px 19px;
-		flex-grow:1;
-		background-color:rgba(17,20,22,1);
-		padding-bottom: 0;
-	}
-
-	.exchange-right {
-		width:300px;
-		background-color: rgba(0,0,0,0.26)
-	}
-
 	.exchange-bottom {
-		position: absolute;
+		position: fixed;
 		width: 100%;
 		bottom: 0;
 		background-color: #23282c;
@@ -183,12 +167,13 @@ class Exchange extends Component {
 				</div>
 			)
 		}
-		const content = [<Trade mobile={true} />, <Orders mobile={true}/>, <ChartContent />,
-						 <OrderBook mobile={true}/>, <TradingHistory mobile={true}/>]
+		const content = [this.props.private_key ? <Trade mobile={true} /> : <Connect />, 
+						this.props.private_key ? <Orders mobile={true}/> : <Connect /> , 
+						<ChartContent />, <OrderBook mobile={true}/>, <TradingHistory mobile={true}/>]
 		const Switchchart = () => {
 			return(
 				<div className="switch-chart d-flex">
-					<button className={this.state.chart === "tv" ? "active": ""} onClick={() => this.toggleChart("tv")}>TradingView</button>
+					<button className={this.state.chart === "tv" ? "active": ""} onClick={() => this.toggleChart("tv")}>Price</button>
 					<button className={this.state.chart === "depth" ? "active": ""} onClick={() => this.toggleChart("depth")}>Depth</button>
 				</div>
 			)
@@ -204,7 +189,6 @@ class Exchange extends Component {
 				<Dashboard mobile={true}/>
 			</div>
 			
-
 			<div className="content">
 				{content[this.state.selectedTabIndex]}
 			</div>
@@ -213,8 +197,8 @@ class Exchange extends Component {
 				<MobileNav tabs={tabs} selectedTabIndex={this.state.selectedTabIndex} switchTab={this.handleSwitch.bind(this)} />
 				<Status mobile={true} />
 			</div>
-
-			{ localStorage.getItem("firstTimeComplete") ? null : <FirstTime mobile={true}/> }
+			{this.props.private_key ? "" : <ConnectDialog isMobile={true}/>}
+			{/* { localStorage.getItem("firstTimeComplete") ? null : <FirstTime mobile={true}/> } */}
 		</div>
 		);
 	}

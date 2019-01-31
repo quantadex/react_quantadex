@@ -30,7 +30,9 @@ const container = css`
 
 	&.mobile {
 		height: 100%;
-
+		h4 {
+			visibility: visible;
+		}
 		thead th {
 			background: #22282c;
 		}
