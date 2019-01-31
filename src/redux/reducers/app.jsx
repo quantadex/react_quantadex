@@ -36,8 +36,8 @@ let initialState = {
       fontWeight:"light",
       float:"left"
     },{
-      name:"BLOCK#",
-      key:"block",
+      name:"ID",
+      key:"id",
       type:"string",
       sortable:false,
       color: (value) => {return "theme"},

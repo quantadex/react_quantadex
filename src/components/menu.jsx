@@ -8,7 +8,7 @@ import HamburgerMenu from './ui/hamburger_menu.jsx'
 
 const container = css`
 	padding: 0 20px;
-	min-width: 150px;
+	min-width: 180px;
 	align-self: center;
 
 	.row {

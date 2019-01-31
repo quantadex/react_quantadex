@@ -473,7 +473,7 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
       console.log("chart data", data);
       const no_data = data.length == 0;
       const bars = transformPriceData(data, counter, base);
-      console.log("Bars ", bars, no_data);
+      // console.log("Bars ", bars, no_data);
 
       console.log("Writing Enddate");
       Datafeeds.endDate = endDate;
@@ -885,12 +885,12 @@ Datafeeds.DataPulseUpdater.prototype.subscribeDataListener = function(
         startDate.toISOString().slice(0, -5),
         endDate.toISOString().slice(0, -5)
       ]).then((data) => {
-        console.log("stream ", startDate.toISOString().slice(0, -5), endDate.toISOString().slice(0, -5), data);
+        // console.log("stream ", startDate.toISOString().slice(0, -5), endDate.toISOString().slice(0, -5), data);
         if (data.length == 0) {
         } else {
           const no_data = data.length == 0;
           const bars = transformPriceData(data, counter, base);
-          console.log("Bars ", bars, no_data);
+          // console.log("Bars ", bars, no_data);
           newDataCallback(bars[0]);
           Datafeeds.endDate = endDate;
         }

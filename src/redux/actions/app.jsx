@@ -322,7 +322,6 @@ export function switchTicker(ticker) {
 					.exec("get_full_accounts", [[getState().app.userId], true])
 					.then(results => {
 						var orders = [];
-						
 						results[0][1].limit_orders.forEach((ordered) => {
 							// search both market pairs to see what makes sense
 							// as the trading pair
@@ -340,12 +339,13 @@ export function switchTicker(ticker) {
 							}else if (foundB) {
 								baseId = assetsBySymbol[counter].id
 							}
-							// console.log("ordered", ordered, foundA, foundB, baseId);
 							var order = new LimitOrder(
 								ordered,
 								window.assets,
 								baseId
 							);
+							
+							// console.log("ordered", order);
 							orders.push(order)
 						})
 						return [results, orders]

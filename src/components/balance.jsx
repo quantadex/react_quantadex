@@ -11,6 +11,9 @@ const container = css`
     tr td:first-child {
         color: #aaa;
     }
+    .no-scroll-bar {
+        height: calc(100vh - 555px);
+    }
 `
 
 class Balance extends Component {
@@ -18,18 +21,22 @@ class Balance extends Component {
         return (
             <div className={container + " qt-font-light"}>
                 Wallet Balance <Link to="exchange/wallets" className="ml-2"><img src="/public/images/open-icon.svg" /></Link>
-                <table className="w-100 mt-3">
-                    <tbody>
-                        {this.props.balance.map(row => {
-                            return (
-                                <tr>
-                                    <td>{window.assets[row.asset].symbol}</td>
-                                    <td className="text-right">{row.balance}</td>
-                                </tr>
-                            )
-                        })}
-                    </tbody>
-                </table>
+                <div className="no-scroll-bar">
+                    <div>
+                        <table className="w-100 mt-3">
+                            <tbody>
+                                {this.props.balance.map(row => {
+                                    return (
+                                        <tr key={row.asset}>
+                                            <td>{window.assets[row.asset].symbol}</td>
+                                            <td className="text-right">{row.balance}</td>
+                                        </tr>
+                                    )
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         )
     }

@@ -21,8 +21,8 @@ const container = css`
   padding: 10px;
 
   .order-list {
-    margin-top: 13px;
-    height: 197px;
+    margin-top: 4px;
+    height: 205px;
     overflow: hidden;
     overflow-y: scroll;
 
@@ -295,7 +295,7 @@ class Orders extends Component {
         if (this.props.mobile) {
           return (
             <div>
-              {this.props.openOrders.dataSource.map(row => {
+              {this.props.openOrders.dataSource.sort((a,b) => (a.id > b.id) ? -1 : ((b.id > a.id) ? 1 : 0)).map(row => {
                 return (
                   <div key={row.id} className="list-row" onClick={() => this.toggleDetails(row.id)}>
                     <div className="d-flex list-item">
@@ -315,7 +315,7 @@ class Orders extends Component {
           )
         } else {
           return (
-            <QTTableViewSimple dataSource={this.props.openOrders.dataSource} columns={this.props.openOrders.columns}
+            <QTTableViewSimple dataSource={this.props.openOrders.dataSource.sort((a,b) => (a.id > b.id) ? -1 : ((b.id > a.id) ? 1 : 0))} columns={this.props.openOrders.columns}
             cancelOrder={this.handleCancel.bind(this)} />
           )
         }

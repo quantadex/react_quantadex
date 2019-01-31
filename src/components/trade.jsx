@@ -329,20 +329,6 @@ class Trade extends Component {
             pairBalance.push(item)
         })
 
-        const PlaceOrder = () => {
-            return (
-                <div>
-                    {this.state.trade_side == 1 ?
-                        <button id="sell-action" className="sell-btn" onClick={this.handleSell.bind(this)}>{this.state.processing ? <Loader /> : "PLACE SELL ORDER"}</button>
-                        :
-                        <button id="buy-action" className="buy-btn" onClick={this.handleBuy.bind(this)}>{this.state.processing ? <Loader /> : "PLACE BUY ORDER"}</button>
-                    }
-                    
-                    
-                </div>
-            )
-        }
-
         return (
             <div className={container + " container-fluid" + (this.props.mobile ? " mobile" : "")}>
                 <div className="buy-sell-toggle">
@@ -407,7 +393,15 @@ class Trade extends Component {
                         </table>
                     </div>
 
-                    { this.props.private_key ? <PlaceOrder /> : "" }
+                    { this.props.private_key ? 
+                        <div>
+                            {this.state.trade_side == 1 ?
+                                <button id="sell-action" className="sell-btn" onClick={this.handleSell.bind(this)}>{this.state.processing ? <Loader /> : "PLACE SELL ORDER"}</button>
+                                :
+                                <button id="buy-action" className="buy-btn" onClick={this.handleBuy.bind(this)}>{this.state.processing ? <Loader /> : "PLACE BUY ORDER"}</button>
+                            }
+                        </div>
+                    : "" }
                 </div>
                 <ToastContainer />
             </div>

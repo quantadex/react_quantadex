@@ -182,7 +182,7 @@ class ConnectDialog extends Component {
                     <div className="input-container">
                         <label>Private Key</label><br/>
                         <input type="text" autoComplete="off" placeholder="Enter private key..."
-                        onChange={(e) => this.handleChange(e)}/><br/>
+                        spellCheck="false" onChange={(e) => this.handleChange(e)}/><br/>
                         <span className="error" hidden={!this.state.authError}>Invalid Key</span><br/>
                         <button onClick={this.ConnectWallet.bind(this)}>Connect Wallet</button>
                     </div>
