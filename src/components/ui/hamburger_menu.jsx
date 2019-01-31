@@ -213,7 +213,7 @@ HamburgerMenu.defaultProps = {
       text:"Logout",
       // url:"/login"
       onClick: () => {
-        window.location.assign('/login')
+        window.location.assign('/exchange')
       }
     }],
     backgroundColor:"#323b40"

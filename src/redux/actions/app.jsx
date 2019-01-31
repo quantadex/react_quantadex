@@ -59,15 +59,15 @@ export function buyTransaction(market, price, amount) {
 		var user_id = getState().app.userId;
 
 		const pKey = PrivateKey.fromWif(getState().app.private_key);
-		console.log(pKey, assets[base.id], "price=",price, "amount=", amount, user_id);
+		// console.log(pKey, assets[base.id], "price=",price, "amount=", amount, user_id);
 
 		const order = createLimitOrderWithPrice(user_id, true, window.assets, base.id, counter.id, price, amount)
 
-		console.log("order prepare", order);
+		// console.log("order prepare", order);
 		const tr = createLimitOrder2(order)
 		return signAndBroadcast(tr, pKey)
 			.then((e) => {
-				console.log("order result ", e);
+				// console.log("order result ", e);
 				return e[0]
 			}).catch((e) => {
 				throw e
@@ -117,6 +117,7 @@ export const cancelTransaction = (market, order_id) => {
 }
 
 var initAPI = false;
+var initUser = false;
 //var wsString = "ws://localhost:8090";
 var wsString = "wss://testnet-01.quantachain.io:8095";
 
@@ -181,8 +182,11 @@ export function switchTicker(ticker) {
 	console.log("Switch ticker ", ticker);
 
 	return function (dispatch,getState) {
-		const pKey = PrivateKey.fromWif(getState().app.private_key);
-		const publicKey = pKey.toPublicKey().toString()
+		var publicKey = null
+		if (getState().app.private_key !== null) {
+			const pKey = PrivateKey.fromWif(getState().app.private_key);
+			publicKey = pKey.toPublicKey().toString()
+		}
 
 		dispatch({
 			type: UPDATE_TICKER,
@@ -191,7 +195,7 @@ export function switchTicker(ticker) {
 
 		if (initAPI == false) {
 			Apis.instance(wsString, true, 3000, { enableOrders: true }).init_promise.then((res) => {
-				console.log("connected to:", res[0].network, publicKey);
+				// console.log("connected to:", res[0].network, publicKey);
 
 				// Apis.instance().db_api().exec("set_subscribe_callback", [onUpdate, true]);
 				initAPI = true;				
@@ -201,33 +205,16 @@ export function switchTicker(ticker) {
 				});
 			})
 			.then((e) => {
-				return Promise.all([Apis.instance()
-					.db_api()
-					.exec("get_key_references", [[publicKey]])
-					.then(vec_account_id => {
-						console.log("get_key_references ", vec_account_id[0][0]);
-
-						return Apis.instance()
-							.db_api()
-							.exec("get_objects", [[vec_account_id[0][0]]])
-							.then((data) => {
-								console.log("get account ", data);
-								dispatch({
-									type: UPDATE_ACCOUNT,
-									data: data[0]
-								})
-							})
-
-					}), Apis.instance().db_api().exec("list_assets", ["A", 100]).then((assets) => {
-						// console.log("assets ", assets);
-						window.assets = lodash.keyBy(assets, "id")
-						window.assetsBySymbol = lodash.keyBy(assets, "symbol")
-						return assets;
-					})]);
+				Apis.instance().db_api().exec("list_assets", ["A", 100]).then((assets) => {
+					// console.log("assets ", assets);
+					window.assets = lodash.keyBy(assets, "id")
+					window.assetsBySymbol = lodash.keyBy(assets, "symbol")
+					return assets;
+				}).then((e) => {
+					action(ticker)
+				});
 			})
-			.then((e) => {
-				action(ticker)
-			});
+			
 		} else {
 			action(ticker)
 		}
@@ -237,7 +224,7 @@ export function switchTicker(ticker) {
 
 			async function fetchData(ticker, first=false) {
 				var {base, counter} = getBaseCounter(ticker)
-
+				
 				await fetch("https://s3.amazonaws.com/quantachain.io/markets.json").then(e => e.json())
 					.then(async (e) => {
 						// save for later
@@ -273,6 +260,33 @@ export function switchTicker(ticker) {
 							type: SET_MARKET_QUOTE,
 							data: [marketData, USD_value]
 						})
+					}).then(e => {
+						if (!initUser && getState().app.private_key !== null) {
+							const pKey = PrivateKey.fromWif(getState().app.private_key);
+							publicKey = pKey.toPublicKey().toString()
+
+							Apis.instance()
+							.db_api()
+							.exec("get_key_references", [[publicKey]])
+							.then(vec_account_id => {
+								// console.log("get_key_references ", vec_account_id[0][0]);
+		
+								return Apis.instance()
+									.db_api()
+									.exec("get_objects", [[vec_account_id[0][0]]])
+									.then((data) => {
+										// console.log("get account ", data);
+										dispatch({
+											type: UPDATE_ACCOUNT,
+											data: data[0]
+										})
+									})
+		
+							}).then(e => {
+								initUser = true
+								fetchData(ticker)
+							})
+						}
 					})
 					
 				const trades = Apis.instance().history_api().exec("get_fill_order_history", [base.id, counter.id, 100]).then((filled) => {
@@ -280,24 +294,30 @@ export function switchTicker(ticker) {
 					const trade_history = convertHistoryToOrderedSet(filled, base.id)
 					//console.log("converted ", trade_history);
 					const my_history = [];
-					(filled.filter(order => order.op.account_id == getState().app.userId)).forEach((filled) => {
-						var order = new FillOrder(
-							filled,
-							window.assets,
-							base.id
-						);
-						my_history.push(order)
-					})
+					if (publicKey) {
+						(filled.filter(order => order.op.account_id == getState().app.userId)).forEach((filled) => {
+							var order = new FillOrder(
+								filled,
+								window.assets,
+								base.id
+							);
+							my_history.push(order)
+						})
+					}
+					
 					return [trade_history, my_history]
 				})
 	
 				// selling counter
 				const orderBook = Apis.instance().db_api().exec("get_order_book", [counter.id, base.id, 50]).then((ob) => {
-					console.log("ob  ", ob);
+					// console.log("ob  ", ob);
 					return aggregateOrderBook(ob.bids, ob.asks, window.assets[base.id].precision)
 				})
-	
-				const account_data = Apis.instance()
+
+				var account_data = [[],[]]
+				
+				if (publicKey) {
+					account_data = Apis.instance()
 					.db_api()
 					.exec("get_full_accounts", [[getState().app.userId], true])
 					.then(results => {
@@ -320,7 +340,7 @@ export function switchTicker(ticker) {
 							}else if (foundB) {
 								baseId = assetsBySymbol[counter].id
 							}
-							//console.log("ordered", ordered, foundA, foundB, baseId);
+							// console.log("ordered", ordered, foundA, foundB, baseId);
 							var order = new LimitOrder(
 								ordered,
 								window.assets,
@@ -330,8 +350,9 @@ export function switchTicker(ticker) {
 						})
 						return [results, orders]
 					})
+				}
 
-				console.log("Get all the data! for ", ticker);
+				// console.log("Get all the data! for ", ticker);
 				return Promise.all([orderBook, trades, account_data])
 					.then((data) => {
 						dispatch({

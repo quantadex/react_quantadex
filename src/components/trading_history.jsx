@@ -13,11 +13,11 @@ const container = css`
 	h4 {
 		padding-bottom: 10px;
 		border-bottom: 1px solid #333;
-		margin-bottom: 10px;
+		margin-bottom: 0;
 		visibility: hidden;
 	}
 	.trading-history-table-container {
-		height: 92%;
+		height: calc(100% - 30px);
 		
 		thead th {
 			position: sticky;

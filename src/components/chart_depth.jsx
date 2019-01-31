@@ -84,10 +84,7 @@ class DepthChart extends Component {
                 gridLineColor: "#333",
                 lineColor: '#333',
                 minPadding: 0,
-                maxPadding: 0,
-                title: {
-                    text: 'Price'
-                }
+                maxPadding: 0
             },
             yAxis: [{
                 gridLineColor: "#333",
@@ -138,10 +135,12 @@ class DepthChart extends Component {
             series: [{
                 name: 'Bids',
                 data: [],
+                step: 'right',
                 color: '#03a7a8'
             }, {
                 name: 'Asks',
                 data: [],
+                step: 'left',
                 color: '#fc5857'
             }],
         })

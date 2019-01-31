@@ -16,12 +16,13 @@ import ReactGA from 'react-ga';
 
 const container = css`
   position: relative;
+  height: 260px;
   width: 100%;
   padding: 10px;
 
   .order-list {
     margin-top: 13px;
-    height: 241px;
+    height: 197px;
     overflow: hidden;
     overflow-y: scroll;
 

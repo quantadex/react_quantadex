@@ -12,8 +12,7 @@ import globalcss from './global-css.js'
 const container = css`
 
 	.orderbook-ask, .orderbook-bid {
-		height: 40vh;
-		min-height:260px;
+		height: calc(50vh - 96px);
 		thead th{
 			position: -webkit-sticky;
 			position: sticky;

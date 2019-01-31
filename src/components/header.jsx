@@ -8,6 +8,7 @@ import Dashboard from './dashboard.jsx';
 
 const container = css`
 	margin: 5px 0;
+	height: 52px;
 	padding: 10px 20px;
 	width: 100%;
 	border-right: 2px solid #444;

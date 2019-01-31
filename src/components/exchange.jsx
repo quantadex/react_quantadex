@@ -67,12 +67,7 @@ const screenWidth = screen.width
 
 class Exchange extends Component {
 	componentDidMount() {
-		if (!this.props.private_key) {
-			this.props.history.push("/login")
-		} else {
-			this.props.dispatch(switchTicker(this.props.currentTicker));
-			//this.props.dispatch(initBalance());
-		}
+		this.props.dispatch(switchTicker(this.props.currentTicker));
 	}
 
 

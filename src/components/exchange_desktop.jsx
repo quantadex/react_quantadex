@@ -8,6 +8,8 @@ import Dashboard from './dashboard.jsx';
 import Menu from './menu.jsx';
 import Orders from './orders.jsx';
 import Trade from './trade.jsx';
+import Balance from './balance.jsx';
+import ConnectDialog, { ConnectLink, Connect } from './connect.jsx';
 import Leaderboard from './leaderboard.jsx'
 import Status from './status.jsx'
 import FirstTime from './first_time.jsx'
@@ -31,9 +33,14 @@ const container = css`
 	position: relative;
 	height: 100vh;
 
-	section {
+	hr {
+		border-color: #444;
+	}
+
+	section.compartment {
 		background-color: #23282c;
 		margin-right: 5px;
+		min-height: 260px;
 	}
 
 	.content {
@@ -51,16 +58,16 @@ const container = css`
 		bottom: 0;
 		justify-content: center;
 		width: 100%;
+		background-color: #23282c;
 		z-index: 99;
 	}
 	
 	#tv_chart_container, #depth_chart_container {
-		height: calc(100vh - 433px);
-		min-height: 370px !important;
+		height: calc(100vh - 390px);
 		width: 100%;
 	}
 
-	.trade-history {
+	.trade-toggle {
 		position: absolute;
 		right: 10px;
 		float: right;
@@ -73,11 +80,18 @@ const container = css`
 			color: #66d7d7;
 			padding-left: 14px;
 			font-size: 12px;
+		}
+		.toggle.show {
 			background: url('/public/images/left-arrow.svg') no-repeat 0 4px;
+		}
+		.toggle.hide {
+			margin-left: 80px;
+			background: url('/public/images/right-arrow.svg') no-repeat 0 4px;
 		}
 	}
 
 	.switch-chart {
+		height: 32px;
 		padding-left: 10px;
 		z-index: 1;
 
@@ -150,8 +164,22 @@ class Exchange extends Component {
 		
 	}
 
+	resizeDepthChart() {
+		setTimeout(() =>{
+			window.depthChartWidget.setSize(null, null, false)
+		}, 0)
+	}
+
 	toggleChart(chart) {
 		this.setState({ chart: chart })
+		if(chart == "depth") {
+			this.resizeDepthChart()
+		}
+	}
+
+	toggleHistory() {
+		this.setState({toggle_trade: !this.state.toggle_trade})
+		this.resizeDepthChart()
 	}
 
 	render() {
@@ -167,46 +195,48 @@ class Exchange extends Component {
 			<div className={container}>
 				<div className="d-flex">
 					<Header />
-					<Menu />
+					{this.props.private_key ? <Menu /> : <ConnectLink />}
 				</div>
 				<div className="content d-flex">
-					<section className="left-cols">
+					<section className="compartment left-cols">
 						<Trade />
+						<hr/>
+						{this.props.private_key ? <Balance /> : <Connect />}
 					</section>
-					<section className="left-cols">
+					<section className="compartment left-cols">
 						<OrderBook />
 					</section>
 
-					<div className="d-flex flex-column" style={{width: "calc(100% - 530px)"}}>
+					<div className="d-flex flex-column justify-content-between" style={{width: "calc(100% - 530px)"}}>
 						<div className="d-flex mb-2">
-							<div className="trade-history align-items-center">TRADE HISTORY
-									<div className="toggle cursor-pointer" onClick={() => this.setState({toggle_trade: !this.state.toggle_trade})}>SHOW</div>
+							<div className="trade-toggle align-items-center">TRADE HISTORY
+									<div className={"toggle cursor-pointer" + (this.state.toggle_trade ? " hide" : " show")}
+									onClick={() => this.toggleHistory()}>
+										{this.state.toggle_trade ? "HIDE" : "SHOW"}
+									</div>
 								</div>
-							<section style={this.state.toggle_trade ? {width: "calc(100% - 270px)"} : {width: "100%"}}>
-								
-
+							<section className="compartment" style={this.state.toggle_trade ? {width: "calc(100% - 270px)"} : {width: "100%"}}>
 								<Switchchart />
 								<Chart chartTools={true} className={this.state.chart === "tv" ? "d-block": "d-none"} />
 								<DepthChart  className={this.state.chart === "depth" ? "d-block": "d-none"} />
 							</section>
 
-							<section className={"cols" + (this.state.toggle_trade ? "" : " d-none")}>
+							<section className={"compartment cols" + (this.state.toggle_trade ? "" : " d-none")}>
 								<TradingHistory />
 							</section>
 						</div>
 						
 						
-						<section>
-							<Orders />
+						<section className="compartment">
+							{this.props.private_key ? <Orders /> : <Connect />}
 						</section>
 					</div>
 				</div>
-				
 
 				<section className="status">
 					<Status />
 				</section>
-				
+				{this.props.private_key ? "" : <ConnectDialog />}
 			</div>
 
 

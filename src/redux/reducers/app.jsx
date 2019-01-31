@@ -16,7 +16,7 @@ let initialState = {
   tradeBook: { bids: [], asks: []},
   markets: [],
   currentPrice: "",
-  balance: {},
+  balance: [],
   ui: {
     leftOpen: true,
     rightOpen: true
@@ -35,6 +35,15 @@ let initialState = {
       fontSize:"extra-small",
       fontWeight:"light",
       float:"left"
+    },{
+      name:"BLOCK#",
+      key:"block",
+      type:"string",
+      sortable:false,
+      color: (value) => {return "theme"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"right"
     },{
       name:"PRICE",
       key:"price",
@@ -424,7 +433,7 @@ const app = (state = initialState, action) => {
       })
       
       var total_fund_value = 0
-      const balances = action.data.accountData[0][1].balances.map((balance => {
+      const balances = action.data.accountData.length > 0 && action.data.accountData[0][1].balances.map((balance => {
         const real_balance = balance.balance / (10 ** window.assets[balance.asset_type].precision)
         const usd = state.usd_value[balance.asset_type] ? real_balance * state.usd_value[balance.asset_type] : real_balance
         total_fund_value += usd
