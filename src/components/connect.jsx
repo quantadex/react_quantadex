@@ -21,7 +21,8 @@ const container = css`
         cursor: pointer;
     }
 
-    #connect {
+    .connect-link {
+        display: inline;
         color: #fff;
         text-decoration: underline;
         cursor: pointer;
@@ -151,7 +152,7 @@ class Connect extends Component {
                 <button>GET STARTED</button>
                 <div>
                     or<br/>
-                    <div id="connect" onClick={toggleDialog}>Connect Wallet</div>
+                    <div className="connect-link" onClick={toggleDialog}>Connect Wallet</div>
                 </div>
             </div>
         )
