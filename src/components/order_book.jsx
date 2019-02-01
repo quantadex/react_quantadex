@@ -64,14 +64,6 @@ class OrderBook extends Component {
 	}
 
 	render() {
-		// const asksDataSource = lodash.takeRight(this.props.asks.dataSource,20).map((ask) => {
-		// 	return {
-		// 		...ask,
-		// 		price: parseFloat(ask.price).toFixed(this.props.decimals.value),
-		// 		total: parseFloat(ask.total).toFixed(this.props.decimals.maxTotalDecimals)
-		// 	}
-		// })
-		
 		var asksIterator = this.props.asks.dataSource.beginIterator();
 		var asksDataSource = []
 		while (asksIterator.value() !== null && asksDataSource.length < 20) {
@@ -116,6 +108,9 @@ class OrderBook extends Component {
 				<section className="orderbook-ask no-scroll-bar">
 					<div id="ask-section">
 						<QTTableViewSimple key="ask_tv" dataSource={asksDataSource} 
+							max={this.props.asks.max}
+							barColor="255,35,116"
+							barDir="right"
 							columns={this.props.asks.columns} 
 							ticker={this.props.currentTicker}
 							onAction={this.setAmount.bind(this, 1)}
@@ -135,6 +130,9 @@ class OrderBook extends Component {
 				<section className="orderbook-bid no-scroll-bar">
 					<div>
 						<QTTableViewSimple key="bid_tv"
+							max={this.props.bids.max}
+							barColor="33,224,219"
+							barDir="right"
 							dataSource={bidsDataSource}
 							columns={this.props.bids.columns}
 							HideHeader={true}
@@ -148,6 +146,7 @@ class OrderBook extends Component {
 }
 
 const mapStateToProps = (state) => ({
+	orderbook: state.app.orderBook, 
   	bids: state.app.orderBook.bids,
   	asks: state.app.orderBook.asks,
 	decimals: state.app.orderBook.decimals,

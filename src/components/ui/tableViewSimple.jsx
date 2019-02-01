@@ -17,6 +17,9 @@ const container = css`
   tr {
     height:20px;
   }
+  td {
+    white-space: nowrap;
+  }
 
   tbody tr {
     cursor:pointer;
@@ -70,6 +73,17 @@ const container = css`
 
   td.regular {
     font-family: SFCompactTextRegular;
+  }
+
+  .perc-bar {
+    position: absolute;
+    height: 20px;
+  }
+  .perc-bar.left {
+    left: -5px;
+  }
+  .perc-bar.right {
+    right: 5px;
   }
 
 `
@@ -149,6 +163,12 @@ export default class QTTableViewSimple extends React.Component {
                     )
                   })
                 }
+                
+                {this.props.max ? 
+                  <span className={"perc-bar " + this.props.barDir}
+                  style={{background: `rgba(${row.color_key != undefined ? (row.color_key == 0 ? "33,224,219" : "255,35,116") : this.props.barColor},${0.05 + Math.round((row.total / this.props.max)*100)/1000})`, 
+                          width: `${Math.round((row.total / this.props.max)*100)}%`}}></span> 
+                : ""}
               </tr>
             )
           })

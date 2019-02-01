@@ -112,6 +112,15 @@ let initialState = {
       fontWeight:"light",
       float:"left"
     },{
+      name:"ID",
+      key:"id",
+      type:"string",
+      sortable:false,
+      color: (value) => {return "theme"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"right"
+    },{
       name:"PRICE",
       key:"price",
       type:"string",
@@ -338,50 +347,61 @@ const app = (state = initialState, action) => {
   switch (action.type) {
     case INIT_DATA:
       //console.log("Merge? ", mergeTickerData(action.data.markets, action.data.tickers));
+      var maxAsk = 0
       var asksSortedSet = state.orderBook.asks.dataSource
       asksSortedSet.clear()
       action.data.orderBook.asks.map((ask) => {
         try {
+          let total = parseFloat(ask.price) * parseFloat(ask.quote)
           asksSortedSet.insert({
             price: ask.price,
             amount: ask.quote,
-            total: parseFloat(ask.price) * parseFloat(ask.quote)
+            total: total
           })
+          maxAsk = Math.max(maxAsk, total)
         } catch(e) {
           console.log(e)
         }
       })
 
+      var maxBid = 0
       var bidsSortedSet = state.orderBook.bids.dataSource
       bidsSortedSet.clear()
       action.data.orderBook.bids.map((bid) => {          
         try {
+            let total = parseFloat(bid.price) * parseFloat(bid.quote)
             bidsSortedSet.insert({
               price: bid.price,
               amount: bid.quote,
-              total: parseFloat(bid.price) * parseFloat(bid.quote)
+              total: total
             })
+            maxBid = Math.max(maxBid, total)
           } catch(e) {
             console.log(e)
           }
       })
       
+      var maxTrade = 0
       var lastTradePrice = undefined
       const tradesDataSource = action.data.trades.map((trade) => {
         if (lastTradePrice === undefined) {
           lastTradePrice = trade.getPrice()
         }
-        
+        let amount = trade.isBid ? parseFloat(trade.amountToReceive().replace(/,/g, "")) : parseFloat(trade.amountToPay().replace(/,/g, ""))
+        let total = trade.getPrice() * amount
+        maxTrade = Math.max(maxTrade, total)
+
         return {
           id: trade.id,
           price: trade.getPrice(),
-          amount: trade.isBid ? trade.amountToReceive() : trade.amountToPay(),
+          amount: amount,
+          total: total,
           color_key: trade.isBid ? 0 : 1,
           date: moment(trade.time || "").utc().format('DD MMM'),
           time: moment(trade.time || "").utc().format("HH:mm:ss")
         }
       })
-
+      
       var spread = undefined
       var spreadDollar = 0
       if (asksSortedSet.beginIterator().value() && bidsSortedSet.beginIterator().value()) {
@@ -466,16 +486,19 @@ const app = (state = initialState, action) => {
           spreadDollar: spreadDollar,
           asks: {
             ...state.orderBook.asks,
-            dataSource:asksSortedSet
+            dataSource:asksSortedSet,
+            max: maxAsk
           },
           bids: {
             ...state.orderBook.bids,
-            dataSource:bidsSortedSet
+            dataSource:bidsSortedSet,
+            max: maxBid
           }
         },
         trades: {
           ...state.trades,
-          dataSource: tradesDataSource
+          dataSource: tradesDataSource,
+          max: maxTrade
         }
       }
 

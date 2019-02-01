@@ -41,13 +41,12 @@ const container = css`
 
 class TradingHistory extends Component {
 	setAmount(e) {
-		console.log(e)
 		const set_time = new Date();
 		this.props.dispatch({
 			type: 'SET_AMOUNT',
 			data: {
 				inputBuy: e.price,
-				inputBuyAmount: e.amount.replace(/,/g, ""),
+				inputBuyAmount: e.amount,
 				inputSide: e.color_key,
 				setTime: set_time
 			}
@@ -59,7 +58,7 @@ class TradingHistory extends Component {
 			names: ['TRADING HISTORY','MY TRADES'],
 			selectedTabIndex: 0,
 		}
-
+		
 		return (
 			<div className={container + (this.props.mobile ? " mobile" : "")}>
 				{/* <QTTabBar
@@ -71,8 +70,12 @@ class TradingHistory extends Component {
 				<section className="trading-history-table-container no-scroll-bar">
 					
 					<div>
-						<QTTableViewSimple dataSource={this.props.trades.dataSource} columns={this.props.trades.columns}
-											onAction={this.setAmount.bind(this)} />
+						<QTTableViewSimple 
+							max={this.props.trades.max}
+							barDir="left"
+							dataSource={this.props.trades.dataSource} 
+							columns={this.props.trades.columns}
+							onAction={this.setAmount.bind(this)} />
 					</div>
 				</section>
 			</div>

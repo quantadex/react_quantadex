@@ -81,15 +81,15 @@ export function sellTransaction(market, price, amount) {
 		var user_id = getState().app.userId;
 
 		const pKey = PrivateKey.fromWif(getState().app.private_key);
-		console.log(pKey, assets[base.id], "price=", price, "amount=", amount, user_id);
+		// console.log(pKey, assets[base.id], "price=", price, "amount=", amount, user_id);
 
 		const order = createLimitOrderWithPrice(user_id, false, window.assets, base.id, counter.id, price, amount)
 
-		console.log("order prepare", order);
+		// console.log("order prepare", order);
 		const tr = createLimitOrder2(order)
 		return signAndBroadcast(tr, pKey)
 			.then((e) => {
-				console.log("order result ", e);
+				// console.log("order result ", e);
 				return e[0]
 			}).catch((e) => {
 				throw e
@@ -108,10 +108,10 @@ export const cancelTransaction = (market, order_id) => {
 	
 		const order = cancelOrder(user_id, order_id)
 	
-		console.log("cancel order", order);
+		// console.log("cancel order", order);
 		return signAndBroadcast(order, pKey)
 			.then((e) => {
-				console.log("order result ", e);
+				// console.log("order result ", e);
 			})
 	}
 }
