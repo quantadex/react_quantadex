@@ -102,7 +102,7 @@ const dialog = css`
                 padding: 10px 20px;
                 color: #fff;
                 border-radius: 4px;
-                margin: 0 150px;
+                margin: 0 190px;
                 white-space: nowrap;
                 cursor: pointer;
             }
@@ -127,6 +127,7 @@ function toggleDialog() {
     const dialog = document.getElementById("connect-dialog")
     if (dialog.style.display == "none") {
         dialog.style.display = "flex"
+        document.getElementById("pkey-input").focus()
     } else {
         dialog.style.display = "none"
     }
@@ -204,7 +205,7 @@ class ConnectDialog extends Component {
                     />
                     <div className="input-container">
                         <label>Private Key</label><br/>
-                        <input type="text" autoComplete="off" placeholder="Enter private key..."
+                        <input id="pkey-input" type="text" autoComplete="off" placeholder="Enter private key..."
                         spellCheck="false" onChange={(e) => this.handleChange(e)}/><br/>
                         <span className="error" hidden={!this.state.authError}>Invalid Key</span><br/>
                         <button onClick={this.ConnectWallet.bind(this)}>Connect Wallet</button>
