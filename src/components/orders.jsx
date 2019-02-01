@@ -29,6 +29,7 @@ const container = css`
     table {
       tr {
         border-bottom: 1px solid #333;
+        cursor: default;
       }
       tbody td {
         padding: 4px 0;

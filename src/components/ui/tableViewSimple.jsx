@@ -53,6 +53,9 @@ const container = css`
 
   td.theme {
     color: ${globalcss.COLOR_THEME};
+    a {
+      color: ${globalcss.COLOR_THEME};
+    }
   }
 
   td.white72 {
@@ -112,8 +115,8 @@ export default class QTTableViewSimple extends React.Component {
 
         <thead className={this.props.HideHeader ? "hidden" : ""}><tr>
           {
-            this.props.columns.map((col) => {
-              return <th className={col.float}>{typeof(col.name) === "string" ? col.name : col.name(this.props.ticker)}</th>
+            this.props.columns.map((col, index) => {
+              return <th key={index} className={col.float}>{typeof(col.name) === "string" ? col.name : col.name(this.props.ticker)}</th>
             })
           }
         </tr></thead>
@@ -121,16 +124,16 @@ export default class QTTableViewSimple extends React.Component {
         {
           this.props.dataSource.map((row, index) => {
             return (
-              <tr key={row.id ? row.id : index}>
-                {
-                  this.props.columns.map((col) => {
+              <tr key={row.id ? row.id : index}
+                onClick={this.props.onAction ? () => this.props.onAction(row) : null}>
+                {this.props.columns.map((col, colindex) => {
                     var col_color = row[col.key];
                     if (row.color_key != undefined) {
                       col_color = row.color_key;
                     }
                     if (col.type == "icon") {
                       return (
-                        <td><img
+                        <td key={index + "-" + colindex}><img
                           src={row[col.key] ? col.favoritedIconUrl : col.unfavoritedIconUrl}
                           width="10"
                           height="10"
@@ -140,9 +143,16 @@ export default class QTTableViewSimple extends React.Component {
                         </td>
                       )
                     }
+                    if (col.type == "id") {
+                      return (
+                        <td key={index + "-" + colindex} className={[col.float,col.color(col_color),col.fontWeight,col.fontSize].join(" ")}>
+                          <a href={"http://testnet.quantadex.com/object/" + row[col.key]} target="_blank">{row[col.key]}</a>
+                        </td>
+                      )
+                    }
                     if (col.type == "cancel") {
                       return (
-                        <td id={"cancel-" + row.id.replace(/\./g, '-')} className={col.float}>
+                        <td key={index + "-" + colindex} id={"cancel-" + row.id.replace(/\./g, '-')} className={col.float}>
                             <div className="loader"></div>
                             <QTButton className="grey inverse qt-font-semibold qt-font-base" 
                             borderWidth="1" width="66" height="18" label="CANCEL"
@@ -155,8 +165,7 @@ export default class QTTableViewSimple extends React.Component {
                     }
                     
                     return (
-                      <td
-                        onClick={this.props.onAction ? () => this.props.onAction(row) : null}
+                      <td key={index + "-" + colindex}
                         className={[col.float,col.color(col_color),col.fontWeight,col.fontSize].join(" ")}>
                         {this.formatNumber(row[col.key])}
                       </td>
@@ -165,10 +174,10 @@ export default class QTTableViewSimple extends React.Component {
                 }
                 
                 {this.props.max ? 
-                  <span className={"perc-bar " + this.props.barDir}
+                  <td className={"perc-bar " + this.props.barDir}
                   style={{background: `rgba(${row.color_key != undefined ? (row.color_key == 0 ? "33,224,219" : "255,35,116") : this.props.barColor},${0.05 + Math.round((row.total / this.props.max)*100)/1000})`, 
-                          width: `${Math.round((row.total / this.props.max)*100)}%`}}></span> 
-                : ""}
+                          width: `${Math.round((row.total / this.props.max)*100)}%`}}></td> 
+                : null}
               </tr>
             )
           })

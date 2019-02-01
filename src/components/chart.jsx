@@ -136,7 +136,7 @@ class Chart extends Component {
   
   render() {
     return (
-      <div {...this.props}>
+      <div className={this.props.className}>
         <div id="tv_chart_container"/>
       </div>
     );

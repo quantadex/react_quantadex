@@ -23,6 +23,7 @@ export const UPDATE_DIGITS = 'UPDATE_DIGITS'
 export const UPDATE_BLOCK_INFO = 'UPDATE_BLOCK_INFO';
 export const TOGGLE_LEFT_PANEL = 'TOGGLE_LEFT_PANEL';
 export const TOGGLE_RIGHT_PANEL = 'TOGGLE_RIGHT_PANEL';
+export const UPDATE_NETWORK = 'UPDATE_NETWORK';
 
 export const TOGGLE_FAVORITE_LIST = 'TOGGLE_FAVORITE_LIST';
 export const INIT_BALANCE = 'INIT_BALANCE'
@@ -104,7 +105,7 @@ export const cancelTransaction = (market, order_id) => {
 		var user_id = getState().app.userId;
 	
 		const pKey = PrivateKey.fromWif(getState().app.private_key);
-		console.log(pKey, assets[base.id], user_id);
+		// console.log(pKey, assets[base.id], user_id);
 	
 		const order = cancelOrder(user_id, order_id)
 	
@@ -175,11 +176,11 @@ function onUpdate(dispatch) {
 }
 
 export function switchTicker(ticker) {
-
+	Apis.setAutoReconnect(true)
 	// send GA
 	ReactGA.set({ page: "exchange/" + ticker });
 	ReactGA.pageview("exchange/" + ticker);
-	console.log("Switch ticker ", ticker);
+	// console.log("Switch ticker ", ticker);
 
 	return function (dispatch,getState) {
 		var publicKey = null
@@ -316,7 +317,7 @@ export function switchTicker(ticker) {
 
 				var account_data = [[],[]]
 				
-				if (publicKey) {
+				if (publicKey && getState().app.userId) {
 					account_data = Apis.instance()
 					.db_api()
 					.exec("get_full_accounts", [[getState().app.userId], true])

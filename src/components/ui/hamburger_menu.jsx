@@ -100,7 +100,7 @@ export class HamburgerMenu extends React.Component {
 
               if (index == 0) {
                 return (
-                  <div className="group-head d-flex flex-column align-items-center justify-content-center">
+                  <div key={index} className="group-head d-flex flex-column align-items-center justify-content-center">
                     <div className="header qt-font-light">${this.props.total_fund ? (this.props.total_fund).toFixed(0): "N/A"}</div>
                     <div className="subheader">{e.items[0].subheader}</div> {/*<a className="qt-cursor-pointer qt-color-theme">hide</a>*/}
                   </div>
@@ -108,12 +108,12 @@ export class HamburgerMenu extends React.Component {
               }
 
               return (
-                <div className={"group " + css`background-color:${e.backgroundColor};`}>
+                <div key={index} className={"group " + css`background-color:${e.backgroundColor};`}>
                   {
-                    e.items.map((item) => {
+                    e.items.map((item, index) => {
                       if (item.onClick) {
                         return (
-                          <a onClick={item.onClick}
+                          <a key={index} onClick={item.onClick}
                              className="d-flex menu-row qt-cursor-pointer"
                              onMouseOver={this.handleHover.bind(this,item.iconPathActive)}
                              onMouseLeave={this.handleHover.bind(this,item.iconPath)}>
@@ -123,7 +123,7 @@ export class HamburgerMenu extends React.Component {
                         )
                       } else {
                         return (
-                          <Link to={item.url}
+                          <Link key={index} to={item.url}
                                 onMouseOver={this.handleHover.bind(this,item.iconPathActive)}
                                 onMouseLeave={this.handleHover.bind(this,item.iconPath)}
                                 className="d-flex menu-row">

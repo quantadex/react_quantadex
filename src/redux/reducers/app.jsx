@@ -1,4 +1,4 @@
-import { INIT_DATA, INIT_BALANCE, SET_MARKET_QUOTE, APPEND_TRADE, UPDATE_ORDER, UPDATE_OPEN_ORDERS, SET_AMOUNT, UPDATE_USER_ORDER, UPDATE_TICKER, UPDATE_TRADES, UPDATE_DIGITS } from "../actions/app.jsx";
+import { INIT_DATA, INIT_BALANCE, SET_MARKET_QUOTE, APPEND_TRADE, UPDATE_ORDER, UPDATE_OPEN_ORDERS, SET_AMOUNT, UPDATE_USER_ORDER, UPDATE_TICKER, UPDATE_TRADES, UPDATE_DIGITS, UPDATE_NETWORK } from "../actions/app.jsx";
 import { TOGGLE_LEFT_PANEL, TOGGLE_RIGHT_PANEL } from "../actions/app.jsx";
 import { TOGGLE_FAVORITE_LIST, UPDATE_ACCOUNT, UPDATE_BLOCK_INFO } from "../actions/app.jsx";
 import { LOGIN } from "../actions/app.jsx";
@@ -9,6 +9,7 @@ import lodash from 'lodash'
 import moment from 'moment'
 
 let initialState = {
+  network: "TESTNET",
   private_key: null,
   publicKey: "",
   currentTicker: 'ETH/USD',
@@ -38,7 +39,7 @@ let initialState = {
     },{
       name:"ID",
       key:"id",
-      type:"string",
+      type:"id",
       sortable:false,
       color: (value) => {return "theme"},
       fontSize:"extra-small",
@@ -114,7 +115,7 @@ let initialState = {
     },{
       name:"ID",
       key:"id",
-      type:"string",
+      type:"id",
       sortable:false,
       color: (value) => {return "theme"},
       fontSize:"extra-small",
@@ -508,6 +509,12 @@ const app = (state = initialState, action) => {
         ...state,
         balance: lodash.keyBy(action.data.balances,'currency')
       }
+    
+    case UPDATE_NETWORK:
+      return {
+        ...state,
+        network: action.data
+    }
 
     case SET_MARKET_QUOTE:
       return {
@@ -576,7 +583,7 @@ const app = (state = initialState, action) => {
     }
     
     case UPDATE_TICKER:
-      console.log("TICKER ",  action.data);
+      // console.log("TICKER ",  action.data);
       return {
         ...state,
         currentTicker:action.data,
@@ -613,7 +620,7 @@ const app = (state = initialState, action) => {
             const it = orderSet.findIterator({ price: price })
 
             if (parseFloat(item[0]) == 0.0) {
-              console.log("iter ", it, item[1]);
+              // console.log("iter ", it, item[1]);
               if (it.node != null) {
                 orderSet.remove(it.node.value)
               }

@@ -377,8 +377,8 @@ class Trade extends Component {
                             name="total"
                             min="0"
                             step="0.0000001"
-                            onFocus={this.handleInputFocus.bind(this)}
                             value={((this.state.qty * 10000000) * (this.state.price * 10000000)) / 100000000000000}
+                            readOnly
                         />
                         <SmallToken name={tradingPair[1]} />
                     </div>
@@ -389,7 +389,7 @@ class Trade extends Component {
                             <tbody>
                                 <tr><td>Maker</td><td className="text-left text-muted pl-3 ">0.04%</td><td className="text-right pr-2">10</td><td className="text-muted"><SmallToken name={tradingPair[0]} /></td></tr>
                                 <tr><td>Taker</td><td className="text-left text-muted pl-3">0.07%</td><td className="text-right pr-2">50</td><td className="text-muted"><SmallToken name={tradingPair[0]} /></td></tr>
-                                <tr><td colspan="2">Platform Fees</td><td className="text-right pr-2">0.01</td><td className="text-muted">QDEX</td></tr>
+                                <tr><td colSpan="2">Platform Fees</td><td className="text-right pr-2">0.01</td><td className="text-muted">QDEX</td></tr>
                             </tbody>
                         </table>
                     </div>

@@ -20,10 +20,13 @@ const container = css`
 		font-family: Multicolore;
 	}
 
-	.header-coin-name {
-		background: url('/public/images/big-arrow-down.svg') no-repeat 100%;
+	.leaderboard-link, .header-coin-name {
 		padding-right: 25px;
     	font-size: 18px;
+	}
+
+	.header-coin-name {
+		background: url('/public/images/big-arrow-down.svg') no-repeat 100%;
 	}
 
 	.price-stats {
@@ -66,9 +69,11 @@ class Header extends Component {
 	render() {
 		return (
 			<div className={container}>
-				<div className="d-flex justify-content-between">
+				<div className="d-flex justify-content-between align-items-center">
 					<div className="d-flex">
-						<Link to="/exchange" className="header-logo"><img src="/public/images/logo-light.svg" width="220" /></Link>
+						<Link to="/exchange" className="header-logo">
+							<img src={this.props.network == "MAINNET" ? "/public/images/logo-light.svg" : "/public/images/qdex-fantasy-light.svg"} width="220" />
+						</Link>
 						
 					</div>
 					<div className="price-stats d-flex">
@@ -77,6 +82,13 @@ class Header extends Component {
 							<span className="value">{this.props.currentPrice}</span>
 						</div>
 					</div>
+
+					{this.props.network == "TESTNET" ?
+						<div className="leaderboard-link">
+							<Link to="/leaderboard">LEADERBOARD</Link>
+						</div>
+					: "" }
+
 					<div className="d-flex align-items-center position-relative cursor-pointer" onClick={this.handleMarketClick.bind(this)}>
 						<span className="header-coin-name qt-font-normal qt-font-bold qt-color-theme">
 							<Ticker ticker={this.props.currentTicker} />
@@ -124,6 +136,7 @@ class Header extends Component {
 
 
 const mapStateToProps = (state) => ({
+		network: state.app.network,
 		currentTicker: state.app.currentTicker,
 		currentPrice: state.app.mostRecentTrade.price
 	});

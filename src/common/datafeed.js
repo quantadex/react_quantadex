@@ -91,9 +91,9 @@ Datafeeds.UDFCompatibleDatafeed.prototype.onInitialized = function() {
 Datafeeds.UDFCompatibleDatafeed.prototype._logMessage = function(message) {
   if (this._enableLogging) {
     var now = new Date();
-    console.log(
-      now.toLocaleTimeString() + "." + now.getMilliseconds() + "> " + message
-    );
+    // console.log(
+    //   now.toLocaleTimeString() + "." + now.getMilliseconds() + "> " + message
+    // );
   }
 };
 
@@ -459,7 +459,7 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
     resolution * bucketCount * 1000
   );
 
-  console.log("Load prices ", symbolInfo, resolution, rangeStartDate, rangeEndDate);
+  // console.log("Load prices ", symbolInfo, resolution, rangeStartDate, rangeEndDate);
   return Apis.instance()
     .history_api()
     .exec("get_market_history", [      
@@ -470,12 +470,12 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
       endDate.toISOString().slice(0, -5)
     ]).then((data) => {
 
-      console.log("chart data", data);
+      // console.log("chart data", data);
       const no_data = data.length == 0;
       const bars = transformPriceData(data, counter, base);
       // console.log("Bars ", bars, no_data);
 
-      console.log("Writing Enddate");
+      // console.log("Writing Enddate");
       Datafeeds.endDate = endDate;
 
       if (data.length == 0) {
@@ -922,7 +922,7 @@ Datafeeds.DataPulseUpdater.prototype.periodLengthSeconds = function(
   resolution,
   requiredPeriodsCount
 ) {
-  console.log("periodLengthSeconds", resolution);
+  // console.log("periodLengthSeconds", resolution);
   var daysCount = 0;
 
   if (resolution === "D") {

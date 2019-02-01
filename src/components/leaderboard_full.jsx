@@ -141,12 +141,6 @@ class Leaderboard extends Component {
 			isMobile: screenWidth <= 992
 		};
       }
-      
-    componentDidMount() {
-		if (!this.props.private_key) {
-			this.props.history.push("/login")
-        }
-    }
 
     render() {
         return(
