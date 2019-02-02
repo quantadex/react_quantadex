@@ -42,7 +42,7 @@ const container = css`
 	.markets {
 		position: absolute;
 		right: -23px;
-		top: 47px;
+		top: 44px;
 		width: 315px;
 		max-height: 0;
 		overflow: hidden;
