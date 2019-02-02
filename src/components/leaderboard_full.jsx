@@ -78,7 +78,7 @@ const container = css`
             display: inline-block;
             padding-left: 70px;
             background: url('/public/images/trophy-blue.svg') no-repeat;
-            font-size: 22px;
+            font-size: 18px;
         }
 
         .leaderboard-actions {
@@ -158,20 +158,20 @@ class Leaderboard extends Component {
                 </div>
 
                 <div className="content">
-                    <div className="banner">
-                        <div className="headline qt-font-light">
-                            Participate on the Paper Trading Contest <br/> and <b>win up to $50,000 USD*</b>
-                        </div>
-
-                        <div className="leaderboard-share d-flex justify-content-between float-right">
-                            <span>Share</span>
-                            <a><img src="/public/images/share/twitter.svg" /></a>
-                            <a><img src="/public/images/share/fbook.svg" /></a>
+                    <div className="banner d-flex justify-content-between">
+                        <div className="headline qt-font-light w-100">
+                            Currently, there is no active contest.<br/>
+                            We will notify you when the next contest is scheduled! 
                         </div>
                         <div className="leaderboard-actions float-right">
                             <a href="https://t.me/quantaexchange" target="_blank">Join Chat</a>
                             <a href="https://quantadex.com/fantasy" target="_blank">Read Rules</a>
 					    </div>
+                        <div className="leaderboard-share d-flex justify-content-between">
+                            <span>Share</span>
+                            <a className="ml-2"><img src="/public/images/share/twitter.svg" /></a>
+                            <a className="ml-2"><img src="/public/images/share/fbook.svg" /></a>
+                        </div>
                     </div>
                     <LeaderboardTable tableOnly={true} complete={true}/>
                 </div>

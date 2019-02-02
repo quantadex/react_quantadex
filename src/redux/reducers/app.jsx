@@ -16,7 +16,7 @@ let initialState = {
   tradeHistory: [],
   tradeBook: { bids: [], asks: []},
   markets: [],
-  currentPrice: "",
+  currentPrice: undefined,
   balance: [],
   ui: {
     leftOpen: true,

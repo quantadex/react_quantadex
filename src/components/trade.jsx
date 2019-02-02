@@ -203,9 +203,11 @@ class Trade extends Component {
         this.state = {
             trade_side: 0,
             processing: false,
-            qty: 0.05,
-            price: 1,
-            inputSetTime: 0
+            qty: 0,
+            price: 0,
+            price_set: false,
+            inputSetTime: 0,
+            currentPrice: undefined
         };
     }
 
@@ -217,6 +219,9 @@ class Trade extends Component {
                 inputSetTime: nextProps.inputSetTime
             })
             this.switchTradeTo(nextProps.inputSide)
+        }
+        if (this.state.currentPrice !== nextProps.currentPrice) {
+            this.setState({price: nextProps.currentPrice, currentPrice: nextProps.currentPrice, qty: 0})
         }
     }
 
@@ -329,7 +334,7 @@ class Trade extends Component {
             item.amount = balance[currency].balance ? balance[currency].balance : 0
             pairBalance.push(item)
         })
-
+        
         return (
             <div className={container + " container-fluid" + (this.props.mobile ? " mobile" : "")}>
                 <div className="buy-sell-toggle">
