@@ -1,4 +1,4 @@
-import { INIT_DATA, INIT_BALANCE, SET_MARKET_QUOTE, APPEND_TRADE, UPDATE_ORDER, UPDATE_OPEN_ORDERS, SET_AMOUNT, UPDATE_USER_ORDER, UPDATE_TICKER, UPDATE_TRADES, UPDATE_DIGITS, UPDATE_NETWORK } from "../actions/app.jsx";
+import { INIT_DATA, INIT_BALANCE, SET_MARKET_QUOTE, APPEND_TRADE, UPDATE_ORDER, UPDATE_OPEN_ORDERS, SET_AMOUNT, UPDATE_USER_ORDER, UPDATE_TICKER, UPDATE_TRADES, UPDATE_FEE, UPDATE_DIGITS, UPDATE_NETWORK } from "../actions/app.jsx";
 import { TOGGLE_LEFT_PANEL, TOGGLE_RIGHT_PANEL } from "../actions/app.jsx";
 import { TOGGLE_FAVORITE_LIST, UPDATE_ACCOUNT, UPDATE_BLOCK_INFO } from "../actions/app.jsx";
 import { LOGIN } from "../actions/app.jsx";
@@ -13,6 +13,7 @@ let initialState = {
   private_key: null,
   publicKey: "",
   currentTicker: 'ETH/USD',
+  fee: {},
   tradeHistory: [],
   tradeBook: { bids: [], asks: []},
   markets: [],
@@ -514,6 +515,15 @@ const app = (state = initialState, action) => {
       return {
         ...state,
         network: action.data
+    }
+
+    case UPDATE_FEE:
+      let asset = window.assets[action.data.asset_id]
+      let amount = action.data.amount/Math.pow(10, asset.precision)
+      let symbol = asset.symbol
+      return {
+        ...state,
+        fee: {amount: amount, symbol: symbol}
     }
 
     case SET_MARKET_QUOTE:

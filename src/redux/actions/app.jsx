@@ -12,6 +12,7 @@ import ReactGA from 'react-ga';
 export const INIT_DATA = 'INIT_DATA';
 export const LOGIN = 'LOGIN';
 export const UPDATE_ACCOUNT = 'UPDATE_ACCOUNT';
+export const UPDATE_FEE = 'UPDATE_FEE';
 export const SET_MARKET_QUOTE = 'SET_MARKET_QUOTE';
 export const APPEND_TRADE = 'APPEND_TRADE';
 export const UPDATE_TICKER = 'UPDATE_TICKER';
@@ -85,7 +86,7 @@ export function sellTransaction(market, price, amount) {
 		// console.log(pKey, assets[base.id], "price=", price, "amount=", amount, user_id);
 
 		const order = createLimitOrderWithPrice(user_id, false, window.assets, base.id, counter.id, price, amount)
-
+		
 		// console.log("order prepare", order);
 		const tr = createLimitOrder2(order)
 		return signAndBroadcast(tr, pKey)
@@ -222,6 +223,15 @@ export function switchTicker(ticker) {
 
 		function action(ticker) {
 			var {base, counter} = getBaseCounter(ticker)
+
+			const tmpOrder = createLimitOrderWithPrice("1.2.0", true, window.assets, base.id, counter.id, 1, 1)
+			const tr = createLimitOrder2(tmpOrder)
+			tr.set_required_fees().then(e => {
+				dispatch({
+					type: UPDATE_FEE,
+					data: tr.operations[0][1].fee
+				})
+			})
 
 			async function fetchData(ticker, first=false) {
 				var {base, counter} = getBaseCounter(ticker)

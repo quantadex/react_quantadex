@@ -392,9 +392,9 @@ class Trade extends Component {
                         Estimate Fees
                         <table>
                             <tbody>
-                                <tr><td>Maker</td><td className="text-left text-muted pl-3 ">0.04%</td><td className="text-right pr-2">10</td><td className="text-muted"><SmallToken name={tradingPair[0]} /></td></tr>
-                                <tr><td>Taker</td><td className="text-left text-muted pl-3">0.07%</td><td className="text-right pr-2">50</td><td className="text-muted"><SmallToken name={tradingPair[0]} /></td></tr>
-                                <tr><td colSpan="2">Platform Fees</td><td className="text-right pr-2">0.01</td><td className="text-muted">QDEX</td></tr>
+                                <tr><td>Maker</td><td className="text-left text-muted pl-3 ">0.01%</td><td className="text-right pr-2">10</td><td className="text-muted"><SmallToken name={tradingPair[0]} /></td></tr>
+                                <tr><td>Taker</td><td className="text-left text-muted pl-3">0.01%</td><td className="text-right pr-2">50</td><td className="text-muted"><SmallToken name={tradingPair[0]} /></td></tr>
+                                <tr><td colSpan="2">Platform Fees</td><td className="text-right pr-2">{this.props.fee.amount}</td><td className="text-muted">{this.props.fee.symbol}</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -428,7 +428,8 @@ const mapStateToProps = (state) => ({
     inputBuy: state.app.inputBuy,
     inputBuyAmount: state.app.inputBuyAmount,
     inputSetTime: state.app.setTime,
-    inputSide: state.app.inputSide
+    inputSide: state.app.inputSide,
+    fee: state.app.fee
 });
 
 export default connect(mapStateToProps)(Trade);
