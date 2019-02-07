@@ -382,7 +382,7 @@ class Trade extends Component {
                             name="total"
                             min="0"
                             step="0.0000001"
-                            value={((this.state.qty * 10000000) * (this.state.price * 10000000)) / 100000000000000}
+                            value={((this.state.qty * Math.pow(10, 6)) * (this.state.price * Math.pow(10, 6))) / Math.pow(10, 12)}
                             readOnly
                         />
                         <SmallToken name={tradingPair[1]} />
@@ -392,9 +392,27 @@ class Trade extends Component {
                         Estimate Fees
                         <table>
                             <tbody>
-                                <tr><td>Maker</td><td className="text-left text-muted pl-3 ">0.01%</td><td className="text-right pr-2">10</td><td className="text-muted"><SmallToken name={tradingPair[0]} /></td></tr>
-                                <tr><td>Taker</td><td className="text-left text-muted pl-3">0.01%</td><td className="text-right pr-2">50</td><td className="text-muted"><SmallToken name={tradingPair[0]} /></td></tr>
-                                <tr><td colSpan="2">Platform Fees</td><td className="text-right pr-2">{this.props.fee.amount}</td><td className="text-muted">{this.props.fee.symbol}</td></tr>
+                                <tr>
+                                    <td>Maker</td>
+                                    <td className="text-left text-muted pl-3">{window.assetsBySymbol && (window.assetsBySymbol[tradingPair[this.state.trade_side]].options.market_fee_percent)/100}%</td>
+                                    <td className="text-right pr-2">{window.assetsBySymbol 
+                                        && window.assetsBySymbol[tradingPair[this.state.trade_side]].options.market_fee_percent != 0 
+                                        && ((((this.state.qty * Math.pow(10, 6)) * (this.state.price * Math.pow(10, 6))) / Math.pow(10, 12))*((window.assetsBySymbol[tradingPair[this.state.trade_side]].options.market_fee_percent)/10000)).toLocaleString(navigator.language, {maximumFractionDigits: 6}) || 0}</td>
+                                    <td className="text-muted">{tradingPair[this.state.trade_side]}</td>
+                                </tr>
+                                <tr>
+                                    <td>Taker</td>
+                                    <td className="text-left text-muted pl-3">{window.assetsBySymbol && window.assetsBySymbol[tradingPair[this.state.trade_side]].options.market_fee_percent}%</td>
+                                    <td className="text-right pr-2">{window.assetsBySymbol 
+                                        && window.assetsBySymbol[tradingPair[this.state.trade_side]].options.market_fee_percent != 0 
+                                        && ((((this.state.qty * Math.pow(10, 6)) * (this.state.price * Math.pow(10, 6))) / Math.pow(10, 12))*((window.assetsBySymbol[tradingPair[this.state.trade_side]].options.market_fee_percent)/10000).toLocaleString(navigator.language, {maximumFractionDigits: 6})) || 0}</td>
+                                    <td className="text-muted">{tradingPair[this.state.trade_side]}</td>
+                                </tr>
+                                <tr>
+                                    <td colSpan="2">Platform Fees</td>
+                                    <td className="text-right pr-2">{this.props.fee.amount}</td>
+                                    <td className="text-muted">{this.props.fee.symbol}</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>

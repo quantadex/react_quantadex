@@ -159,7 +159,8 @@ class Exchange extends Component {
 		super(props)
 		this.state = {
 			chart: "tv",
-			toggle_trade: false
+			toggle_trade: false,
+			dialog: undefined,
 		}
 		
 	}
@@ -182,6 +183,14 @@ class Exchange extends Component {
 		this.resizeDepthChart()
 	}
 
+	handleConnectDialog(type) {
+		this.setState({dialog: type})
+		setTimeout(() => {
+			document.getElementById("connect-dialog").style.display = "flex"
+		}, 0)
+
+	}
+
 	render() {
 		const Switchchart = () => {
 			return(
@@ -195,13 +204,13 @@ class Exchange extends Component {
 			<div className={container}>
 				<div className="d-flex">
 					<Header />
-					{this.props.private_key ? <Menu /> : <ConnectLink />}
+					{this.props.private_key ? <Menu /> : <ConnectLink onOpen={this.handleConnectDialog.bind(this)} />}
 				</div>
 				<div className="content d-flex">
 					<section className="compartment left-cols">
 						<Trade />
 						<hr/>
-						{this.props.private_key ? <Balance /> : <Connect />}
+						{this.props.private_key ? <Balance /> : <Connect onOpen={this.handleConnectDialog.bind(this)} />}
 					</section>
 					<section className="compartment left-cols">
 						<OrderBook />
@@ -228,7 +237,7 @@ class Exchange extends Component {
 						
 						
 						<section className="compartment">
-							{this.props.private_key ? <Orders /> : <Connect />}
+							{this.props.private_key ? <Orders /> : <Connect onOpen={this.handleConnectDialog.bind(this)} />}
 						</section>
 					</div>
 				</div>
@@ -236,7 +245,7 @@ class Exchange extends Component {
 				<section className="status">
 					<Status />
 				</section>
-				{this.props.private_key ? "" : <ConnectDialog />}
+				{this.props.private_key ? "" : <ConnectDialog default={this.state.dialog} />}
 			</div>
 		);
 	}
