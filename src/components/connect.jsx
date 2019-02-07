@@ -457,7 +457,7 @@ class ConnectDialog extends Component {
                 </div>
 
                 <label>PASSWORD</label><br/>
-                <input type="password" name="password" placeholder="Input Text" 
+                <input type="password" name="password" placeholder="Password" 
                     value={this.state.password} onChange={(e) => this.setState({password: e.target.value})}/><br/>
                 <span className="error" hidden={!this.state.authError}>{this.state.errorMsg}</span><br/>
                 <div className="text-center">
@@ -479,19 +479,19 @@ class ConnectDialog extends Component {
 
                 <div className="mb-2">
                     <label>PRIVATE KEY</label><br/>
-                    <input id="key-input" type="text" autoComplete="off" placeholder="Input Text" spellCheck="false" 
+                    <input id="key-input" type="text" autoComplete="off" placeholder="Private Key" spellCheck="false" 
                         value={this.state.private_key} onChange={(e) => this.setState({private_key: e.target.value})}/>
                 </div>
                 
                 <div className="mb-2">
                     <label>PASSWORD</label><br/>
-                    <input id="en-pw-input" type="password" placeholder="Input Text"
+                    <input id="en-pw-input" type="password" placeholder="Password"
                         value={this.state.password} onChange={(e) => this.setState({password: e.target.value})}/>
                 </div>
 
                 <div className="mb-2">
                     <label>CONFIRM PASSWORD</label><br/>
-                    <input id="en-pwconf-input" type="password" placeholder="Input Text" spellCheck="false" 
+                    <input id="en-pwconf-input" type="password" placeholder="Confirm Password" spellCheck="false" 
                         value={this.state.confirm_password} onChange={(e) => this.setState({confirm_password: e.target.value})}/>
                 </div>
 
@@ -514,7 +514,7 @@ class ConnectDialog extends Component {
         return (
             <div className="input-container">
                 <label>PRIVATE KEY</label><br/>
-                <input key="124432" id="pkey-input" type="text" autoComplete="off" placeholder="Input Text" spellCheck="false" 
+                <input key="124432" id="pkey-input" type="text" autoComplete="off" placeholder="Private Key" spellCheck="false" 
                    value={this.state.private_key} onChange={(e) => this.setState({private_key: e.target.value})}/><br/>
                 <span className="error" hidden={!this.state.authError}>{this.state.errorMsg}</span><br/>
 
@@ -572,20 +572,20 @@ class ConnectDialog extends Component {
 
                     <div className="mb-2">
                         <label>USERNAME</label><br/>
-                        <input id="name-input" type="text" autoComplete="off" placeholder="Input Text" spellCheck="false" 
+                        <input id="name-input" type="text" autoComplete="off" placeholder="Username" spellCheck="false" 
                             value={this.state.username} onChange={(e) => this.setState({username: e.target.value})}/>
                     </div>
                     
 
                     <div className="mb-2">
                         <label>PASSWORD</label><br/>
-                        <input id="pw-input" type="password" placeholder="Input Text"
+                        <input id="pw-input" type="password" placeholder="Password"
                             value={this.state.password} onChange={(e) => this.setState({password: e.target.value})}/>
                     </div>
 
                     <div className="mb-2">
                         <label>CONFIRM PASSWORD</label><br/>
-                        <input id="pwconf-input" type="password" placeholder="Input Text" spellCheck="false" 
+                        <input id="pwconf-input" type="password" placeholder="Confirm Password" spellCheck="false" 
                             value={this.state.confirm_password} onChange={(e) => this.setState({confirm_password: e.target.value})}/>
                     </div>
 

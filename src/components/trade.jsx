@@ -218,7 +218,6 @@ class Trade extends Component {
                 price: nextProps.inputBuy,
                 inputSetTime: nextProps.inputSetTime
             })
-            this.switchTradeTo(nextProps.inputSide)
         }
         if (this.state.currentPrice !== nextProps.currentPrice) {
             this.setState({price: nextProps.currentPrice, currentPrice: nextProps.currentPrice, qty: 0})
