@@ -218,7 +218,7 @@ export function switchTicker(ticker) {
 			})
 			
 		} else {
-			action(ticker)
+				action(ticker)
 		}
 
 		function action(ticker) {
@@ -236,7 +236,8 @@ export function switchTicker(ticker) {
 			async function fetchData(ticker, first=false) {
 				var {base, counter} = getBaseCounter(ticker)
 				
-				await fetch("https://s3.amazonaws.com/quantachain.io/markets.json").then(e => e.json())
+				try {
+					await fetch("https://s3.amazonaws.com/quantachain.io/markets.json").then(e => e.json())
 					.then(async (e) => {
 						// save for later
 						markets = e;
@@ -299,7 +300,13 @@ export function switchTicker(ticker) {
 							})
 						}
 					})
-					
+				} catch(e) {
+					console.log(e)
+					initAPI = false
+					switchTicker(ticker)
+					return
+				}
+
 				const trades = Apis.instance().history_api().exec("get_fill_order_history", [base.id, counter.id, 100]).then((filled) => {
 					//console.log("history filled ", filled);
 					const trade_history = convertHistoryToOrderedSet(filled, base.id)

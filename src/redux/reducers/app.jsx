@@ -420,8 +420,8 @@ const app = (state = initialState, action) => {
           (order.amountForSale()).getAmount({ real: true }) + ' ' + ticker[0];
         
         const total = order.isBid() ?
-          ((order.getPrice() * 10000000) * ((order.amountToReceive()).getAmount({ real: true }) * 10000000))/100000000000000 + ' ' + ticker[1]:
-          ((order.getPrice() * 10000000) * ((order.amountForSale()).getAmount({ real: true }) * 10000000))/100000000000000 + ' ' + ticker[1]
+          ((order.getPrice() * Math.pow(10, 6)) * ((order.amountToReceive()).getAmount({ real: true }) * Math.pow(10, 6)))/Math.pow(10, 12) + ' ' + ticker[1]:
+          ((order.getPrice() * Math.pow(10, 6)) * ((order.amountForSale()).getAmount({ real: true }) * Math.pow(10, 6)))/Math.pow(10, 12) + ' ' + ticker[1]
         
         return {
           assets: ticker.join('/'),
@@ -440,8 +440,8 @@ const app = (state = initialState, action) => {
           (order.amountToPay()) + ' ' + state.currentTicker.split('/')[0];
           
         const total = order.isBid ?
-          ((order.getPrice() * 10000000) * ((order.amountToReceive()) * 10000000))/100000000000000 + ' ' + state.currentTicker.split('/')[1]:
-          ((order.getPrice() * 10000000) * ((order.amountToPay()) * 10000000))/100000000000000 + ' ' + state.currentTicker.split('/')[1]
+          ((order.getPrice() * Math.pow(10, 6)) * ((order.amountToReceive()) * Math.pow(10, 6)))/Math.pow(10, 12) + ' ' + state.currentTicker.split('/')[1]:
+          ((order.getPrice() * Math.pow(10, 6)) * ((order.amountToPay()) * Math.pow(10, 6)))/Math.pow(10, 12) + ' ' + state.currentTicker.split('/')[1]
 
         return {
           assets: state.currentTicker,

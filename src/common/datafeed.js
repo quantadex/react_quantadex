@@ -449,8 +449,20 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
   //     rangeEndDate
   //   ]);
   // }
-
-  const { base, counter } = getBaseCounter(symbolInfo.ticker);
+  try {
+    var { base, counter } = getBaseCounter(symbolInfo.ticker);
+  } catch(e) {
+    setTimeout(() => {
+      Datafeeds.UDFCompatibleDatafeed.prototype.getBars(
+        symbolInfo,
+        resolution,
+        rangeStartDate,
+        rangeEndDate,
+        onDataCallback,
+        onErrorCallback)
+    }, 1000)
+    return
+  }
   const bucketCount = 200
 
   const endDate = new Date(rangeEndDate * 1000)
