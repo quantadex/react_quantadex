@@ -18,18 +18,25 @@ const container = css `
 `
 
 class MobileHeader extends Component {
+    handleConnectDialog(type) {
+        this.setState({dialog: type})
+        setTimeout(() => {
+            document.getElementById("connect-dialog").style.display = "flex"
+        }, 0)
+    }
 
     render() {
         return (
             <div className={container + " d-flex p-4 justify-content-between border-bottom border-dark"}>
-                <Link to="/exchange" className="header-logo"><img src="/public/images/logo-light.svg" height="26" /></Link>
-                {this.props.private_key ? <Menu isMobile={true} style={{padding: 0, alignSelf: "center", minWidth: 0}}/> : <ConnectLink isMobile={true} />}
+                <Link to="/exchange" className="header-logo"><img src={this.props.network == "MAINNET" ? "/public/images/logo-light.svg" : "/public/images/qdex-fantasy-light.svg"} height="26" /></Link>
+                {this.props.private_key ? <Menu isMobile={true} style={{padding: 0, alignSelf: "center", minWidth: 0}}/> : <ConnectLink isMobile={true} onOpen={this.handleConnectDialog.bind(this)} />}
             </div>
         )
     }
 }
 
 const mapStateToProps = (state) => ({
+	network: state.app.network,
     private_key: state.app.private_key,
 });
 

@@ -188,7 +188,6 @@ class Exchange extends Component {
 		setTimeout(() => {
 			document.getElementById("connect-dialog").style.display = "flex"
 		}, 0)
-
 	}
 
 	render() {

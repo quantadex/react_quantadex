@@ -70,7 +70,7 @@ const container = css`
         .explorer, .avg-lat {
             display: inline-block;
         }
-        div {
+        .blocknum, .avg-lat, .net-select {
             display: inline-block;
         }
     }

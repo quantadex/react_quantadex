@@ -118,7 +118,8 @@ class Exchange extends Component {
 		super(props);
 		this.state = {
 			selectedTabIndex: 2,
-			chart: "tv"
+			chart: "tv",
+			dialog: undefined,
 		};
 	  }
 
@@ -138,6 +139,13 @@ class Exchange extends Component {
 	handleSwitch(index) {
 		this.setState({selectedTabIndex: index})
 		this.toggleMarketsList(null, true)
+	}
+
+	handleConnectDialog(type) {
+		this.setState({dialog: type})
+		setTimeout(() => {
+			document.getElementById("connect-dialog").style.display = "flex"
+		}, 0)
 	}
 
 	toggleMarketsList(e, force = false) {
@@ -167,8 +175,8 @@ class Exchange extends Component {
 				</div>
 			)
 		}
-		const content = [this.props.private_key ? <Trade mobile={true} /> : <Connect />, 
-						this.props.private_key ? <Orders mobile={true}/> : <Connect /> , 
+		const content = [this.props.private_key ? <Trade mobile={true} /> : <Connect onOpen={this.handleConnectDialog.bind(this)}/>, 
+						this.props.private_key ? <Orders mobile={true}/> : <Connect onOpen={this.handleConnectDialog.bind(this)}/> , 
 						<ChartContent />, <OrderBook mobile={true}/>, <TradingHistory mobile={true}/>]
 		const Switchchart = () => {
 			return(
@@ -197,7 +205,7 @@ class Exchange extends Component {
 				<MobileNav tabs={tabs} selectedTabIndex={this.state.selectedTabIndex} switchTab={this.handleSwitch.bind(this)} />
 				<Status mobile={true} />
 			</div>
-			{this.props.private_key ? "" : <ConnectDialog isMobile={true}/>}
+			{this.props.private_key ? "" : <ConnectDialog isMobile={true} default={this.state.dialog}/>}
 			{/* { localStorage.getItem("firstTimeComplete") ? null : <FirstTime mobile={true}/> } */}
 		</div>
 		);
@@ -205,6 +213,7 @@ class Exchange extends Component {
 }
 
 const mapStateToProps = (state) => ({
+		network: state.app.network,
 		private_key: state.app.private_key,
 		leftOpen: state.app.ui.leftOpen,
 		rightOpen: state.app.ui.rightOpen,
