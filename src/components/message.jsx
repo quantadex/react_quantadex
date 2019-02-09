@@ -70,8 +70,7 @@ class Message extends Component {
         this.state = {
           selectedTabIndex: 0,
           isMobile: screen.width <= 992,
-          message: "",
-          signature: "",
+          signedMsg: "",
           isVerified: null,
         }
 
@@ -93,7 +92,16 @@ class Message extends Component {
         const msg = document.getElementById("message").value
         const sig = Signature.signBuffer(Buffer.from(msg), PrivateKey.fromWif(this.props.private_key)).toHex()
         const timestamp = new Date()
-        this.setState({message: msg, signature: sig, timestamp: timestamp})
+        const signedMsg = "-----BEGIN QUANTA SIGNED MESSAGE-----\r" +
+                            msg + 
+                            "\r-----BEGIN META-----" +
+                            "\raccount=" + this.props.name +
+                            "\rmemokey=" + this.props.publicKey +
+                            "\rtimestamp=" + timestamp +
+                            "\r-----BEGIN SIGNATURE-----\r" +
+                            sig +
+                            "\r-----END QUANTA SIGNED MESSAGE-----"
+        this.setState({signedMsg: signedMsg})
     }
 
     verifyMessage() {
@@ -118,20 +126,11 @@ class Message extends Component {
         return(
             <div className="content">
                 <div>
-                    <textarea id='message' className="d-block" autoFocus></textarea>
+                    <textarea id='message' className="d-block" autoFocus placeholder="Your message here..."></textarea>
                 </div>
                 <button className="my-4 cursor-pointer" onClick={this.signMessage}>Sign</button>
                 <div>
-                    <textarea className="d-block" readOnly onClick={(e) => this.selectText(e)} value={
-                        "-----BEGIN QUANTA SIGNED MESSAGE-----\r" +
-                        this.state.message + 
-                        "\r-----BEGIN META-----" +
-                        "\raccount=" + this.props.name +
-                        "\rmemokey=" + this.props.publicKey +
-                        (this.state.timestamp ? "\rtimestamp=" + this.state.timestamp : "") +
-                        "\r-----BEGIN SIGNATURE-----\r" +
-                        this.state.signature +
-                        "\r-----END QUANTA SIGNED MESSAGE-----"} >
+                    <textarea className="d-block" readOnly onClick={(e) => this.selectText(e)} value={this.state.signedMsg} >
                     </textarea>
                 </div>
             </div>
