@@ -215,19 +215,8 @@ class Orders extends Component {
     };
   }
 
-  goToTop() {
-    window.scrollTo(0,0);
-    this.setState({isFocused: false})
-  }
-
-  handleSwitch(index, selected) {
+  handleSwitch(index) {
     this.setState({selectedTabIndex: index})
-    if(index == selected && this.state.isFocused) {
-      this.goToTop()
-    } else {
-      window.scrollTo(0,document.body.scrollHeight);
-      this.setState({isFocused: true})
-    }
   }
 
   notify_success = (toastId) => toast.update(toastId, {

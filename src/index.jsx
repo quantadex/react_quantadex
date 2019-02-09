@@ -2,6 +2,7 @@ import React from 'react';
 import {render} from 'react-dom';
 import Exchange from './components/exchange.jsx';
 import Fund from './components/fund.jsx';
+import Message from './components/message.jsx';
 import Login, {GenerateKey} from './pages/login.jsx';
 import Leaderboard from './components/leaderboard_full.jsx';
 
@@ -229,8 +230,9 @@ class Container extends React.Component {
 			<Route path="/exchange/wallets" render={FundPage.bind(this,"wallets")} />
 			<Route path="/exchange/history" render={FundPage.bind(this,"history")} />
 			<Route path="/exchange/orders" render={FundPage.bind(this,"orders")} />
-			<Route exact path="/login" component={Login} />
-			<Route exact path="/keygen" component={GenerateKey} />
+			<Route exact path="/exchange/message" component={Message} />
+			{/* <Route exact path="/login" component={Login} />
+			<Route exact path="/keygen" component={GenerateKey} /> */}
 			<Route exact path="/leaderboard" component={Leaderboard} />
         </Switch>
       </Router>

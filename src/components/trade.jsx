@@ -214,8 +214,8 @@ class Trade extends Component {
     componentWillReceiveProps(nextProps) {
         if (nextProps.inputSetTime != undefined && nextProps.inputSetTime != this.state.inputSetTime) {
             this.setState({
-                qty: nextProps.inputBuyAmount,
-                price: nextProps.inputBuy,
+                qty: parseFloat(nextProps.inputBuyAmount),
+                price: parseFloat(nextProps.inputBuy),
                 inputSetTime: nextProps.inputSetTime
             })
         }

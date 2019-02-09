@@ -225,7 +225,7 @@ class Fund extends Component {
 
 	render() {
     if (this.props.private_key == null) {
-			window.location.assign('/login')
+			window.location.assign('/exchange')
     } 
     const tabs = [
       {
