@@ -101,7 +101,7 @@ export class HamburgerMenu extends React.Component {
               if (index == 0) {
                 return (
                   <div key={index} className="group-head d-flex flex-column align-items-center justify-content-center">
-                    <div className="header qt-font-light">${this.props.total_fund ? (this.props.total_fund).toFixed(0): "N/A"}</div>
+                    <div className="header qt-font-light">${this.props.total_fund ? this.props.total_fund.toLocaleString(navigator.language, {maximumFractionDigits: 0}): "N/A"}</div>
                     <div className="subheader">{e.items[0].subheader}</div> {/*<a className="qt-cursor-pointer qt-color-theme">hide</a>*/}
                   </div>
                 )

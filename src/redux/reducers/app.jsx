@@ -114,9 +114,9 @@ let initialState = {
       fontWeight:"light",
       float:"left"
     },{
-      name:"ID",
-      key:"id",
-      type:"id",
+      name:"BLOCK #",
+      key:"block",
+      type:"block",
       sortable:false,
       color: (value) => {return "theme"},
       fontSize:"extra-small",
@@ -158,6 +158,15 @@ let initialState = {
       fontSize:"extra-small",
       fontWeight:"light",
       float:"right"
+    },{
+      name:"MAKER",
+      key:"maker",
+      type:"string",
+      sortable:false,
+      color: (value) => {return "white"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"center"
     },{
       name:"DATE",
       key:"date",
@@ -416,41 +425,39 @@ const app = (state = initialState, action) => {
         const ticker = order.isBid() ? tickerPair.reverse() : tickerPair
         
         const amount = order.isBid() ?
-          (order.amountToReceive()).getAmount({ real: true }) + ' ' + ticker[0] :
-          (order.amountForSale()).getAmount({ real: true }) + ' ' + ticker[0];
+          (order.amountToReceive()).getAmount({ real: true }) :
+          (order.amountForSale()).getAmount({ real: true });
         
-        const total = order.isBid() ?
-          ((order.getPrice() * Math.pow(10, 6)) * ((order.amountToReceive()).getAmount({ real: true }) * Math.pow(10, 6)))/Math.pow(10, 12) + ' ' + ticker[1]:
-          ((order.getPrice() * Math.pow(10, 6)) * ((order.amountForSale()).getAmount({ real: true }) * Math.pow(10, 6)))/Math.pow(10, 12) + ' ' + ticker[1]
+        const total = ((order.getPrice() * Math.pow(10, 6)) * (amount * Math.pow(10, 6)))/Math.pow(10, 12)
         
         return {
           assets: ticker.join('/'),
-          price: order.getPrice() + ' ' + ticker[0],
-          amount: amount,
-          total: total,
+          price: order.getPrice() + ' ' + ticker[1],
+          amount: amount + ' ' + ticker[0],
+          total: total + ' ' + ticker[1],
           type: order.isBid() ? 'BUY' : 'SELL',
           date: (new Date(order.expiration.setFullYear(order.expiration.getFullYear() - 5))).toLocaleString('en-US', { day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false }),
           id: order.id
         }
       })
-
+      
       const filledOrdersDataSource = action.data.filledOrders.map((order) => {
-        const amount = order.isBid ?
-          (order.amountToReceive()) + ' ' + state.currentTicker.split('/')[0] :
-          (order.amountToPay()) + ' ' + state.currentTicker.split('/')[0];
-          
-        const total = order.isBid ?
-          ((order.getPrice() * Math.pow(10, 6)) * ((order.amountToReceive()) * Math.pow(10, 6)))/Math.pow(10, 12) + ' ' + state.currentTicker.split('/')[1]:
-          ((order.getPrice() * Math.pow(10, 6)) * ((order.amountToPay()) * Math.pow(10, 6)))/Math.pow(10, 12) + ' ' + state.currentTicker.split('/')[1]
+        const tickerPair = [order.assets[order.fill_price.base.asset_id].symbol, order.assets[order.fill_price.quote.asset_id].symbol]
+        var ticker = order.is_maker ? tickerPair : tickerPair.reverse()
+        ticker = order.isBid ? ticker.reverse() : ticker
+        
+        const amount = order.isBid ? parseFloat(order.amountToReceive()) : parseFloat(order.amountToPay());
+        const total = ((order.getPrice() * Math.pow(10, 6)) * (amount * Math.pow(10, 6)))/Math.pow(10, 12)
 
         return {
-          assets: state.currentTicker,
-          price: order.getPrice() + ' ' + state.currentTicker.split('/')[0],
-          amount: amount,
-          total: total,
+          assets: ticker.join('/'),
+          price: order.getPrice() + ' ' + ticker[1],
+          amount: parseFloat(amount) + ' ' + ticker[0],
+          total: total + ' ' + ticker[1],
+          maker: String(order.is_maker),
           type: order.isBid ? 'BUY' : 'SELL',
           date: order.time.toLocaleString('en-US', { day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false }),
-          id: order.id
+          block: order.block
         }
       })
       

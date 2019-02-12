@@ -121,6 +121,15 @@ const container = css`
 		overflow: hidden;
 		margin-right: -10px;
 	}
+
+	.pushed-margin {
+		margin-left: -10px;
+
+		th:first-child, td:first-child {
+			padding-left: 10px;
+		}
+	}
+	
 	.no-scroll-bar > div {
 		height: 100%;
 		position: absolute;

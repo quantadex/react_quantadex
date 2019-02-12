@@ -25,7 +25,7 @@ const container = css`
     cursor:pointer;
 
     &:hover {
-      background-color: rgba(52, 62, 68,0.83);
+      background-color: rgba(52, 62, 68, 0.4);
     }
   }
 
@@ -41,6 +41,10 @@ const container = css`
 
   th.right, td.right {
     text-align: right;
+  }
+
+  th.center, td.center {
+    text-align: center;
   }
 
   td.red {
@@ -147,6 +151,13 @@ export default class QTTableViewSimple extends React.Component {
                       return (
                         <td key={index + "-" + colindex} className={[col.float,col.color(col_color),col.fontWeight,col.fontSize].join(" ")}>
                           <a href={"http://testnet.quantadex.com/object/" + row[col.key]} target="_blank">{row[col.key]}</a>
+                        </td>
+                      )
+                    }
+                    if (col.type == "block") {
+                      return (
+                        <td key={index + "-" + colindex} className={[col.float,col.color(col_color),col.fontWeight,col.fontSize].join(" ")}>
+                          <a href={"http://testnet.quantadex.com/ledgers/" + row[col.key]} target="_blank">{row[col.key]}</a>
                         </td>
                       )
                     }

@@ -176,6 +176,17 @@ function onUpdate(dispatch) {
 
 }
 
+function validMarketPair(a, b) {
+	const pair = [a, b]
+	const base = assets[a].symbol
+	const counter = assets[b].symbol
+	const symbolA = [base, counter]
+
+	const foundA = window.marketsHash[symbolA.join("/")]
+
+	return foundA ? pair : pair.reverse()
+}
+
 export function switchTicker(ticker) {
 	Apis.setAutoReconnect(true)
 	// send GA
@@ -308,23 +319,37 @@ export function switchTicker(ticker) {
 				}
 
 				const trades = Apis.instance().history_api().exec("get_fill_order_history", [base.id, counter.id, 100]).then((filled) => {
-					//console.log("history filled ", filled);
+					// console.log("history filled ", filled);
 					const trade_history = convertHistoryToOrderedSet(filled, base.id)
 					//console.log("converted ", trade_history);
-					const my_history = [];
-					if (publicKey) {
-						(filled.filter(order => order.op.account_id == getState().app.userId)).forEach((filled) => {
+					return trade_history
+				})
+
+				var my_trades = []
+
+				if (publicKey) {
+					my_trades = fetch("https://wya99cec1d.execute-api.us-east-1.amazonaws.com/testnet/account?operation_type=4&size=100&account_id=" + getState().app.userId).then(e => e.json())
+					.then((filled) => {
+						const my_history = [];
+						filled.forEach((filled) => {
+							let op = filled.operation_history
+							op.op = [{}, op.op_object]
+							op.time = filled.block_data.block_time
+							op.block_num = filled.block_data.block_num
+							
+							let baseId = validMarketPair(op.op_object.fill_price.base.asset_id, op.op_object.fill_price.quote.asset_id)[0]
+							// console.log(baseId)
 							var order = new FillOrder(
-								filled,
+								op,
 								window.assets,
-								base.id
+								baseId
 							);
 							my_history.push(order)
 						})
-					}
-					
-					return [trade_history, my_history]
-				})
+						// console.log(my_history)
+						return my_history
+					})
+				}
 	
 				// selling counter
 				const orderBook = Apis.instance().db_api().exec("get_order_book", [counter.id, base.id, 50]).then((ob) => {
@@ -343,20 +368,8 @@ export function switchTicker(ticker) {
 						results[0][1].limit_orders.forEach((ordered) => {
 							// search both market pairs to see what makes sense
 							// as the trading pair
-							const base = assets[ordered.sell_price.base.asset_id].symbol
-							const counter = assets[ordered.sell_price.quote.asset_id].symbol
-							const symbolA = [base, counter]
-							const symbolB = [counter, base]
 
-							const foundA = window.marketsHash[symbolA.join("/")]
-							const foundB = window.marketsHash[symbolB.join("/")]
-
-							let baseId = base.id;
-							if (foundA) {
-								baseId = assetsBySymbol[base].id
-							}else if (foundB) {
-								baseId = assetsBySymbol[counter].id
-							}
+							let baseId = validMarketPair(ordered.sell_price.base.asset_id, ordered.sell_price.quote.asset_id)[0]
 							var order = new LimitOrder(
 								ordered,
 								window.assets,
@@ -371,14 +384,14 @@ export function switchTicker(ticker) {
 				}
 
 				// console.log("Get all the data! for ", ticker);
-				return Promise.all([orderBook, trades, account_data])
+				return Promise.all([orderBook, trades, account_data, my_trades])
 					.then((data) => {
 						dispatch({
 							type: INIT_DATA,
 							data: {
 								orderBook: data[0],
-								trades: data[1][0],
-								filledOrders: data[1][1],
+								trades: data[1],
+								filledOrders: data[3],
 								openOrders: data[2][1],
 								ticker: ticker,
 								accountData: data[2][0]

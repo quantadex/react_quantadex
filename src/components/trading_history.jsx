@@ -67,7 +67,7 @@ class TradingHistory extends Component {
 					tabs = {tabs}
 				/> */}
 				<h4>TRADE HISTORY</h4>
-				<section className="trading-history-table-container no-scroll-bar">
+				<section className="trading-history-table-container no-scroll-bar pushed-margin">
 					
 					<div>
 						<QTTableViewSimple 

@@ -79,6 +79,15 @@ const container = css`
 		position: relative;
 		overflow: hidden;
 	}
+
+	.pushed-margin {
+		margin-left: -10px;
+
+		th:first-child, td:first-child {
+			padding-left: 10px;
+		}
+	}
+	
 	.no-scroll-bar > div {
 		height: 100%;
 		box-sizing: content-box;

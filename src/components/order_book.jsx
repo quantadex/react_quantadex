@@ -29,7 +29,7 @@ const container = css`
 	}
 
 	&.mobile {
-		padding: 0 15px;
+		padding: 0 10px;
 		.orderbook-ask, .orderbook-bid {
 			height: calc(50vh - 132px);
 			min-height: auto;
@@ -105,12 +105,12 @@ class OrderBook extends Component {
 							onChange={this.updateDigits}/> */}
 					</div>
 				</section>
-				<section className="orderbook-ask no-scroll-bar">
+				<section className="orderbook-ask no-scroll-bar pushed-margin">
 					<div id="ask-section">
 						<QTTableViewSimple key="ask_tv" dataSource={asksDataSource} 
 							max={this.props.asks.max}
 							barColor="255,35,116"
-							barDir="right"
+							barDir="left"
 							columns={this.props.asks.columns} 
 							ticker={this.props.currentTicker}
 							onAction={this.setAmount.bind(this, 1)}
@@ -127,12 +127,12 @@ class OrderBook extends Component {
 						<div className="qt-number-small text-right">{this.props.spread != undefined ? this.props.spread.toFixed(2) + "%" : "N/A"}</div>
 					</div>
 				</section>
-				<section className="orderbook-bid no-scroll-bar">
+				<section className="orderbook-bid no-scroll-bar pushed-margin">
 					<div>
 						<QTTableViewSimple key="bid_tv"
 							max={this.props.bids.max}
 							barColor="33,224,219"
-							barDir="right"
+							barDir="left"
 							dataSource={bidsDataSource}
 							columns={this.props.bids.columns}
 							HideHeader={true}
