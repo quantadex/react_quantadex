@@ -25,6 +25,7 @@ export const UPDATE_BLOCK_INFO = 'UPDATE_BLOCK_INFO';
 export const TOGGLE_LEFT_PANEL = 'TOGGLE_LEFT_PANEL';
 export const TOGGLE_RIGHT_PANEL = 'TOGGLE_RIGHT_PANEL';
 export const UPDATE_NETWORK = 'UPDATE_NETWORK';
+export const LOAD_FILLED_ORDERS = 'LOAD_FILLED_ORDERS';
 
 export const TOGGLE_FAVORITE_LIST = 'TOGGLE_FAVORITE_LIST';
 export const INIT_BALANCE = 'INIT_BALANCE'
@@ -122,6 +123,7 @@ var initAPI = false;
 var initUser = false;
 //var wsString = "ws://localhost:8090";
 var wsString = "wss://testnet-01.quantachain.io:8095";
+export var dataSize = 100;
 
 function getAvgtime() {
 	const avgTime = blockTimes.reduce((previous, current, idx, array) => {
@@ -185,6 +187,35 @@ function validMarketPair(a, b) {
 	const foundA = window.marketsHash[symbolA.join("/")]
 
 	return foundA ? pair : pair.reverse()
+}
+
+export const loadFilledOrders = (page) => {
+	return (dispatch, getState) => {
+		return fetch("https://wya99cec1d.execute-api.us-east-1.amazonaws.com/testnet/account?operation_type=4&size=" + dataSize + "&from_=" + (page * dataSize) + "&account_id=" + getState().app.userId).then(e => e.json())
+			.then((filled) => {
+				const my_history = [];
+				filled.forEach((filled) => {
+					let op = filled.operation_history
+					op.op = [{}, op.op_object]
+					op.time = filled.block_data.block_time
+					op.block_num = filled.block_data.block_num
+					
+					let baseId = validMarketPair(op.op_object.fill_price.base.asset_id, op.op_object.fill_price.quote.asset_id)[0]
+					// console.log(baseId)
+					var order = new FillOrder(
+						op,
+						window.assets,
+						baseId
+					);
+					my_history.push(order)
+				})
+				// console.log(my_history)
+				dispatch({
+					type: LOAD_FILLED_ORDERS,
+					data: my_history
+				})
+			})
+	}
 }
 
 export function switchTicker(ticker) {
@@ -327,8 +358,8 @@ export function switchTicker(ticker) {
 
 				var my_trades = []
 
-				if (publicKey) {
-					my_trades = fetch("https://wya99cec1d.execute-api.us-east-1.amazonaws.com/testnet/account?operation_type=4&size=100&account_id=" + getState().app.userId).then(e => e.json())
+				if (publicKey && getState().app.userId) {
+					my_trades = fetch("https://wya99cec1d.execute-api.us-east-1.amazonaws.com/testnet/account?operation_type=4&size=" + dataSize + "&account_id=" + getState().app.userId).then(e => e.json())
 					.then((filled) => {
 						const my_history = [];
 						filled.forEach((filled) => {

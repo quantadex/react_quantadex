@@ -271,7 +271,7 @@ class Fund extends Component {
     }, {
         title: "USD VALUE",
         key: "usd_value",
-        type: "string",
+        type: "number",
         width:"90"
     }, {
         buttons: [{
@@ -290,178 +290,6 @@ class Fund extends Component {
         type: "buttons"
     }]
 
-    const dataSourceHistory = [
-      {
-        coin: "BTC",
-        name: "Amber",
-        type: "Deposit",
-        amount: "0.0019800",
-        datetime: "Feb 13, 2018 / 21:00",
-        status: "Complete"
-      },
-      {
-        coin: "BTC",
-        name: "Amber",
-        type: "Deposit",
-        amount: "0.0019800",
-        datetime: "Feb 13, 2018 / 21:00",
-        status: "Complete"
-      },
-      {
-        coin: "BTC",
-        name: "Amber",
-        type: "Deposit",
-        amount: "0.0019800",
-        datetime: "Feb 13, 2018 / 21:00",
-        status: "Pending"
-      }
-    ]
-
-    const columnsHistory = [
-      {
-          title: "COIN",
-          key: "coin",
-          type: "string",
-          width:"80"
-      },
-      {
-          title: "NAME",
-          key: "name",
-          type: "string",
-          width:"150"
-      },
-      {
-          title: "TYPE",
-          key: "type",
-          type: "coloredString",
-          colors: {
-            Withdraw:globalcss.COLOR_RED,
-            Deposit:globalcss.COLOR_THEME
-          },
-          width:"66"
-      },
-      {
-          title: "AMOUNT",
-          key: "amount",
-          type: "number",
-          width:"84"
-      },
-      {
-          title: "DATE/TIME",
-          key: "datetime",
-          type: "string",
-          width:"135"
-      },
-      {
-          title: "STATUS",
-          key: "status",
-          type: "coloredString",
-          colors: {
-            Complete: "white",
-            Pending: globalcss.COLOR_WHITE_27
-          },
-          width:"66"
-      },
-    ]
-
-    const dataSourceOrders = [
-      {
-        pair: "BNCBTC",
-        stoploss: "0.234567 BTC",
-        limit: "0.234567 BTC",
-        amount: "0.234567 BTC",
-        total: "0.234567 BTC",
-        type:"BUY",
-        status:"Waiting",
-        datetime:"12 Jan, 12:34:15"
-      },
-      {
-        pair: "BNCBTC",
-        stoploss: "0.234567 BTC",
-        limit: "0.234567 BTC",
-        amount: "0.234567 BTC",
-        total: "0.234567 BTC",
-        type:"SELL",
-        status:"Filled",
-        datetime:"12 Jan, 12:34:15"
-      },
-      {
-        pair: "BNCBTC",
-        stoploss: "0.234567 BTC",
-        limit: "0.234567 BTC",
-        amount: "0.234567 BTC",
-        total: "0.234567 BTC",
-        type:"BUY",
-        status:"Filled",
-        datetime:"12 Jan, 12:34:15"
-      }
-    ]
-
-    const columnsOrders = [
-      {
-          title: "PAIR",
-          key: "pair",
-          type: "string",
-          width:"64"
-      },
-      {
-          title: "STOP LOSS",
-          key: "stoploss",
-          type: "string",
-          width:"82"
-      },
-      {
-          title: "LIMIT",
-          key: "limit",
-          type: "string",
-          width:"82"
-      },
-      {
-          title: "AMOUNT BTC",
-          key: "amount",
-          type: "string",
-          width:"82"
-      },
-      {
-          title: "TOTAL BTC",
-          key: "total",
-          type: "string",
-          width:"82"
-      },
-      {
-          title: "TYPE",
-          key: "type",
-          type: "coloredString",
-          colors: {
-            BUY:globalcss.COLOR_THEME,
-            SELL:globalcss.COLOR_RED
-          },
-          width:"50"
-      },
-      {
-          title: "STATUS",
-          key: "status",
-          type: "string",
-          width:"52"
-      },
-      {
-          title: "DATE",
-          key: "datetime",
-          type: "string",
-          width:"96"
-      },
-      {
-        buttons: [{
-          label:"CANCEL",
-          color:"grey inverse",
-          handleClick: () => {
-
-          }
-        }],
-        type: "buttons"
-      }
-    ]
-
     var dataSource,columns
 
     switch (this.state.page) {
@@ -469,14 +297,6 @@ class Fund extends Component {
         dataSource = dataSourceWallets
         columns = columnsWallets
         break
-      case "history":
-        dataSource = dataSourceHistory
-        columns = columnsHistory
-        break
-      case "orders":
-        dataSource = dataSourceOrders
-        columns = columnsOrders
-        break;
     }
 
     const PublicAddress = () => {
@@ -489,7 +309,7 @@ class Fund extends Component {
           </div>
           <div className="est-fund text-right align-self-center">
             <span className="qt-font-extra-small qt-white-62">On-chain custody estimated funds</span>
-            <div><span className="qt-font-huge">${this.props.estimated_fund.toFixed(4)} </span><span className="currency">USD</span></div>
+            <div><span className="qt-font-huge">${this.props.estimated_fund.toLocaleString(navigator.language, {maximumFractionDigits: 4})} </span><span className="currency">USD</span></div>
           </div>
           
         </div>

@@ -1,8 +1,8 @@
-import { INIT_DATA, INIT_BALANCE, SET_MARKET_QUOTE, APPEND_TRADE, UPDATE_ORDER, UPDATE_OPEN_ORDERS, SET_AMOUNT, UPDATE_USER_ORDER, UPDATE_TICKER, UPDATE_TRADES, UPDATE_FEE, UPDATE_DIGITS, UPDATE_NETWORK } from "../actions/app.jsx";
+import { INIT_DATA, INIT_BALANCE, SET_MARKET_QUOTE, APPEND_TRADE, UPDATE_ORDER, UPDATE_OPEN_ORDERS, SET_AMOUNT, UPDATE_USER_ORDER, UPDATE_TICKER, UPDATE_TRADES, UPDATE_FEE, UPDATE_DIGITS, UPDATE_NETWORK, LOAD_FILLED_ORDERS } from "../actions/app.jsx";
 import { TOGGLE_LEFT_PANEL, TOGGLE_RIGHT_PANEL } from "../actions/app.jsx";
 import { TOGGLE_FAVORITE_LIST, UPDATE_ACCOUNT, UPDATE_BLOCK_INFO } from "../actions/app.jsx";
 import { LOGIN } from "../actions/app.jsx";
-import { toggleFavoriteList } from "../actions/app.jsx";
+import { dataSize } from "../actions/app.jsx";
 import SortedSet from 'js-sorted-set'
 
 import lodash from 'lodash'
@@ -103,6 +103,83 @@ let initialState = {
     }]
   },
   filledOrders: {
+    dataSource: [],
+    dataSource2: [],
+    columns: [{
+      name:"PAIR",
+      key:"assets",
+      type:"string",
+      sortable:false,
+      color: (value) => {return "white"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"left"
+    },{
+      name:"BLOCK #",
+      key:"block",
+      type:"block",
+      sortable:false,
+      color: (value) => {return "theme"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"right"
+    },{
+      name:"PRICE",
+      key:"price",
+      type:"string",
+      sortable:false,
+      color: (value) => {return "white"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"right"
+    },{
+      name:"AMOUNT",
+      key:"amount",
+      type:"string",
+      sortable:false,
+      color: (value) => {return "white"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"right"
+    },{
+      name:"TOTAL",
+      key:"total",
+      type:"string",
+      sortable:false,
+      color: (value) => {return "white"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"right"
+    },{
+      name:"TYPE",
+      key:"type",
+      type:"string",
+      sortable:false,
+      color: (value) => {return value == "BUY" ? "theme" : "red"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"right"
+    },{
+      name:"MAKER",
+      key:"maker",
+      type:"string",
+      sortable:false,
+      color: (value) => {return "white"},
+      fontSize:"extra-small text-capitalize",
+      fontWeight:"light",
+      float:"center"
+    },{
+      name:"DATE",
+      key:"date",
+      type:"string",
+      sortable:false,
+      color: (value) => {return "white"},
+      fontSize:"extra-small",
+      fontWeight:"light",
+      float:"right"
+    }]
+  },
+  canceledOrders: {
     dataSource: [],
     columns: [{
       name:"PAIR",
@@ -352,6 +429,30 @@ function mergeTickerData(current, data) {
   });
 }
 
+function processFilledOrder(orders) {
+  const data = orders.map((order) => {
+    const tickerPair = [order.assets[order.fill_price.base.asset_id].symbol, order.assets[order.fill_price.quote.asset_id].symbol]
+    var ticker = order.is_maker ? tickerPair : tickerPair.reverse()
+    ticker = order.isBid ? ticker.reverse() : ticker
+    
+    const amount = order.isBid ? parseFloat(order.amountToReceive()) : parseFloat(order.amountToPay());
+    const total = ((order.getPrice() * Math.pow(10, 6)) * (amount * Math.pow(10, 6)))/Math.pow(10, 12)
+
+    return {
+      assets: ticker.join('/'),
+      price: order.getPrice() + ' ' + ticker[1],
+      amount: parseFloat(amount) + ' ' + ticker[0],
+      total: total + ' ' + ticker[1],
+      maker: String(order.is_maker),
+      type: order.isBid ? 'BUY' : 'SELL',
+      date: order.time.toLocaleString('en-US', { day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false }),
+      block: order.block
+    }
+  })
+
+  return data
+}
+
 const app = (state = initialState, action) => {
   //console.log("Reduce ", action);
 
@@ -441,25 +542,7 @@ const app = (state = initialState, action) => {
         }
       })
       
-      const filledOrdersDataSource = action.data.filledOrders.map((order) => {
-        const tickerPair = [order.assets[order.fill_price.base.asset_id].symbol, order.assets[order.fill_price.quote.asset_id].symbol]
-        var ticker = order.is_maker ? tickerPair : tickerPair.reverse()
-        ticker = order.isBid ? ticker.reverse() : ticker
-        
-        const amount = order.isBid ? parseFloat(order.amountToReceive()) : parseFloat(order.amountToPay());
-        const total = ((order.getPrice() * Math.pow(10, 6)) * (amount * Math.pow(10, 6)))/Math.pow(10, 12)
-
-        return {
-          assets: ticker.join('/'),
-          price: order.getPrice() + ' ' + ticker[1],
-          amount: parseFloat(amount) + ' ' + ticker[0],
-          total: total + ' ' + ticker[1],
-          maker: String(order.is_maker),
-          type: order.isBid ? 'BUY' : 'SELL',
-          date: order.time.toLocaleString('en-US', { day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false }),
-          block: order.block
-        }
-      })
+      const filledOrdersDataSource = processFilledOrder(action.data.filledOrders)
       
       var total_fund_value = 0
       const balances = action.data.accountData.length > 0 && action.data.accountData[0][1].balances.map((balance => {
@@ -509,6 +592,18 @@ const app = (state = initialState, action) => {
           dataSource: tradesDataSource,
           max: maxTrade
         }
+      }
+
+    case LOAD_FILLED_ORDERS:
+      const filledOrdersDataSource2 = processFilledOrder(action.data)
+      const end = filledOrdersDataSource2.length < dataSize
+      return {
+        ...state,
+        filledOrders: {
+          ...state.filledOrders,
+          dataSource2: state.filledOrders.dataSource2.concat(filledOrdersDataSource2),
+          end: end
+        },
       }
 
     case INIT_BALANCE:
