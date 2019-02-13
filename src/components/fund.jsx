@@ -342,7 +342,7 @@ class Fund extends Component {
           {
             tabs.map((tab,index) => {
               return (
-                <Link to={"/exchange/" + tab.url}
+                <Link key={index} to={"/exchange/" + tab.url}
                       data-index={index}
                       data-url={tab.url}
                       className={this.state.selectedTabIndex == index ? "active" : ""}
@@ -356,7 +356,7 @@ class Fund extends Component {
       <div className="content">
         { this.state.page == 'wallets' ? <PublicAddress /> : null }
         
-        <div class='filter-container d-flex mt-5 align-items-center'>
+        <div className='filter-container d-flex mt-5 align-items-center'>
           <SearchBox placeholder="Search Coin" onChange={this.handleChange.bind(this)} style={{marginRight: "20px"}}/>
           <Switch label="Hide Zero Balances" onToggle={this.hideZeroBalance.bind(this)} />
         </div>

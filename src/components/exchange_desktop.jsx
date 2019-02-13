@@ -17,6 +17,8 @@ import QTTableView from './ui/tableView.jsx'
 import Order from './order.jsx';
 import Markets from './markets.jsx';
 import OpenOrders from './open_orders.jsx';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import {switchTicker, initBalance, getMarketQuotes} from "../redux/actions/app.jsx";
 import { connect } from 'react-redux'
@@ -253,6 +255,7 @@ class Exchange extends Component {
 				<section className="status">
 					<Status />
 				</section>
+				<ToastContainer />
 				{this.props.private_key ? "" : <ConnectDialog default={this.state.dialog} />}
 			</div>
 		);

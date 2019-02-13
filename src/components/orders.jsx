@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import moment from 'moment';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 import { css } from 'emotion'
 import globalcss from './global-css.js'
 
@@ -11,7 +10,7 @@ import QTButton from './ui/button.jsx'
 import QTTableViewSimple from './ui/tableViewSimple.jsx'
 import Loader from './ui/loader.jsx'
 
-import {cancelTransaction, loadFilledOrders} from "../redux/actions/app.jsx";
+import {cancelTransaction, loadOrderHistory} from "../redux/actions/app.jsx";
 import ReactGA from 'react-ga';
 import lodash from 'lodash';
 
@@ -287,7 +286,7 @@ class Orders extends Component {
           
           const page = this.state.page
           this.setState({loading: true})
-          this.props.dispatch(loadFilledOrders(page)).then(() => {
+          this.props.dispatch(loadOrderHistory(page)).then(() => {
             this.setState({loading: false, page: page + 1})
           })
         }
@@ -297,7 +296,7 @@ class Orders extends Component {
 
   render() {
     const tabs = {
-      names: ['Open Orders', 'Filled Orders'], //, 'Canceled Orders'],
+      names: ['Open Orders', 'Order History'], //, 'Canceled Orders'],
       selectedTabIndex: 0,
     }
 
@@ -384,9 +383,7 @@ class Orders extends Component {
             {OrdersList[this.state.selectedTabIndex]}
             {this.state.loading && <Loader margin="10px auto"/>}
           </div>
-          
 				</section>
-        <ToastContainer />
       </div>
     )
   }

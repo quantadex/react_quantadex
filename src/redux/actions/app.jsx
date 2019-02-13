@@ -8,6 +8,7 @@ import { PrivateKey, PublicKey, Aes, key, ChainStore } from "@quantadex/bitshare
 import { createLimitOrderWithPrice, createLimitOrder2, cancelOrder, signAndBroadcast } from "../../common/Transactions";
 import { aggregateOrderBook, convertHistoryToOrderedSet } from "../../common/PriceData";
 import ReactGA from 'react-ga';
+import { toast } from 'react-toastify';
 
 export const INIT_DATA = 'INIT_DATA';
 export const LOGIN = 'LOGIN';
@@ -189,27 +190,64 @@ function validMarketPair(a, b) {
 	return foundA ? pair : pair.reverse()
 }
 
-export const loadFilledOrders = (page) => {
+async function processOrderHistory(data, userId) {
+	const my_history = []
+	const cancels = []
+	var limitOrders = []
+	
+	data.filter((op) => op.operation_type == 2).map(item => {
+		cancels.push(item.operation_history.op_object.order)
+	})
+
+	if (cancels.length > 0) {
+		limitOrders = await fetch(`https://wya99cec1d.execute-api.us-east-1.amazonaws.com/testnet/account?operation_type=1&account_id=${userId}&size=100&filter_field=operation_history__operation_result&filter_value=${cancels.join(',')}`)
+			.then(e => e.json())
+			.then(e => {
+				return lodash.keyBy(e, (o) => o.operation_history.operation_result.split(',')[1].replace(/"/g, '').replace(']', ''))
+			})
+	}
+	data.forEach((filled) => {
+		let baseId
+		var order
+		const type = filled.operation_type
+		let op = filled.operation_history
+		op.time = filled.block_data.block_time
+		op.block_num = filled.block_data.block_num
+
+		if (type == 2) {
+			let limitOp = limitOrders[op.op_object.order].operation_history.op_object
+			limitOp.sell_price = {base: limitOp.amount_to_sell, quote: limitOp.min_to_receive}
+			limitOp.id = op.block_num
+			limitOp.time = op.time
+			
+			baseId = validMarketPair(limitOp.amount_to_sell.asset_id, limitOp.min_to_receive.asset_id)[0]
+			order = new LimitOrder(
+				limitOp,
+				window.assets,
+				baseId
+			);
+		} else {
+			baseId = validMarketPair(op.op_object.fill_price.base.asset_id, op.op_object.fill_price.quote.asset_id)[0]
+			op.op = [{}, op.op_object]
+			order = new FillOrder(
+				op,
+				window.assets,
+				baseId
+			);
+		}
+		my_history.push(order)
+	})
+	return my_history
+}
+
+export const loadOrderHistory = (page) => {
 	return (dispatch, getState) => {
-		return fetch("https://wya99cec1d.execute-api.us-east-1.amazonaws.com/testnet/account?operation_type=4&size=" + dataSize + "&from_=" + (page * dataSize) + "&account_id=" + getState().app.userId).then(e => e.json())
+		const userId = getState().app.userId
+		return fetch(`https://wya99cec1d.execute-api.us-east-1.amazonaws.com/testnet/account?filter_field=operation_type&filter_value=2,4&size=${dataSize}&from_=${page * dataSize}&account_id=${userId}`)
+			.then(e => e.json())
 			.then((filled) => {
-				const my_history = [];
-				filled.forEach((filled) => {
-					let op = filled.operation_history
-					op.op = [{}, op.op_object]
-					op.time = filled.block_data.block_time
-					op.block_num = filled.block_data.block_num
-					
-					let baseId = validMarketPair(op.op_object.fill_price.base.asset_id, op.op_object.fill_price.quote.asset_id)[0]
-					// console.log(baseId)
-					var order = new FillOrder(
-						op,
-						window.assets,
-						baseId
-					);
-					my_history.push(order)
-				})
-				// console.log(my_history)
+				return processOrderHistory(filled, userId)
+			}).then(my_history => {
 				dispatch({
 					type: LOAD_FILLED_ORDERS,
 					data: my_history
@@ -344,11 +382,13 @@ export function switchTicker(ticker) {
 					})
 				} catch(e) {
 					console.log(e)
-					initAPI = false
-					switchTicker(ticker)
+					toast.error("Lost connection to server. Please refresh the page.", {
+						position: toast.POSITION.TOP_CENTER,
+						autoClose: false
+					});
 					return
-				}
-
+				}		
+				
 				const trades = Apis.instance().history_api().exec("get_fill_order_history", [base.id, counter.id, 100]).then((filled) => {
 					// console.log("history filled ", filled);
 					const trade_history = convertHistoryToOrderedSet(filled, base.id)
@@ -359,24 +399,10 @@ export function switchTicker(ticker) {
 				var my_trades = []
 
 				if (publicKey && getState().app.userId) {
-					my_trades = fetch("https://wya99cec1d.execute-api.us-east-1.amazonaws.com/testnet/account?operation_type=4&size=" + dataSize + "&account_id=" + getState().app.userId).then(e => e.json())
+					const userId = getState().app.userId
+					my_trades = fetch(`https://wya99cec1d.execute-api.us-east-1.amazonaws.com/testnet/account?filter_field=operation_type&filter_value=2,4&size=${dataSize}&account_id=${userId}`).then(e => e.json())
 					.then((filled) => {
-						const my_history = [];
-						filled.forEach((filled) => {
-							let op = filled.operation_history
-							op.op = [{}, op.op_object]
-							op.time = filled.block_data.block_time
-							op.block_num = filled.block_data.block_num
-							
-							let baseId = validMarketPair(op.op_object.fill_price.base.asset_id, op.op_object.fill_price.quote.asset_id)[0]
-							// console.log(baseId)
-							var order = new FillOrder(
-								op,
-								window.assets,
-								baseId
-							);
-							my_history.push(order)
-						})
+						const my_history = processOrderHistory(filled, userId)
 						// console.log(my_history)
 						return my_history
 					})
@@ -399,7 +425,6 @@ export function switchTicker(ticker) {
 						results[0][1].limit_orders.forEach((ordered) => {
 							// search both market pairs to see what makes sense
 							// as the trading pair
-
 							let baseId = validMarketPair(ordered.sell_price.base.asset_id, ordered.sell_price.quote.asset_id)[0]
 							var order = new LimitOrder(
 								ordered,

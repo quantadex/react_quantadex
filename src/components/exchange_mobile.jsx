@@ -16,7 +16,9 @@ import QTTableView from './ui/tableView.jsx'
 import Order from './order.jsx';
 import Markets from './markets.jsx';
 import OpenOrders from './open_orders.jsx';
-import MobileNav from './ui/mobileNav.jsx'
+import MobileNav from './ui/mobileNav.jsx';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import {switchTicker, initBalance, getMarketQuotes} from "../redux/actions/app.jsx";
 import { connect } from 'react-redux'
@@ -214,6 +216,8 @@ class Exchange extends Component {
 				<MobileNav tabs={tabs} selectedTabIndex={this.state.selectedTabIndex} switchTab={this.handleSwitch.bind(this)} />
 				<Status mobile={true} />
 			</div>
+			
+			<ToastContainer />
 			{this.props.private_key ? "" : <ConnectDialog isMobile={true} default={this.state.dialog}/>}
 			{/* { localStorage.getItem("firstTimeComplete") ? null : <FirstTime mobile={true}/> } */}
 		</div>

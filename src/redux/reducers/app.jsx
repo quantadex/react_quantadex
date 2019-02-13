@@ -169,75 +169,8 @@ let initialState = {
       fontWeight:"light",
       float:"center"
     },{
-      name:"DATE",
-      key:"date",
-      type:"string",
-      sortable:false,
-      color: (value) => {return "white"},
-      fontSize:"extra-small",
-      fontWeight:"light",
-      float:"right"
-    }]
-  },
-  canceledOrders: {
-    dataSource: [],
-    columns: [{
-      name:"PAIR",
-      key:"assets",
-      type:"string",
-      sortable:false,
-      color: (value) => {return "white"},
-      fontSize:"extra-small",
-      fontWeight:"light",
-      float:"left"
-    },{
-      name:"BLOCK #",
-      key:"block",
-      type:"block",
-      sortable:false,
-      color: (value) => {return "theme"},
-      fontSize:"extra-small",
-      fontWeight:"light",
-      float:"right"
-    },{
-      name:"PRICE",
-      key:"price",
-      type:"string",
-      sortable:false,
-      color: (value) => {return "white"},
-      fontSize:"extra-small",
-      fontWeight:"light",
-      float:"right"
-    },{
-      name:"AMOUNT",
-      key:"amount",
-      type:"string",
-      sortable:false,
-      color: (value) => {return "white"},
-      fontSize:"extra-small",
-      fontWeight:"light",
-      float:"right"
-    },{
-      name:"TOTAL",
-      key:"total",
-      type:"string",
-      sortable:false,
-      color: (value) => {return "white"},
-      fontSize:"extra-small",
-      fontWeight:"light",
-      float:"right"
-    },{
-      name:"TYPE",
-      key:"type",
-      type:"string",
-      sortable:false,
-      color: (value) => {return value == "BUY" ? "theme" : "red"},
-      fontSize:"extra-small",
-      fontWeight:"light",
-      float:"right"
-    },{
-      name:"MAKER",
-      key:"maker",
+      name:"STATUS",
+      key:"status",
       type:"string",
       sortable:false,
       color: (value) => {return "white"},
@@ -431,22 +364,36 @@ function mergeTickerData(current, data) {
 
 function processFilledOrder(orders) {
   const data = orders.map((order) => {
-    const tickerPair = [order.assets[order.fill_price.base.asset_id].symbol, order.assets[order.fill_price.quote.asset_id].symbol]
-    var ticker = order.is_maker ? tickerPair : tickerPair.reverse()
-    ticker = order.isBid ? ticker.reverse() : ticker
+    var tickerPair, ticker, amount, total
+
+    if (order.seller) {
+      tickerPair = [order.assets[order.sell_price.base.asset_id].symbol, order.assets[order.sell_price.quote.asset_id].symbol]
+      ticker = order.isBid() ? tickerPair.reverse() : tickerPair
+      order.time = new Date(order.order.time + 'z')
+      order.block = order.id
+      amount = order.isBid() ? order.sell_price.quote.getAmount({ real: true }) : order.sell_price.base.getAmount({ real: true });
+      total = ((order.getPrice() * Math.pow(10, 6)) * (amount * Math.pow(10, 6)))/Math.pow(10, 12)
+      order.isBid = order.isBid()
+    } else {
+      tickerPair = [order.assets[order.fill_price.base.asset_id].symbol, order.assets[order.fill_price.quote.asset_id].symbol]
+      ticker = order.is_maker ? tickerPair : tickerPair.reverse()
+      ticker = order.isBid ? ticker.reverse() : ticker
+      
+      amount = order.isBid ? parseFloat(order.amountToReceive()) : parseFloat(order.amountToPay());
+      total = ((order.getPrice() * Math.pow(10, 6)) * (amount * Math.pow(10, 6)))/Math.pow(10, 12)
+    }
     
-    const amount = order.isBid ? parseFloat(order.amountToReceive()) : parseFloat(order.amountToPay());
-    const total = ((order.getPrice() * Math.pow(10, 6)) * (amount * Math.pow(10, 6)))/Math.pow(10, 12)
 
     return {
       assets: ticker.join('/'),
       price: order.getPrice() + ' ' + ticker[1],
       amount: parseFloat(amount) + ' ' + ticker[0],
       total: total + ' ' + ticker[1],
-      maker: String(order.is_maker),
+      maker: order.seller ? "-" : String(order.is_maker),
       type: order.isBid ? 'BUY' : 'SELL',
       date: order.time.toLocaleString('en-US', { day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false }),
-      block: order.block
+      block: order.block,
+      status: order.seller ? "Canceled" : "Filled"
     }
   })
 
@@ -595,7 +542,7 @@ const app = (state = initialState, action) => {
       }
 
     case LOAD_FILLED_ORDERS:
-      const filledOrdersDataSource2 = processFilledOrder(action.data)
+      const filledOrdersDataSource2 = processFilledOrder(action.data, state.userId)
       const end = filledOrdersDataSource2.length < dataSize
       return {
         ...state,

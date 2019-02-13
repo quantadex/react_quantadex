@@ -3,8 +3,7 @@ import { connect } from 'react-redux'
 import moment from 'moment';
 
 import { css } from 'emotion'
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 import globalcss from './global-css.js'
 
 import QTTabBar from './ui/tabBar.jsx'
@@ -57,8 +56,8 @@ const container = css`
       border-radius: 2px;
       cursor: pointer;
     }
-    .inactive {
-      display: none;
+    button:disabled {
+      background-color: #31383d;
     }
   }
 
@@ -419,14 +418,19 @@ class Trade extends Component {
                     { this.props.private_key ? 
                         <div>
                             {this.state.trade_side == 1 ?
-                                <button id="sell-action" className="sell-btn" onClick={this.handleSell.bind(this)}>{this.state.processing ? <Loader /> : "PLACE SELL ORDER"}</button>
+                                <button id="sell-action" className="sell-btn" disabled={this.state.price <= 0 || this.state.qty <= 0 || this.state.processing}
+                                    onClick={this.handleSell.bind(this)}>
+                                    {this.state.processing ? <Loader /> : "PLACE SELL ORDER"}
+                                </button>
                                 :
-                                <button id="buy-action" className="buy-btn" onClick={this.handleBuy.bind(this)}>{this.state.processing ? <Loader /> : "PLACE BUY ORDER"}</button>
+                                <button id="buy-action" className="buy-btn" disabled={this.state.price <= 0 || this.state.qty <= 0 || this.state.processing}
+                                    onClick={this.handleBuy.bind(this)}>
+                                    {this.state.processing ? <Loader /> : "PLACE BUY ORDER"}
+                                </button>
                             }
                         </div>
                     : "" }
                 </div>
-                <ToastContainer />
             </div>
         )
     }
