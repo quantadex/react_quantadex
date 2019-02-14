@@ -379,11 +379,10 @@ function processFilledOrder(orders) {
       ticker = order.is_maker ? tickerPair : tickerPair.reverse()
       ticker = order.isBid ? ticker.reverse() : ticker
       
-      amount = order.isBid ? parseFloat(order.amountToReceive()) : parseFloat(order.amountToPay());
+      amount = parseFloat(order.amountToReceive());
       total = ((order.getPrice() * Math.pow(10, 6)) * (amount * Math.pow(10, 6)))/Math.pow(10, 12)
     }
     
-
     return {
       assets: ticker.join('/'),
       price: order.getPrice() + ' ' + ticker[1],

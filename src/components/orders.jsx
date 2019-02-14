@@ -216,10 +216,14 @@ class Orders extends Component {
       loading: false,
       page: 1
     };
+
+    this.OpenOrders = this.OpenOrders.bind(this)
+    this.FilledOrders = this.FilledOrders.bind(this)
   }
 
   handleSwitch(index) {
     this.setState({selectedTabIndex: index})
+    document.getElementById("scroll-order-list").scrollTop = 0
   }
 
   notify_success = (toastId) => toast.update(toastId, {
@@ -294,78 +298,77 @@ class Orders extends Component {
     }
   }, 200)
 
+  OpenOrders() {
+    if (this.props.openOrders.dataSource.length == 0) {
+      return <div className="empty-list">You have no active orders</div>
+    }
+    if (this.props.mobile) {
+      return (
+        <div>
+          {this.props.openOrders.dataSource.sort((a,b) => (a.id > b.id) ? -1 : ((b.id > a.id) ? 1 : 0)).map(row => {
+            return (
+              <div key={row.id} className="list-row" onClick={() => this.toggleDetails(row.id)}>
+                <div className="d-flex list-item">
+                  <span className="item-assets">{row.assets}</span>
+                  <span className="item-price text-right">{row.price}</span>
+                  <span className={"text-right item-type-" + row.type}>{row.type}</span>
+                </div>
+                <div className={"item-details" + (this.state.selectedRow == row.id ? " active" : "")}>
+                  <span className="item"><span className="label">AMOUNT</span> {row.amount}</span>
+                  <span className="item"><span className="label">TOTAL</span> {row.total}</span>
+                  <button onClick={() => this.handleCancel(row.assets, row.id)}>CANCEL</button>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )
+    } else {
+      return (
+        <QTTableViewSimple dataSource={this.props.openOrders.dataSource.sort((a,b) => (a.id > b.id) ? -1 : ((b.id > a.id) ? 1 : 0))} columns={this.props.openOrders.columns}
+        cancelOrder={this.handleCancel.bind(this)} />
+      )
+    }
+  }
+
+  FilledOrders() {
+    if (this.props.filledOrders.dataSource.length == 0) {
+      return <div className="empty-list">You have no recent filled orders in this market</div>
+    }
+
+    if (this.props.mobile) {
+      return (
+        <div>
+          {this.props.filledOrders.dataSource.concat(this.props.filledOrders.dataSource2).map(row => {
+            return (
+              <div key={row.id} className="list-row" onClick={() => this.toggleDetails(row.id)}>
+                <div className="d-flex list-item">
+                  <span className="item-assets">{row.assets}</span>
+                  <span className="item-price text-right">{row.price}</span>
+                  <span className={"text-right item-type-" + row.type}>{row.type}</span>
+                </div>
+                <div className={"item-details" + (this.state.selectedRow == row.id ? " active" : "")}>
+                  <span className="item"><span className="label">AMOUNT</span> {row.amount}</span>
+                  <span className="item"><span className="label">TOTAL</span> {row.total}</span>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )
+    } else {
+      return (
+        <QTTableViewSimple dataSource={this.props.filledOrders.dataSource.concat(this.props.filledOrders.dataSource2)} columns={this.props.filledOrders.columns}/>
+      )
+    }
+  }
+
   render() {
     const tabs = {
-      names: ['Open Orders', 'Order History'], //, 'Canceled Orders'],
+      names: ['Open Orders', 'Order History'],
       selectedTabIndex: 0,
     }
-
-    const OpenOrders = () => {
-      if (this.props.openOrders.dataSource.length == 0) {
-        return <div className="empty-list">You have no active orders</div>
-      }
-      if (this.props.mobile) {
-        return (
-          <div>
-            {this.props.openOrders.dataSource.sort((a,b) => (a.id > b.id) ? -1 : ((b.id > a.id) ? 1 : 0)).map(row => {
-              return (
-                <div key={row.id} className="list-row" onClick={() => this.toggleDetails(row.id)}>
-                  <div className="d-flex list-item">
-                    <span className="item-assets">{row.assets}</span>
-                    <span className="item-price text-right">{row.price}</span>
-                    <span className={"text-right item-type-" + row.type}>{row.type}</span>
-                  </div>
-                  <div className={"item-details" + (this.state.selectedRow == row.id ? " active" : "")}>
-                    <span className="item"><span className="label">AMOUNT</span> {row.amount}</span>
-                    <span className="item"><span className="label">TOTAL</span> {row.total}</span>
-                    <button onClick={() => this.handleCancel(row.assets, row.id)}>CANCEL</button>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        )
-      } else {
-        return (
-          <QTTableViewSimple dataSource={this.props.openOrders.dataSource.sort((a,b) => (a.id > b.id) ? -1 : ((b.id > a.id) ? 1 : 0))} columns={this.props.openOrders.columns}
-          cancelOrder={this.handleCancel.bind(this)} />
-        )
-      }
-    }
-
-    const FilledOrders = () => {
-      if (this.props.filledOrders.dataSource.length == 0) {
-        return <div className="empty-list">You have no recent filled orders in this market</div>
-      }
-
-      if (this.props.mobile) {
-        return (
-          <div>
-            {this.props.filledOrders.dataSource.concat(this.props.filledOrders.dataSource2).map(row => {
-              return (
-                <div key={row.id} className="list-row" onClick={() => this.toggleDetails(row.id)}>
-                  <div className="d-flex list-item">
-                    <span className="item-assets">{row.assets}</span>
-                    <span className="item-price text-right">{row.price}</span>
-                    <span className={"text-right item-type-" + row.type}>{row.type}</span>
-                  </div>
-                  <div className={"item-details" + (this.state.selectedRow == row.id ? " active" : "")}>
-                    <span className="item"><span className="label">AMOUNT</span> {row.amount}</span>
-                    <span className="item"><span className="label">TOTAL</span> {row.total}</span>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        )
-      } else {
-        return (
-          <QTTableViewSimple dataSource={this.props.filledOrders.dataSource.concat(this.props.filledOrders.dataSource2)} columns={this.props.filledOrders.columns}/>
-        )
-      }
-    }
-    
-    const OrdersList = [<OpenOrders />, <FilledOrders />]
+    const OrdersList = [<this.OpenOrders />, <this.FilledOrders />]
 
     return (
       <div className={container + (this.props.mobile ? " mobile" : "")}>
@@ -379,7 +382,7 @@ class Orders extends Component {
           />
         </div>
         <section className="order-list no-scroll-bar">
-          <div onScroll={(e) => this.handleScroll(e.target)}>
+          <div id="scroll-order-list" onScroll={(e) => this.handleScroll(e.target)}>
             {OrdersList[this.state.selectedTabIndex]}
             {this.state.loading && <Loader margin="10px auto"/>}
           </div>
