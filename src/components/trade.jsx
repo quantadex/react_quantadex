@@ -206,7 +206,8 @@ class Trade extends Component {
             price: 0,
             price_set: false,
             inputSetTime: 0,
-            currentPrice: undefined
+            currentPrice: undefined,
+            currentTicker: undefined
         };
     }
 
@@ -218,8 +219,13 @@ class Trade extends Component {
                 inputSetTime: nextProps.inputSetTime
             })
         }
-        if (this.state.currentPrice !== nextProps.currentPrice) {
-            this.setState({price: nextProps.currentPrice, currentPrice: nextProps.currentPrice, qty: 0})
+        if (this.state.currentPrice !== nextProps.currentPrice.price && (this.state.currentTicker !== nextProps.currentPrice.ticker || !this.state.currentPrice)) {
+          this.setState({
+            currentTicker: nextProps.currentPrice.ticker, 
+            currentPrice: nextProps.currentPrice.price, 
+            price: nextProps.currentPrice.price, 
+            qty: 0
+          })
         }
     }
 
@@ -443,8 +449,8 @@ const mapStateToProps = (state) => ({
     state: state,
     bids: state.app.tradeBook.bids,
     asks: state.app.tradeBook.asks,
-    currentPrice: state.app.mostRecentTrade.price,
     currentTicker: state.app.currentTicker,
+    currentPrice: state.app.mostRecentTrade,
     balance: state.app.balance,
     inputBuy: state.app.inputBuy,
     inputBuyAmount: state.app.inputBuyAmount,
