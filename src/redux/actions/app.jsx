@@ -2,6 +2,7 @@ import lodash from 'lodash';
 import API from "../../api.jsx"
 import SortedSet from 'js-sorted-set'
 import QuantaClient from "@quantadex/quanta_js"
+import ApplicationApi from "../../common/api/ApplicationApi";
 import { Apis } from "@quantadex/bitsharesjs-ws";
 import { Price, Asset, FillOrder, LimitOrderCreate, LimitOrder } from "../../common/MarketClasses";
 import { PrivateKey, PublicKey, Aes, key, ChainStore } from "@quantadex/bitsharesjs";
@@ -117,6 +118,23 @@ export const cancelTransaction = (market, order_id) => {
 			.then((e) => {
 				// console.log("order result ", e);
 			})
+	}
+}
+
+export const transferFund = (data) => {
+	return (dispatch, getState) => {
+		return ApplicationApi.transfer({ 
+			from_account: getState().app.userId,
+			to_account: data.destination,
+			amount: data.amount * Math.pow(10, window.assetsBySymbol[data.asset].precision),
+			asset: data.asset,
+			memo: data.memo,
+			broadcast: true,
+			encrypt_memo: false,
+		}).then((tr) => {
+			// console.log(tr);
+			return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key))
+		})
 	}
 }
 
@@ -315,7 +333,6 @@ export function switchTicker(ticker) {
 
 			async function fetchData(ticker, first=false) {
 				var {base, counter} = getBaseCounter(ticker)
-				
 				try {
 					await fetch("https://s3.amazonaws.com/quantachain.io/markets.json").then(e => e.json())
 					.then(async (e) => {

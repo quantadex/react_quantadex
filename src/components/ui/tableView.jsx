@@ -42,7 +42,7 @@ export default class QTTableView extends React.Component {
     this.state = {
       sort : null,
       reverse : false,
-      dataSource : this.props.dataSource,
+      dataSource : [],
       columns: this.props.columns,
       appendedUI: {
         index: -1,
@@ -69,22 +69,23 @@ export default class QTTableView extends React.Component {
     })
   }
 
-  componentWillReceiveProps(nextProps) {
-    this.setState({
-      dataSource:nextProps.dataSource,
-      columns:nextProps.columns,
-      sort : null,
-      reverse : false,
-      appendedUI: {
-        index: -1,
-        block: "",
-        name: ""
-      }
-    })
-  }
+  // componentWillReceiveProps(nextProps) {
+  //   console.log(nextProps)
+  //   this.setState({
+  //     dataSource:nextProps.dataSource,
+  //     columns:nextProps.columns,
+  //     sort : null,
+  //     reverse : false,
+  //     appendedUI: {
+  //       index: -1,
+  //       block: "",
+  //       name: ""
+  //     }
+  //   })
+  // }
 
   toggleModal(index,ui) {
-    console.log(this.state.appendedUI)
+    // console.log(this.state.appendedUI, index)
     if (ui.type.name != this.state.appendedUI.name || this.state.appendedUI.index != index) {
       this.setState({
         appendedUI: {
@@ -108,11 +109,11 @@ export default class QTTableView extends React.Component {
   render() {
     if (this.state.sort !== null) {
       if (this.state.reverse) {
-        this.state.dataSource.sort((a,b) => {
+        this.props.dataSource.sort((a,b) => {
           return a[this.state.sort].localeCompare(b[this.state.sort])
         })
       } else {
-        this.state.dataSource.sort((a,b) => {
+        this.props.dataSource.sort((a,b) => {
 
           return b[this.state.sort].localeCompare(a[this.state.sort])
         })
@@ -144,12 +145,12 @@ export default class QTTableView extends React.Component {
           }
         </div>
         {
-          this.state.dataSource.map((e,index) => {
+          this.props.dataSource.map((e,index) => {
             return (
               <div key={index}>
                 <div id={index} className={"row justify-content-between align-items-center table-body-row" + (this.state.selectedIndex == index ? " active" : "")}  onClick={() => this.handleClick(index)}>
                   {
-                    this.state.columns.map((col, index) => {
+                    this.state.columns.map((col, i) => {
                       if (col.type == "buttons") {
 
                         const new_css = css`
@@ -158,23 +159,23 @@ export default class QTTableView extends React.Component {
                         `
 
                         return (
-                          <div key={index} className={new_css+" d-flex  action-btn " + (e.pairs == "Deposit ERC20" ? "deposit-only justify-content-end" : "justify-content-between")}>
+                          <div key={index + '-' + i} className={new_css+" d-flex  action-btn " + (e.pairs == "Deposit ERC20" ? "deposit-only justify-content-end" : "justify-content-between")}>
                             {
                               col.buttons.map((btn) => {
-                                if(e.pairs == "Deposit ERC20" && btn.label == "WITHDRAW") { 
+                                if(e.pairs == "QDEX" && btn.label == "DEPOSIT") { 
                                   return null
                                  }
                                 return (
                                   <QTButton
                                     key={btn.label}
-                                    onClick={this.toggleModal.bind(this,index,btn.handleClick())}
+                                    onClick={this.toggleModal.bind(this,index,btn.handleClick(e.pairs))}
                                     className={btn.color + " qt-font-base qt-font-semibold"}
                                     borderWidth="1"
                                     width="80"
                                     height="20"
                                     label={btn.label}
                                     color={btn.color}
-                                    disabled={true}/>
+                                    disabled={btn.disabled(e.pairs)}/>
                                 )
                               })
                             }
@@ -183,19 +184,19 @@ export default class QTTableView extends React.Component {
                       } else if (col.type == "string") {
                         const new_css = css`width:${col.width}px;text-align:left;`
                         return (
-                          <span key={index} className={new_css + " qt-font-extra-small text-nowrap " + (this.props.mobile ? col.key : "")}>{e[col.key]}</span>
+                          <span key={index + '-' + i} className={new_css + " qt-font-extra-small text-nowrap " + (this.props.mobile ? col.key : "")}>{e[col.key]}</span>
                         )
                       } else if (col.type == "coloredString") {
                         const color = col.colors[e[col.key]]
 
                         const new_css = css`width:${col.width}px;text-align:left;color:${color}`
                         return (
-                          <span key={index} className={new_css + " qt-font-extra-small"}>{e[col.key]}</span>
+                          <span key={index + '-' + i} className={new_css + " qt-font-extra-small"}>{e[col.key]}</span>
                         )
                       } else if (col.type == "number") {
                         const new_css = css`width:${col.width}px;text-align:right;`
                         return (
-                          <span key={index} className={new_css + " qt-font-extra-small " + (this.props.mobile ? col.key : "")}>{e[col.key]}</span>
+                          <span key={index + '-' + i} className={new_css + " qt-font-extra-small " + (this.props.mobile ? col.key : "")}>{e[col.key].toLocaleString(navigator.language, {maximumFractionDigits: 8})}</span>
                         )
                       }
                     })

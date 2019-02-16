@@ -10,6 +10,10 @@ import QTWithdraw from './ui/withdraw.jsx'
 import SearchBox from "./ui/searchBox.jsx"
 import Switch from "./ui/switch.jsx"
 import MobileHeader from './ui/mobileHeader.jsx';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import TxDialog from './ui/transaction_dialog.jsx'
+import { transferFund } from '../redux/actions/app.jsx'
 
 const container = css`
 	background-color:${globalcss.COLOR_BACKGROUND};
@@ -68,7 +72,7 @@ const container = css`
       color: #bbb;
     }
     a {
-      vertical-align: text-bottom;
+      vertical-align: baseline;
       margin-left: 10px;
     }
   }
@@ -185,34 +189,43 @@ class Fund extends Component {
 		}
     this.state = {
       selectedTabIndex: selectedTabIndex,
+      dataSource: [],
       page: this.props.page,
       filter: "",
       hideZero: false,
-      isMobile: screenWidth <= 992
+      isMobile: screenWidth <= 992,
+      txData: undefined,
+      confirmDialog: false,
     }
 
+    this.PublicAddress = this.PublicAddress.bind(this)
+  }
+
+  componentDidMount() {
+    this.setDataSource(this.props.balance)
   }
 
 	componentWillReceiveProps(nextProps) {
-		var selectedTabIndex
-		switch (nextProps.page) {
-			case "wallets":
-				selectedTabIndex = 0
-				break
-			case "history":
-				selectedTabIndex = 1
-				break
-			case "orders":
-				selectedTabIndex = 2
-				break
-			default:
-				selectedTabIndex = 0
-				break
-		}
-		this.setState({
-			page:nextProps.page,
-			selectedTabIndex:selectedTabIndex,
-		})
+    if (this.props.balance != nextProps.balance) {
+      this.setDataSource(nextProps.balance)
+    }
+  }
+
+  setDataSource(balance) {
+    const dataSource = []
+      balance.forEach(currency => {
+        const data = {
+          pairs: window.assets[currency.asset].symbol,
+          balance: currency.balance,
+          on_orders: "0.00000000",
+          usd_value: currency.usd.toLocaleString(navigator.language, {maximumFractionDigits: 2, minimumFractionDigits: 2})
+        }
+        dataSource.push(data)
+      });
+  
+      this.setState({
+        dataSource: dataSource
+      })
   }
   
   handleChange(e) {
@@ -223,35 +236,70 @@ class Fund extends Component {
     this.setState({hideZero: hide})
   }
 
+  confirmTransaction(data) {
+    this.setState({txData: data, confirmDialog: true})
+  }
+
+  closeTransaction() {
+    this.setState({confirmDialog: false, txData: undefined})
+  }
+
+  submitTransfer(data) {
+    this.props.dispatch(transferFund(data))
+      .then(() => {
+        toast.success(`Successfully transfer ${data.amount} ${data.asset} to ${data.destination}.`, {
+          position: toast.POSITION.TOP_CENTER
+        });
+      })
+      .catch((e) => {
+        // console.log(e)
+        toast.error("Unable to transfer. Please make sure the destination account name is correct.", {
+          position: toast.POSITION.TOP_CENTER
+        });
+      })
+      .finally(() => {
+        this.closeTransaction()
+      })
+  }
+
+  PublicAddress() {
+    return (
+      <div className="public-address-container d-flex justify-content-between">
+        <div id='public-address'>
+          <h3>Your QUANTA Wallet Public Address</h3>
+          <span className="qt-font-light">{this.props.publicKey}</span>
+          <a href={"http://testnet.quantadex.com/account/" + this.props.name} target="_blank"><img src="/public/images/external-link-light.svg" /></a>
+        </div>
+        <div className="est-fund text-right align-self-center">
+          <span className="qt-font-extra-small qt-white-62">On-chain custody estimated funds</span>
+          <div><span className="qt-font-huge">${this.props.estimated_fund.toLocaleString(navigator.language, {maximumFractionDigits: 4})} </span><span className="currency">USD</span></div>
+        </div>
+        
+      </div>
+    )
+  }
+
+  ERC20() {
+    return (
+      <div className="container-fluid erc20">
+        <div className="row justify-content-between align-items-center table-body-row">
+          <div className="qt-font-extra-small">Deposit ERC20</div>
+          <button className="qt-font-base qt-font-semibold" disabled>DEPOSIT</button>
+        </div>
+      </div>
+    )
+  }
+
 	render() {
     if (this.props.private_key == null) {
 			window.location.assign('/exchange')
     } 
     const tabs = [
       {
-        name:'Wallets / Deposit / Withdraw',
+        name:'Wallets / Deposit / Transfer',
         url:'wallets'
       },
-      // {
-      //   name:'Fund History',
-      //   url:'history'
-      // },
-      // {
-      //   name:'Orders',
-      //   url:'orders'
-      // }
     ]
-    
-    const dataSourceWallets = []
-    this.props.balance.forEach(currency => {
-      const data = {
-        pairs: window.assets[currency.asset].symbol,
-        balance: currency.balance,
-        on_orders: "0.00000000",
-        usd_value: currency.usd.toFixed(2)
-      }
-      dataSourceWallets.push(data)
-    });
 
     const columnsWallets = [{
         title: "PAIRS",
@@ -275,57 +323,24 @@ class Fund extends Component {
         width:"90"
     }, {
         buttons: [{
-          label:"WITHDRAW",
+          label:"TRANSFER",
           color:"theme unite",
-          handleClick: () => {
-						return <QTWithdraw />
-          }
+          handleClick: (asset) => {
+						return <QTWithdraw asset={asset} onSend={this.confirmTransaction.bind(this)}/>
+          },
+          disabled: (pairs) => {return false}
         }, {
           label:"DEPOSIT",
           color:"theme unite",
           handleClick: () => {
 						return <QTDeposit />
-					}
+          },
+          disabled: (pairs) => {return true}
         }],
         type: "buttons"
     }]
 
-    var dataSource,columns
-
-    switch (this.state.page) {
-      case "wallets":
-        dataSource = dataSourceWallets
-        columns = columnsWallets
-        break
-    }
-
-    const PublicAddress = () => {
-      return (
-        <div className="public-address-container d-flex justify-content-between">
-          <div id='public-address'>
-            <h3>Your QUANTA Wallet Public Address</h3>
-            <span className="qt-font-light">{this.props.publicKey}</span>
-            <a><img src="/public/images/external-link-light.svg" /></a>
-          </div>
-          <div className="est-fund text-right align-self-center">
-            <span className="qt-font-extra-small qt-white-62">On-chain custody estimated funds</span>
-            <div><span className="qt-font-huge">${this.props.estimated_fund.toLocaleString(navigator.language, {maximumFractionDigits: 4})} </span><span className="currency">USD</span></div>
-          </div>
-          
-        </div>
-      )
-    }
-
-    const ERC20 = () => {
-      return (
-        <div className="container-fluid erc20">
-          <div className="row justify-content-between align-items-center table-body-row">
-            <div className="qt-font-extra-small">Deposit ERC20</div>
-            <button className="qt-font-base qt-font-semibold" disabled>DEPOSIT</button>
-          </div>
-        </div>
-      )
-    }
+    var columns = columnsWallets
     
 		return (
 		<div className={container + " container-fluid" + (this.state.isMobile ? " mobile" : "")}>
@@ -354,7 +369,7 @@ class Fund extends Component {
         </div>
       </div>
       <div className="content">
-        { this.state.page == 'wallets' ? <PublicAddress /> : null }
+        { this.state.page == 'wallets' ? <this.PublicAddress /> : null }
         
         <div className='filter-container d-flex mt-5 align-items-center'>
           <SearchBox placeholder="Search Coin" onChange={this.handleChange.bind(this)} style={{marginRight: "20px"}}/>
@@ -363,27 +378,31 @@ class Fund extends Component {
         
 
         <div className="table-row">
-          <QTTableView dataSource={dataSource.filter(data => data.pairs.toLowerCase().includes(this.state.filter) && 
+          <QTTableView dataSource={this.state.dataSource.filter(data => data.pairs.toLowerCase().includes(this.state.filter) && 
             (!this.state.hideZero || data.balance > 0))} columns={columns} mobile={this.state.isMobile}/>
           {
-            this.state.page == 'wallets' ? <ERC20 /> : null
+            this.state.page == 'wallets' ? <this.ERC20 /> : null
           }
         </div>
       </div>
-      
+      {this.state.confirmDialog && 
+        <TxDialog data={this.state.txData} 
+          cancel={() => this.closeTransaction()} 
+          submit={() => this.submitTransfer(this.state.txData)} />
+      }
+      <ToastContainer />
 		</div>
 		);
 	}
 }
 
 const mapStateToProps = (state) => ({
-		leftOpen: state.app.ui.leftOpen,
-    rightOpen: state.app.ui.rightOpen,
     balance: state.app.balance,
     publicKey: state.app.publicKey || "",
     private_key: state.app.private_key,
     estimated_fund: state.app.totalFundValue,
-    usd_value: state.app.usd_value
+    usd_value: state.app.usd_value,
+		name: state.app.name
 	});
 
 
