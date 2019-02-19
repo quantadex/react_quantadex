@@ -20,16 +20,6 @@ const container = css`
     opacity: 0.5;
   }
 
-  // .theader:after {
-  //   background-image: url('/public/images/menu-arrow-down.svg');
-  //   width:6px;
-  //   height:10px;
-  //   background-size: 6px 10px;
-  //   display:inline-block;
-  //   margin-left:5px;
-  //   content:"";
-  // }
-
   .table-body-row: hover {
     border-radius: 2px;
     background-color: rgba(52, 62, 68, 0.4);
@@ -120,6 +110,8 @@ export default class QTTableView extends React.Component {
       }
     }
 
+    const ERC20Label = "Deposit ERC20"
+
     return (
       <div className={container + " container-fluid"}>
         <div className="row justify-content-between align-items-center">
@@ -159,23 +151,22 @@ export default class QTTableView extends React.Component {
                         `
 
                         return (
-                          <div key={index + '-' + i} className={new_css+" d-flex  action-btn " + (e.pairs == "Deposit ERC20" ? "deposit-only justify-content-end" : "justify-content-between")}>
+                          <div key={index + '-' + i} className={new_css+" d-flex  action-btn " + (e.pairs == ERC20Label ? "deposit-only justify-content-end" : "justify-content-between")}>
                             {
                               col.buttons.map((btn) => {
-                                if(e.pairs == "QDEX" && btn.label == "DEPOSIT") { 
+                                if(e.pairs == "QDEX" && btn.label == "DEPOSIT" || e.pairs == ERC20Label && btn.label == "WITHDRAW") { 
                                   return null
                                  }
                                 return (
                                   <QTButton
                                     key={btn.label}
-                                    onClick={this.toggleModal.bind(this,index,btn.handleClick(e.pairs))}
+                                    onClick={this.toggleModal.bind(this,index,btn.handleClick(e.pairs != ERC20Label ? e.pairs : "ERC20"))}
                                     className={btn.color + " qt-font-base qt-font-semibold"}
                                     borderWidth="1"
                                     width="80"
                                     height="20"
-                                    label={btn.label}
-                                    color={btn.color}
-                                    disabled={btn.disabled(e.pairs)}/>
+                                    label={e.pairs == "QDEX" ? "TRANSFER" : btn.label}
+                                    color={btn.color}/>
                                 )
                               })
                             }
@@ -194,6 +185,9 @@ export default class QTTableView extends React.Component {
                           <span key={index + '-' + i} className={new_css + " qt-font-extra-small"}>{e[col.key]}</span>
                         )
                       } else if (col.type == "number") {
+                        if (e.pairs == ERC20Label) {
+                          return null
+                        }
                         const new_css = css`width:${col.width}px;text-align:right;`
                         return (
                           <span key={index + '-' + i} className={new_css + " qt-font-extra-small " + (this.props.mobile ? col.key : "")}>{e[col.key].toLocaleString(navigator.language, {maximumFractionDigits: 8})}</span>

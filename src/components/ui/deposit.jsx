@@ -1,108 +1,221 @@
 import React, {PropTypes} from 'react';
-
+import { GetName } from '../../redux/actions/app.jsx'
+import { connect } from 'react-redux'
+import QRCode from 'qrcode'
 import { css } from 'emotion'
 import globalcss from '../global-css.js'
 
 const container = css`
   margin:0 -15px;
-  padding: 22px 0;
+  background-color:white;
+  font-size: 12px;
+  color: #8A899D;
 
-  .content-container {
-    background-color:white;
-    height:298px;
-    padding: 36px;
+  h5 {
+    color: #333;
+  }
 
-    .qr-code {
-      width:223px;
-      height:223px;
-      background-color:black;
-    }
+  p {
+    line-height: 15px;
+  }
 
-    .content {
-      margin-left: 32px;
-      max-width: calc(100% - 300px);
+  input {
+    width: 100%;
+    color: #777;
+    padding: 0 10px;
+    text-align: left;
+    border: solid 1px rgba(34, 40, 44,0.27);
+    border-radius: 2px;
+  }
+  
+  button {
+    padding: 10px;
+    width: 170px;
+    height: auto;
+    font-size: 14px;
+    background-color: ${globalcss.COLOR_THEME};
+    color: #ffffff;
+    text-align:center;
+    border-radius: 2px;
+  }
 
-      .header-container {
-        margin-left:22px;
+  button:disabled {
+    background-color: #999;
+  }
 
-        .header {
-          font-size:18px;
-          color: #ff3282;
-          letter-spacing:0.7px;
-        }
+  .copy-btn {
+    padding: 2px 10px;
+    width: auto;
+    background-color: transparent;
+    color: #1cdad8;
+    border: 1px solid #1cdad8;
+  }
 
-        .sub-header {
-          color: #28303c;
-          letter-spacing: 0.5px;
-        }
-      }
+  .warning {
+    padding-left: 30px;
+    background: url("/public/images/warning.svg") no-repeat 0 50%;
+    color: #333;
+    font-size: 14px;
+  }
 
-      .address-container {
-        border-radius: 2px;
-        border: solid 1px rgba(151, 151, 151,0.27);
-        padding: 12px 12px 12px 18px;
-        margin-top:41px;
-        color:black;
+  .input-container {
+    width: 100%;
+    padding: 20px 30px;
+    border-left: 1px solid #eee;
+  }
 
-        .link {
-          max-width:calc(100% - 164px);
-          word-wrap:break-word;
-        }
+  #qr-canvas {
+    width: 150px;
+  }
 
-        .copy-btn {
-          padding:22px 27px;
-          width: 93px;
-          height: 40px;
-          border-radius: 2px;
-          background-color: ${globalcss.COLOR_THEME};
-          border: solid 1px ${globalcss.COLOR_THEME};
-          color:white;
-        }
-      }
-
-      .explain {
-        letter-spacing: 0.5px;
-        color: rgba(40, 48, 60,0.76);
-        margin-top:42px;
-      }
-    }
+  #deposit-address {
+    width: auto;
+    border: 0;
+    padding: 0;
   }
 `
 
-export default class QTDeposit extends React.Component {
+const coin_details = css`
+  font-size: 14px;
+  color: #4F637E;
+
+  h1 {
+    font-weight: bold;
+  }
+
+  span {
+    color: #333;
+  }
+
+  a img {
+    vertical-align: baseline;
+  }
+`
+
+class QTDeposit extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      issuer: undefined,
+      destination: "",
+      amount: "",
+      memo: "",
+      asset: this.props.asset,
+      fee: {amount: 0, asset: 'QDEX'}
+    }
+
+    this.CoinDetails = this.CoinDetails.bind(this)
+    this.MetamaskDeposit = this.MetamaskDeposit.bind(this)
+    this.Deposit = this.Deposit.bind(this)
+  }
+
+  copyText() {
+    var copyText = document.getElementById("deposit-address");
+    copyText.select();
+    document.execCommand("copy");
+  }
+  
+  CoinDetails() {
+    const coin = window.assetsBySymbol[this.props.asset]
+
+    !this.state.issuer && GetName(coin.issuer).then(issuer => {
+      this.setState({issuer: (issuer == "null-account" ? "Native": issuer)})
+    })
+
+    return (
+      <div className={coin_details + " mx-auto"}>
+        <h1>DEPOPSIT<br/>{coin.symbol}</h1>
+        <div>
+          Asset ID: <span>{coin.id}</span> <a href={"http://testnet.quantadex.com/object/" + coin.id} target="_blank"><img src="/public/images/external-link.svg" /></a><br/>
+          Issuer: <span>{this.state.issuer}</span><br/>
+          Precision: <span>{coin.precision}</span><br/>
+          Max Supply: <span>{parseInt(coin.options.max_supply).toLocaleString(navigator.language)}</span>
+        </div>
+      </div>
+    )
+  }
+
+  MetamaskDeposit() {
+    return (
+      <div className="input-container">
+          <h5 className="mb-3"><b>CREATE YOUR ETHEREUM CROSSCHAIN ADDRESS</b></h5>
+          <p>
+            Crosschain technology protects your funds in a Ethereum smart contract, 
+            which links your own personal ethereum address to the QUANTA smart contract. 
+            You must have Metamask to create your own address.
+          </p>
+          <p>
+            If you recently deployed a contract, wait for approximately 2 
+            confirmation cycles (~30sec) to see your new cross chain address.
+          </p>
+
+          <div className="d-flex align-items-center mt-5 mb-3">
+            <button className="mr-5 cursor-pointer">Deploy Contract</button>
+            <div className="warning">Please login on Metamask to deploy Contract</div>
+          </div>
+
+          <div>Ethereum address:</div>
+            
+        </div>
+    )
+  }
+
+  Deposit() {
+    var canvas = document.getElementById('qr-canvas')
+
+    setTimeout(() => {
+      QRCode.toCanvas(canvas, this.props.publicKey, {width: 150, margin: 0})
+    }, 0)
+    
+    return (
+      <div className="input-container">
+          <h5 className="mb-3"><b>YOUR PERSONAL MULTISIGNATURE DEPOSIT ADDRESS</b></h5>
+
+          <div className="d-flex">
+            <canvas id="qr-canvas"></canvas>
+            <p className="ml-4">
+            Important Notes <br/>
+            - Do not send any coin other than BTC to this address.<br/>
+            - The minimum deposit amount is 0.0001 BTC.<br/>
+            - Your deposit will be credited after 2 confirmation.<br/>
+            - QUANTA only accepts BTC deposits. To get Bitcoin, you can exchange your local currency at any major Bitcoin Exchange.<br/>
+            - All QUANTA deposit addresses are multi-sig, crosschain addresses.<br/>
+            </p>
+          </div>
+          
+          
+          <div className="d-flex align-items-center mt-4">
+            <input type="text" id="deposit-address" className="text-dark mr-3" 
+              readOnly value={this.props.publicKey} size={this.props.publicKey.length + 10} />
+            <button className="copy-btn cursor-pointer" onClick={this.copyText}>Copy</button>
+          </div>
+
+            
+        </div>
+    )
   }
 
   render() {
+    const metamask_coins = ["ETH", "ERC20"]
     return (
-      <div className={container}>
-        <div className="content-container d-flex">
-          <div className="qr-code"></div>
-          <div className="content d-flex flex-column">
-            <div className="d-flex align-items-center">
-              <img src="/public/images/attention.svg" width="30" height="37.5" />
-              <div className="header-container d-flex flex-column">
-                <span className="header qt-font-semibold">Send only CHAT (ChatCoin) to this deposit address.<br /></span>
-                <span className="sub-header qt-font-small">Sending any other currency to this address may result in the loss of your deposit.</span>
-              </div>
+      <div className={container + " d-flex"}>
+        <div className="d-none d-md-flex w-75 align-items-center">
+          {this.props.asset !== "ERC20" ? <this.CoinDetails /> :
+            <div className={coin_details + " mx-auto"}>
+              <h1>DEPOPSIT<br/>{this.props.asset}</h1>
             </div>
-            <div className="address-container d-flex justify-content-between align-items-center">
-              <div className="link qt-font-small">DdzFFzCqrhsqsimEyCtvAUEbow79mQ79dk9TudSd5tk9cC2nB3ozgkzDhqUFCXhuXcmvAngzjkxb3gWSPqLK8RUwZRk6mDfaTFYXchST</div>
-              <div className="qt-cursor-pointer qt-font-bold qt-font-small copy-btn d-flex align-items-center">
-                <span>Copy</span>
-              </div>
-            </div>
-            <div className="explain qt-font-extra-small ">
-              Coins will be deposited immediately after 15 network confirmation<br />
-              After making a deposit, you can track its progress on the transaction history page.
-            </div>
-          </div>
+          }
         </div>
+        
+        {metamask_coins.includes(this.props.asset) ? <this.MetamaskDeposit /> : <this.Deposit />}
       </div>
     );
   }
 }
 
-QTDeposit.propTypes = {
-};
+const mapStateToProps = (state) => ({
+  publicKey: state.app.publicKey
+});
+
+
+export default connect(mapStateToProps)(QTDeposit);

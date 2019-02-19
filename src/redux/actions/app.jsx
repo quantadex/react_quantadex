@@ -58,6 +58,12 @@ function getBaseCounter(market) {
 	}
 }
 
+export function GetName(id) {
+	return Apis.instance().db_api().exec("get_accounts", [[id]]).then(e => {
+		return e[0].name
+	})
+}
+
 export function buyTransaction(market, price, amount) {
 	return (dispatch, getState) => {
 		var {base, counter} = getBaseCounter(market)

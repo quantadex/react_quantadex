@@ -57,11 +57,6 @@ const container = css`
     margin-top: 40px;
   }
 
-  .deposit-only .unite {
-    background-color: #1cdad8 !important;
-    color: #000 !important;
-  }
-
   .public-address-container {
     margin-top: 40px;
     background-color: #2a3135;
@@ -76,23 +71,12 @@ const container = css`
       margin-left: 10px;
     }
   }
-  .erc20 .row{
-    height: 30px;
-    border-bottom: 1px solid rgba(255,255,255,0.07);
-  }
-  .erc20 button {
-    background-color: #1cdad8;
-    border-color: #1cdad8;
-    color: #000;
-    width: 80px;
-    height: 20px;
-    border-radius: 2px;
-  }
-  .erc20 button:disabled {
-    background-color: #555;
-    border-color: #555;
-    color: #222 !important;
-    cursor: not-allowed;
+  
+  .deposit-only {
+    button {
+      background-color: ${globalcss.COLOR_THEME} !important;
+      color: #000 !important;
+    }
   }
 
   &.mobile {
@@ -222,6 +206,13 @@ class Fund extends Component {
         }
         dataSource.push(data)
       });
+
+      dataSource.push({
+        pairs: "Deposit ERC20",
+        balance: 0,
+        on_orders: 0,
+        usd_value: 0
+      })
   
       this.setState({
         dataSource: dataSource
@@ -284,7 +275,7 @@ class Fund extends Component {
       <div className="container-fluid erc20">
         <div className="row justify-content-between align-items-center table-body-row">
           <div className="qt-font-extra-small">Deposit ERC20</div>
-          <button className="qt-font-base qt-font-semibold" disabled>DEPOSIT</button>
+          <button className="qt-font-base qt-font-semibold" >DEPOSIT</button>
         </div>
       </div>
     )
@@ -323,7 +314,7 @@ class Fund extends Component {
         width:"90"
     }, {
         buttons: [{
-          label:"TRANSFER",
+          label:"WITHDRAW",
           color:"theme unite",
           handleClick: (asset) => {
 						return <QTWithdraw asset={asset} onSend={this.confirmTransaction.bind(this)}/>
@@ -332,10 +323,10 @@ class Fund extends Component {
         }, {
           label:"DEPOSIT",
           color:"theme unite",
-          handleClick: () => {
-						return <QTDeposit />
+          handleClick: (asset) => {
+						return <QTDeposit asset={asset} />
           },
-          disabled: (pairs) => {return true}
+          disabled: (pairs) => {return false}
         }],
         type: "buttons"
     }]
@@ -380,9 +371,9 @@ class Fund extends Component {
         <div className="table-row">
           <QTTableView dataSource={this.state.dataSource.filter(data => data.pairs.toLowerCase().includes(this.state.filter) && 
             (!this.state.hideZero || data.balance > 0))} columns={columns} mobile={this.state.isMobile}/>
-          {
+          {/* {
             this.state.page == 'wallets' ? <this.ERC20 /> : null
-          }
+          } */}
         </div>
       </div>
       {this.state.confirmDialog && 
