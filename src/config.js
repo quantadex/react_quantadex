@@ -1,0 +1,7 @@
+const SETTINGS = {
+	CROSSCHAIN_ADDRESS: '0xBD770336fF47A3B61D4f54cc0Fb541Ea7baAE92d',
+};
+
+module.exports = {
+	SETTINGS
+};

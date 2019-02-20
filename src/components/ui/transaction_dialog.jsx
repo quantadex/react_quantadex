@@ -84,7 +84,7 @@ export default class TxDialog extends Component {
                                 <td className="text-right text-secondary">{this.props.data.amount} {this.props.data.asset}</td>
                             </tr>
                             <tr>
-                                <td colSpan={2}>Memo</td>
+                                <td colSpan={2}>{this.props.data.type == "Transfer" ? "Memo" : "Beneficiary Address"}</td>
                             </tr>
                             <tr>
                                 <td colSpan={2} className="text-secondary pl-3">{this.props.data.memo}</td>

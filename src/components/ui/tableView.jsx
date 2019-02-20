@@ -3,6 +3,7 @@ import { css } from 'emotion'
 import globalcss from '../global-css.js'
 
 import QTButton from './button.jsx'
+import {SymbolToken} from './ticker.jsx'
 
 const container = css`
 
@@ -23,6 +24,13 @@ const container = css`
   .table-body-row: hover {
     border-radius: 2px;
     background-color: rgba(52, 62, 68, 0.4);
+  }
+
+  .table-body-row .issuer-tag {
+    border-radius: 2px;
+    background-color: #454651;
+    font-size: 10px;
+    padding: 3px 5px;
   }
 `
 
@@ -191,6 +199,13 @@ export default class QTTableView extends React.Component {
                         const new_css = css`width:${col.width}px;text-align:right;`
                         return (
                           <span key={index + '-' + i} className={new_css + " qt-font-extra-small " + (this.props.mobile ? col.key : "")}>{e[col.key].toLocaleString(navigator.language, {maximumFractionDigits: 8})}</span>
+                        )
+                      } else if (col.type == "symbol") {
+                        const new_css = css`width:${col.width}px;text-align:left;`
+                        return (
+                          <span key={index + '-' + i} className={new_css + " qt-font-extra-small text-nowrap " + (this.props.mobile ? col.key : "")}>
+                              <SymbolToken name={e[col.key]} />
+                          </span>
                         )
                       }
                     })

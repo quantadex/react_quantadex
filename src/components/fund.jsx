@@ -51,6 +51,7 @@ const container = css`
   .content {
     margin: auto;
     max-width: 1000px;
+    padding-bottom: 40px;
   }
 
   .table-row {
@@ -257,8 +258,8 @@ class Fund extends Component {
     return (
       <div className="public-address-container d-flex justify-content-between">
         <div id='public-address'>
-          <h3>Your QUANTA Wallet Public Address</h3>
-          <span className="qt-font-light">{this.props.publicKey}</span>
+          <h3>Your QUANTA Wallet Account</h3>
+          <span className="qt-font-light">{this.props.name}</span>
           <a href={"http://testnet.quantadex.com/account/" + this.props.name} target="_blank"><img src="/public/images/external-link-light.svg" /></a>
         </div>
         <div className="est-fund text-right align-self-center">
@@ -295,7 +296,7 @@ class Fund extends Component {
     const columnsWallets = [{
         title: "PAIRS",
         key: "pairs",
-        type: "string",
+        type: "symbol",
         width:"80"
     }, {
         title: "TOTAL BALANCE",
@@ -324,7 +325,7 @@ class Fund extends Component {
           label:"DEPOSIT",
           color:"theme unite",
           handleClick: (asset) => {
-						return <QTDeposit asset={asset} />
+						return <QTDeposit asset={asset} quantaAddress={this.props.name} />
           },
           disabled: (pairs) => {return false}
         }],

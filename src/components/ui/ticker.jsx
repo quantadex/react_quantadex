@@ -20,6 +20,15 @@ export const SmallToken = ({ name }) => {
 	return <span>{name}</span>
 }
 
+export const SymbolToken = ({ name }) => {
+	if (name === undefined || name === null) {
+		return "INVALID"
+	}
+	const token = name.split("0X")
+
+	return <span>{token[0]} {token[1] && <span className="issuer-tag qt-font-light">0x{token[1].substr(0, 4)}</span>}</span>
+}
+
 export default ({ticker}) => {
 	if (ticker === undefined || ticker === null) {
 		return "INVALID"
