@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import { SymbolToken } from './ticker.jsx'
 
 import { css } from 'emotion'
 import globalcss from '../global-css.js'
@@ -50,7 +51,7 @@ const container = css`
         background-color: #999;
     }
 
-    button.cancel-btn {
+    button.cancel-btn, button.cancel-btn:disabled {
         width: 30%;
         background-color: transparent;
         color: #555;
@@ -73,18 +74,18 @@ export default class TxDialog extends Component {
                         <tbody>
                             <tr>
                                 <td>Operation Type</td>
-                                <td className="text-right text-secondary">{this.props.data.type}</td>
+                                <td className="text-right text-secondary">{this.props.data.showTransfer ? "Transfer" : "Withdraw"}</td>
                             </tr>
                             <tr>
                                 <td>Destination Account</td>
-                                <td className="text-right text-secondary">{this.props.data.destination}</td>
+                                <td className="text-right text-secondary">{this.props.data.showTransfer ? this.props.data.destination : this.props.data.issuer}</td>
                             </tr>
                             <tr>
                                 <td>Amount</td>
-                                <td className="text-right text-secondary">{this.props.data.amount} {this.props.data.asset}</td>
+                                <td className="text-right text-secondary">{this.props.data.amount} <SymbolToken name={this.props.data.asset} /></td>
                             </tr>
                             <tr>
-                                <td colSpan={2}>{this.props.data.type == "Transfer" ? "Memo" : "Beneficiary Address"}</td>
+                                <td colSpan={2}>{this.props.data.showTransfer ? "Memo" : "Beneficiary Address"}</td>
                             </tr>
                             <tr>
                                 <td colSpan={2} className="text-secondary pl-3">{this.props.data.memo}</td>

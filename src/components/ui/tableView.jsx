@@ -1,6 +1,7 @@
 import React, {PropTypes} from 'react';
 import { css } from 'emotion'
 import globalcss from '../global-css.js'
+import CONFIG from '../../config.js';
 
 import QTButton from './button.jsx'
 import {SymbolToken} from './ticker.jsx'
@@ -26,11 +27,21 @@ const container = css`
     background-color: rgba(52, 62, 68, 0.4);
   }
 
-  .table-body-row .issuer-tag {
-    border-radius: 2px;
-    background-color: #454651;
-    font-size: 10px;
-    padding: 3px 5px;
+  .table-body-row {
+    .symbol {
+      font-family: SFCompactTextSemiBold;
+    }
+
+    .issuer-tag {
+      border-radius: 2px;
+      background-color: #454651;
+      font-size: 10px;
+      padding: 3px 5px;
+    }
+
+    .crosschain-icon {
+      margin: 0 4px 2px;
+    }
   }
 `
 
@@ -83,13 +94,12 @@ export default class QTTableView extends React.Component {
   // }
 
   toggleModal(index,ui) {
-    // console.log(this.state.appendedUI, index)
-    if (ui.type.name != this.state.appendedUI.name || this.state.appendedUI.index != index) {
+    if (ui.type.displayName != this.state.appendedUI.name || this.state.appendedUI.index != index) {
       this.setState({
         appendedUI: {
           index: index,
           block: ui,
-          name: ui.type.name
+          name: ui.type.displayName
         }
       })
     } else {
@@ -119,7 +129,6 @@ export default class QTTableView extends React.Component {
     }
 
     const ERC20Label = "Deposit ERC20"
-
     return (
       <div className={container + " container-fluid"}>
         <div className="row justify-content-between align-items-center">
@@ -130,7 +139,7 @@ export default class QTTableView extends React.Component {
                   return (
                     <span key={index} className={new_css}></span>
                   )
-                } else if (col.type == "string" || col.type == "coloredString") {
+                } else if (col.type == "string" || col.type == "symbol" || col.type == "coloredString") {
                   const new_css = css`width:${col.width}px;text-align:left;`
                   return (
                     <div key={index} className={new_css +" theader qt-font-semibold qt-cursor-pointer"} data-key={col.key}>{col.title}</div> // onClick={this.sortArr.bind(this)}>{col.title}</div>
@@ -162,7 +171,7 @@ export default class QTTableView extends React.Component {
                           <div key={index + '-' + i} className={new_css+" d-flex  action-btn " + (e.pairs == ERC20Label ? "deposit-only justify-content-end" : "justify-content-between")}>
                             {
                               col.buttons.map((btn) => {
-                                if(e.pairs == "QDEX" && btn.label == "DEPOSIT" || e.pairs == ERC20Label && btn.label == "WITHDRAW") { 
+                                if((e.pairs !== ERC20Label && !CONFIG.SETTINGS.CROSSCHAIN_COINS.includes(e.pairs) && e.pairs.split("0X").length !== 2) && btn.label == "DEPOSIT" || e.pairs == ERC20Label && btn.label == "WITHDRAW") { 
                                   return null
                                  }
                                 return (
@@ -173,7 +182,7 @@ export default class QTTableView extends React.Component {
                                     borderWidth="1"
                                     width="80"
                                     height="20"
-                                    label={e.pairs == "QDEX" ? "TRANSFER" : btn.label}
+                                    label={(e.pairs !== ERC20Label && !CONFIG.SETTINGS.CROSSCHAIN_COINS.includes(e.pairs) && e.pairs.split("0X").length !== 2) ? "TRANSFER" : btn.label}
                                     color={btn.color}/>
                                 )
                               })
@@ -205,6 +214,11 @@ export default class QTTableView extends React.Component {
                         return (
                           <span key={index + '-' + i} className={new_css + " qt-font-extra-small text-nowrap " + (this.props.mobile ? col.key : "")}>
                               <SymbolToken name={e[col.key]} />
+                              {window.assetsBySymbol[e.pairs] && 
+                                window.assetsBySymbol[e.pairs].issuer == CONFIG.SETTINGS.CROSSCHAIN_ISSUER ? 
+                                <img className="crosschain-icon" src="/public/images/crosschain-coin.svg" title="Crosschain" />
+                                : null
+                              }
                           </span>
                         )
                       }

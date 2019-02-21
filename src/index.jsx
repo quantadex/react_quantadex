@@ -73,10 +73,6 @@ injectGlobal`
       color:white;
   }
 
-	span {
-		pointer-events: none;
-	}
-
 	input {
 		height: 32px;
 		text-align: right;

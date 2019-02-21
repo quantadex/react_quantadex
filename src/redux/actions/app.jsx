@@ -10,6 +10,7 @@ import { createLimitOrderWithPrice, createLimitOrder2, cancelOrder, signAndBroad
 import { aggregateOrderBook, convertHistoryToOrderedSet } from "../../common/PriceData";
 import ReactGA from 'react-ga';
 import { toast } from 'react-toastify';
+import CONFIG from '../../config.js'
 
 export const INIT_DATA = 'INIT_DATA';
 export const LOGIN = 'LOGIN';
@@ -131,7 +132,7 @@ export const transferFund = (data) => {
 	return (dispatch, getState) => {
 		return ApplicationApi.transfer({ 
 			from_account: getState().app.userId,
-			to_account: data.destination,
+			to_account: data.showTransfer ? data.destination : data.issuer,
 			amount: data.amount * Math.pow(10, window.assetsBySymbol[data.asset].precision),
 			asset: data.asset,
 			memo: data.memo,
@@ -140,6 +141,8 @@ export const transferFund = (data) => {
 		}).then((tr) => {
 			// console.log(tr);
 			return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key))
+		}).catch(e => {
+			throw e
 		})
 	}
 }
@@ -147,7 +150,7 @@ export const transferFund = (data) => {
 var initAPI = false;
 var initUser = false;
 //var wsString = "ws://localhost:8090";
-var wsString = "wss://testnet-01.quantachain.io:8095";
+var wsString = CONFIG.SETTINGS.WEBSOCKET_PATH;
 export var dataSize = 100;
 
 function getAvgtime() {
@@ -224,7 +227,7 @@ async function processOrderHistory(data, userId) {
 	})
 
 	if (cancels.length > 0) {
-		limitOrders = await fetch(`https://wya99cec1d.execute-api.us-east-1.amazonaws.com/testnet/account?operation_type=1&account_id=${userId}&size=100&filter_field=operation_history__operation_result&filter_value=${cancels.join(',')}`)
+		limitOrders = await fetch(CONFIG.SETTINGS.ELASTIC_API_PATH + `account?operation_type=1&account_id=${userId}&size=100&filter_field=operation_history__operation_result&filter_value=${cancels.join(',')}`)
 			.then(e => e.json())
 			.then(e => {
 				return lodash.keyBy(e, (o) => o.operation_history.operation_result.split(',')[1].replace(/"/g, '').replace(']', ''))
@@ -267,7 +270,7 @@ async function processOrderHistory(data, userId) {
 export const loadOrderHistory = (page) => {
 	return (dispatch, getState) => {
 		const userId = getState().app.userId
-		return fetch(`https://wya99cec1d.execute-api.us-east-1.amazonaws.com/testnet/account?filter_field=operation_type&filter_value=2,4&size=${dataSize}&from_=${page * dataSize}&account_id=${userId}`)
+		return fetch(CONFIG.SETTINGS.ELASTIC_API_PATH + `account?filter_field=operation_type&filter_value=2,4&size=${dataSize}&from_=${page * dataSize}&account_id=${userId}`)
 			.then(e => e.json())
 			.then((filled) => {
 				return processOrderHistory(filled, userId)
@@ -340,7 +343,7 @@ export function switchTicker(ticker) {
 			async function fetchData(ticker, first=false) {
 				var {base, counter} = getBaseCounter(ticker)
 				try {
-					await fetch("https://s3.amazonaws.com/quantachain.io/markets.json").then(e => e.json())
+					await fetch(CONFIG.SETTINGS.MARKETS_JSON).then(e => e.json())
 					.then(async (e) => {
 						// save for later
 						markets = e;
@@ -423,7 +426,7 @@ export function switchTicker(ticker) {
 
 				if (publicKey && getState().app.userId) {
 					const userId = getState().app.userId
-					my_trades = fetch(`https://wya99cec1d.execute-api.us-east-1.amazonaws.com/testnet/account?filter_field=operation_type&filter_value=2,4&size=${dataSize}&account_id=${userId}`).then(e => e.json())
+					my_trades = fetch(CONFIG.SETTINGS.ELASTIC_API_PATH + `account?filter_field=operation_type&filter_value=2,4&size=${dataSize}&account_id=${userId}`).then(e => e.json())
 					.then((filled) => {
 						const my_history = processOrderHistory(filled, userId)
 						// console.log(my_history)
@@ -497,52 +500,6 @@ export function switchTicker(ticker) {
 
 			fetchData(ticker, true)
 		}
-		// const orderBook = fetch("http://orderbook-api-792236404.us-west-2.elb.amazonaws.com/depth/"+ticker).then((res) => {return res.json()})
-		// const trades = fetch("http://orderbook-api-792236404.us-west-2.elb.amazonaws.com/settlement/"+ticker).then((res) => {return res.json()})
-		// const openOrders = fetch("http://orderbook-api-792236404.us-west-2.elb.amazonaws.com/status").then((res) => {return res.json()})
-
-		// return Promise.all([orderBook,trades,openOrders])
-		// 	.then((data) => {
-		// 		dispatch({
-		// 			type: INIT_DATA,
-		// 			data: {
-		// 				orderBook:data[0],
-		// 				trades:data[1],
-		// 				openOrders:data[2],
-		// 				ticker:ticker,
-		// 			}
-		// 		})
-
-		// 		var orderbookws = new EventSource('http://testnet-02.quantachain.io:7200/stream/depth/'+ticker);
-
-		// 		// Log errors
-		// 		orderbookws.onerror = function (error) {
-		// 		  console.log('EventSource Error ' + error);
-		// 		};
-
-		// 		// Log messages from the server
-		// 		orderbookws.onmessage = function (e) {
-		// 			dispatch({
-		// 				type: UPDATE_ORDER,
-		// 				data: e.data
-		// 			})
-		// 		};
-
-		// 		var tradesws = new WebSocket('ws://backend-dev.env.quantadex.com:8080/ws/v1/trades/BTC/USD');
-
-		// 		// Log errors
-		// 		tradesws.onerror = function (error) {
-		// 		  console.log('WebSocket Error ' + error);
-		// 		};
-
-		// 		// Log messages from the server
-		// 		tradesws.onmessage = function (e) {
-		// 			dispatch({
-		// 				type: UPDATE_TRADES,
-		// 				data: e.data
-		// 			})
-		// 		};
-		// 	})
 	}
 
 }

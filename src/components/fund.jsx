@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import CONFIG from '../config.js'
 import Header from './headersimple.jsx';
 import QTTableView from './ui/tableView.jsx'
 import { connect } from 'react-redux'
@@ -187,6 +188,7 @@ class Fund extends Component {
   }
 
   componentDidMount() {
+    
     this.setDataSource(this.props.balance)
   }
 
@@ -228,39 +230,13 @@ class Fund extends Component {
     this.setState({hideZero: hide})
   }
 
-  confirmTransaction(data) {
-    this.setState({txData: data, confirmDialog: true})
-  }
-
-  closeTransaction() {
-    this.setState({confirmDialog: false, txData: undefined})
-  }
-
-  submitTransfer(data) {
-    this.props.dispatch(transferFund(data))
-      .then(() => {
-        toast.success(`Successfully transfer ${data.amount} ${data.asset} to ${data.destination}.`, {
-          position: toast.POSITION.TOP_CENTER
-        });
-      })
-      .catch((e) => {
-        // console.log(e)
-        toast.error("Unable to transfer. Please make sure the destination account name is correct.", {
-          position: toast.POSITION.TOP_CENTER
-        });
-      })
-      .finally(() => {
-        this.closeTransaction()
-      })
-  }
-
   PublicAddress() {
     return (
       <div className="public-address-container d-flex justify-content-between">
         <div id='public-address'>
           <h3>Your QUANTA Wallet Account</h3>
           <span className="qt-font-light">{this.props.name}</span>
-          <a href={"http://testnet.quantadex.com/account/" + this.props.name} target="_blank"><img src="/public/images/external-link-light.svg" /></a>
+          <a href={CONFIG.SETTINGS.EXPLORER_URL + "/account/" + this.props.name} target="_blank"><img src="/public/images/external-link-light.svg" /></a>
         </div>
         <div className="est-fund text-right align-self-center">
           <span className="qt-font-extra-small qt-white-62">On-chain custody estimated funds</span>
@@ -318,7 +294,7 @@ class Fund extends Component {
           label:"WITHDRAW",
           color:"theme unite",
           handleClick: (asset) => {
-						return <QTWithdraw asset={asset} onSend={this.confirmTransaction.bind(this)}/>
+						return <QTWithdraw asset={asset} />
           },
           disabled: (pairs) => {return false}
         }, {
@@ -372,16 +348,8 @@ class Fund extends Component {
         <div className="table-row">
           <QTTableView dataSource={this.state.dataSource.filter(data => data.pairs.toLowerCase().includes(this.state.filter) && 
             (!this.state.hideZero || data.balance > 0))} columns={columns} mobile={this.state.isMobile}/>
-          {/* {
-            this.state.page == 'wallets' ? <this.ERC20 /> : null
-          } */}
         </div>
       </div>
-      {this.state.confirmDialog && 
-        <TxDialog data={this.state.txData} 
-          cancel={() => this.closeTransaction()} 
-          submit={() => this.submitTransfer(this.state.txData)} />
-      }
       <ToastContainer />
 		</div>
 		);

@@ -91,9 +91,13 @@ const coin_details = css`
   }
 
   .issuer-tag {
-    font-size: 15px;
-    background-color: transparent;
-    padding: 0;
+    font-size: 15px !important;
+    color: #fff !important;
+    vertical-align: middle;
+  }
+
+  a {
+    color: inherit !important;
   }
 
   a img {
@@ -197,7 +201,7 @@ class QTDeposit extends React.Component {
       <div className={coin_details + " mx-auto"}>
         <h1>DEPOPSIT<br/><SymbolToken name={coin.symbol} /></h1>
         <div>
-          Asset ID: <span className="value">{coin.id}</span> <a href={"http://testnet.quantadex.com/object/" + coin.id} target="_blank"><img src="/public/images/external-link.svg" /></a><br/>
+          Asset ID: <span className="value">{coin.id}</span> <a href={CONFIG.SETTINGS.EXPLORER_URL + "/object/" + coin.id} target="_blank"><img src="/public/images/external-link.svg" /></a><br/>
           Issuer: <span className="value">{this.state.issuer}</span><br/>
           Precision: <span className="value">{coin.precision}</span><br/>
           Max Supply: <span className="value">{(parseInt(coin.options.max_supply)/Math.pow(10, coin.precision)).toLocaleString(navigator.language)}</span>
@@ -233,6 +237,7 @@ class QTDeposit extends React.Component {
   }
 
   Deposit() {
+    const token = this.props.asset.split("0X")
     return (
       <div className="input-container">
           <h5 className="mb-3"><b>YOUR PERSONAL MULTISIGNATURE DEPOSIT ADDRESS</b></h5>
@@ -241,10 +246,10 @@ class QTDeposit extends React.Component {
             <canvas id="qr-canvas"></canvas>
             <p className="ml-4">
             Important Notes <br/>
-            - Do not send any coin other than {this.props.asset} to this address.<br/>
-            - The minimum deposit amount is 0.0001 {this.props.asset}.<br/>
+            - Do not send any coin other than {token[0]} {token[1] && ("0x" + token[1].substr(0, 4))} to this address.<br/>
+            - The minimum deposit amount is 0.0001 {token[0]} {token[1] && ("0x" + token[1].substr(0, 4))}.<br/>
             - Your deposit will be credited after 2 confirmation.<br/>
-            - QUANTA only accepts {this.props.asset} deposits. To get {this.props.asset}, you can exchange your local currency at any major exchange.<br/>
+            - QUANTA does not support fiat withdrawal or deposit. To buy BTC, ETH with fiat currency, you can exchange your local currency at any major exchange.<br/>
             - All QUANTA deposit addresses are multi-sig, crosschain addresses.<br/>
             </p>
           </div>

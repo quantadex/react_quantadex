@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import CONFIG from '../../config'
 
 export const Token = ({ name }) => {
 	if (name === undefined || name === null) {
@@ -26,7 +27,15 @@ export const SymbolToken = ({ name }) => {
 	}
 	const token = name.split("0X")
 
-	return <span>{token[0]} {token[1] && <span className="issuer-tag qt-font-light">0x{token[1].substr(0, 4)}</span>}</span>
+	return (<span className="symbol">{token[0]} {token[1] && 
+		<a className="issuer-tag qt-font-light" style={{
+			borderRadius: '2px',
+			backgroundColor: '#454651',
+			fontSize: '10px',
+			padding: '3px 5px',
+			color: '#ddd'}}
+			href={CONFIG.SETTINGS.ETHERSCAN_URL + "/token/0x" + token[1]} target="_blank">0x{token[1].substr(0, 4)}</a>
+		}</span>)
 }
 
 export default ({ticker}) => {

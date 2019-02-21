@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom'
 import { css } from 'emotion'
 import { connect } from 'react-redux'
+import {SymbolToken} from './ui/ticker.jsx'
 
 const container = css`
     font-size: 14px
@@ -14,6 +15,13 @@ const container = css`
     .no-scroll-bar {
         height: calc(100vh - 555px);
     }
+
+    .symbol {
+        white-space: nowrap;
+        .issuer-tag {
+            font-size: 10px;
+        }
+    } 
 `
 
 class Balance extends Component {
@@ -28,7 +36,7 @@ class Balance extends Component {
                                 {this.props.balance.map(row => {
                                     return (
                                         <tr key={row.asset}>
-                                            <td>{window.assets[row.asset].symbol}</td>
+                                            <td><SymbolToken name={window.assets[row.asset].symbol} /></td>
                                             <td className="text-right">{row.balance.toLocaleString(navigator.language, {maximumFractionDigits: 8})}</td>
                                         </tr>
                                     )
