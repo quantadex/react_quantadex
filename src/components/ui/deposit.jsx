@@ -109,8 +109,7 @@ class QTDeposit extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      deposit_address: "",
-      metamask_acc: undefined,
+      deposit_address: this.props.deposit_address,
       issuer: undefined,
       destination: "",
       amount: "",
@@ -126,21 +125,20 @@ class QTDeposit extends React.Component {
   }
 
   componentDidMount() {
-    var self = this
-    
-    if (typeof web3 === 'undefined') {
-      return
-    }
-
-    var metamask = new Web3(web3.currentProvider);
-
-    this.accountInterval = setInterval(function() {
-      if (metamask.eth.accounts.givenProvider.selectedAddress !== self.state.metamask_acc) {
-        self.setState({metamask_acc: metamask.eth.accounts.givenProvider.selectedAddress})
+    if (!this.state.deposit_address) {
+      if (typeof web3 === 'undefined') {
+        return
       }
-    }, 100);
       
-    this.GetDepositAddress()
+      var self = this
+      var metamask = new Web3(web3.currentProvider);
+
+      this.accountInterval = setInterval(function() {
+        if (metamask.eth.accounts.givenProvider.selectedAddress !== self.state.deposit_address) {
+          self.setState({deposit_address: metamask.eth.accounts.givenProvider.selectedAddress})
+        }
+      }, 100);
+    }
   }
 
   componentWillUnmount() {
@@ -157,15 +155,10 @@ class QTDeposit extends React.Component {
     document.execCommand("copy");
   }
 
-  GetDepositAddress() {
-    const address = ["1A9cwmMkzz5CAp7QRwLELYsvpaX7bYGoWm"]
-    this.setState({deposit_address: address[0]})
-
-    var canvas = document.getElementById('qr-canvas')
-    setTimeout(() => {
-      QRCode.toCanvas(canvas, address[0], {width: 150, margin: 0})
-    }, 0)
-  }
+  // GetDepositAddress() {
+  //   const address = ["1A9cwmMkzz5CAp7QRwLELYsvpaX7bYGoWm"]
+  //   this.setState({deposit_address: address[0]})
+  // }
 
   DeployCrossChain = () => {
 		const { quantaAddress } = this.props;
@@ -237,7 +230,13 @@ class QTDeposit extends React.Component {
   }
 
   Deposit() {
+    setTimeout(() => {
+      var canvas = document.getElementById('qr-canvas')
+      QRCode.toCanvas(canvas, this.state.deposit_address, {width: 150, margin: 0})
+    }, 0)
+
     const token = this.props.asset.split("0X")
+
     return (
       <div className="input-container">
           <h5 className="mb-3"><b>YOUR PERSONAL MULTISIGNATURE DEPOSIT ADDRESS</b></h5>
@@ -278,7 +277,7 @@ class QTDeposit extends React.Component {
           }
         </div>
         
-        {metamask_coins.includes(this.props.asset) ? <this.MetamaskDeposit /> : <this.Deposit />}
+        {this.state.deposit_address ? <this.Deposit /> : <this.MetamaskDeposit />}
       </div>
     );
   }

@@ -188,7 +188,11 @@ class Fund extends Component {
   }
 
   componentDidMount() {
-    
+    fetch(CONFIG.SETTINGS.ELASTIC_API_PATH + "node1/address/eth/" + this.props.name).then(e => e.json())
+    .then(e => {
+      this.setState({ethAddress: (e[e.length-1] && e[e.length-1].Address) || undefined})
+    })
+
     this.setDataSource(this.props.balance)
   }
 
@@ -301,13 +305,14 @@ class Fund extends Component {
           label:"DEPOSIT",
           color:"theme unite",
           handleClick: (asset) => {
-						return <QTDeposit asset={asset} quantaAddress={this.props.name} />
+            return <QTDeposit asset={asset} quantaAddress={this.props.name} 
+            deposit_address={(["ETH", "ERC20"].includes(asset) || asset.split("0X").length == 2) ? this.state.ethAddress : "1A9cwmMkzz5CAp7QRwLELYsvpaX7bYGoWm"} />
           },
           disabled: (pairs) => {return false}
         }],
         type: "buttons"
     }]
-
+    
     var columns = columnsWallets
     
 		return (
