@@ -11,6 +11,8 @@
 
 set -e
 
+webpack
+
 REPO="691216021071.dkr.ecr.us-east-1.amazonaws.com"
 name="react-quantadex"
 
