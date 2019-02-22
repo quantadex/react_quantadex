@@ -24,7 +24,7 @@ let initialState = {
     rightOpen: true
   },
   mostRecentTrade: {
-    price: ""
+    price: undefined
   },
   openOrders: {
     dataSource: [],
@@ -445,7 +445,7 @@ const app = (state = initialState, action) => {
         if (lastTradePrice === undefined) {
           lastTradePrice = trade.getPrice()
         }
-        let amount = trade.isBid ? parseFloat(trade.amountToReceive().replace(/,/g, "")) : parseFloat(trade.amountToPay().replace(/,/g, ""))
+        let amount = parseFloat(trade.amountToReceive().replace(/,/g, ""))
         let total = trade.getPrice() * amount
         maxTrade = Math.max(maxTrade, total)
 
@@ -508,6 +508,7 @@ const app = (state = initialState, action) => {
         balance: balances,
         totalFundValue: total_fund_value,
         mostRecentTrade: {
+          ticker: action.data.ticker,
           price: lastTradePrice
         },
         openOrders: {

@@ -73,10 +73,6 @@ injectGlobal`
       color:white;
   }
 
-	span {
-		pointer-events: none;
-	}
-
 	input {
 		height: 32px;
 		text-align: right;
@@ -200,15 +196,6 @@ injectGlobal`
 
 const store = createStore(reducer, compose(applyMiddleware(thunk)))
 
-const FundPage = (page,props) => {
-	return (
-		<Fund
-			{...props}
-			page={page}
-		/>
-	)
-}
-
 const history = createHistory()
 history.listen((location, action) => {
 	//console.log("history change ", location.pathname);
@@ -219,21 +206,16 @@ history.listen((location, action) => {
 
 class Container extends React.Component {
 
-
   render () {
     return (
     <Provider store={store}>
 				<Router history={history}>
         <Switch>
 					<Route exact path="/" component={Exchange} />
-			<Route exact path="/exchange" component={Exchange} />
-			<Route path="/exchange/wallets" render={FundPage.bind(this,"wallets")} />
-			<Route path="/exchange/history" render={FundPage.bind(this,"history")} />
-			<Route path="/exchange/orders" render={FundPage.bind(this,"orders")} />
-			<Route exact path="/exchange/message" component={Message} />
-			{/* <Route exact path="/login" component={Login} />
-			<Route exact path="/keygen" component={GenerateKey} /> */}
-			<Route exact path="/leaderboard" component={Leaderboard} />
+					<Route exact path="/exchange" component={Exchange} />
+					<Route path="/exchange/wallets" component={Fund} />
+					<Route exact path="/exchange/message" component={Message} />
+					<Route exact path="/leaderboard" component={Leaderboard} />
         </Switch>
       </Router>
     </Provider>);

@@ -108,7 +108,7 @@ const ApplicationApi = {
                 ] = res;
 
                 let memo_from_public, memo_to_public;
-                if (memo && encrypt_memo) {
+                if (memo) {
                     memo_from_public = chain_memo_sender.getIn([
                         "options",
                         "memo_key"
@@ -168,7 +168,7 @@ const ApplicationApi = {
                               )
                             : Buffer.isBuffer(memo)
                                 ? memo.toString("utf-8")
-                                : memo
+                                : Buffer.from(memo)
                     };
                 }
                 // Allow user to choose asset with which to pay fees #356
@@ -195,7 +195,7 @@ const ApplicationApi = {
                     amount: {amount, asset_id: chain_asset.get("id")},
                     memo: memo_object
                 });
-
+                
                 return tr.update_head_block().then(() => {
                     if (propose_account) {
                         tr.add_type_operation("proposal_create", {

@@ -398,10 +398,11 @@ Datafeeds.UDFCompatibleDatafeed.prototype.resolveSymbol = function(
       onResultReady({
         name: symbolName,
         ticker: symbolName,
-        description: "Price",
-        exchange: "QDEX",
+        description: symbolName,
+        // exchange: "QDEX",
         timezone: "America/Los_Angeles",
-        has_intraday: true
+        has_intraday: true,
+        supported_resolutions: ['1', '5', '15', '60', '1D']
       });
     }, 500)
   } else {
@@ -449,6 +450,11 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
   //     rangeEndDate
   //   ]);
   // }
+
+  if (resolution == "1D") {
+    resolution = "1440"
+  }
+
   try {
     var { base, counter } = getBaseCounter(symbolInfo.ticker);
   } catch(e) {
@@ -468,7 +474,7 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
   const endDate = new Date(rangeEndDate * 1000)
   const startDate = new Date(
     endDate.getTime() -
-    resolution * bucketCount * 1000
+    resolution * 60 * bucketCount * 1000
   );
 
   // console.log("Load prices ", symbolInfo, resolution, rangeStartDate, rangeEndDate);
@@ -477,11 +483,10 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
     .exec("get_market_history", [      
       base.id,
       counter.id,
-      resolution,
+      resolution * 60,
       startDate.toISOString().slice(0, -5),
       endDate.toISOString().slice(0, -5)
     ]).then((data) => {
-
       // console.log("chart data", data);
       const no_data = data.length == 0;
       const bars = transformPriceData(data, counter, base);

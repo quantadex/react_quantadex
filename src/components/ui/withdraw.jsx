@@ -1,142 +1,286 @@
 import React, {PropTypes} from 'react';
+import { connect } from 'react-redux'
+import CONFIG from '../../config.js'
+import { TransactionBuilder } from "@quantadex/bitsharesjs"
+import { GetName } from '../../redux/actions/app.jsx'
+import {SymbolToken} from './ticker.jsx'
 
 import { css } from 'emotion'
 import globalcss from '../global-css.js'
+import { toast } from 'react-toastify';
+import TxDialog from './transaction_dialog.jsx'
+import { transferFund } from '../../redux/actions/app.jsx'
 
 const container = css`
   margin:0 -15px;
-  height:298px;
   background-color:white;
   color: #28303c;
 
   input {
+    width: 100%;
+    color: #777;
+    padding: 0 10px;
+    text-align: left;
     border: solid 1px rgba(34, 40, 44,0.27);
     border-radius: 2px;
   }
 
-  .left {
-    width: 50%;
-    border-right: 1px solid rgba(151, 151, 151,0.17);
-    padding:32px;
-
-    .attention {
-      background: url("/public/images/attention.svg");
-      width: 30px;
-      height:37.5px;
-      flex-shrink: 0;
-    }
-
-    .left-content {
-      margin-left: 32px;
-
-      .title {
-        font-size: 18px;
-        color: #ff3282;
-        letter-spacing: 0.7px;
-      }
-
-      .main-text {
-        letter-spacing: 0.6px;
-        margin-top:10px;
-      }
-
-      .footer-text {
-        opacity: 0.76;
-        letter-spacing: 0.5px;
-        margin-top:42px;
-      }
-    }
+  input:read-only {
+    background-color: #E1E1E1;
+    color: #777;
+  }
+  
+  button {
+    width: 130px;
+    background-color: ${globalcss.COLOR_THEME};
+    color: #ffffff;
+    text-align:center;
+    border-radius: 2px;
   }
 
-  .right {
-    width: 50%;
-    padding:32px;
+  button:disabled {
+    background-color: #999;
+  }
 
-    .address-container input {
-      width:100%;
-    }
+  .input-container {
+    width: 100%;
+    padding: 15px 30px;
+    border-left: 1px solid #eee;
+  }
 
-    .amount-container {
-      margin-top:15px;
+  .toggle {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    text-decoration: underline;
+    color: ${globalcss.COLOR_THEME};
+    cursor: pointer;
+  }
 
-      input, .submit-btn {
-        width: calc(50% - 8px);
-        height:40px;
-      }
+  .tooltip {
+    margin-left: 5px;
+    opacity:0.9!important;
+  }
 
-      .submit-btn {
-        background-color: ${globalcss.COLOR_THEME};
-        color: #ffffff;
-        text-align:center;
-        border-radius: 2px;
-      }
-    }
-
-    .result-container {
-      margin-top: 58px;
-      font-size: 13px;
-    }
+  img {
+    vertical-align: baseline;
   }
 `
 
-export default class QTWithdraw extends React.Component {
+const coin_details = css`
+  font-size: 14px;
+  color: #4F637E;
+
+  h1 {
+    font-weight: bold;
+  }
+
+  span.value {
+    color: #333;
+  }
+
+  .issuer-tag {
+    font-size: 15px !important;
+    color: #fff !important;
+    vertical-align: middle;
+  }
+
+  a img {
+    vertical-align: baseline;
+  }
+  
+  .crosschain-icon {
+    display: none;
+  }
+`
+
+class QTWithdraw extends React.Component {
   constructor(props) {
     super(props);
+    const isCrosschain = CONFIG.SETTINGS.CROSSCHAIN_COINS.includes(this.props.asset) || this.props.asset.split("0X").length == 2
+    this.state = {
+      isCrosschain: isCrosschain,
+      showTransfer: !isCrosschain,
+      issuer: undefined,
+      destination: "",
+      amount: "",
+      memo: "",
+      asset: this.props.asset,
+      fee: {amount: 0, asset: 'QDEX'}
+    }
+
+    this.CoinDetails = this.CoinDetails.bind(this)
+    this.toggleTransfer = this.toggleTransfer.bind(this)
+    this.Transfer = this.Transfer.bind(this)
+    this.Withdraw = this.Withdraw.bind(this)
+  }
+
+  componentDidMount() {
+    $(function(){
+      $('[data-toggle="tooltip"]').tooltip();   
+    });
+
+    let fee_asset = "1.3.0"
+    let tr = new TransactionBuilder();
+    let transfer_op = tr.get_type_operation("transfer", {
+        fee: {
+            amount: 0,
+            asset_id: fee_asset
+        },
+        from: 0,
+        to: 0,
+        amount: {amount: 0, asset_id: fee_asset}
+    });
+    tr.add_operation(transfer_op)
+    tr.set_required_fees().then(() => {
+      this.setState({
+        fee: {amount: tr.operations[0][1].fee.amount / Math.pow(10, window.assets[tr.operations[0][1].fee.asset_id].precision), 
+          asset: window.assets[tr.operations[0][1].fee.asset_id].symbol
+        },
+      })
+    })
+  }
+
+  toggleTransfer() {
+    this.setState({showTransfer: !this.state.showTransfer, destination: "", amount: "", memo: ""})
+  }
+
+  confirmTransaction() {
+    this.setState({confirmDialog: true})
+  }
+
+  closeTransaction() {
+    this.setState({ confirmDialog: false})
+  }
+
+  submitTransfer() {
+    const token = this.state.asset.split("0X")
+    this.props.dispatch(transferFund(this.state))
+      .then(() => {
+        toast.success(`Successfully transfer ${this.state.amount} ${token[0]} ${token[1] ? ("0x" + token[1].substr(0, 4)) : ""} to ${this.state.showTransfer ? this.state.destination : this.state.issuer}.`, {
+          position: toast.POSITION.TOP_CENTER
+        });
+      }).then(() => {
+        this.setState({destination: "", amount: "", memo: ""})
+      })
+      .catch((e) => {
+        var msg = "Please make sure the destination account name is correct."
+        if (String(e).includes("insufficient_balance")) {
+          msg = "Insufficient Balance."
+        }
+
+        toast.error("Unable to transfer. " + msg, {
+          position: toast.POSITION.TOP_CENTER
+        });
+      })
+      .finally(() => {
+        this.closeTransaction()
+      })
+  }
+  
+  CoinDetails() {
+    const coin = window.assetsBySymbol[this.props.asset]
+
+    !this.state.issuer && GetName(coin.issuer).then(issuer => {
+      this.setState({issuer: (issuer == "null-account" ? "Native": issuer)})
+    })
+
+    return (
+      <div className={coin_details + " mx-auto"}>
+        <h1>{this.state.showTransfer ? "TRANSFER" : "WITHDRAW"}<br/><SymbolToken name={coin.symbol} /></h1>
+        <div>
+          Asset ID: <span className="value">{coin.id}</span> <a href={CONFIG.SETTINGS.EXPLORER_URL + "/object/" + coin.id} target="_blank"><img src="/public/images/external-link.svg" /></a><br/>
+          Issuer: <span className="value">{this.state.issuer}</span><br/>
+          Precision: <span className="value">{coin.precision}</span><br/>
+          Max Supply: <span className="value">{(parseInt(coin.options.max_supply)/Math.pow(10, coin.precision)).toLocaleString(navigator.language)}</span>
+        </div>
+      </div>
+    )
+  }
+
+  Transfer() {
+    return (
+      <div className="input-container">
+        <div className="mb-3">
+          <label className="my-0">DESTINATION ACCOUNT</label>
+          <input type="text" spellCheck="false" value={this.state.destination} onChange={(e) => this.setState({destination: e.target.value.toLowerCase()})}/>
+        </div>
+        <div className="mb-3">
+          <label className="my-0">AMOUNT</label>
+          <input type="number" value={this.state.amount} onChange={(e) => this.setState({amount: e.target.value})}/>
+        </div>
+        <div className="mb-3">
+          <label className="my-0">MEMO (OPTIONAL)</label>
+          <input type="text" value={this.state.memo} onChange={(e) => this.setState({memo: e.target.value})}/>
+        </div>
+
+        <div className="d-flex justify-content-between mt-3">
+          <div>
+            <b>TRANSACTION FEE</b><br/>
+            {this.state.fee.amount} {this.state.fee.asset}
+          </div>
+          <button className="cursor-pointer" onClick={() => this.confirmTransaction({type: "Transfer"})}
+            disabled={this.state.destination.length == 0 || this.state.amount == 0}>SEND</button>
+        </div>
+      </div>
+    )
+  }
+
+  Withdraw() {
+    return (
+      <div className="input-container">
+        <div className="mb-3">
+          <label className="my-0">DESTINATION ACCOUNT</label>
+          <div className="d-inline ml-2 cursor-pointer" data-toggle="tooltip" data-placement="right" 
+            title="Withdraw requires funds to go back to the QUANTA cross-chain issuer for processing.">
+              <img src="/public/images/question.svg" />
+          </div>
+          <input type="text" readOnly value={this.state.issuer || ""}/>
+        </div>
+        <div className="mb-3">
+          <label className="my-0">AMOUNT</label>
+          <input type="number" value={this.state.amount} onChange={(e) => this.setState({amount: e.target.value})}/>
+        </div>
+        <div className="mb-3">
+          <label className="my-0">BENEFICIARY ADDRESS</label>
+          <div className="d-inline ml-2 cursor-pointer" data-toggle="tooltip" data-placement="right" 
+            title="Specify the outgoing address where you want to withdraw your tokens.">
+              <img src="/public/images/question.svg" />
+          </div>
+          <input type="text" spellCheck="false" value={this.state.memo} onChange={(e) => this.setState({memo: e.target.value})}/>
+        </div>
+
+        <div className="d-flex justify-content-between mt-3">
+          <div>
+            <b>TRANSACTION FEE</b><br/>
+            {this.state.fee.amount} {this.state.fee.asset}
+          </div>
+          <button className="cursor-pointer" onClick={() => this.confirmTransaction({type: "Withdraw"})}
+            disabled={this.state.memo.length == 0 || this.state.amount == 0}>SEND</button>
+        </div>
+      </div>
+    )
   }
 
   render() {
     return (
       <div className={container + " d-flex"}>
-        <div className="left d-flex">
-          <div className="attention"></div>
-          <div className="left-content d-flex flex-column">
-            <span className="title qt-font-semibold">
-              Minimum withdrawal:4 CHAT
-            </span>
-            <span className="main-text qt-font-normal">
-              Do not withdrawal directly to a crowdfund or ICO.
-              We will not credit your account with tokens from that sale.
-            </span>
-            <span className="footer-text qt-font-extra-small">
-              Once you have submitted your withdrawal request, we
-              will send a confirmation email. Please then click on the
-              confirmation link in your email. After making a
-              withdrawal, you can track its progress on the history page.
-            </span>
+        <div className="d-none d-md-flex w-75 align-items-center position-relative">
+          {this.state.isCrosschain ? 
+            <div className="toggle qt-font-small" onClick={this.toggleTransfer}>Switch to {this.state.showTransfer ? "Withdraw" : "Transfer"}</div> 
+            : null}
+          <this.CoinDetails />
+        </div>
+        {this.state.showTransfer ? <this.Transfer /> : <this.Withdraw />}
 
-          </div>
-        </div>
-        <div className="right d-flex flex-column">
-          <div className="address-container">
-            <div className="qt-font-extra-small">CHAT WITHDRAW ADDRESS</div>
-            <input />
-          </div>
-          <div className="amount-container">
-            <div className="qt-font-extra-small">AMOUNT</div>
-            <div className="content d-flex justify-content-between">
-              <input />
-              <div className="submit-btn qt-font-small qt-font-semibold qt-cursor-pointer d-flex align-items-center justify-content-center"><span>Submit</span></div>
-            </div>
-          </div>
-          <div className="result-container d-flex justify-content-between">
-            <div>
-              <span className="qt-font-bold">Transaction Fee</span><br />
-              0.00000000
-            </div>
-            <div>
-              <span className="qt-font-bold">You Will Get</span><br />
-              0.00000000
-            </div>
-            <div>
-              <span className="qt-font-bold">24h Withdraw Limit</span><br />
-              0 / 2 BTC
-            </div>
-          </div>
-        </div>
+        {this.state.confirmDialog && 
+        <TxDialog data={this.state} 
+          cancel={() => this.closeTransaction()} 
+          submit={() => this.submitTransfer()} />
+      }
       </div>
     );
   }
 }
 
-QTWithdraw.propTypes = {
-};
+export default connect()(QTWithdraw);

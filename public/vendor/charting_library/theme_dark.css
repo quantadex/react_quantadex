@@ -1169,3 +1169,7 @@ to {
 .pane-legend-line span {
     font-weight: bolder;
 }
+
+.favored-list .item.disabled {
+    display: none;
+}

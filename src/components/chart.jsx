@@ -56,7 +56,7 @@ class Chart extends Component {
       var widget = (window.chartWidget = new TradingView.widget({
         fullscreen: false,
         symbol: self.props.currentTicker,
-        interval: "60",
+        interval: "1",
         allow_symbol_change: false,
         // height: '50px',
         autosize: true,
@@ -64,12 +64,12 @@ class Chart extends Component {
         //	BEWARE: no trailing slash is expected in feed URL
         datafeed: dataFeed,
         time_frames: [
-          { text: "1d", resolution: "86400", title: "1D" },
-          { text: "1h", resolution: "3600",  title: "60m"},
-          { text: "30m", resolution: "1800",  title: "30m"},
-          { text: "15m", resolution: "900",  title: "15m"},
-          { text: "5m", resolution: "300",  title: "5m"},
-          { text: "1m", resolution: "60", title: "1m" }
+          { text: "1d", resolution: "1D", title: "1D" },
+          { text: "1h", resolution: "60",  title: "60m"},
+          { text: "30m", resolution: "30",  title: "30m"},
+          { text: "15m", resolution: "15",  title: "15m"},
+          { text: "5m", resolution: "5",  title: "5m"},
+          { text: "1m", resolution: "1", title: "1m" }
         ],
         library_path: "/public/vendor/charting_library/",
         locale: "en",

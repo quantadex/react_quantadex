@@ -6,7 +6,7 @@ const container = css `
         display: inline-block;
         position: relative;
         width: 25px;
-        height: 15px;
+        height: 14px;
         border: 1px solid rgba(255,255,255,0.27);
         border-radius: 20px;
         vertical-align: middle;
@@ -17,8 +17,8 @@ const container = css `
         position: absolute;
         left: 0;
         background-color: #fff;
-        width: 11px;
-        height: 11px;
+        width: 10px;
+        height: 10px;
         margin: 1px;
         border-radius: 20px;
         transition: left 0.1s;
@@ -30,7 +30,7 @@ const container = css `
     }
 
     .active #switch {
-        left: 10px;
+        left: 11px;
     }
 `
 
