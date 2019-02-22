@@ -15,13 +15,6 @@ const container = css`
     .no-scroll-bar {
         height: calc(100vh - 555px);
     }
-
-    .symbol {
-        white-space: nowrap;
-        .issuer-tag {
-            font-size: 10px;
-        }
-    } 
 `
 
 class Balance extends Component {

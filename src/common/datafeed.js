@@ -398,8 +398,8 @@ Datafeeds.UDFCompatibleDatafeed.prototype.resolveSymbol = function(
       onResultReady({
         name: symbolName,
         ticker: symbolName,
-        description: "Price",
-        exchange: "QDEX",
+        description: symbolName,
+        // exchange: "QDEX",
         timezone: "America/Los_Angeles",
         has_intraday: true
       });

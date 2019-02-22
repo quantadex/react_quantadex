@@ -26,23 +26,6 @@ const container = css`
     border-radius: 2px;
     background-color: rgba(52, 62, 68, 0.4);
   }
-
-  .table-body-row {
-    .symbol {
-      font-family: SFCompactTextSemiBold;
-    }
-
-    .issuer-tag {
-      border-radius: 2px;
-      background-color: #454651;
-      font-size: 10px;
-      padding: 3px 5px;
-    }
-
-    .crosschain-icon {
-      margin: 0 4px 2px;
-    }
-  }
 `
 
 export default class QTTableView extends React.Component {
@@ -214,11 +197,6 @@ export default class QTTableView extends React.Component {
                         return (
                           <span key={index + '-' + i} className={new_css + " qt-font-extra-small text-nowrap " + (this.props.mobile ? col.key : "")}>
                               <SymbolToken name={e[col.key]} />
-                              {window.assetsBySymbol[e.pairs] && 
-                                window.assetsBySymbol[e.pairs].issuer == CONFIG.SETTINGS.CROSSCHAIN_ISSUER ? 
-                                <img className="crosschain-icon" src="/public/images/crosschain-coin.svg" title="Crosschain" />
-                                : null
-                              }
                           </span>
                         )
                       }

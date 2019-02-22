@@ -175,7 +175,7 @@ class Leaderboard extends Component {
 					<div>
 						<QTTabBar
 								className="pad-sides underline small fluid even-width qt-font-semibold d-flex"
-								width={150}
+								width={1000}
 								tabs = {tabs}
 								switchTab = {this.handleSwitch.bind(this)}
 							/>

@@ -227,7 +227,7 @@ async function processOrderHistory(data, userId) {
 	})
 
 	if (cancels.length > 0) {
-		limitOrders = await fetch(CONFIG.SETTINGS.ELASTIC_API_PATH + `account?operation_type=1&account_id=${userId}&size=100&filter_field=operation_history__operation_result&filter_value=${cancels.join(',')}`)
+		limitOrders = await fetch(CONFIG.SETTINGS.API_PATH + `/account?operation_type=1&account_id=${userId}&size=100&filter_field=operation_history__operation_result&filter_value=${cancels.join(',')}`)
 			.then(e => e.json())
 			.then(e => {
 				return lodash.keyBy(e, (o) => o.operation_history.operation_result.split(',')[1].replace(/"/g, '').replace(']', ''))
@@ -270,7 +270,7 @@ async function processOrderHistory(data, userId) {
 export const loadOrderHistory = (page) => {
 	return (dispatch, getState) => {
 		const userId = getState().app.userId
-		return fetch(CONFIG.SETTINGS.ELASTIC_API_PATH + `account?filter_field=operation_type&filter_value=2,4&size=${dataSize}&from_=${page * dataSize}&account_id=${userId}`)
+		return fetch(CONFIG.SETTINGS.API_PATH + `/account?filter_field=operation_type&filter_value=2,4&size=${dataSize}&from_=${page * dataSize}&account_id=${userId}`)
 			.then(e => e.json())
 			.then((filled) => {
 				return processOrderHistory(filled, userId)
@@ -426,7 +426,7 @@ export function switchTicker(ticker) {
 
 				if (publicKey && getState().app.userId) {
 					const userId = getState().app.userId
-					my_trades = fetch(CONFIG.SETTINGS.ELASTIC_API_PATH + `account?filter_field=operation_type&filter_value=2,4&size=${dataSize}&account_id=${userId}`).then(e => e.json())
+					my_trades = fetch(CONFIG.SETTINGS.API_PATH + `/account?filter_field=operation_type&filter_value=2,4&size=${dataSize}&account_id=${userId}`).then(e => e.json())
 					.then((filled) => {
 						const my_history = processOrderHistory(filled, userId)
 						// console.log(my_history)

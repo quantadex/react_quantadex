@@ -1,5 +1,23 @@
 import React, { Component } from 'react';
 import CONFIG from '../../config'
+import { css } from 'emotion'
+
+const container = css`
+	font-family: SFCompactTextSemiBold;
+	
+	.issuer-tag {
+		border-radius: 2px;
+		background-color: #454651;
+		font-size: 10px;
+		padding: 3px 5px;
+		margin-right: 4px;
+		color: #ddd;
+	}
+
+	.crosschain-icon {
+		margin-bottom: 2px;
+	}
+`
 
 export const Token = ({ name }) => {
 	if (name === undefined || name === null) {
@@ -27,15 +45,15 @@ export const SymbolToken = ({ name }) => {
 	}
 	const token = name.split("0X")
 
-	return (<span className="symbol">{token[0]} {token[1] && 
-		<a className="issuer-tag qt-font-light" style={{
-			borderRadius: '2px',
-			backgroundColor: '#454651',
-			fontSize: '10px',
-			padding: '3px 5px',
-			color: '#ddd'}}
+	return (<span className={container + " symbol"}>{token[0]} {token[1] && 
+		<a className="issuer-tag qt-font-light"
 			href={CONFIG.SETTINGS.ETHERSCAN_URL + "/token/0x" + token[1]} target="_blank">0x{token[1].substr(0, 4)}</a>
-		}</span>)
+		}
+		{CONFIG.SETTINGS.CROSSCHAIN_COINS.includes(name) || name.split("0X").length == 2 ? 
+			<img className="crosschain-icon" src="/public/images/crosschain-coin.svg" title="Crosschain" />
+			: null
+		}</span>
+	)
 }
 
 export default ({ticker}) => {

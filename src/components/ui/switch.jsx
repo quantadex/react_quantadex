@@ -30,7 +30,7 @@ const container = css `
     }
 
     .active #switch {
-        left: 10px;
+        left: 11px;
     }
 `
 

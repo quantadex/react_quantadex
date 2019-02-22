@@ -76,6 +76,10 @@ const container = css`
     border: 0;
     padding: 0;
   }
+
+  .crosschain-icon {
+    display: none;
+  }
 `
 
 const coin_details = css`

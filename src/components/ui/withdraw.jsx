@@ -88,6 +88,10 @@ const coin_details = css`
   a img {
     vertical-align: baseline;
   }
+  
+  .crosschain-icon {
+    display: none;
+  }
 `
 
 class QTWithdraw extends React.Component {
