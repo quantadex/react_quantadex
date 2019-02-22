@@ -4,6 +4,7 @@ import CONFIG from '../../config.js'
 import { TransactionBuilder } from "@quantadex/bitsharesjs"
 import { GetName } from '../../redux/actions/app.jsx'
 import {SymbolToken} from './ticker.jsx'
+import WAValidator from 'wallet-address-validator'
 
 import { css } from 'emotion'
 import globalcss from '../global-css.js'
@@ -88,10 +89,6 @@ const coin_details = css`
   a img {
     vertical-align: baseline;
   }
-  
-  .crosschain-icon {
-    display: none;
-  }
 `
 
 class QTWithdraw extends React.Component {
@@ -142,11 +139,21 @@ class QTWithdraw extends React.Component {
   }
 
   toggleTransfer() {
-    this.setState({showTransfer: !this.state.showTransfer, destination: "", amount: "", memo: ""})
+    this.setState({showTransfer: !this.state.showTransfer, destination: "", amount: "", memo: "", error: false})
   }
 
   confirmTransaction() {
-    this.setState({confirmDialog: true})
+		if (!this.state.showTransfer) {
+			let coin = this.state.asset == "BTC" || "ETH"
+			let valid = WAValidator.validate(this.state.memo, coin)
+
+			if (!valid) {
+        this.setState({error: true, errorMsg: "Invalid address"})
+        return
+			}
+    }
+
+    this.setState({confirmDialog: true, error: false})
   }
 
   closeTransaction() {
@@ -187,7 +194,7 @@ class QTWithdraw extends React.Component {
 
     return (
       <div className={coin_details + " mx-auto"}>
-        <h1>{this.state.showTransfer ? "TRANSFER" : "WITHDRAW"}<br/><SymbolToken name={coin.symbol} /></h1>
+        <h1>{this.state.showTransfer ? "TRANSFER" : "WITHDRAW"}<br/><SymbolToken name={coin.symbol} showIcon={false} /></h1>
         <div>
           Asset ID: <span className="value">{coin.id}</span> <a href={CONFIG.SETTINGS.EXPLORER_URL + "/object/" + coin.id} target="_blank"><img src="/public/images/external-link.svg" /></a><br/>
           Issuer: <span className="value">{this.state.issuer}</span><br/>
@@ -247,6 +254,7 @@ class QTWithdraw extends React.Component {
             title="Specify the outgoing address where you want to withdraw your tokens.">
               <img src="/public/images/question.svg" />
           </div>
+          {this.state.error && <span className="text-danger float-right">{this.state.errorMsg}</span>}
           <input type="text" spellCheck="false" value={this.state.memo} onChange={(e) => this.setState({memo: e.target.value})}/>
         </div>
 

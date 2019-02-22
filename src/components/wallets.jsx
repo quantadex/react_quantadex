@@ -103,6 +103,7 @@ class Wallets extends Component {
       confirmDialog: false,
     }
 
+    this.isMobile = screen.width <= 992
     this.PublicAddress = this.PublicAddress.bind(this)
   }
 
@@ -212,7 +213,7 @@ class Wallets extends Component {
     }]
     
     return (
-      <div className={container + " content"}>
+      <div className={container + " content" + (this.isMobile ? " mobile" : "")}>
           <this.PublicAddress />
           
           <div className='filter-container d-flex mt-5 align-items-center'>
@@ -222,7 +223,7 @@ class Wallets extends Component {
 
           <div className="table-row">
           <QTTableView dataSource={this.state.dataSource.filter(data => data.pairs.toLowerCase().includes(this.state.filter.toLowerCase()) && 
-              (!this.state.hideZero || data.balance > 0))} columns={columns} mobile={this.state.isMobile}/>
+              (!this.state.hideZero || data.balance > 0))} columns={columns} mobile={this.isMobile}/>
           </div>
       </div>
     );

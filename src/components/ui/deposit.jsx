@@ -76,10 +76,6 @@ const container = css`
     border: 0;
     padding: 0;
   }
-
-  .crosschain-icon {
-    display: none;
-  }
 `
 
 const coin_details = css`
@@ -159,11 +155,6 @@ class QTDeposit extends React.Component {
     document.execCommand("copy");
   }
 
-  // GetDepositAddress() {
-  //   const address = ["1A9cwmMkzz5CAp7QRwLELYsvpaX7bYGoWm"]
-  //   this.setState({deposit_address: address[0]})
-  // }
-
   DeployCrossChain = () => {
 		const { quantaAddress } = this.props;
 		if (!web3) {
@@ -196,7 +187,7 @@ class QTDeposit extends React.Component {
 
     return (
       <div className={coin_details + " mx-auto"}>
-        <h1>DEPOPSIT<br/><SymbolToken name={coin.symbol} /></h1>
+        <h1>DEPOPSIT<br/><SymbolToken name={coin.symbol} showIcon={false} /></h1>
         <div>
           Asset ID: <span className="value">{coin.id}</span> <a href={CONFIG.SETTINGS.EXPLORER_URL + "/object/" + coin.id} target="_blank"><img src="/public/images/external-link.svg" /></a><br/>
           Issuer: <span className="value">{this.state.issuer}</span><br/>

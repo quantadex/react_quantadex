@@ -33,6 +33,7 @@ const container = css`
 
     .data {
         font-size: 12px;
+        word-break: break-word;
     }
 
     button {
@@ -82,7 +83,7 @@ export default class TxDialog extends Component {
                             </tr>
                             <tr>
                                 <td>Amount</td>
-                                <td className="text-right text-secondary">{this.props.data.amount} <SymbolToken name={this.props.data.asset} /></td>
+                                <td className="text-right text-secondary">{this.props.data.amount} <SymbolToken name={this.props.data.asset} showIcon={false}/></td>
                             </tr>
                             <tr>
                                 <td colSpan={2}>{this.props.data.showTransfer ? "Memo" : "Beneficiary Address"}</td>
