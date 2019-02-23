@@ -111,7 +111,7 @@ export default class QTTableView extends React.Component {
       }
     }
 
-    const ERC20Label = "Deposit ERC20"
+    const ERC20Label = "Deposit New ERC20"
     return (
       <div className={container + " container-fluid"}>
         <div className="row justify-content-between align-items-center">
@@ -151,7 +151,7 @@ export default class QTTableView extends React.Component {
                         `
 
                         return (
-                          <div key={index + '-' + i} className={new_css+" d-flex  action-btn " + (e.pairs == ERC20Label ? "deposit-only justify-content-end" : "justify-content-between")}>
+                          <div key={index + '-' + i} className={new_css+" d-flex  action-btn " + (e.pairs == ERC20Label ? "justify-content-end" : "justify-content-between")}>
                             {
                               col.buttons.map((btn) => {
                                 if((e.pairs !== ERC20Label && !CONFIG.SETTINGS.CROSSCHAIN_COINS.includes(e.pairs) && e.pairs.split("0X").length !== 2) && btn.label == "DEPOSIT" || e.pairs == ERC20Label && btn.label == "WITHDRAW") { 
@@ -160,7 +160,7 @@ export default class QTTableView extends React.Component {
                                 return (
                                   <QTButton
                                     key={btn.label}
-                                    onClick={this.toggleModal.bind(this,index,btn.handleClick(e.pairs != ERC20Label ? e.pairs : "ERC20"))}
+                                    onClick={() => this.toggleModal(index,btn.handleClick(e.pairs != ERC20Label ? e.pairs : "ERC20"))}
                                     className={btn.color + " qt-font-base qt-font-semibold"}
                                     borderWidth="1"
                                     width="80"

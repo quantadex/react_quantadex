@@ -23,13 +23,6 @@ const container = css`
       margin-left: 10px;
     }
   }
-  
-  .deposit-only {
-    button {
-      background-color: ${globalcss.COLOR_THEME} !important;
-      color: #000 !important;
-    }
-  }
 
   &.mobile {
     .public-address-container {
@@ -140,7 +133,7 @@ class Wallets extends Component {
       });
 
       dataSource.push({
-        pairs: "Deposit ERC20",
+        pairs: "Deposit New ERC20",
         balance: 0,
         on_orders: 0,
         usd_value: 0

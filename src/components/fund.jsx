@@ -89,7 +89,7 @@ class Fund extends Component {
     } 
 
     const tabs = {
-			names: ['Wallets / Deposit / Withdraw', 'Crosschain History'],
+			names: ['Wallets', 'Crosschain History'],
 			selectedTabIndex: 0,
     }
     const content = [<Wallets />, <CrosschainHistory user={this.props.name} />]
@@ -108,7 +108,7 @@ class Fund extends Component {
         <div className="tabs">
           <QTTabBar
             className="pad-sides underline fluid even-width qt-font-semibold d-flex"
-            width={300}
+            width={200}
             tabs = {tabs}
             switchTab = {this.handleSwitch.bind(this)}
           />
