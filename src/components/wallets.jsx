@@ -113,6 +113,11 @@ class Wallets extends Component {
       this.setState({ethAddress: (e[e.length-1] && e[e.length-1].Address) || undefined})
     })
 
+    fetch(CONFIG.SETTINGS.API_PATH + "/node1/address/btc/" + this.props.name).then(e => e.json())
+    .then(e => {
+      this.setState({btcAddress: (e[e.length-1] && e[e.length-1].Address) || undefined})
+    })
+
     this.setDataSource(this.props.balance)
   }
 
@@ -205,7 +210,7 @@ class Wallets extends Component {
           color:"theme unite",
           handleClick: (asset) => {
             return <QTDeposit asset={asset} quantaAddress={this.props.name} 
-            deposit_address={(["ETH", "ERC20"].includes(asset) || asset.split("0X").length == 2) ? this.state.ethAddress : "1A9cwmMkzz5CAp7QRwLELYsvpaX7bYGoWm"} />
+            deposit_address={(["ETH", "ERC20"].includes(asset) || asset.split("0X").length == 2) ? this.state.ethAddress : this.state.btcAddress} />
           },
           disabled: (pairs) => {return false}
         }],
