@@ -39,7 +39,7 @@ export const SmallToken = ({ name }) => {
 	return <span>{name}</span>
 }
 
-export const SymbolToken = ({ name }) => {
+export const SymbolToken = ({ name, showIcon = true }) => {
 	if (name === undefined || name === null) {
 		return "INVALID"
 	}
@@ -49,7 +49,7 @@ export const SymbolToken = ({ name }) => {
 		<a className="issuer-tag qt-font-light"
 			href={CONFIG.SETTINGS.ETHERSCAN_URL + "/token/0x" + token[1]} target="_blank">0x{token[1].substr(0, 4)}</a>
 		}
-		{CONFIG.SETTINGS.CROSSCHAIN_COINS.includes(name) || name.split("0X").length == 2 ? 
+		{showIcon && (CONFIG.SETTINGS.CROSSCHAIN_COINS.includes(name) || name.split("0X").length == 2) ? 
 			<img className="crosschain-icon" src="/public/images/crosschain-coin.svg" title="Crosschain" />
 			: null
 		}</span>
