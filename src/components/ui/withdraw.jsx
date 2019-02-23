@@ -144,8 +144,8 @@ class QTWithdraw extends React.Component {
 
   confirmTransaction() {
 		if (!this.state.showTransfer) {
-			let coin = this.state.asset == "BTC" || "ETH"
-			let valid = WAValidator.validate(this.state.memo, coin)
+			let coin = this.state.asset == "BTC" ? "BTC" : "ETH"
+			let valid = WAValidator.validate(this.state.memo, coin, 'testnet')
 
 			if (!valid) {
         this.setState({error: true, errorMsg: "Invalid address"})
