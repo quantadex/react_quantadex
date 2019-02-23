@@ -56,7 +56,7 @@ class Chart extends Component {
       var widget = (window.chartWidget = new TradingView.widget({
         fullscreen: false,
         symbol: self.props.currentTicker,
-        interval: "1",
+        interval: "15",
         allow_symbol_change: false,
         // height: '50px',
         autosize: true,

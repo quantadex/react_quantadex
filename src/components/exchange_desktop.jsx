@@ -228,10 +228,10 @@ class Exchange extends Component {
 
 					<div className="d-flex flex-column justify-content-between" style={{width: "calc(100% - 530px)"}}>
 						<div className="d-flex mb-2">
-							<div className="trade-toggle align-items-center">TRADE HISTORY
+							<div className="trade-toggle align-items-center"><span className={this.state.toggle_trade ? "" : "invisible"}>TRADE HISTORY</span>
 									<div className={"toggle cursor-pointer" + (this.state.toggle_trade ? " hide" : " show")}
 									onClick={() => this.toggleHistory()}>
-										{this.state.toggle_trade ? "HIDE" : "SHOW"}
+										{this.state.toggle_trade ? "HIDE" : "SHOW TRADE HISTORY"}
 									</div>
 								</div>
 							<section className="compartment" style={this.state.toggle_trade ? {width: "calc(100% - 270px)"} : {width: "100%"}}>

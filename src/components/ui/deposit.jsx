@@ -187,7 +187,7 @@ class QTDeposit extends React.Component {
 
     return (
       <div className={coin_details + " mx-auto"}>
-        <h1>DEPOPSIT<br/><SymbolToken name={coin.symbol} showIcon={false} /></h1>
+        <h1>DEPOSIT<br/><SymbolToken name={coin.symbol} showIcon={false} /></h1>
         <div>
           Asset ID: <span className="value">{coin.id}</span> <a href={CONFIG.SETTINGS.EXPLORER_URL + "/object/" + coin.id} target="_blank"><img src="/public/images/external-link.svg" /></a><br/>
           Issuer: <span className="value">{this.state.issuer}</span><br/>
