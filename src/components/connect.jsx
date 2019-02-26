@@ -445,8 +445,8 @@ class ConnectDialog extends Component {
     ConnectEncrypted() {
         return (
             <div className="input-container">
-                <div className="drop-zone d-flex align-items-center" onDragOver={(e)=> e.preventDefault()} onDrop={(e) => this.handleDrop(e)}>
-                    Drop your backup file in this area or&nbsp; <label htmlFor="file">browse your files</label>.
+                <div className={"drop-zone align-items-center" + (this.props.isMobile ? " pt-3" : " d-flex")} onDragOver={(e)=> e.preventDefault()} onDrop={(e) => this.handleDrop(e)}>
+                    Drop your backup file in this area or&nbsp;<label htmlFor="file">browse your files.</label>
                     <input className="d-none" type="file" name="file" id="file" accept=".bin" onChange={(e) => this.uploadFile(e.target.files[0])}/>
                 </div>
                 

@@ -62,6 +62,14 @@ const container = css`
     .verify.false {
         background-color: red;
     }
+
+    &.mobile {
+        padding: 0
+        
+        .content {
+            padding: 0 10px;
+        }
+    }
 `
 
 class Message extends Component {
@@ -181,7 +189,7 @@ class Message extends Component {
                     </div>
                 }
 
-                <div className="row tab-row d-flex flex-column align-items-center">
+                <div className="tab-row d-flex flex-column align-items-center">
                     <div className="tabs">
                         <QTTabBar
                             className="underline static set-width qt-font-bold d-flex justify-content-left"

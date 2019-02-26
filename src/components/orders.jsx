@@ -337,17 +337,18 @@ class Orders extends Component {
     }
 
     if (this.props.mobile) {
+      console.log(this.props.filledOrders.dataSource)
       return (
         <div>
-          {this.props.filledOrders.dataSource.concat(this.props.filledOrders.dataSource2).map(row => {
+          {this.props.filledOrders.dataSource.concat(this.props.filledOrders.dataSource2).map((row, index) => {
             return (
-              <div key={row.id} className="list-row" onClick={() => this.toggleDetails(row.id)}>
+              <div key={row.id} className="list-row" onClick={() => this.toggleDetails(index)}>
                 <div className="d-flex list-item">
                   <span className="item-assets">{row.assets}</span>
                   <span className="item-price text-right">{row.price}</span>
                   <span className={"text-right item-type-" + row.type}>{row.type}</span>
                 </div>
-                <div className={"item-details" + (this.state.selectedRow == row.id ? " active" : "")}>
+                <div className={"item-details" + (this.state.selectedRow == index ? " active" : "")}>
                   <span className="item"><span className="label">AMOUNT</span> {row.amount}</span>
                   <span className="item"><span className="label">TOTAL</span> {row.total}</span>
                 </div>
