@@ -12,7 +12,8 @@ class Chart extends Component {
       "symbol_search_hot_key",
       "border_around_the_chart",
       "header_symbol_search",
-      "header_compare"
+      "header_compare",
+      "use_localstorage_for_settings"
     ];
 
     let enabled_features = [];
@@ -51,6 +52,9 @@ class Chart extends Component {
       // enabled_features.push("keep_left_toolbar_visible_on_small_screens");
     }
 
+    const upColor = "#50b3b7"
+    const downColor = "#ff3282"
+
     const self = this;
     // TradingView.onready(function() {
       var widget = (window.chartWidget = new TradingView.widget({
@@ -78,7 +82,7 @@ class Chart extends Component {
         drawings_access: {
           type: "black",
           tools: [{ name: "Regression Trend" }]
-				},
+        },
 				loading_screen: { backgroundColor: '#23282c' },
         disabled_features: disabled_features,
         enabled_features: enabled_features,
@@ -102,27 +106,30 @@ class Chart extends Component {
           "scalesProperties.textColor": "#999",
           "symbolWatermarkProperties.color": "rgba(0, 0, 0, 0)",
           "mainSeriesProperties.style": 1, //  Candles styles
-          "mainSeriesProperties.candleStyle.upColor": "#50b3b7",
-          "mainSeriesProperties.candleStyle.downColor": "#ff3282",
-          "mainSeriesProperties.candleStyle.wickUpColor": "#50b3b7",
-          "mainSeriesProperties.candleStyle.wickDownColor": "#ff3282",
+          "mainSeriesProperties.candleStyle.upColor": upColor,
+          "mainSeriesProperties.candleStyle.downColor": downColor,
+          "mainSeriesProperties.candleStyle.wickUpColor": upColor,
+          "mainSeriesProperties.candleStyle.wickDownColor": downColor,
           "mainSeriesProperties.candleStyle.drawBorder": false,
-          "mainSeriesProperties.hollowCandleStyle.upColor": "black",
-          "mainSeriesProperties.hollowCandleStyle.downColor": "black",
+          "mainSeriesProperties.hollowCandleStyle.upColor": upColor,
+          "mainSeriesProperties.hollowCandleStyle.downColor": downColor,
           "mainSeriesProperties.hollowCandleStyle.drawWick": true,
           "mainSeriesProperties.hollowCandleStyle.drawBorder": true,
           "mainSeriesProperties.hollowCandleStyle.borderColor": "#C400CB",
-          "mainSeriesProperties.hollowCandleStyle.borderUpColor": "black",
-          "mainSeriesProperties.hollowCandleStyle.borderDownColor": "black",
-          "mainSeriesProperties.hollowCandleStyle.wickUpColor": "black",
-          "mainSeriesProperties.hollowCandleStyle.wickDownColor": "black",
+          "mainSeriesProperties.hollowCandleStyle.borderUpColor": upColor,
+          "mainSeriesProperties.hollowCandleStyle.borderDownColor": downColor,
+          "mainSeriesProperties.hollowCandleStyle.wickUpColor": upColor,
+          "mainSeriesProperties.hollowCandleStyle.wickDownColor": downColor,
           "study_Overlay@tv-basicstudies.barStyle.upColor": "blue",
           "study_Overlay@tv-basicstudies.barStyle.downColor": "blue",
           "study_Overlay@tv-basicstudies.lineStyle.color": "blue",
           "study_Overlay@tv-basicstudies.areaStyle.color1": "blue",
           "study_Overlay@tv-basicstudies.areaStyle.color2": "blue",
           "study_Overlay@tv-basicstudies.areaStyle.linecolor": "blue"
-        }
+        },
+        favorites: {
+          intervals: ["5", "15", "30", "60", "1D"]
+        },
       }));
     // });
   }

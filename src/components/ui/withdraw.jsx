@@ -142,18 +142,23 @@ class QTWithdraw extends React.Component {
     this.setState({showTransfer: !this.state.showTransfer, destination: "", amount: "", memo: "", error: false})
   }
 
-  confirmTransaction() {
-		if (!this.state.showTransfer) {
-			let coin = this.state.asset == "BTC" ? "BTC" : "ETH"
-			let valid = WAValidator.validate(this.state.memo, coin, 'testnet')
+  validateAddress(address) {
+    let coin = this.state.asset == "BTC" ? "BTC" : "ETH"
+    let valid = WAValidator.validate(address, coin, 'testnet')
 
-			if (!valid) {
-        this.setState({error: true, errorMsg: "Invalid address"})
-        return
-			}
+    if (!valid) {
+      this.setState({error: true, errorMsg: "Invalid address"})
+      return
     }
+    if (this.state.error) {
+      this.setState({error: false, errorMsg: ""})
+    }
+  }
 
-    this.setState({confirmDialog: true, error: false})
+  confirmTransaction() {
+		if (!this.state.error) {
+			this.setState({confirmDialog: true})
+    }
   }
 
   closeTransaction() {
@@ -255,7 +260,11 @@ class QTWithdraw extends React.Component {
               <img src="/public/images/question.svg" />
           </div>
           {this.state.error && <span className="text-danger float-right">{this.state.errorMsg}</span>}
-          <input type="text" spellCheck="false" value={this.state.memo} onChange={(e) => this.setState({memo: e.target.value})}/>
+          <input type="text" spellCheck="false" value={this.state.memo} 
+            onChange={(e) => {
+              this.setState({memo: e.target.value})
+              this.validateAddress(e.target.value)
+            }}/>
         </div>
 
         <div className="d-flex justify-content-between mt-3">
@@ -264,7 +273,7 @@ class QTWithdraw extends React.Component {
             {this.state.fee.amount} {this.state.fee.asset}
           </div>
           <button className="cursor-pointer" onClick={() => this.confirmTransaction({type: "Withdraw"})}
-            disabled={this.state.memo.length == 0 || this.state.amount == 0}>SEND</button>
+            disabled={this.state.memo.length == 0 || this.state.amount == 0 || this.state.error}>SEND</button>
         </div>
       </div>
     )

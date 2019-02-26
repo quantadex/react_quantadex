@@ -371,6 +371,7 @@ export function switchTicker(ticker) {
 							})
 							if (counter.symbol == 'USD') {
 								USD_value[base.id] = data[0].latest
+								USD_value[counter.id] = 1
 							}
 						}
 
