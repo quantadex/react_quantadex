@@ -1,12 +1,8 @@
 import React, { Component } from 'react';
 import Header from './headersimple.jsx';
-import QTTableView from './ui/tableView.jsx'
 import { connect } from 'react-redux'
 import { css } from 'emotion'
 import globalcss from './global-css.js'
-import { Link } from 'react-router-dom'
-import QTDeposit from './ui/deposit.jsx'
-import QTWithdraw from './ui/withdraw.jsx'
 import LeaderboardTable from './leaderboard.jsx'
 import MobileHeader from './ui/mobileHeader.jsx';
 
@@ -117,6 +113,9 @@ const container = css`
             flex-direction: row-reverse;
             padding: 0;
             border: 0;
+        }
+        .leaderboard-share {
+            margin: 27px 25px 0 0;
         }
         .content {
             padding: 15px;
