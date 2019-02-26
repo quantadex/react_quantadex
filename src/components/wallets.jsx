@@ -98,6 +98,8 @@ class Wallets extends Component {
 
     this.isMobile = screen.width <= 992
     this.PublicAddress = this.PublicAddress.bind(this)
+
+    this.BTC_id = window.assetsBySymbol["BTC"].id
   }
 
   componentDidMount() {
@@ -122,7 +124,11 @@ class Wallets extends Component {
 
   setDataSource(balance) {
     const dataSource = []
+    let has_BTC = false
     balance.forEach(currency => {
+      if (!has_BTC && currency.asset == this.BTC_id) {
+        has_BTC = true
+      }
       const data = {
         pairs: window.assets[currency.asset].symbol,
         balance: currency.balance,
@@ -131,6 +137,15 @@ class Wallets extends Component {
       }
       dataSource.push(data)
     });
+
+    if (!has_BTC) {
+      dataSource.push({
+        pairs: "BTC",
+        balance: 0,
+        on_orders: 0,
+        usd_value: "N/A"
+      })
+    }
 
     dataSource.push({
       pairs: "Deposit New ERC20",
