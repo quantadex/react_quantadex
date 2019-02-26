@@ -402,7 +402,7 @@ Datafeeds.UDFCompatibleDatafeed.prototype.resolveSymbol = function(
         // exchange: "QDEX",
         timezone: "America/Los_Angeles",
         has_intraday: true,
-        supported_resolutions: ['1', '5', '15', '60', '1D']
+        supported_resolutions: ['1', '5', '15', '30', '60', '1D']
       });
     }, 500)
   } else {

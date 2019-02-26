@@ -14,7 +14,6 @@ const container = css`
 		padding-bottom: 10px;
 		border-bottom: 1px solid #333;
 		margin-bottom: 0;
-		visibility: hidden;
 	}
 	.trading-history-table-container {
 		height: calc(100% - 30px);
@@ -30,9 +29,6 @@ const container = css`
 
 	&.mobile {
 		height: 100%;
-		h4 {
-			visibility: visible;
-		}
 		thead th {
 			background: #22282c;
 		}

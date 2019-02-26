@@ -466,6 +466,8 @@ const app = (state = initialState, action) => {
         spread = Math.abs((parseFloat(asksSortedSet.beginIterator().value().price)/parseFloat(bidsSortedSet.beginIterator().value().price) - 1)*100)
         spreadDollar = Math.abs(parseFloat(asksSortedSet.beginIterator().value().price) - parseFloat(bidsSortedSet.beginIterator().value().price)).toFixed(7)
       }
+
+      const onOrdersFund = {}
       
       const limitOrdersDataSource = action.data.openOrders.map((order) => {
         const tickerPair = [order.assets[order.sell_price.base.asset_id].symbol, order.assets[order.sell_price.quote.asset_id].symbol]
@@ -476,6 +478,14 @@ const app = (state = initialState, action) => {
           (order.amountForSale()).getAmount({ real: true });
         
         const total = ((order.getPrice() * Math.pow(10, 6)) * (amount * Math.pow(10, 6)))/Math.pow(10, 12)
+
+        let onOrderFeeAsset = order.order.deferred_paid_fee.asset_id
+        let onOrderFeeValue = order.fee / Math.pow(10, window.assets[onOrderFeeAsset].precision)
+        let onOrderAsset = order.sell_price.base.asset_id
+        let onOrderValue = order.isBid() ? total : amount
+        
+        onOrdersFund[onOrderFeeAsset] = (onOrdersFund[onOrderFeeAsset] || 0) + onOrderFeeValue
+        onOrdersFund[onOrderAsset] = (onOrdersFund[onOrderAsset] || 0) + onOrderValue
         
         return {
           assets: ticker.join('/'),
@@ -493,7 +503,7 @@ const app = (state = initialState, action) => {
       var total_fund_value = 0
       const balances = action.data.accountData.length > 0 && action.data.accountData[0][1].balances.map((balance => {
         const real_balance = balance.balance / (10 ** window.assets[balance.asset_type].precision)
-        const usd = state.usd_value[balance.asset_type] ? real_balance * state.usd_value[balance.asset_type] : real_balance
+        const usd = state.usd_value[balance.asset_type] ? (real_balance + (onOrdersFund[balance.asset_type] || 0)) * state.usd_value[balance.asset_type] : 0
         total_fund_value += usd
         return {
           asset: balance.asset_type,
@@ -506,6 +516,7 @@ const app = (state = initialState, action) => {
         ...state,
         // currentTicker:action.data.ticker,
         balance: balances,
+        onOrdersFund: onOrdersFund,
         totalFundValue: total_fund_value,
         mostRecentTrade: {
           ticker: action.data.ticker,

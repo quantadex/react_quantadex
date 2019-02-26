@@ -122,26 +122,26 @@ class Wallets extends Component {
 
   setDataSource(balance) {
     const dataSource = []
-      balance.forEach(currency => {
-        const data = {
-          pairs: window.assets[currency.asset].symbol,
-          balance: currency.balance,
-          on_orders: "0.00000000",
-          usd_value: currency.usd.toLocaleString(navigator.language, {maximumFractionDigits: 2, minimumFractionDigits: 2})
-        }
-        dataSource.push(data)
-      });
+    balance.forEach(currency => {
+      const data = {
+        pairs: window.assets[currency.asset].symbol,
+        balance: currency.balance,
+        on_orders: this.props.onOrdersFund[currency.asset] || 0,
+        usd_value: currency.usd > 0 ? currency.usd.toLocaleString(navigator.language, {maximumFractionDigits: 2, minimumFractionDigits: 2}) : "N/A"
+      }
+      dataSource.push(data)
+    });
 
-      dataSource.push({
-        pairs: "Deposit New ERC20",
-        balance: 0,
-        on_orders: 0,
-        usd_value: 0
-      })
-  
-      this.setState({
-        dataSource: dataSource
-      })
+    dataSource.push({
+      pairs: "Deposit New ERC20",
+      balance: 0,
+      on_orders: 0,
+      usd_value: 0
+    })
+
+    this.setState({
+      dataSource: dataSource
+    })
   }
   
   handleChange(e) {
@@ -230,6 +230,7 @@ class Wallets extends Component {
 
 const mapStateToProps = (state) => ({
     balance: state.app.balance,
+    onOrdersFund: state.app.onOrdersFund,
     publicKey: state.app.publicKey || "",
     private_key: state.app.private_key,
     estimated_fund: state.app.totalFundValue,

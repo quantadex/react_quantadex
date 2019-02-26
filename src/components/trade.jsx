@@ -352,6 +352,7 @@ class Trade extends Component {
                         <label>PRICE</label>
                         <input type="number" className="trade-input qt-number-bold qt-font-small"
                             name="price"
+                            autoComplete="off"
                             onFocus={this.handleInputFocus.bind(this)}
                             min="0"
                             step="0.0000001"
@@ -371,6 +372,7 @@ class Trade extends Component {
                 onChange={() => {console.log("dropdown changed value")}}/> */}
                         <input type="number" className="trade-input qt-number-bold qt-font-small"
                             name="amount"
+                            autoComplete="off"
                             onFocus={this.handleInputFocus.bind(this)}
                             min="0"
                             step="0.0000001"
