@@ -38,7 +38,7 @@ let initialState = {
       fontWeight:"light",
       float:"left"
     },{
-      name:"ID",
+      name:"Order ID",
       key:"id",
       type:"id",
       sortable:false,
@@ -115,7 +115,7 @@ let initialState = {
       fontWeight:"light",
       float:"left"
     },{
-      name:"ID",
+      name:"Order ID",
       key:"id",
       type:"id",
       sortable:false,
