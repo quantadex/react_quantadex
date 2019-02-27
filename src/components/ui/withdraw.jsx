@@ -105,7 +105,7 @@ class QTWithdraw extends React.Component {
       asset: this.props.asset,
       fee: {amount: 0, asset: 'QDEX'}
     }
-
+    this.coin = window.assetsBySymbol[this.props.asset]
     this.CoinDetails = this.CoinDetails.bind(this)
     this.toggleTransfer = this.toggleTransfer.bind(this)
     this.Transfer = this.Transfer.bind(this)
@@ -191,23 +191,29 @@ class QTWithdraw extends React.Component {
   }
   
   CoinDetails() {
-    const coin = window.assetsBySymbol[this.props.asset]
-
-    !this.state.issuer && GetName(coin.issuer).then(issuer => {
+    !this.state.issuer && GetName(this.coin.issuer).then(issuer => {
       this.setState({issuer: (issuer == "null-account" ? "Native": issuer)})
     })
 
     return (
       <div className={coin_details + " mx-auto"}>
-        <h1>{this.state.showTransfer ? "TRANSFER" : "WITHDRAW"}<br/><SymbolToken name={coin.symbol} showIcon={false} /></h1>
+        <h1>{this.state.showTransfer ? "TRANSFER" : "WITHDRAW"}<br/><SymbolToken name={this.coin.symbol} showIcon={false} /></h1>
         <div>
-          Asset ID: <span className="value">{coin.id}</span> <a href={CONFIG.SETTINGS.EXPLORER_URL + "/object/" + coin.id} target="_blank"><img src="/public/images/external-link.svg" /></a><br/>
+          Asset ID: <span className="value">{this.coin.id}</span> <a href={CONFIG.SETTINGS.EXPLORER_URL + "/object/" + this.coin.id} target="_blank"><img src="/public/images/external-link.svg" /></a><br/>
           Issuer: <span className="value">{this.state.issuer}</span><br/>
-          Precision: <span className="value">{coin.precision}</span><br/>
-          Max Supply: <span className="value">{(parseInt(coin.options.max_supply)/Math.pow(10, coin.precision)).toLocaleString(navigator.language)}</span>
+          Precision: <span className="value">{this.coin.precision}</span><br/>
+          Max Supply: <span className="value">{(parseInt(this.coin.options.max_supply)/Math.pow(10, this.coin.precision)).toLocaleString(navigator.language)}</span>
         </div>
       </div>
     )
+  }
+
+  maxPrecision(amount) {
+    const dotIndex = amount.indexOf('.')
+    if (dotIndex !== -1 && amount.length - dotIndex -1 > this.coin.precision) {
+      amount = amount.slice(0, dotIndex + this.coin.precision + 1)
+    }
+    return amount
   }
 
   Transfer() {
@@ -219,7 +225,7 @@ class QTWithdraw extends React.Component {
         </div>
         <div className="mb-3">
           <label className="my-0">AMOUNT</label>
-          <input type="number" value={this.state.amount} onChange={(e) => this.setState({amount: e.target.value})}/>
+          <input type="number" value={this.state.amount} onChange={(e) => this.setState({amount: this.maxPrecision(e.target.value)})}/>
         </div>
         <div className="mb-3">
           <label className="my-0">MEMO (OPTIONAL)</label>
@@ -251,7 +257,7 @@ class QTWithdraw extends React.Component {
         </div>
         <div className="mb-3">
           <label className="my-0">AMOUNT</label>
-          <input type="number" value={this.state.amount} onChange={(e) => this.setState({amount: e.target.value})}/>
+          <input type="number" value={this.state.amount} onChange={(e) => this.setState({amount: this.maxPrecision(e.target.value)})}/>
         </div>
         <div className="mb-3">
           <label className="my-0">BENEFICIARY ADDRESS</label>
