@@ -244,7 +244,7 @@ async function processOrderHistory(data, userId) {
 		if (type == 2) {
 			let limitOp = limitOrders[op.op_object.order].operation_history.op_object
 			limitOp.sell_price = {base: limitOp.amount_to_sell, quote: limitOp.min_to_receive}
-			limitOp.id = op.block_num
+			limitOp.id = op.op_object.order
 			limitOp.time = op.time
 			
 			baseId = validMarketPair(limitOp.amount_to_sell.asset_id, limitOp.min_to_receive.asset_id)[0]

@@ -337,7 +337,6 @@ class Orders extends Component {
     }
 
     if (this.props.mobile) {
-      console.log(this.props.filledOrders.dataSource)
       return (
         <div>
           {this.props.filledOrders.dataSource.concat(this.props.filledOrders.dataSource2).map((row, index) => {
