@@ -13,6 +13,7 @@ import TxDialog from './transaction_dialog.jsx'
 import { transferFund } from '../../redux/actions/app.jsx'
 
 const container = css`
+  position: relative;
   margin:0 -15px;
   background-color:white;
   color: #28303c;
@@ -65,6 +66,16 @@ const container = css`
 
   img {
     vertical-align: baseline;
+  }
+  
+  .close-dialog {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    font-size: 12px;
+    font-weight: bold;
+    color: ${globalcss.COLOR_THEME};
+    text-decoration: underline;
   }
 `
 
@@ -294,6 +305,7 @@ class QTWithdraw extends React.Component {
             : null}
           <this.CoinDetails />
         </div>
+        <div className="close-dialog cursor-pointer" onClick={this.props.handleClick}>Close</div>
         {this.state.showTransfer ? <this.Transfer /> : <this.Withdraw />}
 
         {this.state.confirmDialog && 

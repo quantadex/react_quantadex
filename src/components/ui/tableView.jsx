@@ -160,7 +160,7 @@ export default class QTTableView extends React.Component {
                                 return (
                                   <QTButton
                                     key={btn.label}
-                                    onClick={() => this.toggleModal(index,btn.handleClick(e.pairs != ERC20Label ? e.pairs : "ERC20"))}
+                                    onClick={() => this.toggleModal(index,btn.handleClick(e.pairs != ERC20Label ? e.pairs : "ERC20", this.toggleModal.bind(this, index, btn.handleClick(e.pairs != ERC20Label ? e.pairs : "ERC20"))))}
                                     className={btn.color + " qt-font-base qt-font-semibold"}
                                     borderWidth="1"
                                     width="80"

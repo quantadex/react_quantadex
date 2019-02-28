@@ -9,6 +9,7 @@ import { css } from 'emotion'
 import globalcss from '../global-css.js'
 
 const container = css`
+  position: relative;
   margin:0 -15px;
   background-color:white;
   font-size: 12px;
@@ -75,6 +76,16 @@ const container = css`
     width: auto;
     border: 0;
     padding: 0;
+  }
+
+  .close-dialog {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    font-size: 12px;
+    font-weight: bold;
+    color: ${globalcss.COLOR_THEME};
+    text-decoration: underline;
   }
 `
 
@@ -271,7 +282,7 @@ class QTDeposit extends React.Component {
             </div>
           }
         </div>
-        
+        <div className="close-dialog cursor-pointer" onClick={this.props.handleClick}>Close</div>
         {this.state.deposit_address ? <this.Deposit /> : <this.MetamaskDeposit />}
       </div>
     );

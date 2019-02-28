@@ -209,15 +209,15 @@ class Wallets extends Component {
         buttons: [{
           label:"WITHDRAW",
           color:"theme unite",
-          handleClick: (asset) => {
-						return <QTWithdraw asset={asset} />
+          handleClick: (asset, close) => {
+						return <QTWithdraw asset={asset} handleClick={close} />
           },
           disabled: (pairs) => {return false}
         }, {
           label:"DEPOSIT",
           color:"theme unite",
-          handleClick: (asset) => {
-            return <QTDeposit asset={asset} quantaAddress={this.props.name} 
+          handleClick: (asset, close) => {
+            return <QTDeposit asset={asset} handleClick={close} quantaAddress={this.props.name} 
             deposit_address={(["ETH", "ERC20"].includes(asset) || asset.split("0X").length == 2) ? this.state.ethAddress : this.state.btcAddress} />
           },
           disabled: (pairs) => {return false}
