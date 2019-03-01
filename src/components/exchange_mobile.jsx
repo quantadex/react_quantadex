@@ -89,7 +89,7 @@ const container = css`
 
 	#market-dropdown {
 		padding-right: 15px;
-		background: url(${(window.isApp ? "": "/") + "public/images/menu-arrow-down.svg"}) no-repeat 100% 50%;
+		background: url(${devicePath("public/images/menu-arrow-down.svg")}) no-repeat 100% 50%;
 		cursor: pointer;
 	}
 

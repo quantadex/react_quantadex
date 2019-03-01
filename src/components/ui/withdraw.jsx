@@ -210,7 +210,7 @@ class QTWithdraw extends React.Component {
       <div className={coin_details + " mx-auto"}>
         <h1>{this.state.showTransfer ? "TRANSFER" : "WITHDRAW"}<br/><SymbolToken name={this.coin.symbol} showIcon={false} /></h1>
         <div>
-          Asset ID: <span className="value">{this.coin.id}</span> <a href={CONFIG.SETTINGS.EXPLORER_URL + "/object/" + this.coin.id} target="_blank"><img src={(window.isApp ? "": "/") + "public/images/external-link.svg"} /></a><br/>
+          Asset ID: <span className="value">{this.coin.id}</span> <a href={CONFIG.SETTINGS.EXPLORER_URL + "/object/" + this.coin.id} target="_blank"><img src={devicePath("public/images/external-link.svg")} /></a><br/>
           Issuer: <span className="value">{this.state.issuer}</span><br/>
           Precision: <span className="value">{this.coin.precision}</span><br/>
           Max Supply: <span className="value">{(parseInt(this.coin.options.max_supply)/Math.pow(10, this.coin.precision)).toLocaleString(navigator.language)}</span>
@@ -262,7 +262,7 @@ class QTWithdraw extends React.Component {
           <label className="my-0">DESTINATION ACCOUNT</label>
           <div className="d-inline ml-2 cursor-pointer" data-toggle="tooltip" data-placement="right" 
             title="Withdraw requires funds to go back to the QUANTA cross-chain issuer for processing.">
-              <img src={(window.isApp ? "": "/") + "public/images/question.svg"} />
+              <img src={devicePath("public/images/question.svg")} />
           </div>
           <input type="text" readOnly value={this.state.issuer || ""}/>
         </div>
@@ -274,7 +274,7 @@ class QTWithdraw extends React.Component {
           <label className="my-0">BENEFICIARY ADDRESS</label>
           <div className="d-inline ml-2 cursor-pointer" data-toggle="tooltip" data-placement="right" 
             title="Specify the outgoing address where you want to withdraw your tokens.">
-              <img src={(window.isApp ? "": "/") + "public/images/question.svg"} />
+              <img src={devicePath("public/images/question.svg")} />
           </div>
           {this.state.error && <span className="text-danger float-right">{this.state.errorMsg}</span>}
           <input type="text" spellCheck="false" value={this.state.memo} 

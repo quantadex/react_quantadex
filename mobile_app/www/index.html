@@ -27,6 +27,9 @@
 
 	<script type="text/javascript">
 		window.isApp = (document.URL.indexOf("http://") === -1 && document.URL.indexOf("https://") === -1);
+		var devicePath = function (url) {
+			return window.isApp ? url : ("/" + url)
+		}
 	</script>
     <script type="text/javascript" src="cordova.js"></script>
     <script type="text/javascript" src="public/vendor/jquery-2.1.1.min.js"> </script>

@@ -73,7 +73,7 @@ const container = css`
         .headline {
             display: inline-block;
             padding-left: 70px;
-            background: url(${(window.isApp ? "": "/") + 'public/images/trophy-blue.svg'}) no-repeat;
+            background: url(${devicePath('public/images/trophy-blue.svg')}) no-repeat;
             font-size: 18px;
         }
 
@@ -160,8 +160,8 @@ class Leaderboard extends Component {
 					    </div>
                         <div className="leaderboard-share d-flex justify-content-between">
                             <span>Share</span>
-                            <a className="ml-2"><img src={(window.isApp ? "": "/") + "public/images/share/twitter.svg"} /></a>
-                            <a className="ml-2"><img src={(window.isApp ? "": "/") + "public/images/share/fbook.svg"} /></a>
+                            <a className="ml-2"><img src={devicePath("public/images/share/twitter.svg")} /></a>
+                            <a className="ml-2"><img src={devicePath("public/images/share/fbook.svg")} /></a>
                         </div>
                     </div>
                     <LeaderboardTable tableOnly={true} complete={true}/>

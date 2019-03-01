@@ -35,7 +35,7 @@ const container = css`
         white-space: nowrap;
         padding-right: 20px;
         margin-right: 20px;
-        background: url(${(window.isApp ? "": "/") + 'public/images/right-arrow.svg'}) no-repeat 100% 52%;
+        background: url(${devicePath('public/images/right-arrow.svg')}) no-repeat 100% 52%;
     }
     &.link.mobile {
         background: none;
@@ -177,7 +177,7 @@ const dialog = css`
         font-size: 14px;
         padding-left: 70px;
         border: 1px dashed #979797;
-        background: rgba(80, 227, 194, 0.5) url(${(window.isApp ? "": "/") + "public/images/drag_drop.png"}) no-repeat 10px;
+        background: rgba(80, 227, 194, 0.5) url(${devicePath("public/images/drag_drop.png")}) no-repeat 10px;
 
         label {
             margin: 0;
@@ -659,7 +659,7 @@ class ConnectDialog extends Component {
             <div id="connect-dialog" className={dialog + (this.props.isMobile ? " mobile" : "")} style={{display: "none"}} 
                 onDragOver={(e)=> e.preventDefault()} onDrop={(e) => e.preventDefault()}>
                 <div className="container">
-                    <div className="close-btn" onClick={() => this.closeDialog()}><img src={(window.isApp ? "": "/") + "public/images/close_btn.svg"} /></div>
+                    <div className="close-btn" onClick={() => this.closeDialog()}><img src={devicePath("public/images/close_btn.svg")} /></div>
                     {this.state.dialogType == "create" ? 
                         this.state.regStep == 1 ? <this.KeyCreate /> : <this.KeyDownload /> :
                         <this.KeyConnect />

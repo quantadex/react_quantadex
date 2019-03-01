@@ -154,8 +154,8 @@ class Leaderboard extends Component {
 				<div>
 					<div className="leaderboard-share">
 						<span>Share</span>
-						<a><img src={(window.isApp ? "": "/") + "public/images/share/twitter.svg"} /></a>
-						<a><img src={(window.isApp ? "": "/") + "public/images/share/fbook.svg"} /></a>
+						<a><img src={devicePath("public/images/share/twitter.svg")} /></a>
+						<a><img src={devicePath("public/images/share/fbook.svg")} /></a>
 					</div>
 					<div className="pad-sides">
 						<h4>LEADERBOARD</h4>
