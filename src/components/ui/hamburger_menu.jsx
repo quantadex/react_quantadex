@@ -93,7 +93,7 @@ export class HamburgerMenu extends React.Component {
     const a = Math.random()
     return (
       <div ref="hamburgerMenu" className={container}>
-        <a><img src="/public/images/menuicons/hamburger.svg" width="16" height="16" /></a>
+        <a><img src={(window.isApp ? "": "/") + "public/images/menuicons/hamburger.svg"} width="16" height="16" /></a>
         <div className={"hamburger-menu flex-column position-absolute qt-font-small qt-font-regular " + (this.state.menuOpen ? 'd-flex' : 'd-none')}>
           {
             this.props.menuList.map((e, index) => {
@@ -155,70 +155,38 @@ HamburgerMenu.defaultProps = {
   },
   {
     items: [{
-      iconPath:"/public/images/menuicons/quanta-grey.svg",
-      iconPathActive:"/public/images/menuicons/quanta-white.svg",
+      iconPath: (window.isApp ? "": "/") + "public/images/menuicons/quanta-grey.svg",
+      iconPathActive: (window.isApp ? "": "/") + "public/images/menuicons/quanta-white.svg",
       text:"Exchange",
       url:"/exchange"
     }]
   },{
     items: [{
-      iconPath:"/public/images/menuicons/wallet-grey.svg",
-      iconPathActive:"/public/images/menuicons/wallet-white.svg",
+      iconPath: (window.isApp ? "": "/") + "public/images/menuicons/wallet-grey.svg",
+      iconPathActive: (window.isApp ? "": "/") + "public/images/menuicons/wallet-white.svg",
       text:"Wallets",
       url:"/exchange/wallets"
     },{
-      iconPath:"/public/images/menuicons/quanta-grey.svg",
-      iconPathActive:"/public/images/menuicons/quanta-white.svg",
+      iconPath: (window.isApp ? "": "/") + "public/images/menuicons/quanta-grey.svg",
+      iconPathActive: (window.isApp ? "": "/") + "public/images/menuicons/quanta-white.svg",
       text:"Sign/Verify",
       url:"/exchange/message"
     },
     {
-      iconPath:"/public/images/menuicons/quanta-grey.svg",
-      iconPathActive:"/public/images/menuicons/quanta-white.svg",
+      iconPath: (window.isApp ? "": "/") + "public/images/menuicons/quanta-grey.svg",
+      iconPathActive: (window.isApp ? "": "/") + "public/images/menuicons/quanta-white.svg",
       text:"Leaderboard",
       url:"/leaderboard"
     },
-    
-  //   {
-  //     iconPath:"/public/images/menuicons/deposit-grey.svg",
-  //     iconPathActive:"/public/images/menuicons/deposit-white.svg",
-  //     text:"Deposit / Withdraw",
-  //     url:"/exchange/wallets"
-  //   },{
-  //     iconPath:"/public/images/menuicons/fund-history-grey.svg",
-  //     iconPathActive:"/public/images/menuicons/fund-history-white.svg",
-  //     text:"Funds History",
-  //     url:"/exchange/history"
-  //   },{
-  //     iconPath:"/public/images/menuicons/order-history-grey.svg",
-  //     iconPathActive:"/public/images/menuicons/order-history-white.svg",
-  //     text:"Orders History",
-  //     url:"/exchange/orders"
-  //   }]
-  // },{
-  //   items: [{
-  //     iconPath:"/public/images/menuicons/referral-grey.svg",
-  //     iconPathActive:"/public/images/menuicons/referral-white.svg",
-  //     text:"Referrals",
-  //     url:"/referrals"
-  //   }]
-  // },{
-  //   items: [{
-  //     iconPath:"/public/images/menuicons/profile-grey.svg",
-  //     iconPathActive:"/public/images/menuicons/profile-white.svg",
-  //     text:"Profile",
-  //     url:"/exchange/wallets"
-  //   }
   ],
     backgroundColor:"rgba(40, 48, 52,0.36)"
   },{
     items: [{
-      iconPath:"/public/images/menuicons/quanta-grey.svg",
-      iconPathActive:"/public/images/menuicons/quanta-white.svg",
+      iconPath: (window.isApp ? "": "/") + "public/images/menuicons/quanta-grey.svg",
+      iconPathActive: (window.isApp ? "": "/") + "public/images/menuicons/quanta-white.svg",
       text:"Logout",
-      // url:"/login"
       onClick: () => {
-        window.location.assign('/exchange')
+        window.location.assign(window.isApp ? "index.html" : "/")
       }
     }],
     backgroundColor:"#323b40"

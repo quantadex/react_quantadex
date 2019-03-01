@@ -7,7 +7,7 @@ const container = css `
     text-align: left;
     padding: 0 35px 0 20px;
     font-size: 13px;
-    background: url(/public/images/search.png) no-repeat calc(100% - 15px) 50%;
+    background: url(${(window.isApp ? "": "/") + "public/images/search.png"}) no-repeat calc(100% - 15px) 50%;
 `
 
 export default class SearchBox extends Component {

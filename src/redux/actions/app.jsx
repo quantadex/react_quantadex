@@ -234,6 +234,9 @@ async function processOrderHistory(data, userId) {
 			})
 	}
 	data.forEach((filled) => {
+		if (filled.operation_type == 2 && filled.operation_history.operation_result == "[0,{}]") {
+			return
+		}
 		let baseId
 		var order
 		const type = filled.operation_type

@@ -265,16 +265,6 @@ let initialState = {
   dashboard: {
     dataSource: [],
     columns: [
-    //   {
-    //   name:"",
-    //   type:"icon",
-    //   key: "favoriteList",
-    //   favoritedIconUrl: "/public/images/star-white.svg",
-    //   unfavoritedIconUrl: "/public/images/star-grey.svg",
-    //   handleClick: pair => {
-    //     return toggleFavoriteList(pair)
-    //   }
-    // },
     {
       name:"Pairs",
       key:"pairs",

@@ -26,7 +26,7 @@ const container = css`
 	}
 
 	.header-coin-name {
-		background: url('/public/images/big-arrow-down.svg') no-repeat 100%;
+		background: url(${(window.isApp ? "": "/") + "public/images/big-arrow-down.svg"}) no-repeat 100%;
 	}
 
 	.price-stats {
@@ -72,7 +72,7 @@ class Header extends Component {
 				<div className="d-flex justify-content-between align-items-center">
 					<div className="d-flex">
 						<Link to="/exchange" className="header-logo">
-							<img src={this.props.network == "MAINNET" ? "/public/images/logo-light.svg" : "/public/images/qdex-fantasy-light.svg"} width="220" />
+							<img src={this.props.network == "MAINNET" ? (window.isApp ? "": "/") + "public/images/logo-light.svg" : (window.isApp ? "": "/") + "public/images/qdex-fantasy-light.svg"} width="220" />
 						</Link>
 						
 					</div>

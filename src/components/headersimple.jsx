@@ -18,7 +18,7 @@ const container = css`
   }
 
   .back-link:before {
-    background-image: url('/public/images/menu-arrow-left.svg');
+    background-image: url('${window.isApp ? "": "/"}public/images/menu-arrow-left.svg');
     width:6px;
     height:10px;
     background-size: 6px 10px;
@@ -43,7 +43,7 @@ const container = css`
   .logo {
     width:119px;
     height:19px;
-    background-image: url("/public/images/group-4.svg");
+    background-image: url("${window.isApp ? "": "/"}public/images/group-4.svg");
     background-size:cover;
     position:absolute;
     top: 50%;

@@ -26,24 +26,24 @@ ReactGA.initialize('UA-114919036-3');
 injectGlobal`
 	@font-face {
 	  font-family: "SFCompactTextBold";
-	  src: url("/public/styles/fonts/SFCompactText-Bold.otf");
+	  src: url("${window.isApp ? "": "/"}public/styles/fonts/SFCompactText-Bold.otf");
 	}
 	@font-face {
 		font-family: "SFCompactTextRegular";
-		src: url("/public/styles/fonts/SFCompactText-Regular.otf");
+		src: url("${window.isApp ? "": "/"}public/styles/fonts/SFCompactText-Regular.otf");
 	}
 	@font-face {
 		font-family: "SFCompactTextLight";
-		src: url("/public/styles/fonts/SFCompactText-Light.otf");
+		src: url("${window.isApp ? "": "/"}public/styles/fonts/SFCompactText-Light.otf");
 	}
 	@font-face {
 		font-family: "SFCompactTextSemiBold";
-		src: url("/public/styles/fonts/SFCompactText-Semibold.otf");
+		src: url("${window.isApp ? "": "/"}public/styles/fonts/SFCompactText-Semibold.otf");
 	}
 
 	@font-face {
 	  font-family: "Multicolore";
-	  src: url("/public/styles/fonts/Multicolore.otf");
+	  src: url("${window.isApp ? "": "/"}public/styles/fonts/Multicolore.otf");
 	}
 
 	* {
@@ -196,11 +196,8 @@ injectGlobal`
 
 const store = createStore(reducer, compose(applyMiddleware(thunk)))
 
-var url = document.URL;
-var isApp = (url.indexOf("http://") === -1 && url.indexOf("https://") === -1);
-
 var history
-if (isApp) {
+if (window.isApp) {
 	history = createHashHistory()
 } else {
 	history = createBrowserHistory()

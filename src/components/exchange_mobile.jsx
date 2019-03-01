@@ -40,7 +40,7 @@ const container = css`
 	.switch-chart {
 		position: absolute;
 		flex-flow: column;
-		right: 20px;
+		right: 10px;
 		margin-top: 10px;
 		z-index: 1;
 
@@ -89,7 +89,7 @@ const container = css`
 
 	#market-dropdown {
 		padding-right: 15px;
-		background: url('/public/images/menu-arrow-down.svg') no-repeat 100% 50%;
+		background: url(${(window.isApp ? "": "/") + "public/images/menu-arrow-down.svg"}) no-repeat 100% 50%;
 		cursor: pointer;
 	}
 
@@ -98,7 +98,7 @@ const container = css`
 		width: 100%;
 		height: 0;
 		overflow: hidden;
-		background-color: #222
+		background-color: #222;
 		transition: height 0.3s;
 		z-index: 10;
 	}
@@ -201,7 +201,7 @@ class Exchange extends Component {
 				{content[this.state.selectedTabIndex]}
 			</div>
 
-			<div className="exchange-bottom">
+			<div className={"exchange-bottom"}>
 				<MobileNav tabs={tabs} selectedTabIndex={this.state.selectedTabIndex} switchTab={this.handleSwitch.bind(this)} />
 				<Status mobile={true} />
 			</div>
