@@ -11,6 +11,7 @@ import QTDropdown from './ui/dropdown.jsx'
 import QTButton from './ui/button.jsx'
 import { Token, SmallToken } from './ui/ticker.jsx'
 import Loader from './ui/loader.jsx'
+import Utils from '../common/utils'
 
 import { buyTransaction } from "../redux/actions/app.jsx";
 import { sellTransaction } from "../redux/actions/app.jsx";
@@ -295,22 +296,6 @@ class Trade extends Component {
             })
     }
 
-    handlePriceInputChange(e) {
-        this.setState({
-            price: e.target.value
-        });
-    }
-
-    handleQtyInputChange(e) {
-        this.setState({
-            qty: e.target.value
-        });
-    }
-
-    handleInputFocus(e) {
-        e.target.select();
-    }
-
     switchTradeTo(side) {
         this.setState({trade_side: side})
     }
@@ -353,11 +338,10 @@ class Trade extends Component {
                         <input type="number" className="trade-input qt-number-bold qt-font-small"
                             name="price"
                             autoComplete="off"
-                            onFocus={this.handleInputFocus.bind(this)}
+                            onFocus={(e) => e.target.select()}
                             min="0"
-                            step="0.0000001"
                             value={this.state.price}
-                            onChange={this.handlePriceInputChange.bind(this)} />
+                            onChange={(e) => this.setState({price: Utils.maxPrecision(e.target.value, window.assetsBySymbol[tradingPair[1]].precision)})} />
                         <SmallToken name={tradingPair[1]} />
                     </div>
                     <div className="input-container">
@@ -373,22 +357,19 @@ class Trade extends Component {
                         <input type="number" className="trade-input qt-number-bold qt-font-small"
                             name="amount"
                             autoComplete="off"
-                            onFocus={this.handleInputFocus.bind(this)}
+                            onFocus={(e) => e.target.select()}
                             min="0"
-                            step="0.0000001"
                             value={this.state.qty}
-                            onChange={this.handleQtyInputChange.bind(this)} />
+                            onChange={(e) => this.setState({qty: Utils.maxPrecision(e.target.value, window.assetsBySymbol[tradingPair[0]].precision)})} />
                         <SmallToken name={tradingPair[0]} />
                     </div>
                     <div className="input-container">
                         <label>TOTAL {/*<Token name={tradingPair[1]}/> */}</label>
                         <input
-                            type="number"
+                            type="text"
                             className="trade-input qt-number-bold qt-font-small"
                             name="total"
-                            min="0"
-                            step="0.0000001"
-                            value={((this.state.qty * Math.pow(10, 6)) * (this.state.price * Math.pow(10, 6))) / Math.pow(10, 12)}
+                            value={(((this.state.qty * Math.pow(10, 6)) * (this.state.price * Math.pow(10, 6))) / Math.pow(10, 12)).toLocaleString(navigator.language, {maximumFractionDigits: window.assetsBySymbol ? window.assetsBySymbol[tradingPair[1]].precision : 5} )}
                             readOnly
                         />
                         <SmallToken name={tradingPair[1]} />

@@ -11,6 +11,7 @@ import globalcss from '../global-css.js'
 import { toast } from 'react-toastify';
 import TxDialog from './transaction_dialog.jsx'
 import { transferFund } from '../../redux/actions/app.jsx'
+import Utils from '../../common/utils'
 
 const container = css`
   position: relative;
@@ -219,14 +220,6 @@ class QTWithdraw extends React.Component {
     )
   }
 
-  maxPrecision(amount) {
-    const dotIndex = amount.indexOf('.')
-    if (dotIndex !== -1 && amount.length - dotIndex -1 > this.coin.precision) {
-      amount = amount.slice(0, dotIndex + this.coin.precision + 1)
-    }
-    return amount
-  }
-
   Transfer() {
     return (
       <div className="input-container">
@@ -236,7 +229,7 @@ class QTWithdraw extends React.Component {
         </div>
         <div className="mb-3">
           <label className="my-0">AMOUNT</label>
-          <input type="number" value={this.state.amount} onChange={(e) => this.setState({amount: this.maxPrecision(e.target.value)})}/>
+          <input type="number" value={this.state.amount} onChange={(e) => this.setState({amount: Utils.maxPrecision(e.target.value, this.coin.precision)})}/>
         </div>
         <div className="mb-3">
           <label className="my-0">MEMO (OPTIONAL)</label>
@@ -268,7 +261,7 @@ class QTWithdraw extends React.Component {
         </div>
         <div className="mb-3">
           <label className="my-0">AMOUNT</label>
-          <input type="number" value={this.state.amount} onChange={(e) => this.setState({amount: this.maxPrecision(e.target.value)})}/>
+          <input type="number" value={this.state.amount} onChange={(e) => this.setState({amount: Utils.maxPrecision(e.target.value, this.coin.precision)})}/>
         </div>
         <div className="mb-3">
           <label className="my-0">BENEFICIARY ADDRESS</label>

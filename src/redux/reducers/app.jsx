@@ -39,7 +39,7 @@ let initialState = {
       fontWeight:"light",
       float:"left"
     },{
-      name:"Order ID",
+      name:"ORDER ID",
       key:"id",
       type:"id",
       sortable:false,
@@ -116,7 +116,7 @@ let initialState = {
       fontWeight:"light",
       float:"left"
     },{
-      name:"Order ID",
+      name:"ORDER ID",
       key:"id",
       type:"id",
       sortable:false,
@@ -125,7 +125,7 @@ let initialState = {
       fontWeight:"light",
       float:"right"
     },{
-      name:"PRICE",
+      name:"FILL PRICE",
       key:"price",
       type:"string",
       sortable:false,
@@ -378,10 +378,10 @@ function processFilledOrder(orders) {
       assets: ticker.join('/'),
       price: order.getPrice() + ' ' + ticker[1],
       amount: parseFloat(amount) + ' ' + ticker[0],
-      total: total + ' ' + ticker[1],
-      maker: order.seller ? "-" : String(order.is_maker),
+      total: total.toLocaleString(navigator.language, {maximumFractionDigits: window.assetsBySymbol[ticker[1]].precision}) + ' ' + ticker[1],
+      maker: order.seller ? "False" : String(order.is_maker),
       type: order.isBid ? 'BUY' : 'SELL',
-      date: order.time.toLocaleString('en-US', { day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false }),
+      date: order.time.toLocaleString(navigator.language, { day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false }),
       block: order.block,
       status: order.seller ? "Canceled" : "Filled"
     }
@@ -482,7 +482,7 @@ const app = (state = initialState, action) => {
           assets: ticker.join('/'),
           price: order.getPrice() + ' ' + ticker[1],
           amount: amount + ' ' + ticker[0],
-          total: total + ' ' + ticker[1],
+          total: total.toLocaleString(navigator.language, {maximumFractionDigits: window.assetsBySymbol[ticker[1]].precision}) + ' ' + ticker[1],
           type: order.isBid() ? 'BUY' : 'SELL',
           date: (new Date(order.expiration.setFullYear(order.expiration.getFullYear() - 5))).toLocaleString('en-US', { day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false }),
           id: order.id
