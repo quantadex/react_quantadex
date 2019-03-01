@@ -106,7 +106,7 @@ const container = css`
     position: absolute;
     right: 15px;
     top: 4px;
-    background: url(/public/images/up-arrow.svg) repeat-y 100%;
+    background: url(${(window.isApp ? "": "/") + "public/images/up-arrow.svg"}) repeat-y 100%;
     height: 18px;
     padding-right: 20px;
     line-height: 20px;
@@ -170,7 +170,7 @@ const container = css`
       .item-type-BUY, .item-type-SELL {
         width: 20%;
         padding-right: 20px;
-        background: url("../public/images/menu-arrow-down.svg") no-repeat 100% 50%;
+        background: url(${(window.isApp ? "": "/") + "public/images/menu-arrow-down.svg"}) no-repeat 100% 50%;
       }
 
       .item-type-BUY {
@@ -337,7 +337,6 @@ class Orders extends Component {
     }
 
     if (this.props.mobile) {
-      console.log(this.props.filledOrders.dataSource)
       return (
         <div>
           {this.props.filledOrders.dataSource.concat(this.props.filledOrders.dataSource2).map((row, index) => {

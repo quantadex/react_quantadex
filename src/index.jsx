@@ -3,7 +3,6 @@ import {render} from 'react-dom';
 import Exchange from './components/exchange.jsx';
 import Fund from './components/fund.jsx';
 import Message from './components/message.jsx';
-import Login, {GenerateKey} from './pages/login.jsx';
 import Leaderboard from './components/leaderboard_full.jsx';
 
 import { createStore, applyMiddleware, compose } from 'redux'
@@ -12,13 +11,14 @@ import reducer from './redux/index.jsx'
 import thunk from 'redux-thunk';
 import DevTools from './redux/devtools.jsx';
 import logger from 'redux-logger'
-import { Router, Route, Switch,withRouter } from 'react-router-dom'
+import { Router, Route, Switch } from 'react-router-dom'
 
 import { injectGlobal } from 'emotion'
 import globalcss from './components/global-css.js'
-import createHistory from 'history/createBrowserHistory'
+import createHashHistory from 'history/createHashHistory'
+import createBrowserHistory from 'history/createBrowserHistory'
 import ReactGA from 'react-ga';
-
+ 
 ReactGA.initialize('UA-114919036-3');
 
 // , applyMiddleware(logger)
@@ -26,24 +26,24 @@ ReactGA.initialize('UA-114919036-3');
 injectGlobal`
 	@font-face {
 	  font-family: "SFCompactTextBold";
-	  src: url("/public/styles/fonts/SFCompactText-Bold.otf");
+	  src: url("${window.isApp ? "": "/"}public/styles/fonts/SFCompactText-Bold.otf");
 	}
 	@font-face {
 		font-family: "SFCompactTextRegular";
-		src: url("/public/styles/fonts/SFCompactText-Regular.otf");
+		src: url("${window.isApp ? "": "/"}public/styles/fonts/SFCompactText-Regular.otf");
 	}
 	@font-face {
 		font-family: "SFCompactTextLight";
-		src: url("/public/styles/fonts/SFCompactText-Light.otf");
+		src: url("${window.isApp ? "": "/"}public/styles/fonts/SFCompactText-Light.otf");
 	}
 	@font-face {
 		font-family: "SFCompactTextSemiBold";
-		src: url("/public/styles/fonts/SFCompactText-Semibold.otf");
+		src: url("${window.isApp ? "": "/"}public/styles/fonts/SFCompactText-Semibold.otf");
 	}
 
 	@font-face {
 	  font-family: "Multicolore";
-	  src: url("/public/styles/fonts/Multicolore.otf");
+	  src: url("${window.isApp ? "": "/"}public/styles/fonts/Multicolore.otf");
 	}
 
 	* {
@@ -196,7 +196,12 @@ injectGlobal`
 
 const store = createStore(reducer, compose(applyMiddleware(thunk)))
 
-const history = createHistory()
+var history
+if (window.isApp) {
+	history = createHashHistory()
+} else {
+	history = createBrowserHistory()
+}
 history.listen((location, action) => {
 	//console.log("history change ", location.pathname);
 	ReactGA.set({ page: location.pathname });
@@ -205,7 +210,6 @@ history.listen((location, action) => {
 
 
 class Container extends React.Component {
-
   render () {
     return (
     <Provider store={store}>

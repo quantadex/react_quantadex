@@ -73,7 +73,7 @@ const container = css`
         .headline {
             display: inline-block;
             padding-left: 70px;
-            background: url('/public/images/trophy-blue.svg') no-repeat;
+            background: url(${(window.isApp ? "": "/") + 'public/images/trophy-blue.svg'}) no-repeat;
             font-size: 18px;
         }
 
@@ -131,20 +131,12 @@ const container = css`
     }
 `
 
-const screenWidth = screen.width
-
 class Leaderboard extends Component {
-    constructor(props) {
-		super(props);
-		this.state = {
-			isMobile: screenWidth <= 992
-		};
-      }
 
     render() {
         return(
-            <div className={container + (this.state.isMobile ? " mobile" : "")}>
-                {this.state.isMobile ?
+            <div className={container + (this.props.isMobile ? " mobile" : "")}>
+                {this.props.isMobile ?
                     <MobileHeader />
                     :
                     <div className="row header-row">
@@ -168,8 +160,8 @@ class Leaderboard extends Component {
 					    </div>
                         <div className="leaderboard-share d-flex justify-content-between">
                             <span>Share</span>
-                            <a className="ml-2"><img src="/public/images/share/twitter.svg" /></a>
-                            <a className="ml-2"><img src="/public/images/share/fbook.svg" /></a>
+                            <a className="ml-2"><img src={(window.isApp ? "": "/") + "public/images/share/twitter.svg"} /></a>
+                            <a className="ml-2"><img src={(window.isApp ? "": "/") + "public/images/share/fbook.svg"} /></a>
                         </div>
                     </div>
                     <LeaderboardTable tableOnly={true} complete={true}/>
@@ -181,6 +173,7 @@ class Leaderboard extends Component {
 }
 
 const mapStateToProps = (state) => ({
+    isMobile: state.app.isMobile,
     private_key: state.app.private_key,
 });
 

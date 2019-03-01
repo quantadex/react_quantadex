@@ -10,6 +10,7 @@ import moment from 'moment'
 
 let initialState = {
   network: "TESTNET",
+  isMobile: (screen.width / window.devicePixelRatio) < 992, 
   private_key: null,
   publicKey: "",
   currentTicker: 'ETH/USD',
@@ -38,7 +39,7 @@ let initialState = {
       fontWeight:"light",
       float:"left"
     },{
-      name:"ID",
+      name:"Order ID",
       key:"id",
       type:"id",
       sortable:false,
@@ -115,9 +116,9 @@ let initialState = {
       fontWeight:"light",
       float:"left"
     },{
-      name:"BLOCK #",
-      key:"block",
-      type:"block",
+      name:"Order ID",
+      key:"id",
+      type:"id",
       sortable:false,
       color: (value) => {return "theme"},
       fontSize:"extra-small",
@@ -264,16 +265,6 @@ let initialState = {
   dashboard: {
     dataSource: [],
     columns: [
-    //   {
-    //   name:"",
-    //   type:"icon",
-    //   key: "favoriteList",
-    //   favoritedIconUrl: "/public/images/star-white.svg",
-    //   unfavoritedIconUrl: "/public/images/star-grey.svg",
-    //   handleClick: pair => {
-    //     return toggleFavoriteList(pair)
-    //   }
-    // },
     {
       name:"Pairs",
       key:"pairs",
@@ -370,7 +361,6 @@ function processFilledOrder(orders) {
       tickerPair = [order.assets[order.sell_price.base.asset_id].symbol, order.assets[order.sell_price.quote.asset_id].symbol]
       ticker = order.isBid() ? tickerPair.reverse() : tickerPair
       order.time = new Date(order.order.time + 'z')
-      order.block = order.id
       amount = order.isBid() ? order.sell_price.quote.getAmount({ real: true }) : order.sell_price.base.getAmount({ real: true });
       total = ((order.getPrice() * Math.pow(10, 6)) * (amount * Math.pow(10, 6)))/Math.pow(10, 12)
       order.isBid = order.isBid()
@@ -378,12 +368,13 @@ function processFilledOrder(orders) {
       tickerPair = [order.assets[order.fill_price.base.asset_id].symbol, order.assets[order.fill_price.quote.asset_id].symbol]
       ticker = order.is_maker ? tickerPair : tickerPair.reverse()
       ticker = order.isBid ? ticker.reverse() : ticker
-      
+      order.id = order.order_id
       amount = parseFloat(order.amountToReceive());
       total = ((order.getPrice() * Math.pow(10, 6)) * (amount * Math.pow(10, 6)))/Math.pow(10, 12)
     }
     
     return {
+      id: order.id,
       assets: ticker.join('/'),
       price: order.getPrice() + ' ' + ticker[1],
       amount: parseFloat(amount) + ' ' + ticker[0],

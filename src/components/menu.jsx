@@ -35,7 +35,7 @@ class Menu extends Component {
       <div className={container + (this.props.isMobile ? " mobile" : "")}  style={this.props.style}>
 				<div className="row qt-font-bold qt-font-small justify-content-end">
 					<span className="name">{this.props.name}</span>
-					<HamburgerMenu />
+					{this.props.name && <HamburgerMenu />}
 				</div>
       </div>
     )

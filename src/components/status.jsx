@@ -21,16 +21,16 @@ const container = css`
         padding-left: 10px;
     }
     .blocknum {
-        background: url('/public/images/blockchain.svg') no-repeat 10px;
+        background: url(${(window.isApp ? "": "/") + "public/images/blockchain.svg"}) no-repeat 10px;
         padding-left: 40px;
     }
     .avg-lat {
-        background: url('/public/images/time.svg') no-repeat 10px;
+        background: url(${(window.isApp ? "": "/") + "public/images/time.svg"}) no-repeat 10px;
         padding-left: 32px;
     }
 
     .net-select {
-        background: url('/public/images/menu-arrow-down.svg') no-repeat 100% 9px;
+        background: url(${(window.isApp ? "": "/") + "public/images/menu-arrow-down.svg"}) no-repeat 100% 9px;
         padding: 0 15px 0 10px;
         margin-right: 10px;
         cursor: pointer;

@@ -84,11 +84,11 @@ const container = css`
 			font-size: 12px;
 		}
 		.toggle.show {
-			background: url('/public/images/left-arrow.svg') no-repeat 0 4px;
+			background: url(${(window.isApp ? "": "/") + 'public/images/left-arrow.svg'}) no-repeat 0 4px;
 		}
 		.toggle.hide {
 			margin-left: 80px;
-			background: url('/public/images/right-arrow.svg') no-repeat 0 4px;
+			background: url(${(window.isApp ? "": "/") + 'public/images/right-arrow.svg'}) no-repeat 0 4px;
 		}
 	}
 

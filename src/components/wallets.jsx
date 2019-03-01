@@ -71,7 +71,7 @@ const container = css`
     }
 
     span.usd_value {
-      background: url("../public/images/menu-arrow-down.svg") no-repeat 100% 50%;
+      background: url(${(window.isApp ? "": "/") + "public/images/menu-arrow-down.svg"}) no-repeat 100% 50%;
     }
 
     .action-btn {
@@ -96,9 +96,7 @@ class Wallets extends Component {
       confirmDialog: false,
     }
 
-    this.isMobile = screen.width <= 992
     this.PublicAddress = this.PublicAddress.bind(this)
-
     this.BTC_id = window.assetsBySymbol["BTC"].id
   }
 
@@ -173,7 +171,7 @@ class Wallets extends Component {
         <div id='public-address'>
           <h3>Your QUANTA Wallet Account</h3>
           <span className="qt-font-light">{this.props.name}</span>
-          <a href={CONFIG.SETTINGS.EXPLORER_URL + "/account/" + this.props.name} target="_blank"><img src="/public/images/external-link-light.svg" /></a>
+          <a href={CONFIG.SETTINGS.EXPLORER_URL + "/account/" + this.props.name} target="_blank"><img src={(window.isApp ? "": "/") + "public/images/external-link-light.svg"} /></a>
         </div>
         <div className="est-fund text-right align-self-center">
           <span className="qt-font-extra-small qt-white-62">On-chain custody estimated funds</span>
@@ -209,15 +207,15 @@ class Wallets extends Component {
         buttons: [{
           label:"WITHDRAW",
           color:"theme unite",
-          handleClick: (asset) => {
-						return <QTWithdraw asset={asset} />
+          handleClick: (asset, close) => {
+						return <QTWithdraw asset={asset} handleClick={close} />
           },
           disabled: (pairs) => {return false}
         }, {
           label:"DEPOSIT",
           color:"theme unite",
-          handleClick: (asset) => {
-            return <QTDeposit asset={asset} quantaAddress={this.props.name} 
+          handleClick: (asset, close) => {
+            return <QTDeposit asset={asset} handleClick={close} quantaAddress={this.props.name} 
             deposit_address={(["ETH", "ERC20"].includes(asset) || asset.split("0X").length == 2) ? this.state.ethAddress : this.state.btcAddress} />
           },
           disabled: (pairs) => {return false}
@@ -226,7 +224,7 @@ class Wallets extends Component {
     }]
     
     return (
-      <div className={container + " content" + (this.isMobile ? " mobile" : "")}>
+      <div className={container + " content" + (this.props.isMobile ? " mobile" : "")}>
           <this.PublicAddress />
           
           <div className='filter-container d-flex mt-5 align-items-center'>
@@ -236,7 +234,7 @@ class Wallets extends Component {
 
           <div className="table-row">
           <QTTableView dataSource={this.state.dataSource.filter(data => data.pairs.toLowerCase().includes(this.state.filter.toLowerCase()) && 
-              (!this.state.hideZero || data.balance > 0))} columns={columns} mobile={this.isMobile}/>
+              (!this.state.hideZero || data.balance > 0))} columns={columns} mobile={this.props.isMobile}/>
           </div>
       </div>
     );
@@ -244,6 +242,7 @@ class Wallets extends Component {
 }
 
 const mapStateToProps = (state) => ({
+    isMobile: state.app.isMobile,
     balance: state.app.balance,
     onOrdersFund: state.app.onOrdersFund,
     publicKey: state.app.publicKey || "",

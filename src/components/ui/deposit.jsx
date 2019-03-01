@@ -9,6 +9,7 @@ import { css } from 'emotion'
 import globalcss from '../global-css.js'
 
 const container = css`
+  position: relative;
   margin:0 -15px;
   background-color:white;
   font-size: 12px;
@@ -56,7 +57,7 @@ const container = css`
 
   .warning {
     padding-left: 30px;
-    background: url("/public/images/warning.svg") no-repeat 0 50%;
+    background: url(${(window.isApp ? "": "/") + "public/images/warning.svg"}) no-repeat 0 50%;
     color: #333;
     font-size: 14px;
   }
@@ -73,8 +74,19 @@ const container = css`
 
   #deposit-address {
     width: auto;
+    max-width: 80%;
     border: 0;
     padding: 0;
+  }
+
+  .close-dialog {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    font-size: 12px;
+    font-weight: bold;
+    color: ${globalcss.COLOR_THEME};
+    text-decoration: underline;
   }
 `
 
@@ -189,7 +201,7 @@ class QTDeposit extends React.Component {
       <div className={coin_details + " mx-auto"}>
         <h1>DEPOSIT<br/><SymbolToken name={coin.symbol} showIcon={false} /></h1>
         <div>
-          Asset ID: <span className="value">{coin.id}</span> <a href={CONFIG.SETTINGS.EXPLORER_URL + "/object/" + coin.id} target="_blank"><img src="/public/images/external-link.svg" /></a><br/>
+          Asset ID: <span className="value">{coin.id}</span> <a href={CONFIG.SETTINGS.EXPLORER_URL + "/object/" + coin.id} target="_blank"><img src={(window.isApp ? "": "/") + "public/images/external-link.svg"} /></a><br/>
           Issuer: <span className="value">{this.state.issuer}</span><br/>
           Precision: <span className="value">{coin.precision}</span><br/>
           Max Supply: <span className="value">{(parseInt(coin.options.max_supply)/Math.pow(10, coin.precision)).toLocaleString(navigator.language)}</span>
@@ -271,7 +283,7 @@ class QTDeposit extends React.Component {
             </div>
           }
         </div>
-        
+        <div className="close-dialog cursor-pointer" onClick={this.props.handleClick}>Close</div>
         {this.state.deposit_address ? <this.Deposit /> : <this.MetamaskDeposit />}
       </div>
     );

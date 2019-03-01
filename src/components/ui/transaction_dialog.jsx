@@ -16,7 +16,7 @@ const container = css`
     z-index: 999;
 
     .dialog-content {
-        padding: 20px 40px;
+        padding: 20px 35px;
         border-radius: 3px;
         background-color: #fff;
         width: 100%;

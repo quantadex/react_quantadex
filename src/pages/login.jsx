@@ -91,7 +91,7 @@ const login_container = css`
 			padding-left: 40px;
 			font-size: 11px;
 			text-align: left;
-			background: #f9f9f9 url("/public/images/lock.svg") no-repeat 15px 12px;
+			background: #f9f9f9 url("${window.isApp ? "": "/"}public/images/lock.svg") no-repeat 15px 12px;
 		}
 		input {
 			height: 100%;
@@ -291,7 +291,7 @@ class Login extends Component {
 				<div className={login_container + (this.state.isMobile ? " mobile qt-font-light" : "")}>
 					<div className="content">
 					<div>
-						<img id="logo" src="/public/images/qdex-fantasy.svg" alt="QDEX Fantasy"/>
+						<img id="logo" src={(window.isApp ? "": "/") + "public/images/qdex-fantasy.svg"} alt="QDEX Fantasy"/>
 						<p>To start participating in the QDEX Fantasy paper trading contest you will need 
 							to authenticate using your QUANTA wallet private key.  You can generate a new 
 							wallet if you don’t have one, and locate the private key in the downloadable PDF file.  </p>
@@ -490,7 +490,7 @@ export class GenerateKey extends Component {
 			<div className="d-flex">
 				<div className={login_container + (this.state.isMobile ? " mobile key-reg" : "")}>
 					<div className="back-nav">
-						<Link to="/login"><img src="/public/images/back-button.svg" /></Link>
+						<Link to="/login"><img src={(window.isApp ? "": "/") + "public/images/back-button.svg"} /></Link>
 					</div>
 					
 					<div className="keygen content">
@@ -498,7 +498,7 @@ export class GenerateKey extends Component {
 						<p>Please download your QUANTA wallet keys, and register your username. 
 							Inside the .PDF you will get the private key needed to authenticate and access QDEX Fantasy.</p>
 
-						<h3>First Step <img className={this.state.downloaded ? "checkmark" : "d-none"} src="/public/images/check-mark.svg" /></h3>
+						<h3>First Step <img className={this.state.downloaded ? "checkmark" : "d-none"} src={(window.isApp ? "": "/") + "public/images/check-mark.svg"} /></h3>
 						<div className="warning">
 							<ul>
 								<li>Store this wallet securely. QUANTA does not have your keys.</li>
@@ -511,7 +511,7 @@ export class GenerateKey extends Component {
 						</div>
 
 						<div className={this.state.downloaded ? "" : "qt-opacity-half"}>
-							<h3>Second Step <img className={this.state.registered ? "checkmark" : "d-none"} src="/public/images/check-mark.svg" /></h3>
+							<h3>Second Step <img className={this.state.registered ? "checkmark" : "d-none"} src={(window.isApp ? "": "/") + "public/images/check-mark.svg"} /></h3>
 							<div className="d-flex">
 								<div className="input-container">
 									<label htmlFor="username">USERNAME</label>

@@ -50,6 +50,9 @@ const container = css`
 	}
 	
 	&.mobile {
+		border: 0;
+		background: transparent;
+		
 		h4 {
 			display: none;
 		}

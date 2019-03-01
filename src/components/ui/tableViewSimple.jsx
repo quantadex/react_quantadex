@@ -129,7 +129,7 @@ export default class QTTableViewSimple extends React.Component {
         {
           this.props.dataSource.map((row, index) => {
             return (
-              <tr key={row.id ? row.id : index}
+              <tr key={row.id ? row.id + index : index}
                 onClick={this.props.onAction ? () => this.props.onAction(row) : null}>
                 {this.props.columns.map((col, colindex) => {
                     var col_color = row[col.key];
