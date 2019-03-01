@@ -131,20 +131,12 @@ const container = css`
     }
 `
 
-const screenWidth = screen.width
-
 class Leaderboard extends Component {
-    constructor(props) {
-		super(props);
-		this.state = {
-			isMobile: screenWidth <= 992
-		};
-      }
 
     render() {
         return(
-            <div className={container + (this.state.isMobile ? " mobile" : "")}>
-                {this.state.isMobile ?
+            <div className={container + (this.props.isMobile ? " mobile" : "")}>
+                {this.props.isMobile ?
                     <MobileHeader />
                     :
                     <div className="row header-row">
@@ -181,6 +173,7 @@ class Leaderboard extends Component {
 }
 
 const mapStateToProps = (state) => ({
+    isMobile: state.app.isMobile,
     private_key: state.app.private_key,
 });
 

@@ -10,6 +10,7 @@ import moment from 'moment'
 
 let initialState = {
   network: "TESTNET",
+  isMobile: (screen.width / window.devicePixelRatio) < 992, 
   private_key: null,
   publicKey: "",
   currentTicker: 'ETH/USD',

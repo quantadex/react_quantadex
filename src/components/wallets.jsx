@@ -71,7 +71,7 @@ const container = css`
     }
 
     span.usd_value {
-      background: url("../public/images/menu-arrow-down.svg") no-repeat 100% 50%;
+      background: url("/public/images/menu-arrow-down.svg") no-repeat 100% 50%;
     }
 
     .action-btn {
@@ -96,9 +96,7 @@ class Wallets extends Component {
       confirmDialog: false,
     }
 
-    this.isMobile = screen.width <= 992
     this.PublicAddress = this.PublicAddress.bind(this)
-
     this.BTC_id = window.assetsBySymbol["BTC"].id
   }
 
@@ -226,7 +224,7 @@ class Wallets extends Component {
     }]
     
     return (
-      <div className={container + " content" + (this.isMobile ? " mobile" : "")}>
+      <div className={container + " content" + (this.props.isMobile ? " mobile" : "")}>
           <this.PublicAddress />
           
           <div className='filter-container d-flex mt-5 align-items-center'>
@@ -236,7 +234,7 @@ class Wallets extends Component {
 
           <div className="table-row">
           <QTTableView dataSource={this.state.dataSource.filter(data => data.pairs.toLowerCase().includes(this.state.filter.toLowerCase()) && 
-              (!this.state.hideZero || data.balance > 0))} columns={columns} mobile={this.isMobile}/>
+              (!this.state.hideZero || data.balance > 0))} columns={columns} mobile={this.props.isMobile}/>
           </div>
       </div>
     );
@@ -244,6 +242,7 @@ class Wallets extends Component {
 }
 
 const mapStateToProps = (state) => ({
+    isMobile: state.app.isMobile,
     balance: state.app.balance,
     onOrdersFund: state.app.onOrdersFund,
     publicKey: state.app.publicKey || "",

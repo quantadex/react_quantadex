@@ -74,6 +74,7 @@ const container = css`
 
   #deposit-address {
     width: auto;
+    max-width: 80%;
     border: 0;
     padding: 0;
   }

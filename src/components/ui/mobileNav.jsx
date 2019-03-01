@@ -9,6 +9,7 @@ const container = css `
         text-align: center;
         padding: 10px 0;
         border-left: 1px solid #444;
+        font-size: 14px;
     }
     .nav-item.active {
         color: #2ed4cf;

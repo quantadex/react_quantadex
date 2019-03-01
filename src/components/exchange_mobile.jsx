@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import Header from './header.jsx';
 import Chart from './chart.jsx';
 import DepthChart from './chart_depth.jsx';
 import TradingHistory from './trading_history.jsx';
@@ -8,27 +7,16 @@ import Dashboard from './dashboard.jsx';
 import MobileHeader from './ui/mobileHeader.jsx';
 import Orders from './orders.jsx';
 import Trade from './trade.jsx';
-import ConnectDialog, { ConnectLink, Connect } from './connect.jsx';
-import Leaderboard from './leaderboard.jsx'
+import Balance from './balance.jsx'
+import ConnectDialog, { Connect } from './connect.jsx';
 import Status from './status.jsx'
-import FirstTime from './first_time.jsx'
-import QTTableView from './ui/tableView.jsx'
-import Order from './order.jsx';
-import Markets from './markets.jsx';
-import OpenOrders from './open_orders.jsx';
 import MobileNav from './ui/mobileNav.jsx';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-import {switchTicker, initBalance, getMarketQuotes} from "../redux/actions/app.jsx";
 import { connect } from 'react-redux'
 
 import { css } from 'emotion'
 import globalcss from './global-css.js'
-
-import { Link } from 'react-router-dom'
-
-import QTTableViewSimple from './ui/tableViewSimple.jsx'
 
 const container = css`
 	background-color:${globalcss.COLOR_BACKGROUND};
@@ -101,7 +89,7 @@ const container = css`
 
 	#market-dropdown {
 		padding-right: 15px;
-		background: url('../public/images/menu-arrow-down.svg') no-repeat 100% 50%;
+		background: url('/public/images/menu-arrow-down.svg') no-repeat 100% 50%;
 		cursor: pointer;
 	}
 
@@ -121,6 +109,7 @@ const container = css`
 
 	.content {
 		height: calc(100% - 182px);
+		overflow-y: scroll;
 	}
 `;
 
@@ -186,7 +175,7 @@ class Exchange extends Component {
 				</div>
 			)
 		}
-		const content = [this.props.private_key ? <Trade mobile={true} /> : <Connect onOpen={this.handleConnectDialog.bind(this)}/>, 
+		const content = [this.props.private_key ? <div><Trade mobile={true} /><Balance /></div> : <Connect onOpen={this.handleConnectDialog.bind(this)}/>, 
 						this.props.private_key ? <Orders mobile={true}/> : <Connect onOpen={this.handleConnectDialog.bind(this)}/> , 
 						<ChartContent />, <OrderBook mobile={true}/>, <TradingHistory mobile={true}/>]
 		const Switchchart = () => {

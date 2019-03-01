@@ -3,7 +3,6 @@ import {render} from 'react-dom';
 import Exchange from './components/exchange.jsx';
 import Fund from './components/fund.jsx';
 import Message from './components/message.jsx';
-import Login, {GenerateKey} from './pages/login.jsx';
 import Leaderboard from './components/leaderboard_full.jsx';
 
 import { createStore, applyMiddleware, compose } from 'redux'
@@ -12,13 +11,14 @@ import reducer from './redux/index.jsx'
 import thunk from 'redux-thunk';
 import DevTools from './redux/devtools.jsx';
 import logger from 'redux-logger'
-import { Router, Route, Switch,withRouter } from 'react-router-dom'
+import { Router, Route, Switch } from 'react-router-dom'
 
 import { injectGlobal } from 'emotion'
 import globalcss from './components/global-css.js'
-import createHistory from 'history/createBrowserHistory'
+import createHashHistory from 'history/createHashHistory'
+import createBrowserHistory from 'history/createBrowserHistory'
 import ReactGA from 'react-ga';
-
+ 
 ReactGA.initialize('UA-114919036-3');
 
 // , applyMiddleware(logger)
@@ -196,7 +196,15 @@ injectGlobal`
 
 const store = createStore(reducer, compose(applyMiddleware(thunk)))
 
-const history = createHistory()
+var url = document.URL;
+var isApp = (url.indexOf("http://") === -1 && url.indexOf("https://") === -1);
+
+var history
+if (isApp) {
+	history = createHashHistory()
+} else {
+	history = createBrowserHistory()
+}
 history.listen((location, action) => {
 	//console.log("history change ", location.pathname);
 	ReactGA.set({ page: location.pathname });
@@ -205,7 +213,6 @@ history.listen((location, action) => {
 
 
 class Container extends React.Component {
-
   render () {
     return (
     <Provider store={store}>

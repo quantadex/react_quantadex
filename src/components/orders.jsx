@@ -170,7 +170,7 @@ const container = css`
       .item-type-BUY, .item-type-SELL {
         width: 20%;
         padding-right: 20px;
-        background: url("../public/images/menu-arrow-down.svg") no-repeat 100% 50%;
+        background: url("/public/images/menu-arrow-down.svg") no-repeat 100% 50%;
       }
 
       .item-type-BUY {

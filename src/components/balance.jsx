@@ -15,12 +15,16 @@ const container = css`
     .no-scroll-bar {
         height: calc(100vh - 555px);
     }
+
+    &.mobile {
+        padding: 0 10px;
+    }
 `
 
 class Balance extends Component {
     render() {
         return (
-            <div className={container + " qt-font-light"}>
+            <div className={container + " qt-font-light" + (this.props.isMobile ? " mobile" : "")}>
                 Wallet Balance <Link to="exchange/wallets" className={"ml-2 " + (this.props.balance.length == 0 ? "d-none": "")}><img src="/public/images/open-icon.svg" /></Link>
                 <div className="no-scroll-bar">
                     <div>
@@ -44,6 +48,7 @@ class Balance extends Component {
 }
 
 const mapStateToProps = (state) => ({
+    isMobile: state.app.isMobile,
     balance: state.app.balance || []
 });
 

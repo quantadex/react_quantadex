@@ -75,7 +75,6 @@ class Fund extends Component {
     super(props)
     this.state = {
       selectedTabIndex: 0,
-      isMobile: screen.width <= 992,
     }
   }
 
@@ -95,8 +94,8 @@ class Fund extends Component {
     const content = [<Wallets />, <CrosschainHistory user={this.props.name} />]
     
 		return (
-		<div className={container + " container-fluid" + (this.state.isMobile ? " mobile" : "")}>
-      {this.state.isMobile ? 
+		<div className={container + " container-fluid" + (this.props.isMobile ? " mobile" : "")}>
+      {this.props.isMobile ? 
           <MobileHeader />
         :
         <div className="row header-row">
@@ -122,6 +121,7 @@ class Fund extends Component {
 }
 
 const mapStateToProps = (state) => ({
+    isMobile: state.app.isMobile,
     private_key: state.app.private_key,
 		name: state.app.name
 	});
