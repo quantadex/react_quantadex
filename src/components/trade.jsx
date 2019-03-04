@@ -212,8 +212,29 @@ class Trade extends Component {
         };
     }
 
+    componentDidMount() {
+      if (!this.props.mobile) {
+        return
+      }
+      if (this.props.inputSetTime && this.props.currentPrice.price && (new Date() - this.props.inputSetTime) < 50) {
+        this.setState({
+          qty: parseFloat(this.props.inputBuyAmount),
+          price: parseFloat(this.props.inputBuy),
+          inputSetTime: this.props.inputSetTime,
+          currentPrice: this.props.currentPrice.price,
+          currentTicker: this.props.currentTicker
+        })
+      } else {
+        this.setState({
+          price: parseFloat(this.props.currentPrice.price),
+          currentPrice: this.props.currentPrice.price,
+          currentTicker: this.props.currentTicker
+        })
+      }
+    }
+
     componentWillReceiveProps(nextProps) {
-        if (nextProps.inputSetTime != undefined && nextProps.inputSetTime != this.state.inputSetTime) {
+        if (!this.props.mobile && nextProps.inputSetTime != undefined && nextProps.inputSetTime != this.state.inputSetTime) {
             this.setState({
                 qty: parseFloat(nextProps.inputBuyAmount),
                 price: parseFloat(nextProps.inputBuy),
@@ -429,7 +450,6 @@ const mapStateToProps = (state) => ({
     private_key: state.app.private_key,
     requestedPrice: 0,
     requestedQty: 0,
-    state: state,
     bids: state.app.tradeBook.bids,
     asks: state.app.tradeBook.asks,
     currentTicker: state.app.currentTicker,

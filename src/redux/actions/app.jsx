@@ -286,6 +286,7 @@ export const loadOrderHistory = (page) => {
 	}
 }
 
+var disconnect_notified
 export function switchTicker(ticker) {
 	Apis.setAutoReconnect(true)
 	// send GA
@@ -412,10 +413,13 @@ export function switchTicker(ticker) {
 					})
 				} catch(e) {
 					console.log(e)
-					toast.error("Lost connection to server. Please refresh the page.", {
-						position: toast.POSITION.TOP_CENTER,
-						autoClose: false
-					});
+					if (!disconnect_notified) {
+						disconnect_notified = toast.error("Lost connection to server. Please refresh the page.", {
+							position: toast.POSITION.TOP_CENTER,
+							autoClose: false
+						});
+					}
+					
 					return
 				}		
 				
