@@ -52,7 +52,6 @@ const container = css`
   }
 
   .toggle {
-    position: absolute;
     top: 10px;
     right: 15px;
     text-decoration: underline;
@@ -223,6 +222,9 @@ class QTWithdraw extends React.Component {
   Transfer() {
     return (
       <div className="input-container">
+        {this.state.isCrosschain ? 
+          <div className="d-md-none toggle qt-font-small mb-3" onClick={this.toggleTransfer}>Switch to {this.state.showTransfer ? "Withdraw" : "Transfer"}</div> 
+          : null}
         <div className="mb-3">
           <label className="my-0">DESTINATION ACCOUNT</label>
           <input type="text" spellCheck="false" value={this.state.destination} onChange={(e) => this.setState({destination: e.target.value.toLowerCase()})}/>
@@ -251,6 +253,9 @@ class QTWithdraw extends React.Component {
   Withdraw() {
     return (
       <div className="input-container">
+        {this.state.isCrosschain ? 
+          <div className="d-md-none toggle qt-font-small mb-3" onClick={this.toggleTransfer}>Switch to {this.state.showTransfer ? "Withdraw" : "Transfer"}</div> 
+          : null}
         <div className="mb-3">
           <label className="my-0">DESTINATION ACCOUNT</label>
           <div className="d-inline ml-2 cursor-pointer" data-toggle="tooltip" data-placement="right" 
@@ -294,7 +299,7 @@ class QTWithdraw extends React.Component {
       <div className={container + " d-flex"}>
         <div className="d-none d-md-flex w-75 align-items-center position-relative">
           {this.state.isCrosschain ? 
-            <div className="toggle qt-font-small" onClick={this.toggleTransfer}>Switch to {this.state.showTransfer ? "Withdraw" : "Transfer"}</div> 
+            <div className="position-absolute toggle qt-font-small" onClick={this.toggleTransfer}>Switch to {this.state.showTransfer ? "Withdraw" : "Transfer"}</div> 
             : null}
           <this.CoinDetails />
         </div>
