@@ -133,7 +133,7 @@ export const transferFund = (data) => {
 		return ApplicationApi.transfer({ 
 			from_account: getState().app.userId,
 			to_account: data.showTransfer ? data.destination : data.issuer,
-			amount: data.amount * Math.pow(10, window.assetsBySymbol[data.asset].precision),
+			amount: Math.round(data.amount * Math.pow(10, window.assetsBySymbol[data.asset].precision)),
 			asset: data.asset,
 			memo: data.memo,
 			broadcast: true,
@@ -141,6 +141,8 @@ export const transferFund = (data) => {
 		}).then((tr) => {
 			// console.log(tr);
 			return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key))
+		}).then(e => {
+			switchTicker(getState().app.currentTicker)
 		}).catch(e => {
 			throw e
 		})
