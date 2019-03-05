@@ -75,7 +75,7 @@ class Chart extends Component {
           { text: "5m", resolution: "5",  title: "5m"},
           { text: "1m", resolution: "1", title: "1m" }
         ],
-        library_path: (window.isApp ? "" : "/") + "public/vendor/charting_library/",
+        library_path: devicePath("public/vendor/charting_library/"),
         locale: "en",
         debug: false,
         //	Regression Trend-related functionality is not implemented yet, so it's hidden for a while

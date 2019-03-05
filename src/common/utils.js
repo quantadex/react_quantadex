@@ -7,6 +7,14 @@ var {object_type} = ChainTypes;
 import {getAssetNamespaces, getAssetHideNamespaces} from "./branding";
 
 var Utils = {
+    maxPrecision: (amount, precision) => {
+        const dotIndex = amount.indexOf('.')
+        if (dotIndex !== -1 && amount.length - dotIndex -1 > precision) {
+            amount = amount.slice(0, dotIndex + precision + 1)
+        }
+        return amount
+    },
+
     is_object_id: obj_id => {
         if ("string" != typeof obj_id) return false;
         let match = id_regex.exec(obj_id);

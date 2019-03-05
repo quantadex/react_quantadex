@@ -57,7 +57,7 @@ const container = css`
 
   .warning {
     padding-left: 30px;
-    background: url(${(window.isApp ? "": "/") + "public/images/warning.svg"}) no-repeat 0 50%;
+    background: url(${devicePath("public/images/warning.svg")}) no-repeat 0 50%;
     color: #333;
     font-size: 14px;
   }
@@ -201,7 +201,7 @@ class QTDeposit extends React.Component {
       <div className={coin_details + " mx-auto"}>
         <h1>DEPOSIT<br/><SymbolToken name={coin.symbol} showIcon={false} /></h1>
         <div>
-          Asset ID: <span className="value">{coin.id}</span> <a href={CONFIG.SETTINGS.EXPLORER_URL + "/object/" + coin.id} target="_blank"><img src={(window.isApp ? "": "/") + "public/images/external-link.svg"} /></a><br/>
+          Asset ID: <span className="value">{coin.id}</span> <a href={CONFIG.SETTINGS.EXPLORER_URL + "/object/" + coin.id} target="_blank"><img src={devicePath("public/images/external-link.svg")} /></a><br/>
           Issuer: <span className="value">{this.state.issuer}</span><br/>
           Precision: <span className="value">{coin.precision}</span><br/>
           Max Supply: <span className="value">{(parseInt(coin.options.max_supply)/Math.pow(10, coin.precision)).toLocaleString(navigator.language)}</span>

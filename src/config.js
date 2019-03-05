@@ -6,6 +6,7 @@ const SETTINGS = {
 	CROSSCHAIN_ADDRESS: '0xBD770336fF47A3B61D4f54cc0Fb541Ea7baAE92d',
 	EXPLORER_URL: "http://testnet.quantadex.com",
 	ETHERSCAN_URL: "https://ropsten.etherscan.io",
+	BLOCKCYPHER_URL: "https://live.blockcypher.com/btc-testnet",
 	CROSSCHAIN_COINS: ["BTC", "ETH"]
 };
 

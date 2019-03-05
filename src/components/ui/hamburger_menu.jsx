@@ -93,7 +93,7 @@ export class HamburgerMenu extends React.Component {
     const a = Math.random()
     return (
       <div ref="hamburgerMenu" className={container}>
-        <a><img src={(window.isApp ? "": "/") + "public/images/menuicons/hamburger.svg"} width="16" height="16" /></a>
+        <a><img src={devicePath("public/images/menuicons/hamburger.svg")} width="16" height="16" /></a>
         <div className={"hamburger-menu flex-column position-absolute qt-font-small qt-font-regular " + (this.state.menuOpen ? 'd-flex' : 'd-none')}>
           {
             this.props.menuList.map((e, index) => {
@@ -155,26 +155,26 @@ HamburgerMenu.defaultProps = {
   },
   {
     items: [{
-      iconPath: (window.isApp ? "": "/") + "public/images/menuicons/quanta-grey.svg",
-      iconPathActive: (window.isApp ? "": "/") + "public/images/menuicons/quanta-white.svg",
+      iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),
+      iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
       text:"Exchange",
       url:"/exchange"
     }]
   },{
     items: [{
-      iconPath: (window.isApp ? "": "/") + "public/images/menuicons/wallet-grey.svg",
-      iconPathActive: (window.isApp ? "": "/") + "public/images/menuicons/wallet-white.svg",
+      iconPath: devicePath("public/images/menuicons/wallet-grey.svg"),
+      iconPathActive: devicePath("public/images/menuicons/wallet-white.svg"),
       text:"Wallets",
       url:"/exchange/wallets"
     },{
-      iconPath: (window.isApp ? "": "/") + "public/images/menuicons/quanta-grey.svg",
-      iconPathActive: (window.isApp ? "": "/") + "public/images/menuicons/quanta-white.svg",
+      iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),
+      iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
       text:"Sign/Verify",
       url:"/exchange/message"
     },
     {
-      iconPath: (window.isApp ? "": "/") + "public/images/menuicons/quanta-grey.svg",
-      iconPathActive: (window.isApp ? "": "/") + "public/images/menuicons/quanta-white.svg",
+      iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),
+      iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
       text:"Leaderboard",
       url:"/leaderboard"
     },
@@ -182,8 +182,8 @@ HamburgerMenu.defaultProps = {
     backgroundColor:"rgba(40, 48, 52,0.36)"
   },{
     items: [{
-      iconPath: (window.isApp ? "": "/") + "public/images/menuicons/quanta-grey.svg",
-      iconPathActive: (window.isApp ? "": "/") + "public/images/menuicons/quanta-white.svg",
+      iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),
+      iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
       text:"Logout",
       onClick: () => {
         window.location.assign(window.isApp ? "index.html" : "/")

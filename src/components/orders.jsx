@@ -106,7 +106,7 @@ const container = css`
     position: absolute;
     right: 15px;
     top: 4px;
-    background: url(${(window.isApp ? "": "/") + "public/images/up-arrow.svg"}) repeat-y 100%;
+    background: url(${devicePath("public/images/up-arrow.svg")}) repeat-y 100%;
     height: 18px;
     padding-right: 20px;
     line-height: 20px;
@@ -166,11 +166,22 @@ const container = css`
       .item-price {
         width:50%;
       }
-
-      .item-type-BUY, .item-type-SELL {
+      .item-type {
         width: 20%;
         padding-right: 20px;
-        background: url(${(window.isApp ? "": "/") + "public/images/menu-arrow-down.svg"}) no-repeat 100% 50%;
+      }
+      .item-status {
+        width: 20%;
+      }
+
+      .filled-order {
+        .item-price {
+          width: 30%;
+        }
+      }
+
+      .item-type-BUY, .item-type-SELL {
+        background: url(${devicePath("public/images/menu-arrow-down.svg")}) no-repeat 100% 50%;
       }
 
       .item-type-BUY {
@@ -305,13 +316,20 @@ class Orders extends Component {
     if (this.props.mobile) {
       return (
         <div>
-          {this.props.openOrders.dataSource.sort((a,b) => (a.id > b.id) ? -1 : ((b.id > a.id) ? 1 : 0)).map(row => {
+          <div className="list-row sticky">
+            <div className="d-flex list-item qt-white-27">
+              <span className="item-assets">PAIR</span>
+              <span className="item-price text-right">PRICE</span>
+              <span className="item-type text-right">TYPE</span>
+            </div>
+          </div>
+          {this.props.openOrders.dataSource.sort((a,b) => (a.id > b.id) ? -1 : ((b.id > a.id) ? 1 : 0)).map((row) => {
             return (
               <div key={row.id} className="list-row" onClick={() => this.toggleDetails(row.id)}>
                 <div className="d-flex list-item">
                   <span className="item-assets">{row.assets}</span>
                   <span className="item-price text-right">{row.price}</span>
-                  <span className={"text-right item-type-" + row.type}>{row.type}</span>
+                  <span className={"text-right item-type item-type-" + row.type}>{row.type}</span>
                 </div>
                 <div className={"item-details" + (this.state.selectedRow == row.id ? " active" : "")}>
                   <span className="item"><span className="label">AMOUNT</span> {row.amount}</span>
@@ -338,14 +356,23 @@ class Orders extends Component {
 
     if (this.props.mobile) {
       return (
-        <div>
+        <div className="filled-orders">
+          <div className="list-row sticky">
+            <div className="d-flex list-item qt-white-27">
+              <span className="item-assets">PAIR</span>
+              <span className="item-price text-right">PRICE</span>
+              <span className="item-status text-right">STATUS</span>
+              <span className="item-type text-right">TYPE</span>
+            </div>
+          </div>
           {this.props.filledOrders.dataSource.concat(this.props.filledOrders.dataSource2).map((row, index) => {
             return (
-              <div key={row.id} className="list-row" onClick={() => this.toggleDetails(index)}>
+              <div key={row.id + index} className="list-row" onClick={() => this.toggleDetails(index)}>
                 <div className="d-flex list-item">
                   <span className="item-assets">{row.assets}</span>
                   <span className="item-price text-right">{row.price}</span>
-                  <span className={"text-right item-type-" + row.type}>{row.type}</span>
+                  <span className="item-status text-right">{row.status}</span>
+                  <span className={"text-right item-type item-type-" + row.type}>{row.type}</span>
                 </div>
                 <div className={"item-details" + (this.state.selectedRow == index ? " active" : "")}>
                   <span className="item"><span className="label">AMOUNT</span> {row.amount}</span>

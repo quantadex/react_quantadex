@@ -26,24 +26,24 @@ ReactGA.initialize('UA-114919036-3');
 injectGlobal`
 	@font-face {
 	  font-family: "SFCompactTextBold";
-	  src: url("${window.isApp ? "": "/"}public/styles/fonts/SFCompactText-Bold.otf");
+	  src: url(${devicePath("public/styles/fonts/SFCompactText-Bold.otf")});
 	}
 	@font-face {
 		font-family: "SFCompactTextRegular";
-		src: url("${window.isApp ? "": "/"}public/styles/fonts/SFCompactText-Regular.otf");
+		src: url(${devicePath("public/styles/fonts/SFCompactText-Regular.otf")});
 	}
 	@font-face {
 		font-family: "SFCompactTextLight";
-		src: url("${window.isApp ? "": "/"}public/styles/fonts/SFCompactText-Light.otf");
+		src: url(${devicePath("public/styles/fonts/SFCompactText-Light.otf")});
 	}
 	@font-face {
 		font-family: "SFCompactTextSemiBold";
-		src: url("${window.isApp ? "": "/"}public/styles/fonts/SFCompactText-Semibold.otf");
+		src: url(${devicePath("public/styles/fonts/SFCompactText-Semibold.otf")});
 	}
 
 	@font-face {
 	  font-family: "Multicolore";
-	  src: url("${window.isApp ? "": "/"}public/styles/fonts/Multicolore.otf");
+	  src: url(${devicePath("public/styles/fonts/Multicolore.otf")});
 	}
 
 	* {

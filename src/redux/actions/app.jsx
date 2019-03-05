@@ -133,7 +133,7 @@ export const transferFund = (data) => {
 		return ApplicationApi.transfer({ 
 			from_account: getState().app.userId,
 			to_account: data.showTransfer ? data.destination : data.issuer,
-			amount: data.amount * Math.pow(10, window.assetsBySymbol[data.asset].precision),
+			amount: Math.round(data.amount * Math.pow(10, window.assetsBySymbol[data.asset].precision)),
 			asset: data.asset,
 			memo: data.memo,
 			broadcast: true,
@@ -141,6 +141,8 @@ export const transferFund = (data) => {
 		}).then((tr) => {
 			// console.log(tr);
 			return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key))
+		}).then(e => {
+			switchTicker(getState().app.currentTicker)
 		}).catch(e => {
 			throw e
 		})
@@ -286,6 +288,7 @@ export const loadOrderHistory = (page) => {
 	}
 }
 
+var disconnect_notified
 export function switchTicker(ticker) {
 	Apis.setAutoReconnect(true)
 	// send GA
@@ -412,10 +415,13 @@ export function switchTicker(ticker) {
 					})
 				} catch(e) {
 					console.log(e)
-					toast.error("Lost connection to server. Please refresh the page.", {
-						position: toast.POSITION.TOP_CENTER,
-						autoClose: false
-					});
+					if (!disconnect_notified) {
+						disconnect_notified = toast.error("Lost connection to server. Please refresh the page.", {
+							position: toast.POSITION.TOP_CENTER,
+							autoClose: false
+						});
+					}
+					
 					return
 				}		
 				

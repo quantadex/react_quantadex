@@ -154,7 +154,7 @@ Datafeeds.UDFCompatibleDatafeed.prototype._sendCors = function(url, params) {
 Datafeeds.UDFCompatibleDatafeed.prototype._initialize = function() {
   var that = this;
 
-  this._send((window.isApp ? "" : "/") + "public/vendor/charting_library/datafeed/udf/config.json")
+  this._send(devicePath("public/vendor/charting_library/datafeed/udf/config.json"))
     .done(function(response) {
       var configurationData = parseJSONorNot(response);
       that._setupWithConfiguration(configurationData);

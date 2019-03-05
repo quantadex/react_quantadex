@@ -71,7 +71,7 @@ const container = css`
     }
 
     span.usd_value {
-      background: url(${(window.isApp ? "": "/") + "public/images/menu-arrow-down.svg"}) no-repeat 100% 50%;
+      background: url(${devicePath("public/images/menu-arrow-down.svg")}) no-repeat 100% 50%;
     }
 
     .action-btn {
@@ -171,7 +171,7 @@ class Wallets extends Component {
         <div id='public-address'>
           <h3>Your QUANTA Wallet Account</h3>
           <span className="qt-font-light">{this.props.name}</span>
-          <a href={CONFIG.SETTINGS.EXPLORER_URL + "/account/" + this.props.name} target="_blank"><img src={(window.isApp ? "": "/") + "public/images/external-link-light.svg"} /></a>
+          <a href={CONFIG.SETTINGS.EXPLORER_URL + "/account/" + this.props.name} target="_blank"><img src={devicePath("public/images/external-link-light.svg")} /></a>
         </div>
         <div className="est-fund text-right align-self-center">
           <span className="qt-font-extra-small qt-white-62">On-chain custody estimated funds</span>

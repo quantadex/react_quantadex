@@ -11,6 +11,7 @@ import globalcss from '../global-css.js'
 import { toast } from 'react-toastify';
 import TxDialog from './transaction_dialog.jsx'
 import { transferFund } from '../../redux/actions/app.jsx'
+import Utils from '../../common/utils'
 
 const container = css`
   position: relative;
@@ -51,7 +52,6 @@ const container = css`
   }
 
   .toggle {
-    position: absolute;
     top: 10px;
     right: 15px;
     text-decoration: underline;
@@ -210,7 +210,7 @@ class QTWithdraw extends React.Component {
       <div className={coin_details + " mx-auto"}>
         <h1>{this.state.showTransfer ? "TRANSFER" : "WITHDRAW"}<br/><SymbolToken name={this.coin.symbol} showIcon={false} /></h1>
         <div>
-          Asset ID: <span className="value">{this.coin.id}</span> <a href={CONFIG.SETTINGS.EXPLORER_URL + "/object/" + this.coin.id} target="_blank"><img src={(window.isApp ? "": "/") + "public/images/external-link.svg"} /></a><br/>
+          Asset ID: <span className="value">{this.coin.id}</span> <a href={CONFIG.SETTINGS.EXPLORER_URL + "/object/" + this.coin.id} target="_blank"><img src={devicePath("public/images/external-link.svg")} /></a><br/>
           Issuer: <span className="value">{this.state.issuer}</span><br/>
           Precision: <span className="value">{this.coin.precision}</span><br/>
           Max Supply: <span className="value">{(parseInt(this.coin.options.max_supply)/Math.pow(10, this.coin.precision)).toLocaleString(navigator.language)}</span>
@@ -219,24 +219,19 @@ class QTWithdraw extends React.Component {
     )
   }
 
-  maxPrecision(amount) {
-    const dotIndex = amount.indexOf('.')
-    if (dotIndex !== -1 && amount.length - dotIndex -1 > this.coin.precision) {
-      amount = amount.slice(0, dotIndex + this.coin.precision + 1)
-    }
-    return amount
-  }
-
   Transfer() {
     return (
       <div className="input-container">
+        {this.state.isCrosschain ? 
+          <div className="d-md-none toggle qt-font-small mb-3" onClick={this.toggleTransfer}>Switch to {this.state.showTransfer ? "Withdraw" : "Transfer"}</div> 
+          : null}
         <div className="mb-3">
           <label className="my-0">DESTINATION ACCOUNT</label>
           <input type="text" spellCheck="false" value={this.state.destination} onChange={(e) => this.setState({destination: e.target.value.toLowerCase()})}/>
         </div>
         <div className="mb-3">
           <label className="my-0">AMOUNT</label>
-          <input type="number" value={this.state.amount} onChange={(e) => this.setState({amount: this.maxPrecision(e.target.value)})}/>
+          <input type="number" value={this.state.amount} onChange={(e) => this.setState({amount: Utils.maxPrecision(e.target.value, this.coin.precision)})}/>
         </div>
         <div className="mb-3">
           <label className="my-0">MEMO (OPTIONAL)</label>
@@ -258,23 +253,26 @@ class QTWithdraw extends React.Component {
   Withdraw() {
     return (
       <div className="input-container">
+        {this.state.isCrosschain ? 
+          <div className="d-md-none toggle qt-font-small mb-3" onClick={this.toggleTransfer}>Switch to {this.state.showTransfer ? "Withdraw" : "Transfer"}</div> 
+          : null}
         <div className="mb-3">
           <label className="my-0">DESTINATION ACCOUNT</label>
           <div className="d-inline ml-2 cursor-pointer" data-toggle="tooltip" data-placement="right" 
             title="Withdraw requires funds to go back to the QUANTA cross-chain issuer for processing.">
-              <img src={(window.isApp ? "": "/") + "public/images/question.svg"} />
+              <img src={devicePath("public/images/question.svg")} />
           </div>
           <input type="text" readOnly value={this.state.issuer || ""}/>
         </div>
         <div className="mb-3">
           <label className="my-0">AMOUNT</label>
-          <input type="number" value={this.state.amount} onChange={(e) => this.setState({amount: this.maxPrecision(e.target.value)})}/>
+          <input type="number" value={this.state.amount} onChange={(e) => this.setState({amount: Utils.maxPrecision(e.target.value, this.coin.precision)})}/>
         </div>
         <div className="mb-3">
           <label className="my-0">BENEFICIARY ADDRESS</label>
           <div className="d-inline ml-2 cursor-pointer" data-toggle="tooltip" data-placement="right" 
             title="Specify the outgoing address where you want to withdraw your tokens.">
-              <img src={(window.isApp ? "": "/") + "public/images/question.svg"} />
+              <img src={devicePath("public/images/question.svg")} />
           </div>
           {this.state.error && <span className="text-danger float-right">{this.state.errorMsg}</span>}
           <input type="text" spellCheck="false" value={this.state.memo} 
@@ -301,7 +299,7 @@ class QTWithdraw extends React.Component {
       <div className={container + " d-flex"}>
         <div className="d-none d-md-flex w-75 align-items-center position-relative">
           {this.state.isCrosschain ? 
-            <div className="toggle qt-font-small" onClick={this.toggleTransfer}>Switch to {this.state.showTransfer ? "Withdraw" : "Transfer"}</div> 
+            <div className="position-absolute toggle qt-font-small" onClick={this.toggleTransfer}>Switch to {this.state.showTransfer ? "Withdraw" : "Transfer"}</div> 
             : null}
           <this.CoinDetails />
         </div>
