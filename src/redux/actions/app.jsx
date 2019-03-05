@@ -496,12 +496,17 @@ export function switchTicker(ticker) {
 						
 					})					
 			}
-
+			var fetchTime = new Date()
 			Apis.instance().db_api().exec("subscribe_to_market", [(data) => {
 				// console.log("Got a market change ", base, counter, data);
 				const curr_ticker = getBaseCounter(getState().app.currentTicker)
+				
 				if (base.id === curr_ticker.base.id && counter.id === curr_ticker.counter.id) {
-					fetchData(ticker)
+					if (new Date() - fetchTime > 50) {
+						fetchData(ticker)
+						fetchTime = new Date()
+					}
+					
 					if (Apis.instance().streamCb) {
 						Apis.instance().streamCb()
 					}
