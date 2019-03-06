@@ -267,7 +267,7 @@ class Trade extends Component {
     toastMsg(label, success, e) {
         const msg = (<div>
             <span>{label}</span><br />
-            <span>{success ? "OrderId: " + e.trx.operation_results[0][1] :
+            <span>{success ? "Order ID: " + e.trx.operation_results[0][1] :
                 "Failed order: " + (e.message.includes("insufficient balance") ? "Insufficient Balance" : "Unable to place order")}</span>
         </div>)
         return msg
