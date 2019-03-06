@@ -514,8 +514,14 @@ class ConnectDialog extends Component {
         return (
             <div className="input-container">
                 <label>PRIVATE KEY</label><br/>
-                <input key="124432" id="pkey-input" type="text" autoComplete="off" placeholder="Private Key" spellCheck="false" 
-                   value={this.state.private_key} onChange={(e) => this.setState({private_key: e.target.value})}/><br/>
+                <input id="pkey-input" type="text" autoComplete="off" autoFocus placeholder="Private Key" spellCheck="false" 
+                   value={this.state.private_key}
+                   onChange={(e) => this.setState({private_key: e.target.value})}
+                   onKeyPress={e => {
+                    if (e.key == "Enter" && this.state.private_key.length > 0) {
+                        this.ConnectWithKey()
+                    }
+                   }}/><br/>
                 <span className="error" hidden={!this.state.authError}>{this.state.errorMsg}</span><br/>
 
                 <div className="text-center">
