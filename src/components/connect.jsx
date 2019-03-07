@@ -300,7 +300,7 @@ class ConnectDialog extends Component {
     }
 
     validatePassword(pw1) {
-        return pw1.length >= 8 && pw1.match(/[A-Z]/).length > 0 && pw1.match(/[0-9]/).length > 0
+        return pw1.length >= 8 && pw1.match(/[A-Z]/) && pw1.match(/[0-9]/)
     }
 
     ConnectWithBin() {
