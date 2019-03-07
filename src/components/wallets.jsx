@@ -98,7 +98,7 @@ class Wallets extends Component {
 
     this.PublicAddress = this.PublicAddress.bind(this)
     this.BTC_id = window.assetsBySymbol["BTC"].id
-    this.BTC_id = window.assetsBySymbol["ETH"].id
+    this.ETH_id = window.assetsBySymbol["ETH"].id
   }
 
   componentDidMount() {
