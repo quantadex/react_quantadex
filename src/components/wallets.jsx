@@ -98,6 +98,7 @@ class Wallets extends Component {
 
     this.PublicAddress = this.PublicAddress.bind(this)
     this.BTC_id = window.assetsBySymbol["BTC"].id
+    this.ETH_id = window.assetsBySymbol["ETH"].id
   }
 
   componentDidMount() {
@@ -123,9 +124,13 @@ class Wallets extends Component {
   setDataSource(balance) {
     const dataSource = []
     let has_BTC = false
+    let has_ETH = false
     balance.forEach(currency => {
       if (!has_BTC && currency.asset == this.BTC_id) {
         has_BTC = true
+      }
+      if (!has_ETH && currency.asset == this.ETH_id) {
+        has_ETH = true
       }
       const data = {
         pairs: window.assets[currency.asset].symbol,
@@ -139,6 +144,14 @@ class Wallets extends Component {
     if (!has_BTC) {
       dataSource.push({
         pairs: "BTC",
+        balance: 0,
+        on_orders: 0,
+        usd_value: "N/A"
+      })
+    }
+    if (!has_ETH) {
+      dataSource.push({
+        pairs: "ETH",
         balance: 0,
         on_orders: 0,
         usd_value: "N/A"
