@@ -153,9 +153,8 @@ class Chart extends Component {
   }
 
   componentDidUpdate() {
-    // console.log("change chart to ", this.props.currentTicker);
     setTimeout(() => {
-      window.chartWidget.setSymbol(this.props.currentTicker, "60")
+      window.chartWidget.setSymbol(this.props.currentTicker, "15")
     }, 0)
   }
 
