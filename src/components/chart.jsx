@@ -144,9 +144,10 @@ class Chart extends Component {
 
     widget.onChartReady(function() {
       for (let interval of custom_intervals) {
-        widget.createButton()
+        var button = widget.createButton()
         .on('click', () => widget.setSymbol(self.props.currentTicker, interval.resolution))
-        .append($('<span>' + interval.text + '</span>'));
+        .append($('<span>' + interval.text + '</span>'))
+        button.addClass("custom-button")
       }
     })
   }
