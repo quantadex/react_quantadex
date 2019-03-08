@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { connect } from 'react-redux'
 import Datafeeds from '../common/datafeed.js';
+import { stringify } from "querystring";
 
 class Chart extends Component {
   componentDidMount() {
@@ -13,15 +14,11 @@ class Chart extends Component {
       "border_around_the_chart",
       "header_symbol_search",
       "header_compare",
-      "use_localstorage_for_settings"
+      "header_resolutions",
+      "timeframes_toolbar"
     ];
 
     let enabled_features = [];
-
-    if (this.props.mobile || !this.props.chartZoom) {
-      disabled_features.push("chart_scroll");
-      disabled_features.push("chart_zoom");
-    }
 
     if (this.props.mobile || !this.props.chartTools) {
       disabled_features.push("left_toolbar");
@@ -42,7 +39,6 @@ class Chart extends Component {
       disabled_features.push("context_menus");
       disabled_features.push("control_bar");
       disabled_features.push("header_fullscreen_button");
-      disabled_features.push("header_widget");
       disabled_features.push("symbollist_context_menu");
       disabled_features.push("show_pro_features");
     } else {
@@ -68,12 +64,12 @@ class Chart extends Component {
         //	BEWARE: no trailing slash is expected in feed URL
         datafeed: dataFeed,
         time_frames: [
-          { text: "1d", resolution: "1D", title: "1D" },
-          { text: "1h", resolution: "60",  title: "60m"},
-          { text: "30m", resolution: "30",  title: "30m"},
-          { text: "15m", resolution: "15",  title: "15m"},
-          { text: "5m", resolution: "5",  title: "5m"},
-          { text: "1m", resolution: "1", title: "1m" }
+          { text: "6M", resolution: "1D", title: "6M" },
+          { text: "1W", resolution: "60",  title: "1W"},
+          { text: "5D", resolution: "30",  title: "5D"},
+          { text: "2D", resolution: "15",  title: "2D"},
+          { text: "12h", resolution: "5",  title: "12h"},
+          { text: "3h", resolution: "1", title: "3h" }
         ],
         library_path: devicePath("public/vendor/charting_library/"),
         locale: "en",
@@ -125,13 +121,34 @@ class Chart extends Component {
           "study_Overlay@tv-basicstudies.lineStyle.color": "blue",
           "study_Overlay@tv-basicstudies.areaStyle.color1": "blue",
           "study_Overlay@tv-basicstudies.areaStyle.color2": "blue",
-          "study_Overlay@tv-basicstudies.areaStyle.linecolor": "blue"
+          "study_Overlay@tv-basicstudies.areaStyle.linecolor": "blue",
+          "volumePaneSize": "tiny"
         },
-        favorites: {
-          intervals: ["5", "15", "30", "60", "1D"]
-        },
+        studies_overrides: {
+          "volume.volume.plottype": "columns",
+          "volume.volume.color.0": "#777",
+          "volume.volume.color.1": "#777",
+          "volume.volume.transparency": 80,
+      }
       }));
     // });
+
+    const custom_intervals = [
+      { text: "1m", resolution: "1" },
+      { text: "5m", resolution: "5" },
+      { text: "15m", resolution: "15" },
+      { text: "30m", resolution: "30" },
+      { text: "1h", resolution: "60" },
+      { text: "1D", resolution: "1D" },
+    ]
+
+    widget.onChartReady(function() {
+      for (let interval of custom_intervals) {
+        widget.createButton()
+        .on('click', () => widget.setSymbol(self.props.currentTicker, interval.resolution))
+        .append($('<span>' + interval.text + '</span>'));
+      }
+    })
   }
 
   componentDidUpdate() {
@@ -140,11 +157,11 @@ class Chart extends Component {
       window.chartWidget.setSymbol(this.props.currentTicker, "60")
     }, 0)
   }
-  
+
   render() {
     return (
       <div className={this.props.className}>
-        <div id="tv_chart_container"/>
+        <div id="tv_chart_container" style={this.props.style || {}} />
       </div>
     );
   }

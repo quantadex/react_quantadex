@@ -236,8 +236,8 @@ class Exchange extends Component {
 								</div>
 							<section className="compartment" style={this.state.toggle_trade ? {width: "calc(100% - 270px)"} : {width: "100%"}}>
 								<Switchchart />
-								<Chart chartTools={true} className={this.state.chart === "tv" ? "d-block": "d-none"} />
-								<DepthChart  className={this.state.chart === "depth" ? "d-block": "d-none"} />
+								<Chart chartTools={true} className={this.state.chart === "tv" ? "d-block": "d-none" } style={!this.props.private_key && {height: "calc(100vh - 124px)"}} />
+								<DepthChart className={this.state.chart === "depth" ? "d-block": "d-none"} style={!this.props.private_key && {height: "calc(100vh - 124px)"}} />
 							</section>
 
 							<section className={"compartment cols" + (this.state.toggle_trade ? "" : " d-none")}>
@@ -245,10 +245,12 @@ class Exchange extends Component {
 							</section>
 						</div>
 						
-						
-						<section className="compartment">
-							{this.props.private_key ? <Orders /> : <Connect onOpen={this.handleConnectDialog.bind(this)} />}
-						</section>
+						{this.props.private_key ? 
+							<section className="compartment">
+								<Orders />
+							</section>
+							: null
+						}
 					</div>
 				</div>
 
