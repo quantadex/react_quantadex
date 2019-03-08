@@ -26,7 +26,7 @@ html, body {
 }
 
 .chart-loading-screen {
-  background-color: #1b262d !important;
+  background-color: transparent !important;
 }
 
 .tv-side-toolbar {
@@ -1171,5 +1171,19 @@ to {
 }
 
 .favored-list .item.disabled {
+    display: none;
+}
+
+.header-chart-panel .custom-button {
+    background-color: transparent !important;
+    border: 0 !important;
+}
+
+.header-chart-panel .group .custom-button:hover {
+    background: transparent !important;
+    color: #66d7d7 !important;
+}
+
+.tv-close-panel {
     display: none;
 }

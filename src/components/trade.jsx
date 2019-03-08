@@ -84,6 +84,9 @@ const container = css`
       background-color: #fff;
       color: #333;
     }
+    input:invalid {
+      box-shadow: none;
+    }
     span {
       position: absolute;
       right: 10px;
@@ -379,7 +382,7 @@ class Trade extends Component {
                 <div className="transac-actions">
                     <div className="input-container">
                         <label>PRICE</label>
-                        <input type="number" className="trade-input qt-number-bold qt-font-small"
+                        <input type="number" className="trade-input qt-number-bold qt-font-small" title=""
                             name="price"
                             autoComplete="off"
                             onFocus={(e) => e.target.select()}
@@ -404,7 +407,7 @@ class Trade extends Component {
                             width="58"
                             height="32"
                             onChange={(e) => this.props.balance && this.setPercentAmount(e, tradingPair[this.state.trade_side == 0 ? 1 : 0])}/>
-                          <input type="number" className="trade-input qt-number-bold qt-font-small"
+                          <input type="number" className="trade-input qt-number-bold qt-font-small" title=""
                               name="amount"
                               autoComplete="off"
                               onFocus={(e) => e.target.select()}
@@ -423,6 +426,7 @@ class Trade extends Component {
                     <div className="input-container">
                         <label>TOTAL</label>
                         <input
+                            title=""
                             type="number"
                             autoComplete="off"
                             onFocus={(e) => e.target.select()}

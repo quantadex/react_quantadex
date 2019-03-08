@@ -64,7 +64,10 @@ const container = css`
     }
 
     &.mobile {
-        padding: 0
+        padding: 0;
+        .row {
+            margin: 0;
+        }
         
         .content {
             padding: 0 10px;
@@ -187,8 +190,7 @@ class Message extends Component {
                     <Header />
                     </div>
                 }
-
-                <div className="tab-row d-flex flex-column align-items-center">
+                <div className="tab-row row d-flex flex-column align-items-center">
                     <div className="tabs">
                         <QTTabBar
                             className="underline static set-width qt-font-bold d-flex justify-content-left"
