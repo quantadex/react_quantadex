@@ -195,6 +195,11 @@ const container = css`
       }
   }
 
+  .rounded-0-left {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+  }
+
   &.mobile {
     width: 100%;
     padding: 10px;
@@ -407,7 +412,7 @@ class Trade extends Component {
                             width="58"
                             height="32"
                             onChange={(e) => this.props.balance && this.setPercentAmount(e, tradingPair[this.state.trade_side == 0 ? 1 : 0])}/>
-                          <input type="number" className="trade-input qt-number-bold qt-font-small" title=""
+                          <input type="number" className="trade-input qt-number-bold qt-font-small rounded-0-left" title=""
                               name="amount"
                               autoComplete="off"
                               onFocus={(e) => e.target.select()}
