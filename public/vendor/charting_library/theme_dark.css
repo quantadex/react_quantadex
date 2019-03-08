@@ -26,7 +26,7 @@ html, body {
 }
 
 .chart-loading-screen {
-  background-color: #1b262d !important;
+  background-color: transparent !important;
 }
 
 .tv-side-toolbar {
