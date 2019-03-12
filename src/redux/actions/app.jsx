@@ -151,7 +151,7 @@ export const transferFund = (data) => {
 
 var initAPI = false;
 var initUser = false;
-//var wsString = "ws://localhost:8090";
+
 var wsString = CONFIG.SETTINGS.WEBSOCKET_PATH;
 export var dataSize = 100;
 
