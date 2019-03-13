@@ -348,7 +348,7 @@ class ConnectDialog extends Component {
             const key = PrivateKey.fromWif(this.state.private_key)
             const encryption = encryptWallet(key, this.state.password)
             const text= JSON.stringify(encryption)
-            this.download("quanta_wallet.bin", text)
+            this.download("quanta_wallet.json", text)
             this.setState({downloaded: true, authError: false})
         } catch(e) {
             this.setState({authError: true, errorMsg: "Invalid Key"})
@@ -424,8 +424,8 @@ class ConnectDialog extends Component {
 
     uploadFile(file) {
         var self = this
-        if (!file.name.endsWith(".bin")) {
-            self.setState({uploaded_file_msg: ".bin file only"})
+        if (!file.name.endsWith(".json")) {
+            self.setState({uploaded_file_msg: ".json file only"})
             return
         }
         var reader = new FileReader();
@@ -447,13 +447,13 @@ class ConnectDialog extends Component {
             <div className="input-container">
                 <div className={"drop-zone align-items-center" + (this.props.isMobile ? " pt-3" : " d-flex")} onDragOver={(e)=> e.preventDefault()} onDrop={(e) => this.handleDrop(e)}>
                     Drop your backup file in this area or&nbsp;<label htmlFor="file">browse your files.</label>
-                    <input className="d-none" type="file" name="file" id="file" accept=".bin" onChange={(e) => this.uploadFile(e.target.files[0])}/>
+                    <input className="d-none" type="file" name="file" id="file" accept=".json" onChange={(e) => this.uploadFile(e.target.files[0])}/>
                 </div>
                 
                 <div className="d-flex justify-content-between qt-font-small mb-2">
                     <div>{this.state.uploaded_file_msg}</div>
                     <div className="link text-right"
-                        onClick={() => this.resetInputs({encryptStep: 1})}>I don’t have a .bin-file</div>
+                        onClick={() => this.resetInputs({encryptStep: 1})}>I don’t have a .json-file</div>
                 </div>
 
                 <label>PASSWORD</label><br/>
@@ -471,7 +471,7 @@ class ConnectDialog extends Component {
         return (
             <div className="input-container">
                 <div className="link float-right qt-font-small" onClick={() => this.resetInputs({encryptStep: 0})}>Close</div>
-                <h5>CREATE AN ENCRYPTED PRIVATE "BIN" KEY</h5>
+                <h5>CREATE AN ENCRYPTED PRIVATE "JSON" KEY</h5>
                 <p className="info">
                     Encrypting your private key will make it safer to login, and store.
                     This process is done within your browser and the keys are not exposed on the Internet.
@@ -572,7 +572,7 @@ class ConnectDialog extends Component {
                         an account system based on username, and public-private key signature. 
                         This wallet creation will generate you a random public-private key, 
                         and register your account with the blockchain, then encrypt your private 
-                        key with a password into a private “bin” key to download to your computer. 
+                        key with a password into a private “json” key to download to your computer. 
                         Beware, if you lose the password, you will lose your funds forever.
                     </p>
 

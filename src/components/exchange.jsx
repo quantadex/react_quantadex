@@ -8,7 +8,11 @@ import { connect } from 'react-redux'
 
 class Exchange extends Component {
 	componentDidMount() {
-		this.props.dispatch(switchTicker(this.props.currentTicker));
+		let ticker = this.props.currentTicker
+		if (this.props.location.hash.split('/').length == 2) {
+			ticker = this.props.location.hash.replace('#', '')
+		}
+		this.props.dispatch(switchTicker(ticker));
 	}
 
 	render() {
