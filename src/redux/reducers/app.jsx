@@ -10,12 +10,18 @@ import { toast } from 'react-toastify';
 import lodash from 'lodash'
 import moment from 'moment'
 
+let url_hash = document.URL.split("#")[1]
+let init_ticker = 'ETH/USD'
+if (url_hash && url_hash.split('/').length == 2) {
+  init_ticker = url_hash
+}
+
 let initialState = {
   network: "TESTNET",
   isMobile: (window.isApp ? (screen.width / window.devicePixelRatio) : screen.width) < 992, 
   private_key: null,
   publicKey: "",
-  currentTicker: 'ETH/USD',
+  currentTicker: init_ticker,
   fee: {},
   tradeHistory: [],
   tradeBook: { bids: [], asks: []},
