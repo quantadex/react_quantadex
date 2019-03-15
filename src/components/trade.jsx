@@ -364,10 +364,13 @@ class Trade extends Component {
         }
 
         const tradingPair = this.props.currentTicker.split('/')
-        const precisions = window.assetsBySymbol && [window.assetsBySymbol[tradingPair[0]].precision, window.assetsBySymbol[tradingPair[1]].precision] || [0,0]
+        const precisions = window.assetsBySymbol && [window.assetsBySymbol[tradingPair[0]] ? window.assetsBySymbol[tradingPair[0]].precision : 5, window.assetsBySymbol[tradingPair[1]] ? window.assetsBySymbol[tradingPair[1]].precision : 5] || [0,0]
         const balance = this.props.balance
         var pairBalance = []
         Object.keys(balance).forEach((currency) => {
+            if (!window.assets[balance[currency].asset]) {
+              return
+            }
             var item = {}
             item.currency = window.assets[balance[currency].asset].symbol
             if (!tradingPair.includes(item.currency)) {

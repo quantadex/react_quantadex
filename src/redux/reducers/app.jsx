@@ -17,7 +17,7 @@ if (url_hash && url_hash.split('/').length == 2) {
 }
 
 let initialState = {
-  network: "TESTNET",
+  network: window.currentNetwork,
   isMobile: (window.isApp ? (screen.width / window.devicePixelRatio) : screen.width) < 992, 
   private_key: null,
   publicKey: "",
@@ -593,6 +593,7 @@ const app = (state = initialState, action) => {
       }
     
     case UPDATE_NETWORK:
+      window.currentNetwork = action.data
       return {
         ...state,
         network: action.data

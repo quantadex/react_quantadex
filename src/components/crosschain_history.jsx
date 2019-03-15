@@ -37,7 +37,7 @@ class CrosschainHistory extends Component {
   loadHistory() {
     this.setState({loading: true})
     const limit = 100
-    fetch(CONFIG.SETTINGS.API_PATH + `/node1/history?user=${this.props.user}&offset=${this.state.page * limit}&limit=${limit}`)
+    fetch(CONFIG.SETTINGS[window.currentNetwork].API_PATH + `/node1/history?user=${this.props.user}&offset=${this.state.page * limit}&limit=${limit}`)
     .then(e => e.json())
     .then(data => {
       const list = this.state.data.concat(data || [])
@@ -92,14 +92,14 @@ class CrosschainHistory extends Component {
 					</thead>
 					<tbody className="qt-font-extra-small">
 						{this.state.data.filter(item => item.Coin.toLowerCase().includes(this.state.filter.toLowerCase()) && (!this.state.hideDeposit || item.Type !== "deposit") ).map(row => {
-              const COIN_URL = row.Coin == "BTC" ? CONFIG.SETTINGS.BLOCKCYPHER_URL : CONFIG.SETTINGS.ETHERSCAN_URL
+              const COIN_URL = row.Coin == "BTC" ? CONFIG.SETTINGS[window.currentNetwork].BLOCKCYPHER_URL : CONFIG.SETTINGS[window.currentNetwork].ETHERSCAN_URL
 							return (
 								<tr key={row.Type + row.Tx}>
 									<td className={"text-uppercase " + (row.Type == "deposit" ? "qt-color-theme" : "qt-color-red")}>{row.Type}</td>
-									<td><a href={(row.Type === "deposit" && !row.IsBounced ? COIN_URL + "/tx/" : CONFIG.SETTINGS.EXPLORER_URL + "/ledgers/") + row.Tx.split("_")[0]} title={row.Tx} target="_blank" rel="noopener noreferrer">{this.shorten(row.Tx)}</a></td>
-									<td><a href={(row.Type === "deposit" && !row.IsBounced ? COIN_URL + "/address/" : CONFIG.SETTINGS.EXPLORER_URL + "/account/") + row.From.split(',')[0]} title={row.From.split(',')[0]} target="_blank" rel="noopener noreferrer">{this.shorten(row.From.split(',')[0])}</a></td>
-									<td><a href={(row.Type === "deposit" || row.IsBounced ? CONFIG.SETTINGS.EXPLORER_URL + "/ledgers/" : COIN_URL + "/tx/") + row.SubmitTxHash.split("_")[0]} title={row.SubmitTxHash} target="_blank" rel="noopener noreferrer">{this.shorten(row.SubmitTxHash)}</a></td>
-									<td><a href={(row.Type === "deposit" || row.IsBounced ? CONFIG.SETTINGS.EXPLORER_URL + "/account/" : COIN_URL + "/address/") + row.To.split(',')[0]} title={row.To.split(',')[0]} target="_blank" rel="noopener noreferrer">{this.shorten(row.To.split(',')[0])}</a></td>
+									<td><a href={(row.Type === "deposit" && !row.IsBounced ? COIN_URL + "/tx/" : CONFIG.SETTINGS[window.currentNetwork].EXPLORER_URL + "/ledgers/") + row.Tx.split("_")[0]} title={row.Tx} target="_blank" rel="noopener noreferrer">{this.shorten(row.Tx)}</a></td>
+									<td><a href={(row.Type === "deposit" && !row.IsBounced ? COIN_URL + "/address/" : CONFIG.SETTINGS[window.currentNetwork].EXPLORER_URL + "/account/") + row.From.split(',')[0]} title={row.From.split(',')[0]} target="_blank" rel="noopener noreferrer">{this.shorten(row.From.split(',')[0])}</a></td>
+									<td><a href={(row.Type === "deposit" || row.IsBounced ? CONFIG.SETTINGS[window.currentNetwork].EXPLORER_URL + "/ledgers/" : COIN_URL + "/tx/") + row.SubmitTxHash.split("_")[0]} title={row.SubmitTxHash} target="_blank" rel="noopener noreferrer">{this.shorten(row.SubmitTxHash)}</a></td>
+									<td><a href={(row.Type === "deposit" || row.IsBounced ? CONFIG.SETTINGS[window.currentNetwork].EXPLORER_URL + "/account/" : COIN_URL + "/address/") + row.To.split(',')[0]} title={row.To.split(',')[0]} target="_blank" rel="noopener noreferrer">{this.shorten(row.To.split(',')[0])}</a></td>
 									<td><SymbolToken name={row.Coin} /></td>
 									<td className="text-right">{row.Amount / Math.pow(10, row.Type === "withdrawal" ? 5 : (window.assetsBySymbol[row.Coin] ? window.assetsBySymbol[row.Coin].precision : 0))}</td>
 									<td className="text-right text-capitalize">{String(row.IsBounced)}</td>

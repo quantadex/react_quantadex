@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { css } from 'emotion'
 import { connect } from 'react-redux'
-import { UPDATE_NETWORK } from '../redux/actions/app.jsx'
+import { UPDATE_NETWORK, switchTicker } from '../redux/actions/app.jsx'
 
 const container = css`
     display: flex;
@@ -77,11 +77,21 @@ const container = css`
 `;
 
 class Status extends Component {
-    switchExNet(net) {
+    constructor(props) {
+        super(props);
+        this.state= {
+            network: this.props.network
+        }
+    }
+    switchExNet(network) {
+        if (network == this.state.network) return
+
+        this.setState({network})
         this.props.dispatch({
 			type: UPDATE_NETWORK,
-			data: net
-		});
+			data: network
+        });
+        this.props.dispatch(switchTicker(this.props.currentTicker, true));
     }
     
     render() {
@@ -93,7 +103,7 @@ class Status extends Component {
                 <div className="blocknum" title="Highest Block">{this.props.blockInfo.blockNumber}</div>
                 <div className="avg-lat" title="Average Block Latency">{ this.props.blockInfo.blockTime}ms</div>
                 <div className="net-select position-relative">
-                    {this.props.network}
+                    {this.state.network}
                     <div className="net-options">
                         {netsList.map(item => {
                             return <div key={item.name} onClick={() => this.switchExNet(item.name)}>{item.name}</div>
@@ -107,7 +117,8 @@ class Status extends Component {
 
 const mapStateToProps = (state) => ({
     network: state.app.network,
-    blockInfo: state.app.blockInfo || {}
+    blockInfo: state.app.blockInfo || {},
+    currentTicker: state.app.currentTicker,
 });
 
 export default connect(mapStateToProps)(Status);

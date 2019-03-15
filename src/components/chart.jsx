@@ -5,6 +5,10 @@ import { stringify } from "querystring";
 
 class Chart extends Component {
   componentDidMount() {
+    this.initChart()
+  }
+
+  initChart() {
     const dataFeed = new Datafeeds.UDFCompatibleDatafeed("/api/v1");
 
     let disabled_features = [
@@ -152,6 +156,12 @@ class Chart extends Component {
     })
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (this.props.network !== nextProps.network) {
+      this.initChart()
+    }
+  }
+
   componentDidUpdate() {
     setTimeout(() => {
       window.chartWidget.setSymbol(this.props.currentTicker, "15")
@@ -169,6 +179,7 @@ class Chart extends Component {
 
 const mapStateToProps = (state) => ({
   currentTicker: state.app.currentTicker,
+  network: state.app.network
 });
 
 export default connect(mapStateToProps)(Chart);

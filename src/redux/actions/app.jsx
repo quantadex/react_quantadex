@@ -169,7 +169,6 @@ export const withdrawVesting = (data) => {
 var initAPI = false;
 var initUser = false;
 
-var wsString = CONFIG.SETTINGS.WEBSOCKET_PATH;
 export var dataSize = 100;
 
 function getAvgtime() {
@@ -246,7 +245,7 @@ async function processOrderHistory(data, userId) {
 	})
 
 	if (cancels.length > 0) {
-		limitOrders = await fetch(CONFIG.SETTINGS.API_PATH + `/account?operation_type=1&account_id=${userId}&size=100&filter_field=operation_history__operation_result&filter_value=${cancels.join(',')}`)
+		limitOrders = await fetch(CONFIG.SETTINGS[window.currentNetwork].API_PATH + `/account?operation_type=1&account_id=${userId}&size=100&filter_field=operation_history__operation_result&filter_value=${cancels.join(',')}`)
 			.then(e => e.json())
 			.then(e => {
 				return lodash.keyBy(e, (o) => o.operation_history.operation_result.split(',')[1].replace(/"/g, '').replace(']', ''))
@@ -292,7 +291,7 @@ async function processOrderHistory(data, userId) {
 export const loadOrderHistory = (page) => {
 	return (dispatch, getState) => {
 		const userId = getState().app.userId
-		return fetch(CONFIG.SETTINGS.API_PATH + `/account?filter_field=operation_type&filter_value=2,4&size=${dataSize}&from_=${page * dataSize}&account_id=${userId}`)
+		return fetch(CONFIG.SETTINGS[window.currentNetwork].API_PATH + `/account?filter_field=operation_type&filter_value=2,4&size=${dataSize}&from_=${page * dataSize}&account_id=${userId}`)
 			.then(e => e.json())
 			.then((filled) => {
 				return processOrderHistory(filled, userId)
@@ -306,7 +305,7 @@ export const loadOrderHistory = (page) => {
 }
 
 var disconnect_notified
-export function switchTicker(ticker) {
+export function switchTicker(ticker, force_init=false) {
 	Apis.setAutoReconnect(true)
 	// send GA
 	ReactGA.set({ page: "exchange/" + ticker });
@@ -325,13 +324,14 @@ export function switchTicker(ticker) {
 			data: ticker
 		})
 
-		if (initAPI == false) {
-			Apis.instance(wsString, true, 3000, { enableOrders: true }).init_promise.then((res) => {
+		if (initAPI == false || force_init) {
+			Apis.instance(CONFIG.SETTINGS[window.currentNetwork].WEBSOCKET_PATH, true, 3000, { enableOrders: true }).init_promise.then((res) => {
 				// console.log("connected to:", res[0].network, publicKey);
 
 				// Apis.instance().db_api().exec("set_subscribe_callback", [onUpdate, true]);
-				initAPI = true;				
+				initAPI = true;
 
+				ChainStore.subscribers.clear()
 				ChainStore.init(false).then(() => {
 					ChainStore.subscribe(updateChainState.bind(this, dispatch));
 				});
@@ -366,7 +366,7 @@ export function switchTicker(ticker) {
 			async function fetchData(ticker, first=false) {
 				var {base, counter} = getBaseCounter(ticker)
 				try {
-					await fetch(CONFIG.SETTINGS.MARKETS_JSON).then(e => e.json())
+					await fetch(CONFIG.SETTINGS[window.currentNetwork].MARKETS_JSON).then(e => e.json())
 					.then(async (e) => {
 						// save for later
 						markets = e;
@@ -453,7 +453,7 @@ export function switchTicker(ticker) {
 
 				if (publicKey && getState().app.userId) {
 					const userId = getState().app.userId
-					my_trades = fetch(CONFIG.SETTINGS.API_PATH + `/account?filter_field=operation_type&filter_value=2,4&size=${dataSize}&account_id=${userId}`).then(e => e.json())
+					my_trades = fetch(CONFIG.SETTINGS[window.currentNetwork].API_PATH + `/account?filter_field=operation_type&filter_value=2,4&size=${dataSize}&account_id=${userId}`).then(e => e.json())
 					.then((filled) => {
 						const my_history = processOrderHistory(filled, userId)
 						// console.log(my_history)
