@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { css } from 'emotion'
 import { connect } from 'react-redux'
-import { UPDATE_NETWORK, switchTicker } from '../redux/actions/app.jsx'
+import { UPDATE_NETWORK, LOGIN, switchTicker } from '../redux/actions/app.jsx'
 
 const container = css`
     display: flex;
@@ -85,13 +85,18 @@ class Status extends Component {
     }
     switchExNet(network) {
         if (network == this.state.network) return
-
+        const defaultTicker = network == "MAINNET" ? 'QDEX/ETH' : 'ETH/USD'
         this.setState({network})
+        this.props.dispatch({
+            type: LOGIN,
+            private_key: null
+        });
         this.props.dispatch({
 			type: UPDATE_NETWORK,
 			data: network
         });
-        this.props.dispatch(switchTicker(this.props.currentTicker, true));
+
+        this.props.dispatch(switchTicker(defaultTicker, true));
     }
     
     render() {
@@ -117,8 +122,7 @@ class Status extends Component {
 
 const mapStateToProps = (state) => ({
     network: state.app.network,
-    blockInfo: state.app.blockInfo || {},
-    currentTicker: state.app.currentTicker,
+    blockInfo: state.app.blockInfo || {}
 });
 
 export default connect(mapStateToProps)(Status);

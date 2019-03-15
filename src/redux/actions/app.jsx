@@ -379,6 +379,7 @@ export function switchTicker(ticker, force_init=false) {
 
 						for (const market of markets.markets) {
 							var { base, counter } = getBaseCounter(market.name);
+							if(!base || !counter) continue
 							const data = await Promise.all([Apis.instance()
 								.db_api()
 								.exec("get_ticker", [counter.id, base.id]),

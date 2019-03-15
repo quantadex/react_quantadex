@@ -4,11 +4,19 @@ import Datafeeds from '../common/datafeed.js';
 import { stringify } from "querystring";
 
 class Chart extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      init: false
+    };
+  }
   componentDidMount() {
     this.initChart()
   }
 
   initChart() {
+    const self = this;
+    self.setState({init: true})
     const dataFeed = new Datafeeds.UDFCompatibleDatafeed("/api/v1");
 
     let disabled_features = [
@@ -55,7 +63,6 @@ class Chart extends Component {
     const upColor = "#50b3b7"
     const downColor = "#ff3282"
 
-    const self = this;
     // TradingView.onready(function() {
       var widget = (window.chartWidget = new TradingView.widget({
         fullscreen: false,
@@ -153,6 +160,8 @@ class Chart extends Component {
         .append($('<span>' + interval.text + '</span>'))
         button.addClass("custom-button")
       }
+      
+      self.setState({init: false})
     })
   }
 
@@ -163,9 +172,11 @@ class Chart extends Component {
   }
 
   componentDidUpdate() {
-    setTimeout(() => {
-      window.chartWidget.setSymbol(this.props.currentTicker, "15")
-    }, 0)
+    if (!this.state.init) {
+      setTimeout(() => {
+        window.chartWidget.setSymbol(this.props.currentTicker, "15")
+      }, 0)
+    }
   }
 
   render() {

@@ -11,7 +11,7 @@ import lodash from 'lodash'
 import moment from 'moment'
 
 let url_hash = document.URL.split("#")[1]
-let init_ticker = 'ETH/USD'
+let init_ticker = window.currentNetwork == "MAINNET" ? 'QDEX/ETH' : 'ETH/USD'
 if (url_hash && url_hash.split('/').length == 2) {
   init_ticker = url_hash
 }
