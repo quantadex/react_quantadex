@@ -16,14 +16,6 @@ const container = css`
   tr:hover {
     background-color: rgba(52,62,68,0.4);
   }
-
-  thead th {
-    position: sticky;
-    position: -webkit-sticky;
-    background: #23282c;
-    top: 0;
-    z-index: 1;
-  }
 `
 
 class CrosschainHistory extends Component {
@@ -48,8 +40,8 @@ class CrosschainHistory extends Component {
     fetch(CONFIG.SETTINGS.API_PATH + `/node1/history?user=${this.props.user}&offset=${this.state.page * limit}&limit=${limit}`)
     .then(e => e.json())
     .then(data => {
-      const list = this.state.data.concat(data)
-      this.setState({data: list, page: this.state.page + 1, end: data.length < limit, loading: false})
+      const list = this.state.data.concat(data || [])
+      this.setState({data: list, page: this.state.page + 1, end: (!data || data.length < limit), loading: false})
     })
   }
 
@@ -77,7 +69,7 @@ class CrosschainHistory extends Component {
   render() {
 
     return (
-      <div className={container + " content"} onWheel={this.handleScroll}>
+      <div className={container + " content table-responsive"} onWheel={this.handleScroll}>
         <div className='filter-container d-flex mt-5 align-items-center'>
           <SearchBox placeholder="Search Coin" onChange={(e) => this.setState({filter: e.target.value})} style={{marginRight: "20px"}}/>
           <Switch label="Hide Deposit" onToggle={() => this.setState({hideDeposit: !this.state.hideDeposit})} />

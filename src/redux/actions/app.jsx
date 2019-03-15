@@ -149,6 +149,23 @@ export const transferFund = (data) => {
 	}
 }
 
+export const withdrawVesting = (data) => {
+	return (dispatch, getState) => {
+		return ApplicationApi.vesting_balance_withdraw({ 
+			account: getState().app.userId,
+			balance: data.balance_id,
+			amount: data.amount,
+			asset: data.asset
+		}).then((tr) => {
+			return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key))
+		}).then(e => {
+			switchTicker(getState().app.currentTicker)
+		}).catch(e => {
+			throw e
+		})
+	}
+}
+
 var initAPI = false;
 var initUser = false;
 

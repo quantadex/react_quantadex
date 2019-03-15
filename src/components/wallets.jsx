@@ -104,12 +104,12 @@ class Wallets extends Component {
   componentDidMount() {
     fetch(CONFIG.SETTINGS.API_PATH + "/node1/address/eth/" + this.props.name).then(e => e.json())
     .then(e => {
-      this.setState({ethAddress: (e[e.length-1] && e[e.length-1].Address) || undefined})
+      this.setState({ethAddress: e && (e[e.length-1] && e[e.length-1].Address) || undefined})
     })
 
     fetch(CONFIG.SETTINGS.API_PATH + "/node1/address/btc/" + this.props.name).then(e => e.json())
     .then(e => {
-      this.setState({btcAddress: (e[e.length-1] && e[e.length-1].Address) || undefined})
+      this.setState({btcAddress: e && (e[e.length-1] && e[e.length-1].Address) || undefined})
     })
 
     this.setDataSource(this.props.balance)

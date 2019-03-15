@@ -28,6 +28,7 @@ let initialState = {
   markets: [],
   currentPrice: undefined,
   balance: [],
+  vesting: [],
   ui: {
     leftOpen: true,
     rightOpen: true
@@ -528,11 +529,14 @@ const app = (state = initialState, action) => {
           usd: usd
         }
       }))
+      
+      const vesting = action.data.accountData.length > 0 && action.data.accountData[0][1].vesting_balances
 
       return {
         ...state,
         // currentTicker:action.data.ticker,
         balance: balances,
+        vesting: vesting,
         onOrdersFund: onOrdersFund,
         totalFundValue: total_fund_value,
         mostRecentTrade: {
