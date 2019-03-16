@@ -192,7 +192,7 @@ class DepthChart extends Component {
                 e.preventDefault();
                 this.handleScroll(e.deltaY);
             }} >
-            <div id="depth_chart_container"/>
+            <div id="depth_chart_container" style={this.props.style || {}} />
           </div>
         );
       }

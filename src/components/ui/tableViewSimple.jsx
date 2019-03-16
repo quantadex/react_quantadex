@@ -151,14 +151,14 @@ export default class QTTableViewSimple extends React.Component {
                     if (col.type == "id") {
                       return (
                         <td key={index + "-" + colindex} className={[col.float,col.color(col_color),col.fontWeight,col.fontSize].join(" ")}>
-                          <a href={CONFIG.SETTINGS.EXPLORER_URL + "/object/" + row[col.key]} target="_blank">{row[col.key]}</a>
+                          <a href={CONFIG.SETTINGS[window.currentNetwork].EXPLORER_URL + "/object/" + row[col.key]} target="_blank">{row[col.key]}</a>
                         </td>
                       )
                     }
                     if (col.type == "block") {
                       return (
                         <td key={index + "-" + colindex} className={[col.float,col.color(col_color),col.fontWeight,col.fontSize].join(" ")}>
-                          <a href={CONFIG.SETTINGS.EXPLORER_URL + "/ledgers/" + row[col.key]} target="_blank">{row[col.key]}</a>
+                          <a href={CONFIG.SETTINGS[window.currentNetwork].EXPLORER_URL + "/ledgers/" + row[col.key]} target="_blank">{row[col.key]}</a>
                         </td>
                       )
                     }

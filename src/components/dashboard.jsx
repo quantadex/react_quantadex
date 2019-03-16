@@ -1,12 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
-import moment from 'moment';
-import { SmallToken } from './ui/ticker.jsx'
-
+import lodash from 'lodash';
 import { css } from 'emotion'
-import globalcss from './global-css.js'
-import QTTabBar from './ui/tabBar.jsx'
-import QTTableViewSimple from './ui/tableViewSimple.jsx'
 import {switchTicker} from "../redux/actions/app.jsx";
 import SearchBox from "./ui/searchBox.jsx";
 
@@ -135,7 +130,7 @@ class Dashboard extends Component {
 				</thead>
 				<tbody>
 							{
-								this.props.markets.filter(market => market.name.toLowerCase().includes(this.state.filter)).map((market, index) => {
+								lodash.sortBy(this.props.markets, 'base_volume').reverse().filter(market => market.name.toLowerCase().includes(this.state.filter)).map((market, index) => {
 									return <tr key={index} onClick={this.switchMarket.bind(this, market.name)}>
 										<td className="market">
 											{market.name}

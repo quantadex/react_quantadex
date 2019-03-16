@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@quantadex/bitsharesjs": "^1.8.6",
-    "@quantadex/bitsharesjs-ws": "^1.5.5",
+    "@quantadex/bitsharesjs-ws": "^1.5.6",
     "@quantadex/quanta-base": "^0.8.3",
     "@quantadex/quanta_js": "^1.0.6",
     "autosuggest-highlight": "^3.1.1",

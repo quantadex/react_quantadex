@@ -26,7 +26,7 @@ html, body {
 }
 
 .chart-loading-screen {
-  background-color: #1b262d !important;
+  background-color: transparent !important;
 }
 
 .tv-side-toolbar {
@@ -115,8 +115,8 @@ input.symbol-edit,
 .hotlist-controls .button,
 .symbol-edit-widget .button,
 .bottom-widgetbar-content.backtesting .button {
-    background-color: #2c3940 !important;
-    border-color: #2c3940 !important;
+    background-color: #333 !important;
+    border-color: #333 !important;
     color: #999 !important;
 }
 
@@ -255,8 +255,8 @@ i {
 }
 
 .favored-list-container span {
-    background-color: #2c3940 !important;
-    border-color: #2c3940 !important;
+    background-color: #333 !important;
+    border-color: #333 !important;
     color: #7d7d7d !important;
 }
 
@@ -901,8 +901,8 @@ to {
 }
 
 .charts-popup-list {
-  background: #1b262d !important;
-  border: 1px solid #121b21 !important;
+  background: #333 !important;
+  border: 1px solid #333 !important;
 }
 
 .charts-popup-list.intervals-list .item {
@@ -1171,5 +1171,19 @@ to {
 }
 
 .favored-list .item.disabled {
+    display: none;
+}
+
+.header-chart-panel .custom-button {
+    background-color: transparent !important;
+    border: 0 !important;
+}
+
+.header-chart-panel .group .custom-button:hover {
+    background: transparent !important;
+    color: #66d7d7 !important;
+}
+
+.tv-close-panel {
     display: none;
 }

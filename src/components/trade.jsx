@@ -12,6 +12,7 @@ import QTButton from './ui/button.jsx'
 import { Token, SmallToken } from './ui/ticker.jsx'
 import Loader from './ui/loader.jsx'
 import Utils from '../common/utils'
+import lodash from 'lodash';
 
 import { buyTransaction } from "../redux/actions/app.jsx";
 import { sellTransaction } from "../redux/actions/app.jsx";
@@ -82,6 +83,9 @@ const container = css`
     input::selection {
       background-color: #fff;
       color: #333;
+    }
+    input:invalid {
+      box-shadow: none;
     }
     span {
       position: absolute;
@@ -191,6 +195,11 @@ const container = css`
       }
   }
 
+  .rounded-0-left {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+  }
+
   &.mobile {
     width: 100%;
     padding: 10px;
@@ -205,6 +214,7 @@ class Trade extends Component {
             processing: false,
             qty: 0,
             price: 0,
+            total: 0,
             price_set: false,
             inputSetTime: 0,
             currentPrice: undefined,
@@ -220,6 +230,7 @@ class Trade extends Component {
         this.setState({
           qty: parseFloat(this.props.inputBuyAmount),
           price: parseFloat(this.props.inputBuy),
+          total: parseFloat(this.props.inputBuyAmount) * parseFloat(this.props.inputBuy),
           inputSetTime: this.props.inputSetTime,
           currentPrice: this.props.currentPrice.price,
           currentTicker: this.props.currentTicker
@@ -238,6 +249,7 @@ class Trade extends Component {
             this.setState({
                 qty: parseFloat(nextProps.inputBuyAmount),
                 price: parseFloat(nextProps.inputBuy),
+                total: parseFloat(nextProps.inputBuyAmount) * parseFloat(nextProps.inputBuy),
                 inputSetTime: nextProps.inputSetTime
             })
         }
@@ -283,7 +295,9 @@ class Trade extends Component {
         });
 
         this.setState({ processing: true })
-        this.props.dispatch(buyTransaction(this.props.currentTicker, this.state.price, this.state.qty))
+        let price = Utils.maxPrecision(this.state.price, window.assetsBySymbol[this.props.currentTicker.split('/')[1]].precision)
+        let amount = Utils.maxPrecision(this.state.qty, window.assetsBySymbol[this.props.currentTicker.split('/')[0]].precision)
+        this.props.dispatch(buyTransaction(this.props.currentTicker, price, amount))
             .then((e) => {
                 const msg = this.toastMsg("BUY " + label, true, e)
                 this.notify_success(toastId, msg)
@@ -305,7 +319,9 @@ class Trade extends Component {
         });
 
         this.setState({ processing: true })
-        this.props.dispatch(sellTransaction(this.props.currentTicker, this.state.price, this.state.qty))
+        let price = Utils.maxPrecision(this.state.price, window.assetsBySymbol[this.props.currentTicker.split('/')[1]].precision)
+        let amount = Utils.maxPrecision(this.state.qty, window.assetsBySymbol[this.props.currentTicker.split('/')[0]].precision)
+        this.props.dispatch(sellTransaction(this.props.currentTicker, price, amount))
             .then((e) => {
                 const msg = this.toastMsg("SELL " + label, true, e)
                 this.notify_success(toastId, msg)
@@ -321,21 +337,40 @@ class Trade extends Component {
         this.setState({trade_side: side})
     }
 
+    setPercentAmount(perc, symbol) {
+      const coin = window.assetsBySymbol[symbol].id
+      const amount = this.props.balance[coin].balance * (parseInt(perc)/100)
+
+      let qty, total
+      if (this.state.trade_side == 0) {
+        qty = amount / this.state.price
+        total = amount
+      } else {
+        qty = amount
+        total = qty * this.state.price
+      }
+      this.setState({qty, total})
+    }
+
     render() {
-        const tabs = {
-            names: ['LIMIT', 'MARKET', 'STOP-LIMIT'],
-            selectedTabIndex: 0,
-        }
+        // const tabs = {
+        //     names: ['LIMIT', 'MARKET', 'STOP-LIMIT'],
+        //     selectedTabIndex: 0,
+        // }
 
         const dropdown_items = {
-            items: ["10%", "20%", "25%", "50%", "75%", "90%", "100%"],
-            value: "20%"
+            items: ["25%", "50%", "75%", "100%"],
+            value: "25%"
         }
 
         const tradingPair = this.props.currentTicker.split('/')
+        const precisions = window.assetsBySymbol && [window.assetsBySymbol[tradingPair[0]] ? window.assetsBySymbol[tradingPair[0]].precision : 5, window.assetsBySymbol[tradingPair[1]] ? window.assetsBySymbol[tradingPair[1]].precision : 5] || [0,0]
         const balance = this.props.balance
         var pairBalance = []
         Object.keys(balance).forEach((currency) => {
+            if (!window.assets[balance[currency].asset]) {
+              return
+            }
             var item = {}
             item.currency = window.assets[balance[currency].asset].symbol
             if (!tradingPair.includes(item.currency)) {
@@ -348,7 +383,6 @@ class Trade extends Component {
         return (
             <div className={container + " container-fluid" + (this.props.mobile ? " mobile" : "")}>
                 <div className="buy-sell-toggle">
-                    {this.state.trade_side == 0 }
                     <button id="buy-switch" className={"buy-btn" + (this.state.trade_side !== 0 ? " inactive" : "")} onClick={this.switchTradeTo.bind(this, 0)}>BUY {tradingPair[0]}</button>
                     <button id="sell-switch" className={"sell-btn" + (this.state.trade_side !== 1 ? " inactive" : "")} onClick={this.switchTradeTo.bind(this, 1)}>SELL {tradingPair[0]}</button>
                 </div>
@@ -356,43 +390,64 @@ class Trade extends Component {
                 <div className="transac-actions">
                     <div className="input-container">
                         <label>PRICE</label>
-                        <input type="number" className="trade-input qt-number-bold qt-font-small"
+                        <input type="number" className="trade-input qt-number-bold qt-font-small" title=""
                             name="price"
                             autoComplete="off"
                             onFocus={(e) => e.target.select()}
                             min="0"
-                            value={this.state.price}
-                            onChange={(e) => this.setState({price: Utils.maxPrecision(e.target.value, window.assetsBySymbol[tradingPair[1]].precision)})} />
+                            value={Utils.maxPrecision(this.state.price, precisions[1])}
+                            onChange={(e) => {
+                              let value = Utils.maxPrecision(e.target.value, precisions[1])
+                              this.setState({
+                              price: value,
+                              total: this.state.qty * value
+                            })}} />
                         <SmallToken name={tradingPair[1]} />
                     </div>
                     <div className="input-container">
-                        <label>AMOUNT {/*<Token name={tradingPair[0]}/>*/}</label>
-                        {/* <QTDropdown
-                items={dropdown_items.items}
-                value={dropdown_items.value}
-                className="up bordered dark qt-font-base qt-font-bold"
-                reverse={true}
-                width="50"
-                height="32"
-                onChange={() => {console.log("dropdown changed value")}}/> */}
-                        <input type="number" className="trade-input qt-number-bold qt-font-small"
-                            name="amount"
-                            autoComplete="off"
-                            onFocus={(e) => e.target.select()}
-                            min="0"
-                            value={this.state.qty}
-                            onChange={(e) => this.setState({qty: Utils.maxPrecision(e.target.value, window.assetsBySymbol[tradingPair[0]].precision)})} />
-                        <SmallToken name={tradingPair[0]} />
+                        <label>AMOUNT</label>
+                        <div className="d-flex">
+                          <QTDropdown
+                            items={dropdown_items.items}
+                            value={dropdown_items.value}
+                            className="down bordered dark qt-font-base qt-font-bold"
+                            reverse={true}
+                            width="58"
+                            height="32"
+                            onChange={(e) => this.props.balance && this.setPercentAmount(e, tradingPair[this.state.trade_side == 0 ? 1 : 0])}/>
+                          <input type="number" className="trade-input qt-number-bold qt-font-small rounded-0-left" title=""
+                              name="amount"
+                              autoComplete="off"
+                              onFocus={(e) => e.target.select()}
+                              min="0"
+                              value={Utils.maxPrecision(this.state.qty, precisions[0])}
+                              onChange={(e) => {
+                                let value = Utils.maxPrecision(e.target.value, precisions[0])
+                                this.setState({
+                                qty: value,
+                                total: value * this.state.price
+                              })}} />
+                          <SmallToken name={tradingPair[0]} />
+                        </div>
+                        
                     </div>
                     <div className="input-container">
-                        <label>TOTAL {/*<Token name={tradingPair[1]}/> */}</label>
+                        <label>TOTAL</label>
                         <input
-                            type="text"
+                            title=""
+                            type="number"
+                            autoComplete="off"
+                            onFocus={(e) => e.target.select()}
                             className="trade-input qt-number-bold qt-font-small"
-                            name="total"
-                            value={(((this.state.qty * Math.pow(10, 6)) * (this.state.price * Math.pow(10, 6))) / Math.pow(10, 12)).toLocaleString(navigator.language, {maximumFractionDigits: window.assetsBySymbol ? window.assetsBySymbol[tradingPair[1]].precision : 5} )}
-                            readOnly
-                        />
+                            min="0"
+                            value={Utils.maxPrecision(this.state.total, precisions[1])}
+                            onChange={(e) => {
+                              let value = Utils.maxPrecision(e.target.value, precisions[1])
+                              this.setState({
+                              qty: value/this.state.price,
+                              total: value
+                            })}}
+                            />
                         <SmallToken name={tradingPair[1]} />
                     </div>
 
@@ -454,7 +509,7 @@ const mapStateToProps = (state) => ({
     asks: state.app.tradeBook.asks,
     currentTicker: state.app.currentTicker,
     currentPrice: state.app.mostRecentTrade,
-    balance: state.app.balance,
+    balance: state.app.balance && lodash.keyBy(state.app.balance, "asset"),
     inputBuy: state.app.inputBuy,
     inputBuyAmount: state.app.inputBuyAmount,
     inputSetTime: state.app.setTime,

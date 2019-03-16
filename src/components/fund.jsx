@@ -11,6 +11,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Wallets from './wallets.jsx'
 import CrosschainHistory from './crosschain_history.jsx'
+import Vesting from './vesting.jsx'
 
 const container = css`
 	background-color:${globalcss.COLOR_BACKGROUND};
@@ -88,10 +89,10 @@ class Fund extends Component {
     } 
 
     const tabs = {
-			names: ['Wallets', 'Crosschain History'],
+			names: ['Wallets', 'Vesting', 'Crosschain History'],
 			selectedTabIndex: 0,
     }
-    const content = [<Wallets />, <CrosschainHistory user={this.props.name} />]
+    const content = [<Wallets />, <Vesting />, <CrosschainHistory user={this.props.name} />]
     
 		return (
 		<div className={container + " container-fluid" + (this.props.isMobile ? " mobile" : "")}>

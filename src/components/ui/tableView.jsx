@@ -154,7 +154,7 @@ export default class QTTableView extends React.Component {
                           <div key={index + '-' + i} className={new_css+" d-flex  action-btn " + (e.pairs == ERC20Label ? "justify-content-end" : "justify-content-between")}>
                             {
                               col.buttons.map((btn) => {
-                                if((e.pairs !== ERC20Label && !CONFIG.SETTINGS.CROSSCHAIN_COINS.includes(e.pairs) && e.pairs.split("0X").length !== 2) && btn.label == "DEPOSIT" || e.pairs == ERC20Label && btn.label == "WITHDRAW") { 
+                                if((e.pairs !== ERC20Label && !CONFIG.SETTINGS[window.currentNetwork].CROSSCHAIN_COINS.includes(e.pairs) && e.pairs.split("0X").length !== 2) && btn.label == "DEPOSIT" || e.pairs == ERC20Label && btn.label == "WITHDRAW") { 
                                   return null
                                  }
                                 return (
@@ -165,7 +165,7 @@ export default class QTTableView extends React.Component {
                                     borderWidth="1"
                                     width="80"
                                     height="20"
-                                    label={(e.pairs !== ERC20Label && !CONFIG.SETTINGS.CROSSCHAIN_COINS.includes(e.pairs) && e.pairs.split("0X").length !== 2) ? "TRANSFER" : btn.label}
+                                    label={(e.pairs !== ERC20Label && !CONFIG.SETTINGS[window.currentNetwork].CROSSCHAIN_COINS.includes(e.pairs) && e.pairs.split("0X").length !== 2) ? "TRANSFER" : btn.label}
                                     color={btn.color}/>
                                 )
                               })

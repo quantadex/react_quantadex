@@ -47,9 +47,9 @@ export const SymbolToken = ({ name, showIcon = true }) => {
 
 	return (<span className={container + " symbol"}>{token[0]} {token[1] && 
 		<a className="issuer-tag qt-font-light"
-			href={CONFIG.SETTINGS.ETHERSCAN_URL + "/token/0x" + token[1]} target="_blank">0x{token[1].substr(0, 4)}</a>
+			href={CONFIG.SETTINGS[window.currentNetwork].ETHERSCAN_URL + "/token/0x" + token[1]} target="_blank">0x{token[1].substr(0, 4)}</a>
 		}
-		{showIcon && (CONFIG.SETTINGS.CROSSCHAIN_COINS.includes(name) || name.split("0X").length == 2) ? 
+		{showIcon && (CONFIG.SETTINGS[window.currentNetwork].CROSSCHAIN_COINS.includes(name) || name.split("0X").length == 2) ? 
 			<img className="crosschain-icon" src={devicePath("public/images/crosschain-coin.svg")} title="Crosschain" />
 			: null
 		}</span>

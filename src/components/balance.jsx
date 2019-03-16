@@ -25,7 +25,7 @@ class Balance extends Component {
     render() {
         return (
             <div className={container + " qt-font-light" + (this.props.isMobile ? " mobile" : "")}>
-                Wallet Balance <Link to="exchange/wallets" className={"ml-2 " + (this.props.balance.length == 0 ? "d-none": "")}><img src={devicePath("public/images/open-icon.svg")} /></Link>
+                Wallet Balance <Link to="exchange/wallets" className="ml-2"><img src={devicePath("public/images/open-icon.svg")} /></Link>
                 <div className="no-scroll-bar">
                     <div>
                         <table className="w-100 mt-3">

@@ -1,25 +1,34 @@
+import React from 'react';
 import { INIT_DATA, INIT_BALANCE, SET_MARKET_QUOTE, APPEND_TRADE, UPDATE_ORDER, UPDATE_OPEN_ORDERS, SET_AMOUNT, UPDATE_USER_ORDER, UPDATE_TICKER, UPDATE_TRADES, UPDATE_FEE, UPDATE_DIGITS, UPDATE_NETWORK, LOAD_FILLED_ORDERS } from "../actions/app.jsx";
 import { TOGGLE_LEFT_PANEL, TOGGLE_RIGHT_PANEL } from "../actions/app.jsx";
 import { TOGGLE_FAVORITE_LIST, UPDATE_ACCOUNT, UPDATE_BLOCK_INFO } from "../actions/app.jsx";
 import { LOGIN } from "../actions/app.jsx";
 import { dataSize } from "../actions/app.jsx";
 import SortedSet from 'js-sorted-set'
+import { toast } from 'react-toastify';
 
 import lodash from 'lodash'
 import moment from 'moment'
 
+let url_hash = document.URL.split("#")[1]
+let init_ticker = window.currentNetwork == "MAINNET" ? 'QDEX/ETH' : 'ETH/USD'
+if (url_hash && url_hash.split('/').length == 2) {
+  init_ticker = url_hash
+}
+
 let initialState = {
-  network: "TESTNET",
+  network: window.currentNetwork,
   isMobile: (window.isApp ? (screen.width / window.devicePixelRatio) : screen.width) < 992, 
   private_key: null,
   publicKey: "",
-  currentTicker: 'ETH/USD',
+  currentTicker: init_ticker,
   fee: {},
   tradeHistory: [],
   tradeBook: { bids: [], asks: []},
   markets: [],
   currentPrice: undefined,
   balance: [],
+  vesting: [],
   ui: {
     leftOpen: true,
     rightOpen: true
@@ -353,7 +362,10 @@ function mergeTickerData(current, data) {
   });
 }
 
+var toastId;
+
 function processFilledOrder(orders) {
+  let latestOrder
   const data = orders.map((order) => {
     var tickerPair, ticker, amount, total
 
@@ -372,6 +384,21 @@ function processFilledOrder(orders) {
       amount = parseFloat(order.amountToReceive());
       total = ((order.getPrice() * Math.pow(10, 6)) * (amount * Math.pow(10, 6)))/Math.pow(10, 12)
     }
+
+    if (!latestOrder) {
+      latestOrder = order.id
+      if (!order.seller && new Date() - order.time < 30000 && currentOrders.indexOf(order.id) == -1 && toastId != order.id) {
+        const msg = (<div>
+          <b>Order Filled:</b><br/>
+          <span>Order of {ticker[0]} at {order.getPrice()} has fully filled.</span>
+        </div>)
+        toastId = toast.success(msg, {
+                    position: toast.POSITION.TOP_CENTER,
+                    autoClose: 5000,
+                    toastId: order.id
+                  });
+      }
+    }
     
     return {
       id: order.id,
@@ -389,7 +416,7 @@ function processFilledOrder(orders) {
 
   return data
 }
-
+var currentOrders = []
 const app = (state = initialState, action) => {
   //console.log("Reduce ", action);
 
@@ -459,7 +486,7 @@ const app = (state = initialState, action) => {
       }
 
       const onOrdersFund = {}
-      
+      currentOrders = []
       const limitOrdersDataSource = action.data.openOrders.map((order) => {
         const tickerPair = [order.assets[order.sell_price.base.asset_id].symbol, order.assets[order.sell_price.quote.asset_id].symbol]
         const ticker = order.isBid() ? tickerPair.reverse() : tickerPair
@@ -477,7 +504,7 @@ const app = (state = initialState, action) => {
         
         onOrdersFund[onOrderFeeAsset] = (onOrdersFund[onOrderFeeAsset] || 0) + onOrderFeeValue
         onOrdersFund[onOrderAsset] = (onOrdersFund[onOrderAsset] || 0) + onOrderValue
-        
+        currentOrders.push(order.id)
         return {
           assets: ticker.join('/'),
           price: order.getPrice() + ' ' + ticker[1],
@@ -502,11 +529,14 @@ const app = (state = initialState, action) => {
           usd: usd
         }
       }))
+      
+      const vesting = action.data.accountData.length > 0 && action.data.accountData[0][1].vesting_balances
 
       return {
         ...state,
         // currentTicker:action.data.ticker,
         balance: balances,
+        vesting: vesting,
         onOrdersFund: onOrdersFund,
         totalFundValue: total_fund_value,
         mostRecentTrade: {
@@ -563,6 +593,7 @@ const app = (state = initialState, action) => {
       }
     
     case UPDATE_NETWORK:
+      window.currentNetwork = action.data
       return {
         ...state,
         network: action.data
