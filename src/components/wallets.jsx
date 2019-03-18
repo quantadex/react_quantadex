@@ -229,6 +229,7 @@ class Wallets extends Component {
           color:"theme unite",
           handleClick: (asset, close) => {
             return <QTDeposit asset={asset} handleClick={close} quantaAddress={this.props.name} 
+            isETH={(["ETH", "ERC20"].includes(asset) || asset.split("0X").length == 2)}
             deposit_address={(["ETH", "ERC20"].includes(asset) || asset.split("0X").length == 2) ? this.state.ethAddress : this.state.btcAddress} />
           },
           disabled: (pairs) => {return false}

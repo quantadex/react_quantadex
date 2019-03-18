@@ -137,7 +137,7 @@ class QTDeposit extends React.Component {
   }
 
   componentDidMount() {
-    if (!this.state.deposit_address) {
+    if (!this.state.deposit_address && this.props.isETH) {
       if (typeof web3 === 'undefined') {
         return
       }
@@ -186,7 +186,7 @@ class QTDeposit extends React.Component {
 		);
 
 		web3.eth.sendTransaction({ data: contractData }, function(err, transactionHash) {
-			if (!err) console.log(transactionHash); // "0x7f9fade1c0d57a7af66ab4ead7c2eb7b11a91385"
+			if (!err) console.log(transactionHash);
 		});
 	};
   
@@ -239,7 +239,7 @@ class QTDeposit extends React.Component {
   Deposit() {
     setTimeout(() => {
       var canvas = document.getElementById('qr-canvas')
-      QRCode.toCanvas(canvas, this.state.deposit_address, {width: 150, margin: 0})
+      this.state.deposit_address && QRCode.toCanvas(canvas, this.state.deposit_address, {width: 150, margin: 0})
     }, 0)
 
     const token = this.props.asset.split("0X")
@@ -249,7 +249,7 @@ class QTDeposit extends React.Component {
           <h5 className="mb-3"><b>YOUR PERSONAL MULTISIGNATURE DEPOSIT ADDRESS</b></h5>
 
           <div className="d-flex">
-            <canvas id="qr-canvas"></canvas>
+          { this.state.deposit_address ? <canvas id="qr-canvas"></canvas> : null }
             <p className="ml-4">
             Important Notes <br/>
             - Do not send any coin other than {token[0]} {token[1] && ("0x" + token[1].substr(0, 4))} to this address.<br/>
@@ -262,9 +262,16 @@ class QTDeposit extends React.Component {
           
           
           <div className="d-flex align-items-center mt-4">
-            <input type="text" id="deposit-address" className="text-dark mr-3" 
-              readOnly value={this.state.deposit_address} size={this.state.deposit_address.length + 10} />
-            <button className="copy-btn cursor-pointer" onClick={this.copyText}>Copy</button>
+          
+            {this.state.deposit_address ? 
+              <React.Fragment>
+                <input type="text" id="deposit-address" className="text-dark mr-3" 
+                  readOnly value={this.state.deposit_address} size={this.state.deposit_address.length + 10} />
+                <button className="copy-btn cursor-pointer" onClick={this.copyText}>Copy</button>
+              </React.Fragment>
+            :
+              <span className="text-danger">Your deposit address is being generated. Please try again later</span>
+            }
           </div>
 
             
@@ -284,7 +291,7 @@ class QTDeposit extends React.Component {
           }
         </div>
         <div className="close-dialog cursor-pointer" onClick={this.props.handleClick}>Close</div>
-        {this.state.deposit_address ? <this.Deposit /> : <this.MetamaskDeposit />}
+        {!this.state.deposit_address ? (this.props.isETH ? <this.MetamaskDeposit /> : <this.Deposit />) : <this.Deposit />}
       </div>
     );
   }

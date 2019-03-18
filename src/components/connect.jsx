@@ -458,7 +458,13 @@ class ConnectDialog extends Component {
 
                 <label>PASSWORD</label><br/>
                 <input type="password" name="password" placeholder="Password" 
-                    value={this.state.password} onChange={(e) => this.setState({password: e.target.value})}/><br/>
+                    value={this.state.password} onChange={(e) => this.setState({password: e.target.value})}
+                    onKeyPress={e => {
+                        if (e.key == "Enter" && this.state.password.length > 0) {
+                            this.ConnectWithBin()
+                        }
+                       }}
+                    /><br/>
                 <span className="error" hidden={!this.state.authError}>{this.state.errorMsg}</span><br/>
                 <div className="text-center">
                     <button onClick={this.ConnectWithBin.bind(this)} disabled={this.state.password.length < 8}>Connect Wallet</button>

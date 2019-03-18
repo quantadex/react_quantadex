@@ -15,10 +15,10 @@ const SETTINGS = {
 		API_PATH: "https://wya99cec1d.execute-api.us-east-1.amazonaws.com/mainnet",
 		MARKETS_JSON: "https://s3.amazonaws.com/quantachain.io/markets.json",
 		CROSSCHAIN_ISSUER: "1.2.8",
-		CROSSCHAIN_ADDRESS: '0xBD770336fF47A3B61D4f54cc0Fb541Ea7baAE92d',
+		CROSSCHAIN_ADDRESS: '0xF8306d5279193146F307dc1c170EA59e7b0C370A',
 		EXPLORER_URL: "http://testnet.quantadex.com",
-		ETHERSCAN_URL: "https://ropsten.etherscan.io",
-		BLOCKCYPHER_URL: "https://live.blockcypher.com/btc-testnet",
+		ETHERSCAN_URL: "https://etherscan.io",
+		BLOCKCYPHER_URL: "https://live.blockcypher.com/btc",
 		CROSSCHAIN_COINS: ["BTC", "ETH"]
 	}
 };
