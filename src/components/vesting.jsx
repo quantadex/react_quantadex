@@ -66,7 +66,7 @@ class Vesting extends Component {
 
   render() {
     return (
-      <div className={container + " content" + (this.props.isMobile ? " mobile" : "")}>
+      <div className={container + " content" + (this.props.isMobile ? " mobile px-4" : "")}>
         {this.props.vesting.length == 0 ?
           <div className="text-center">You have no vesting balance.</div> : null
         }
