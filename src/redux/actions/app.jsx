@@ -373,29 +373,34 @@ export function switchTicker(ticker, force_init=false) {
 						window.markets = markets.markets
 						window.marketsHash = lodash.keyBy(markets.markets, "name")
 						
-						var marketData = [];
+						var marketData = {};
 						var USD_value = {}
 						// console.log("json ", markets.markets);
 
-						for (const market of markets.markets) {
-							var { base, counter } = getBaseCounter(market.name);
-							if(!base || !counter) continue
-							const data = await Promise.all([Apis.instance()
-								.db_api()
-								.exec("get_ticker", [counter.id, base.id]),
-							Apis.instance()
-								.db_api()
-								.exec("get_24_volume", [counter.id, base.id])])
-
-							marketData.push({
-								name: market.name,
-								last: data[0].latest,
-								base_volume: data[1].base_volume,
-								quote_volume: data[1].quote_volume
-							})
-							if (counter.symbol == 'USD') {
-								USD_value[base.id] = data[0].latest
-								USD_value[counter.id] = 1
+						for (const market in markets.markets) {
+							for (const pair of markets.markets[market]) {
+								var { base, counter } = getBaseCounter(pair.name);
+								if(!base || !counter) continue
+								const data = await Promise.all([Apis.instance()
+									.db_api()
+									.exec("get_ticker", [counter.id, base.id]),
+								Apis.instance()
+									.db_api()
+									.exec("get_24_volume", [counter.id, base.id])])
+								
+								if (!marketData[market]) {
+									marketData[market] = []
+								}
+								marketData[market].push({
+									name: pair.name,
+									last: data[0].latest,
+									base_volume: data[1].base_volume,
+									quote_volume: data[1].quote_volume
+								})
+								if (counter.symbol == 'USD') {
+									USD_value[base.id] = data[0].latest
+									USD_value[counter.id] = 1
+								}
 							}
 						}
 

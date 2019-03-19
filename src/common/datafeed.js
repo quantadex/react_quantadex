@@ -397,10 +397,13 @@ Datafeeds.UDFCompatibleDatafeed.prototype.resolveSymbol = function(
     //   });
 
     setTimeout(function() {
+      const comp = symbolName.split("/")
+      const base = comp[0].split("0X")
+      const counter = comp[1].split("0X")
       onResultReady({
         name: symbolName,
         ticker: symbolName,
-        description: symbolName,
+        description: `${base[0]}${(base[1] ? "0x" + base[1].substr(0, 4) : "")}/${counter[0]}${(counter[1] ? "0x" + counter[1].substr(0, 4) : "")}`,
         // exchange: "QDEX",
         timezone: "America/Los_Angeles",
         has_intraday: true,
