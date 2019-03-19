@@ -7,6 +7,7 @@ import globalcss from './global-css.js'
 
 import QTTabBar from './ui/tabBar.jsx'
 import MobileHeader from './ui/mobileHeader.jsx';
+import MobileNav from './ui/mobileNav.jsx';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Wallets from './wallets.jsx'
@@ -20,6 +21,14 @@ const container = css`
   .header-row {
     padding:0 20px;
   }
+
+  .mobile-nav {
+		position: fixed;
+		width: 100%;
+		bottom: 0;
+		background-color: #23282c;
+		z-index: 99;
+	}
 
   .tab-row {
     background-color: rgba(52, 62, 68, 0.4);
@@ -115,6 +124,12 @@ class Fund extends Component {
         </div>
       </div>
       {content[this.state.selectedTabIndex]}
+        {this.props.isMobile ? 
+        <div className="mobile-nav">
+          <MobileNav tabs={tabs} selectedTabIndex={this.state.selectedTabIndex} switchTab={this.handleSwitch.bind(this)} /> 
+        </div>
+          : null
+        }
       <ToastContainer />
 		</div>
 		);

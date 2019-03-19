@@ -1,4 +1,5 @@
 import React, {Component} from 'react'
+import { connect } from 'react-redux'
 import CONFIG from '../config.js'
 import { css } from 'emotion'
 import SearchBox from "./ui/searchBox.jsx"
@@ -69,47 +70,48 @@ class CrosschainHistory extends Component {
   render() {
 
     return (
-      <div className={container + " content table-responsive"} onWheel={this.handleScroll}>
+      <div className={container + " content"  + (this.props.isMobile ? " mobile px-4" : "")} onWheel={this.handleScroll}>
         <div className='filter-container d-flex mt-5 align-items-center'>
           <SearchBox placeholder="Search Coin" onChange={(e) => this.setState({filter: e.target.value})} style={{marginRight: "20px"}}/>
           <Switch label="Hide Deposit" onToggle={() => this.setState({hideDeposit: !this.state.hideDeposit})} />
         </div>
-
-        <table className="w-100 mt-5">
-					<thead>
-						<tr className="qt-white-27">
-							<th>TYPE</th>
-							<th>SOURCE TX</th>
-							<th>FROM</th>
-							<th>TO TX</th>
-							<th>TO</th>
-							<th>COIN</th>
-							<th className="text-right">AMOUNT</th>
-							<th className="text-right">BOUNCED</th>
-							<th className="text-right">SUBMIT STATE</th>
-							<th className="text-right">DATE</th>
-						</tr>
-					</thead>
-					<tbody className="qt-font-extra-small">
-						{this.state.data.filter(item => item.Coin.toLowerCase().includes(this.state.filter.toLowerCase()) && (!this.state.hideDeposit || item.Type !== "deposit") ).map(row => {
-              const COIN_URL = row.Coin == "BTC" ? CONFIG.SETTINGS[window.currentNetwork].BLOCKCYPHER_URL : CONFIG.SETTINGS[window.currentNetwork].ETHERSCAN_URL
-							return (
-								<tr key={row.Type + row.Tx}>
-									<td className={"text-uppercase " + (row.Type == "deposit" ? "qt-color-theme" : "qt-color-red")}>{row.Type}</td>
-									<td><a href={(row.Type === "deposit" && !row.IsBounced ? COIN_URL + "/tx/" : CONFIG.SETTINGS[window.currentNetwork].EXPLORER_URL + "/ledgers/") + row.Tx.split("_")[0]} title={row.Tx} target="_blank" rel="noopener noreferrer">{this.shorten(row.Tx)}</a></td>
-									<td><a href={(row.Type === "deposit" && !row.IsBounced ? COIN_URL + "/address/" : CONFIG.SETTINGS[window.currentNetwork].EXPLORER_URL + "/account/") + row.From.split(',')[0]} title={row.From.split(',')[0]} target="_blank" rel="noopener noreferrer">{this.shorten(row.From.split(',')[0])}</a></td>
-									<td><a href={(row.Type === "deposit" || row.IsBounced ? CONFIG.SETTINGS[window.currentNetwork].EXPLORER_URL + "/ledgers/" : COIN_URL + "/tx/") + row.SubmitTxHash.split("_")[0]} title={row.SubmitTxHash} target="_blank" rel="noopener noreferrer">{this.shorten(row.SubmitTxHash)}</a></td>
-									<td><a href={(row.Type === "deposit" || row.IsBounced ? CONFIG.SETTINGS[window.currentNetwork].EXPLORER_URL + "/account/" : COIN_URL + "/address/") + row.To.split(',')[0]} title={row.To.split(',')[0]} target="_blank" rel="noopener noreferrer">{this.shorten(row.To.split(',')[0])}</a></td>
-									<td><SymbolToken name={row.Coin} /></td>
-									<td className="text-right">{row.Amount / Math.pow(10, row.Type === "withdrawal" ? 5 : (window.assetsBySymbol[row.Coin] ? window.assetsBySymbol[row.Coin].precision : 0))}</td>
-									<td className="text-right text-capitalize">{String(row.IsBounced)}</td>
-									<td className="text-right text-capitalize">{row.SubmitState}</td>
-									<td className="text-right">{this.parseDate(row.SubmitDate)}</td>
-								</tr>
-							)
-						})}
-					</tbody>
-				</table>
+        <div className="table-responsive">
+          <table className="w-100 mt-5">
+            <thead>
+              <tr className="qt-white-27">
+                <th>TYPE</th>
+                <th>SOURCE TX</th>
+                <th>FROM</th>
+                <th>TO TX</th>
+                <th>TO</th>
+                <th>COIN</th>
+                <th className="text-right">AMOUNT</th>
+                <th className="text-right">BOUNCED</th>
+                <th className="text-right">SUBMIT STATE</th>
+                <th className="text-right">DATE</th>
+              </tr>
+            </thead>
+            <tbody className="qt-font-extra-small">
+              {this.state.data.filter(item => item.Coin.toLowerCase().includes(this.state.filter.toLowerCase()) && (!this.state.hideDeposit || item.Type !== "deposit") ).map(row => {
+                const COIN_URL = row.Coin == "BTC" ? CONFIG.SETTINGS[window.currentNetwork].BLOCKCYPHER_URL : CONFIG.SETTINGS[window.currentNetwork].ETHERSCAN_URL
+                return (
+                  <tr key={row.Type + row.Tx}>
+                    <td className={"text-uppercase " + (row.Type == "deposit" ? "qt-color-theme" : "qt-color-red")}>{row.Type}</td>
+                    <td><a href={(row.Type === "deposit" && !row.IsBounced ? COIN_URL + "/tx/" : CONFIG.SETTINGS[window.currentNetwork].EXPLORER_URL + "/ledgers/") + row.Tx.split("_")[0]} title={row.Tx} target="_blank" rel="noopener noreferrer">{this.shorten(row.Tx)}</a></td>
+                    <td><a href={(row.Type === "deposit" && !row.IsBounced ? COIN_URL + "/address/" : CONFIG.SETTINGS[window.currentNetwork].EXPLORER_URL + "/account/") + row.From.split(',')[0]} title={row.From.split(',')[0]} target="_blank" rel="noopener noreferrer">{this.shorten(row.From.split(',')[0])}</a></td>
+                    <td><a href={(row.Type === "deposit" || row.IsBounced ? CONFIG.SETTINGS[window.currentNetwork].EXPLORER_URL + "/ledgers/" : COIN_URL + "/tx/") + row.SubmitTxHash.split("_")[0]} title={row.SubmitTxHash} target="_blank" rel="noopener noreferrer">{this.shorten(row.SubmitTxHash)}</a></td>
+                    <td><a href={(row.Type === "deposit" || row.IsBounced ? CONFIG.SETTINGS[window.currentNetwork].EXPLORER_URL + "/account/" : COIN_URL + "/address/") + row.To.split(',')[0]} title={row.To.split(',')[0]} target="_blank" rel="noopener noreferrer">{this.shorten(row.To.split(',')[0])}</a></td>
+                    <td><SymbolToken name={row.Coin} /></td>
+                    <td className="text-right">{row.Amount / Math.pow(10, row.Type === "withdrawal" ? 5 : (window.assetsBySymbol[row.Coin] ? window.assetsBySymbol[row.Coin].precision : 0))}</td>
+                    <td className="text-right text-capitalize">{String(row.IsBounced)}</td>
+                    <td className="text-right text-capitalize">{row.SubmitState}</td>
+                    <td className="text-right">{this.parseDate(row.SubmitDate)}</td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
         {this.state.loading ? <Loader size={"50px"} margin={"20px auto"}/> : null}
 
       </div>
@@ -117,4 +119,8 @@ class CrosschainHistory extends Component {
   }
 }
 
-export default CrosschainHistory
+const mapStateToProps = (state) => ({
+  isMobile: state.app.isMobile
+});
+
+export default connect(mapStateToProps)(CrosschainHistory)
