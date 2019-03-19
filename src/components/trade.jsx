@@ -383,8 +383,8 @@ class Trade extends Component {
         return (
             <div className={container + " container-fluid" + (this.props.mobile ? " mobile" : "")}>
                 <div className="buy-sell-toggle">
-                    <button id="buy-switch" className={"buy-btn" + (this.state.trade_side !== 0 ? " inactive" : "")} onClick={this.switchTradeTo.bind(this, 0)}>BUY {tradingPair[0]}</button>
-                    <button id="sell-switch" className={"sell-btn" + (this.state.trade_side !== 1 ? " inactive" : "")} onClick={this.switchTradeTo.bind(this, 1)}>SELL {tradingPair[0]}</button>
+                    <button id="buy-switch" className={"buy-btn" + (this.state.trade_side !== 0 ? " inactive" : "")} onClick={this.switchTradeTo.bind(this, 0)}>BUY <SmallToken name={tradingPair[0]} /></button>
+                    <button id="sell-switch" className={"sell-btn" + (this.state.trade_side !== 1 ? " inactive" : "")} onClick={this.switchTradeTo.bind(this, 1)}>SELL <SmallToken name={tradingPair[0]} /></button>
                 </div>
 
                 <div className="transac-actions">
@@ -461,7 +461,7 @@ class Trade extends Component {
                                     <td className="text-right pr-2">{window.assetsBySymbol 
                                         && window.assetsBySymbol[tradingPair[this.state.trade_side]].options.market_fee_percent != 0 
                                         && ((((this.state.qty * Math.pow(10, 6)) * (this.state.price * Math.pow(10, 6))) / Math.pow(10, 12))*((window.assetsBySymbol[tradingPair[this.state.trade_side]].options.market_fee_percent)/10000)).toLocaleString(navigator.language, {maximumFractionDigits: 6}) || 0}</td>
-                                    <td className="text-muted">{tradingPair[this.state.trade_side]}</td>
+                                    <td className="text-muted"><SmallToken name={tradingPair[this.state.trade_side]} /></td>
                                 </tr>
                                 <tr>
                                     <td>Taker</td>
@@ -469,12 +469,12 @@ class Trade extends Component {
                                     <td className="text-right pr-2">{window.assetsBySymbol 
                                         && window.assetsBySymbol[tradingPair[this.state.trade_side]].options.market_fee_percent != 0 
                                         && ((((this.state.qty * Math.pow(10, 6)) * (this.state.price * Math.pow(10, 6))) / Math.pow(10, 12))*((window.assetsBySymbol[tradingPair[this.state.trade_side]].options.market_fee_percent)/10000).toLocaleString(navigator.language, {maximumFractionDigits: 6})) || 0}</td>
-                                    <td className="text-muted">{tradingPair[this.state.trade_side]}</td>
+                                    <td className="text-muted"><SmallToken name={tradingPair[this.state.trade_side]} /></td>
                                 </tr>
                                 <tr>
                                     <td colSpan="2">Platform Fees</td>
                                     <td className="text-right pr-2">{this.props.fee.amount}</td>
-                                    <td className="text-muted">{this.props.fee.symbol}</td>
+                                    <td className="text-muted"><SmallToken name={this.props.fee.symbol} /></td>
                                 </tr>
                             </tbody>
                         </table>

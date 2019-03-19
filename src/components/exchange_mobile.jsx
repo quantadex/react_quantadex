@@ -14,7 +14,7 @@ import MobileNav from './ui/mobileNav.jsx';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { connect } from 'react-redux'
-
+import Ticker from './ui/ticker.jsx';
 import { css } from 'emotion'
 import globalcss from './global-css.js'
 
@@ -191,7 +191,7 @@ class Exchange extends Component {
 			<MobileHeader />
 			<div className="d-flex qt-font-normal qt-font-bold p-4 justify-content-between border-bottom border-dark">
 				<div id="market-dropdown" onClick={this.toggleMarketsList}>MARKETS</div>
-				<div>{this.props.currentTicker}</div>
+				<div><Ticker ticker={this.props.currentTicker} /></div>
 			</div>
 			<div id="market-list">
 				<Dashboard mobile={true}/>

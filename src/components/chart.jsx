@@ -14,7 +14,7 @@ class Chart extends Component {
     this.initChart()
   }
 
-  initChart() {
+  initChart(ticker = this.props.currentTicker) {
     const self = this;
     self.setState({init: true})
     const dataFeed = new Datafeeds.UDFCompatibleDatafeed("/api/v1");
@@ -66,7 +66,7 @@ class Chart extends Component {
     // TradingView.onready(function() {
       var widget = (window.chartWidget = new TradingView.widget({
         fullscreen: false,
-        symbol: self.props.currentTicker,
+        symbol: ticker,
         interval: "15",
         allow_symbol_change: false,
         // height: '50px',
@@ -156,7 +156,7 @@ class Chart extends Component {
     widget.onChartReady(function() {
       for (let interval of custom_intervals) {
         var button = widget.createButton()
-        .on('click', () => widget.setSymbol(self.props.currentTicker, interval.resolution))
+        .on('click', () => widget.setSymbol(ticker, interval.resolution))
         .append($('<span>' + interval.text + '</span>'))
         button.addClass("custom-button")
       }
@@ -167,7 +167,7 @@ class Chart extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (this.props.network !== nextProps.network) {
-      this.initChart()
+      this.initChart(nextProps.currentTicker)
     }
   }
 

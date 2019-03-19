@@ -55,15 +55,14 @@ const container = css`
 `;
 
 class Header extends Component {
-	constructor(props) {
-		super(props)
-		this.state = {
-			toggle_market: false
-		}
-	}
 
 	handleMarketClick() {
-		this.setState({ toggle_market: !this.state.toggle_market })
+		const list = document.getElementById("market-list")
+		if (list.classList.contains("active")) {
+			list.classList.remove("active")
+		} else {
+			list.classList.add("active")
+		}
 	}
 
 	render() {
@@ -93,7 +92,7 @@ class Header extends Component {
 						<span className="header-coin-name qt-font-normal qt-font-bold qt-color-theme">
 							<Ticker ticker={this.props.currentTicker} />
 						</span>
-						<div className={"markets" + (this.state.toggle_market ? " active" : "")}>
+						<div id="market-list" className="markets">
 							<Dashboard />
 						</div>
 					</div>

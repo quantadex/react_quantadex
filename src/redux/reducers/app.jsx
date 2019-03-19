@@ -679,7 +679,7 @@ const app = (state = initialState, action) => {
       return {
         ...state,
         currentTicker:action.data,
-        markets: mergeTickerData(state.markets, action.data)
+        // markets: mergeTickerData(state.markets, action.data)
       }
     case APPEND_TRADE:
       return {

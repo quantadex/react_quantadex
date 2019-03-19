@@ -34,20 +34,22 @@ export const SmallToken = ({ name }) => {
 		return "INVALID"
 	}
 
-	// const token = name.split("*")
-	// return <span>{token[0]}<span className="issuer">{token[1].substr(0, 4)}</span></span>
-	return <span>{name}</span>
+	const token = name.split("0X")
+	return <span>{token[0]}{token[1] ? "0x" + token[1].substr(0, 4) : ""}</span>
 }
 
-export const SymbolToken = ({ name, showIcon = true }) => {
+export const SymbolToken = ({ name, showIcon = true, withLink= true }) => {
 	if (name === undefined || name === null) {
 		return "INVALID"
 	}
 	const token = name.split("0X")
 
 	return (<span className={container + " symbol"}>{token[0]} {token[1] && 
+		(withLink ? 
 		<a className="issuer-tag qt-font-light"
 			href={CONFIG.SETTINGS[window.currentNetwork].ETHERSCAN_URL + "/token/0x" + token[1]} target="_blank">0x{token[1].substr(0, 4)}</a>
+		
+		: <span className="issuer-tag qt-font-light">0x{token[1].substr(0, 4)}</span>)
 		}
 		{showIcon && (CONFIG.SETTINGS[window.currentNetwork].CROSSCHAIN_COINS.includes(name) || name.split("0X").length == 2) ? 
 			<img className="crosschain-icon" src={devicePath("public/images/crosschain-coin.svg")} title="Crosschain" />
@@ -60,10 +62,10 @@ export default ({ticker}) => {
 	if (ticker === undefined || ticker === null) {
 		return "INVALID"
 	}
-	return <span>{ticker}</span>
-	// const comp = ticker.split("/")
-	// const base = comp[0].split("*")
-	// const counter = comp[1].split("*")
+	// return <span>{ticker}</span>
+	const comp = ticker.split("/")
+	const base = comp[0].split("0X")
+	const counter = comp[1].split("0X")
 
-	// return <span>{base[0]}<b>{base[1].substr(0, 4)}</b>/{counter[0]}<b>{counter[1].substr(0, 4)}</b></span>
+	return <span>{base[0]}<b>{base[1] ? "0x" + base[1].substr(0, 4) : ""}</b>/{counter[0]}<b>{counter[1] ? "0x" + counter[1].substr(0, 4): ""}</b></span>
 }
