@@ -146,8 +146,8 @@ class QTDeposit extends React.Component {
       var metamask = new Web3(web3.currentProvider);
 
       this.accountInterval = setInterval(function() {
-        if (metamask.eth.accounts.givenProvider.selectedAddress !== self.state.deposit_address) {
-          self.setState({deposit_address: metamask.eth.accounts.givenProvider.selectedAddress})
+        if (metamask.eth.accounts.givenProvider.selectedAddress !== self.state.metamask_acc) {
+          self.setState({metamask_acc: metamask.eth.accounts.givenProvider.selectedAddress})
         }
       }, 100);
     }
