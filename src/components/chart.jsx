@@ -18,6 +18,8 @@ class Chart extends Component {
     const self = this;
     self.setState({init: true})
     const dataFeed = new Datafeeds.UDFCompatibleDatafeed("/api/v1");
+    window.showBenchmark = this.props.showBenchmark;
+    console.log("show benchmark=", window.showBenchark);
 
     let disabled_features = [
       "header_saveload",
@@ -172,9 +174,15 @@ class Chart extends Component {
   }
 
   componentDidUpdate() {
+    window.showBenchmark = this.props.showBenchmark;
+    window.chart_count = window.chart_count || 0;
+    console.log("tryto update ", window.showBenchmark, window.chart_count);
+    // TODO: reload with the same resolution
     if (!this.state.init) {
       setTimeout(() => {
-        window.chartWidget.setSymbol(this.props.currentTicker, "15")
+
+        window.chartWidget.setSymbol(this.props.currentTicker + "@adjusted" + window.chart_count, "15")
+        window.chart_count++;
       }, 0)
     }
   }

@@ -1,5 +1,6 @@
 import { Apis } from "@quantadex/bitsharesjs-ws";
 import { transformPriceData } from "../common/PriceData";
+import lodash from 'lodash';
 
 /*
 	This class implements interaction with UDF-compatible datafeed.
@@ -394,6 +395,7 @@ Datafeeds.UDFCompatibleDatafeed.prototype.resolveSymbol = function(
     //     that._logMessage("Error resolving symbol: " + JSON.stringify([reason]));
     //     onResolveErrorCallback("unknown_symbol");
     //   });
+
     setTimeout(function() {
       onResultReady({
         name: symbolName,
@@ -434,6 +436,30 @@ function getBaseCounter(market) {
   }
 }
 
+function getExternalPrice(ticker, resolution) {
+  if (ticker.startsWith("BINANCE:")) {
+    const symbol = "BTC/USDT"; //symbolInfo.ticker.split(":")[1]
+    let interval = resolution.toLowerCase();
+    if (!resolution.endsWith("d")) {
+      interval = resolution + "m";
+    }
+    var url = new URL("http://localhost:5000/get_external_price")
+    url.search = new URLSearchParams({
+      timeframe: interval,
+      symbol: symbol,
+      exchange: "binance"
+    })
+
+    return fetch(url).then(data => data.json()).then(data => {
+      const bars = data.map((e, index) => {
+        return { time: new Date(e[0]), open: e[1], high: e[2], low: e[3], close: e[4], volume: 0 }
+      });
+      return bars;
+    })
+  }
+  return Promise.resolve();
+}
+
 Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
   symbolInfo,
   resolution,
@@ -456,7 +482,12 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
   }
 
   try {
-    var { base, counter } = getBaseCounter(symbolInfo.ticker);
+    const parts = symbolInfo.ticker.split("@")
+    let ticker = parts.length > 1 ? parts[0] : symbolInfo.ticker;
+
+    var { base, counter } = getBaseCounter(ticker);
+    console.log("ticker?", parts, ticker,base, counter);
+
   } catch(e) {
     setTimeout(() => {
       Datafeeds.UDFCompatibleDatafeed.prototype.getBars(
@@ -477,8 +508,14 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
     resolution * 60 * bucketCount * 1000
   );
 
+  console.log("get data?", onDataCallback);
+
+  
+  var binancePrice = getExternalPrice("BINANCE:BTC/USDT", resolution);
+  console.log("get data?", onDataCallback);
+
   // console.log("Load prices ", symbolInfo, resolution, rangeStartDate, rangeEndDate);
-  return Apis.instance()
+  return Promise.all([Apis.instance()
     .history_api()
     .exec("get_market_history", [      
       base.id,
@@ -486,19 +523,30 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
       resolution * 60,
       startDate.toISOString().slice(0, -5),
       endDate.toISOString().slice(0, -5)
-    ]).then((data) => {
-      // console.log("chart data", data);
+    ]), binancePrice]).then((res) => {
+      //console.log("chart data", data);
+      var data = res[0];
+      var binance = res[1];
+      data = data || [];
       const no_data = data.length == 0;
       const bars = transformPriceData(data, counter, base);
-      // console.log("Bars ", bars, no_data);
+      console.log("Bars ", bars, no_data);
 
       // console.log("Writing Enddate");
       Datafeeds.endDate = endDate;
+      var combined = null;
 
-      if (data.length == 0) {
-        onDataCallback(bars, {noData: true})
+      if (window.showBenchmark) {
+        console.log("binance", binance);
+        combined = lodash.unionBy(data, binance, (e) => e.time);
       } else {
-        onDataCallback(bars);
+        combined = data;  
+      }
+
+      if (combined.length == 0) {
+        onDataCallback([], {noData: true})
+      } else {
+        onDataCallback(combined);
       }
     })
 };

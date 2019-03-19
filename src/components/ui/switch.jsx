@@ -35,22 +35,12 @@ const container = css `
 `
 
 export default class Switch extends Component {
-    handleSwitch(toggle) {
-        const el = document.getElementById("container")
-        if (el.classList.contains("active")) {
-            el.classList.remove("active")
-            toggle(false)
-        } else {
-            el.classList.add("active")
-            toggle(true)
-        }
-    }
 
     render() {
         return (
             <div className={container + " qt-font-extra-small"}>
                 <span>{this.props.label}</span>
-                <div id="container" onClick={this.handleSwitch.bind(this, this.props.onToggle)}>
+                <div id={"container"} className={(this.props.active ? "active" : "")} onClick={this.props.onToggle}>
                     <span id="switch"></span>
                 </div>
             </div>

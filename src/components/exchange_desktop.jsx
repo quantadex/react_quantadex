@@ -14,6 +14,7 @@ import Leaderboard from './leaderboard.jsx'
 import Status from './status.jsx'
 import FirstTime from './first_time.jsx'
 import QTTableView from './ui/tableView.jsx'
+import Switch from './ui/switch.jsx';
 import Order from './order.jsx';
 import Markets from './markets.jsx';
 import OpenOrders from './open_orders.jsx';
@@ -114,6 +115,11 @@ const container = css`
 		}
 	}
 
+	.benchmark-box {
+		margin-top: 8px;
+		margin-left: 10px;
+	}
+
 	.exchange-dashboard {
 		border-bottom: solid 1px #121517;
 	}
@@ -172,6 +178,7 @@ class Exchange extends Component {
 			chart: "tv",
 			toggle_trade: false,
 			dialog: undefined,
+			showBenchmark: true
 		}
 		
 	}
@@ -201,12 +208,19 @@ class Exchange extends Component {
 		}, 0)
 	}
 
+	toggleBenchmarkPrice() {
+		this.setState({ showBenchmark: !this.state.showBenchmark })
+	}
+
 	render() {
 		const Switchchart = () => {
 			return(
 				<div className="switch-chart d-flex">
 					<button className={this.state.chart === "tv" ? "active": ""} onClick={() => this.toggleChart("tv")}>Price Chart</button>
 					<button className={this.state.chart === "depth" ? "active": ""} onClick={() => this.toggleChart("depth")}>Depth Chart</button>
+					<span className="benchmark-box">
+						<Switch label="Benchmark Price " onToggle={this.toggleBenchmarkPrice.bind(this)}  active={this.state.showBenchmark}/>
+					</span>
 				</div>
 			)
 		}
@@ -236,7 +250,7 @@ class Exchange extends Component {
 								</div>
 							<section className="compartment" style={this.state.toggle_trade ? {width: "calc(100% - 270px)"} : {width: "100%"}}>
 								<Switchchart />
-								<Chart chartTools={true} className={this.state.chart === "tv" ? "d-block": "d-none" } style={!this.props.private_key && {height: "calc(100vh - 124px)"}} />
+								<Chart chartTools={true} showBenchmark={this.state.showBenchmark} className={this.state.chart === "tv" ? "d-block": "d-none" } style={!this.props.private_key && {height: "calc(100vh - 124px)"}} />
 								<DepthChart className={this.state.chart === "depth" ? "d-block": "d-none"} style={!this.props.private_key && {height: "calc(100vh - 124px)"}} />
 							</section>
 
