@@ -95,6 +95,7 @@ class Chart extends Component {
         enabled_features: enabled_features,
         charts_storage_url: "https://saveload.tradingview.com",
         charts_storage_api_version: "1.1",
+        theme: "Dark",
         custom_css_url: window.isApp ? "../theme_dark.css" : "/public/vendor/charting_library/theme_dark.css",
         client_id: "tradingview.com",
         user_id: "public_user_id",
@@ -160,7 +161,9 @@ class Chart extends Component {
         .append($('<span>' + interval.text + '</span>'))
         button.addClass("custom-button")
       }
-      
+
+      widget.chart().createStudy('Compare', false, false, ['open','BINANCE:BTC/USDT']);
+      widget.chart().getPanes()[0].getMainSourcePriceScale().setMode(0);
       self.setState({init: false})
     })
   }

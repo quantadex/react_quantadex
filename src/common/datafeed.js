@@ -451,6 +451,35 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
   //   ]);
   // }
 
+  console.log(symbolInfo);
+  //if (symbolInfo.ticker.startsWith("BINANCE:")) 
+  {
+    const symbol = "BTC/USDT"; //symbolInfo.ticker.split(":")[1]
+    let interval = resolution.toLowerCase();
+    if (!resolution.endsWith("d")) {
+      interval = resolution + "m";
+    }
+    var url = new URL("http://localhost:5000/get_external_price")
+    url.search = new URLSearchParams({
+      timeframe: interval,
+      symbol: symbol,
+      exchange: "binance"
+    })
+
+    return fetch(url).then(data => data.json()).then(data=>{
+      const bars = data.map((e,index)=> {
+        return { time: new Date(e[0]), open: e[1], high: e[1], low: e[1], close: e[1], volume: e[5] }
+      });
+      if (data.length == 0) {
+        onDataCallback(bars, { noData: true })
+      } else {
+        console.log(bars);
+        onDataCallback(bars);
+      }
+    })
+  }
+
+
   if (resolution == "1D") {
     resolution = "1440"
   }
@@ -496,7 +525,11 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
       Datafeeds.endDate = endDate;
 
       if (data.length == 0) {
-        onDataCallback(bars, {noData: true})
+        const bars = [{ time: startDate}, {time: endDate}]
+        console.log("no data?",bars);
+        onDataCallback(bars)
+
+        onDataCallback([], {noData: true})
       } else {
         onDataCallback(bars);
       }
