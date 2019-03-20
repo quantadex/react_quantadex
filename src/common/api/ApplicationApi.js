@@ -250,6 +250,15 @@ const ApplicationApi = {
                     fee_asset_id = "1.3.0";
                 }
 
+                // TODO: copy as balance_claim
+                // export const balance_claim = new Serializer("balance_claim", {
+                //     fee: asset,
+                //     deposit_to_account: protocol_id_type("account"),
+                //     balance_to_claim: protocol_id_type("balance"),
+                //     balance_owner_key: public_key,
+                //     total_claimed: asset
+                // });
+                // https://bitshares.org/doxygen/structgraphene_1_1chain_1_1balance__claim__operation.html
                 let tr = new TransactionBuilder();
                 let vesting_balance_withdraw_op = tr.get_type_operation("vesting_balance_withdraw", {
                     fee: {
