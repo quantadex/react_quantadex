@@ -1,6 +1,7 @@
 import { Apis } from "@quantadex/bitsharesjs-ws";
 import { transformPriceData } from "../common/PriceData";
 import lodash from 'lodash';
+import CONFIG from "../config.js";
 
 /*
 	This class implements interaction with UDF-compatible datafeed.
@@ -472,7 +473,7 @@ function getExternalPrice(ticker, resolution) {
   if (ticker.startsWith("BINANCE:")) {
     const symbol = ticker.split(":")[1]
     let interval = BinanceResolution[resolution]
-    var url = new URL("http://localhost:5000/get_external_price")
+    var url = new URL(CONFIG.SETTINGS[window.currentNetwork].API_PATH +"/get_external_price")
     url.search = new URLSearchParams({
       timeframe: interval,
       symbol: symbol,
