@@ -9,6 +9,22 @@ import lodash from 'lodash';
 	https://github.com/tradingview/charting_library/wiki/UDF
 */
 
+// { text: "1m", resolution: "1" },
+// { text: "5m", resolution: "5" },
+// { text: "15m", resolution: "15" },
+// { text: "30m", resolution: "30" },
+// { text: "1h", resolution: "60" },
+// { text: "1D", resolution: "1D" },
+
+const BinanceResolution = {
+  "1": "1m",
+  "5": "5m",
+  "15" : "15m",
+  "30" : "30m",
+  "60" : "1h",
+  "1d" : "1d"
+}
+
 function parseJSONorNot(mayBeJSON) {
   if (typeof mayBeJSON === "string") {
     return JSON.parse(mayBeJSON);
@@ -397,7 +413,9 @@ Datafeeds.UDFCompatibleDatafeed.prototype.resolveSymbol = function(
     //   });
 
     setTimeout(function() {
-      const comp = symbolName.split("/")
+      const parts = symbolName.split("@")
+      let ticker = parts.length > 1 ? parts[0] : symbolName;
+      const comp = ticker.split("/")
       const base = comp[0].split("0X")
       const counter = comp[1].split("0X")
       onResultReady({
@@ -405,7 +423,7 @@ Datafeeds.UDFCompatibleDatafeed.prototype.resolveSymbol = function(
         ticker: symbolName,
         description: `${base[0]}${(base[1] ? "0x" + base[1].substr(0, 4) : "")}/${counter[0]}${(counter[1] ? "0x" + counter[1].substr(0, 4) : "")}`,
         // exchange: "QDEX",
-        timezone: "America/Los_Angeles",
+        timezone: "GMT/UTC",
         has_intraday: true,
         //has_empty_bars: true,
         supported_resolutions: ['1', '5', '15', '30', '60', '1D']
@@ -443,10 +461,7 @@ function getBaseCounter(market) {
 function getExternalPrice(ticker, resolution) {
   if (ticker.startsWith("BINANCE:")) {
     const symbol = ticker.split(":")[1]
-    let interval = resolution.toLowerCase();
-    if (!resolution.endsWith("d")) {
-      interval = resolution + "m";
-    }
+    let interval = BinanceResolution[resolution]
     var url = new URL("http://localhost:5000/get_external_price")
     url.search = new URLSearchParams({
       timeframe: interval,
@@ -456,7 +471,7 @@ function getExternalPrice(ticker, resolution) {
 
     return fetch(url).then(data => data.json()).then(data => {
       const bars = data.map((e, index) => {
-        return { time: new Date(e[0]), open: e[1], high: e[2], low: e[3], close: e[4], volume: 0 }
+        return { time: e[0], open: e[1], high: e[2], low: e[3], close: e[4], volume: 0 }
       });
       return bars;
     })
@@ -509,16 +524,12 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
     return
   }
   const bucketCount = 200
-
   const endDate = new Date(rangeEndDate * 1000)
   const startDate2 = new Date(rangeStartDate * 1000)
-
   const startDate = new Date(
     endDate.getTime() -
     resolution * 60 * bucketCount * 1000
   );
-
-  console.log("get data?", onDataCallback);
 
   var binancePrice = null;
   if (window.allMarketsByHash[ticker]) {
@@ -531,8 +542,6 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
   } else {
     binancePrice = Promise.resolve([])
   }
-
-  console.log("get data?", onDataCallback);
 
   // console.log("Load prices ", symbolInfo, resolution, rangeStartDate, rangeEndDate);
   return Promise.all([Apis.instance()
@@ -550,25 +559,27 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
       data = data || [];
       const no_data = data.length == 0;
       const bars = transformPriceData(data, counter, base);
-      console.log("Bars ", bars, no_data);
-
+      //console.log("Bars ", bars, no_data);
       // console.log("Writing Enddate");
       Datafeeds.endDate = endDate;
       var combined = null;
 
       if (window.showBenchmark) {
-        console.log("binance", binance);
-        combined = lodash.unionBy(data, binance, (e) => e.time);
+        combined = lodash.unionBy(bars, binance, (e) => e.time);
         combined = combined.filter(e => {
           return e.time >= startDate2 && e.time <= endDate;
         })
       } else {
-        console.log("data orig", data.length);
-        combined = data;  
+        //console.log("data orig", data.length, "start=", startDate2, "end=", endDate);
+        combined = bars;  
         combined = combined.filter(e => {
           return e.time >= startDate2 && e.time <= endDate;
         })
       }
+
+      combined = lodash.sortBy(combined, "time");
+
+      //console.log("data after", bars,combined,combined.length);
 
       if (combined.length == 0) {
         onDataCallback([], {noData: true})
@@ -959,10 +970,11 @@ Datafeeds.DataPulseUpdater.prototype.subscribeDataListener = function(
     };
   }
 
-  Apis.instance().streamCb = () => {
-    const parts = symbolInfo.ticker.split("@")
-    let ticker = parts.length > 1 ? parts[0] : symbolInfo.ticker;
+  const parts = symbolInfo.ticker.split("@")
+  let ticker = parts.length > 1 ? parts[0] : symbolInfo.ticker;
+  let lastBar = null;
 
+  Apis.instance().streamCb = () => {
     const { base, counter } = getBaseCounter(ticker);
     const endDate = new Date()
     const startDate = new Date(
@@ -985,32 +997,51 @@ Datafeeds.DataPulseUpdater.prototype.subscribeDataListener = function(
         } else {
           const no_data = data.length == 0;
           const bars = transformPriceData(data, counter, base);
-          console.log("New Bars ", bars, no_data);
-          newDataCallback(bars[0]);
-          Datafeeds.endDate = endDate;
+          console.log("New Bars from QUANTA ", bars, no_data);
+          //newDataCallback(bars[0]);
+          //Datafeeds.endDate = endDate;
+          lastBar = bars[0];
+          if (!window.showBenchmark) {
+            newDataCallback(lastBar);
+          }
         }
       })
   }
 
-  // var streamUrl = "http://testnet-02.quantachain.io:7200/stream/chart/" + symbolInfo.ticker + "?interval=" + resolution.toLowerCase()
-  // console.log("Stream Subscribe ", symbolInfo, streamUrl);
-  // var stream = new EventSource(streamUrl);
+  var binancePrice = null;
+  if (window.allMarketsByHash[ticker] && window.showBenchmark) {
+    const benchmark = window.allMarketsByHash[ticker].benchmarkSymbol;
+    if (benchmark) {
+      if (benchmark.startsWith("BINANCE:")) {
+        const symbol = benchmark.split(":")[1]
+        const interval = BinanceResolution[resolution]
+        const streamName = symbol.replace("/", "").toLowerCase() + "@kline_" + interval;
+        console.log("stream name=", streamName);
+        var socket = new WebSocket("wss://stream.binance.com:9443/ws/" + streamName);
+        socket.onmessage = function (event) {
+          event = JSON.parse(event.data);
+          const res = {
+            time: event.k.t,
+            open: +event.k.o,
+            high: +event.k.h,
+            low: +event.k.l,
+            close: +event.k.c,
+            volume: 0
+          }
+          //console.log(res);
 
-  // stream.onmessage = function(event) {
-  //   const data = JSON.parse(event.data);
-  //   const res = {
-  //     time: data.time*1000,
-  //     volume: +data.volume,
-  //     open: +data.open,
-  //     high: +data.high,
-  //     low: +data.low,
-  //     close: +data.close
-  //   }
-  //   console.log(data, res);
-  //   newDataCallback(res);
-  // };
+          // prioritize QUANTA data if we've seen the data
+          if (lastBar && lastBar.time == res.time) {
+            newDataCallback(lastBar);
+          } else {
+            newDataCallback(res);
+          }
+        }
+        this._subscribers[listenerGUID].sockets.push(socket);
+      }
+    }
+  }
 
-  //this._subscribers[listenerGUID].sockets.push(stream);
 };
 
 Datafeeds.DataPulseUpdater.prototype.periodLengthSeconds = function(

@@ -15,7 +15,7 @@ export function transformPriceData(priceHistory, baseAsset, quoteAsset) {
 		if (!/Z$/.test(current.key.open)) {
 			current.key.open += "Z";
 		}
-		let date = new Date(current.key.open);
+		let date = new Date(current.key.open).getTime();
 
 		if (quoteAsset.id === current.key.quote) {
 			high = utils.get_asset_price(
@@ -121,7 +121,7 @@ export function transformPriceData(priceHistory, baseAsset, quoteAsset) {
 			low = findMin(open, close);
 		}
 
-		prices.push({ time: date.getTime(), open, high, low, close, volume });
+		prices.push({ time: date, open, high, low, close, volume });
 	}
 
 	return prices;

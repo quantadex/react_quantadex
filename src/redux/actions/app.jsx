@@ -326,7 +326,7 @@ export function switchTicker(ticker, force_init=false) {
 		})
 
 		if (initAPI == false || force_init) {
-			Apis.instance(CONFIG.SETTINGS[window.currentNetwork].WEBSOCKET_PATH, true, 3000, { enableOrders: true }).init_promise.then((res) => {
+			Apis.instance(CONFIG.SETTINGS[window.currentNetwork].WEBSOCKET_PATH, true, 5000, { enableOrders: true }).init_promise.then((res) => {
 				// console.log("connected to:", res[0].network, publicKey);
 
 				// Apis.instance().db_api().exec("set_subscribe_callback", [onUpdate, true]);
@@ -367,84 +367,86 @@ export function switchTicker(ticker, force_init=false) {
 			async function fetchData(ticker, first=false) {
 				var {base, counter} = getBaseCounter(ticker)
 				try {
-					await fetch(CONFIG.SETTINGS[window.currentNetwork].MARKETS_JSON).then(e => e.json())
-					.then(async (e) => {
-						// save for later
-						markets = e;
+					if (!window.markets) {
+						const markets = await fetch(CONFIG.SETTINGS[window.currentNetwork].MARKETS_JSON).then(e => e.json())
 						window.markets = markets.markets
 						window.marketsHash = lodash.keyBy(markets.markets, "name")
 
 						// used by datafeed
 						window.allMarkets = []
-						for (const key in window.markets)  {
+						for (const key in window.markets) {
 							window.allMarkets.push(...window.markets[key])
 						}
 						window.allMarketsByHash = lodash.keyBy(window.allMarkets, "name")
 						console.log("done building markets", window.allMarketsByHash);
 
-						var marketData = {};
-						var USD_value = {}
-						// console.log("json ", markets.markets);
+					}
 
-						for (const market in markets.markets) {
-							for (const pair of markets.markets[market]) {
-								var { base, counter } = getBaseCounter(pair.name);
-								if(!base || !counter) continue
-								const data = await Promise.all([Apis.instance()
-									.db_api()
-									.exec("get_ticker", [counter.id, base.id]),
-								Apis.instance()
-									.db_api()
-									.exec("get_24_volume", [counter.id, base.id])])
-								
-								if (!marketData[market]) {
-									marketData[market] = []
-								}
-								marketData[market].push({
-									name: pair.name,
-									last: data[0].latest,
-									base_volume: data[1].base_volume,
-									quote_volume: data[1].quote_volume
-								})
-								if (counter.symbol == 'USD') {
-									USD_value[base.id] = data[0].latest
-									USD_value[counter.id] = 1
-								}
+					var marketData = {};
+					var USD_value = {}
+
+					// console.log("json ", markets.markets);
+
+					for (const market in window.markets) {
+						for (const pair of window.markets[market]) {
+							var { base, counter } = getBaseCounter(pair.name);
+							if(!base || !counter) continue
+							const data = await Promise.all([Apis.instance()
+								.db_api()
+								.exec("get_ticker", [counter.id, base.id]),
+							Apis.instance()
+								.db_api()
+								.exec("get_24_volume", [counter.id, base.id])])
+							
+							if (!marketData[market]) {
+								marketData[market] = []
+							}
+							marketData[market].push({
+								name: pair.name,
+								last: data[0].latest,
+								base_volume: data[1].base_volume,
+								quote_volume: data[1].quote_volume
+							})
+							if (counter.symbol == 'USD') {
+								USD_value[base.id] = data[0].latest
+								USD_value[counter.id] = 1
 							}
 						}
+					}
 
-						dispatch({
-							type: SET_MARKET_QUOTE,
-							data: [marketData, USD_value]
-						})
-					}).then(e => {
-						if (!initUser && getState().app.private_key !== null) {
-							const pKey = PrivateKey.fromWif(getState().app.private_key);
-							publicKey = pKey.toPublicKey().toString()
-
-							Apis.instance()
-							.db_api()
-							.exec("get_key_references", [[publicKey]])
-							.then(vec_account_id => {
-								// console.log("get_key_references ", vec_account_id[0][0]);
-		
-								return Apis.instance()
-									.db_api()
-									.exec("get_objects", [[vec_account_id[0][0]]])
-									.then((data) => {
-										// console.log("get account ", data);
-										dispatch({
-											type: UPDATE_ACCOUNT,
-											data: data[0]
-										})
-									})
-		
-							}).then(e => {
-								initUser = true
-								fetchData(ticker)
-							})
-						}
+					dispatch({
+						type: SET_MARKET_QUOTE,
+						data: [marketData, USD_value]
 					})
+
+					// look up account if we're logged in
+					if (!initUser && getState().app.private_key !== null) {
+						const pKey = PrivateKey.fromWif(getState().app.private_key);
+						publicKey = pKey.toPublicKey().toString()
+
+						Apis.instance()
+						.db_api()
+						.exec("get_key_references", [[publicKey]])
+						.then(vec_account_id => {
+							// console.log("get_key_references ", vec_account_id[0][0]);
+	
+							return Apis.instance()
+								.db_api()
+								.exec("get_objects", [[vec_account_id[0][0]]])
+								.then((data) => {
+									// console.log("get account ", data);
+									dispatch({
+										type: UPDATE_ACCOUNT,
+										data: data[0]
+									})
+								})
+	
+						}).then(e => {
+							initUser = true
+							fetchData(ticker)
+						})
+					}
+
 				} catch(e) {
 					console.log(e)
 					if (!disconnect_notified) {
@@ -460,12 +462,12 @@ export function switchTicker(ticker, force_init=false) {
 
 				// note: must use short account id
 				// TODO: provide get balances
-				const shortAddress = WalletApi.getShortAddress("QA4tajffcxUeSnydbSj6J4DxTYPuaC85B2nnqiqTMj63Q5HiCNPE")
-				console.log("Short address", shortAddress);
+				// const shortAddress = WalletApi.getShortAddress("QA4tajffcxUeSnydbSj6J4DxTYPuaC85B2nnqiqTMj63Q5HiCNPE")
+				// console.log("Short address", shortAddress);
 
-				Apis.instance().db_api().exec("get_balance_objects", [["QAJAskKzhn2fqqF6bWXgM8kEkDCmVjh9SUL"]]).then(e=>{
-					console.log("balance obj????", e);
-				})				
+				// Apis.instance().db_api().exec("get_balance_objects", [["QAJAskKzhn2fqqF6bWXgM8kEkDCmVjh9SUL"]]).then(e=>{
+				// 	console.log("balance obj????", e);
+				// })				
 
 				const trades = Apis.instance().history_api().exec("get_fill_order_history", [base.id, counter.id, 100]).then((filled) => {
 					// console.log("history filled ", filled);

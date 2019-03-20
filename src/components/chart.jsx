@@ -73,6 +73,7 @@ class Chart extends Component {
         allow_symbol_change: false,
         // height: '50px',
         autosize: true,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         container_id: "tv_chart_container",
         //	BEWARE: no trailing slash is expected in feed URL
         datafeed: dataFeed,
