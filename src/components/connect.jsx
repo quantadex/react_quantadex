@@ -6,6 +6,7 @@ import { PrivateKey, changeWalletPassword, decryptWallet, encryptWallet } from "
 import WalletApi from "../common/api/WalletApi";
 import QTTabBar from './ui/tabBar.jsx'
 import Loader from '../components/ui/loader.jsx'
+import CONFIG from '../config.js'
 
 const container = css`
     text-align: center;
@@ -370,14 +371,14 @@ class ConnectDialog extends Component {
 
 		this.setState({processing: true, private_key: keys.privateKey})
 
-		fetch("/api/register", {
+		fetch(CONFIG.SETTINGS[window.currentNetwork].API_PATH + "/register_account", {
 			method: "post",
 			headers: {
 					"Content-Type": "application/json",
 					Accept: "application/json"
 			},
 			body: JSON.stringify({
-				user_name: this.state.username.toLowerCase(),
+				name: this.state.username.toLowerCase(),
 				public_key: keys.publicKey,
 			})
 		}).then(response => {
@@ -386,13 +387,13 @@ class ConnectDialog extends Component {
                     regStep:2,
 					authError: false
 				});
-				return response.json();
+				return response.json()
 			} else {
 				return response.json().then(res => {
 					var msg;
-					if (res.message.includes("already exists")) {
+					if (res.error.includes("already exists")) {
 						msg = "Username already exist"
-					} else if (res.message.includes("is_valid_name")) {
+					} else if (res.error.includes("is_valid_name")) {
 						msg = "Name must start with a letter and only contains alpha numeric, dash, and dot"
 					} else {
 						msg = "Server error. Please try again."

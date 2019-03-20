@@ -6,6 +6,7 @@ import QTTabBar from './ui/tabBar.jsx'
 import {SymbolToken} from './ui/ticker.jsx'
 import {switchTicker} from "../redux/actions/app.jsx";
 import SearchBox from "./ui/searchBox.jsx";
+import { withRouter} from "react-router-dom";
 
 const container = css`
 	padding: 20px;
@@ -77,6 +78,7 @@ class Dashboard extends Component {
 		} else {
 			list.classList.add("active")
 		}
+		this.props.history.push("/exchange/" + e.replace("/", "_"))
 	}
 
 	handleChange(e) {
@@ -133,7 +135,7 @@ class Dashboard extends Component {
 						<tbody>
 							{
 								lodash.sortBy(this.props.markets[subtabs.names[this.state.selectedCoin]], 'base_volume').reverse().filter(market => market.name.toLowerCase().includes(this.state.filter)).map((market, index) => {
-									return <tr key={index} onClick={this.switchMarket.bind(this, market.name)}>
+									return <tr key={index} onClick={() => this.switchMarket(market.name)}>
 										<td className="market">
 											<SymbolToken name={market.name.split('/')[0]} showIcon={false} withLink={false} />
 										</td>
@@ -156,4 +158,4 @@ const mapStateToProps = (state) => ({
 	favoriteList: state.app.favoriteList
 });
 
-export default connect(mapStateToProps)(Dashboard);
+export default connect(mapStateToProps)(withRouter (Dashboard));

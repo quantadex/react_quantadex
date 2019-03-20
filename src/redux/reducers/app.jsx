@@ -618,7 +618,10 @@ const app = (state = initialState, action) => {
     case LOGIN:
       return {
         ...state,
-        private_key: action.private_key
+        private_key: action.private_key,
+        userId: null,
+        name: null,
+        publicKey: ""
       }
     case UPDATE_ACCOUNT: 
       return {

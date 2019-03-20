@@ -3,6 +3,7 @@ import API from "../../api.jsx"
 import SortedSet from 'js-sorted-set'
 import QuantaClient from "@quantadex/quanta_js"
 import ApplicationApi from "../../common/api/ApplicationApi";
+import WalletApi from "../../common/api/WalletApi";
 import { Apis } from "@quantadex/bitsharesjs-ws";
 import { Price, Asset, FillOrder, LimitOrderCreate, LimitOrder } from "../../common/MarketClasses";
 import { PrivateKey, PublicKey, Aes, key, ChainStore } from "@quantadex/bitsharesjs";
@@ -456,6 +457,16 @@ export function switchTicker(ticker, force_init=false) {
 					return
 				}		
 				
+
+				// note: must use short account id
+				// TODO: provide get balances
+				const shortAddress = WalletApi.getShortAddress("QA4tajffcxUeSnydbSj6J4DxTYPuaC85B2nnqiqTMj63Q5HiCNPE")
+				console.log("Short address", shortAddress);
+
+				Apis.instance().db_api().exec("get_balance_objects", [["QAJAskKzhn2fqqF6bWXgM8kEkDCmVjh9SUL"]]).then(e=>{
+					console.log("balance obj????", e);
+				})				
+
 				const trades = Apis.instance().history_api().exec("get_fill_order_history", [base.id, counter.id, 100]).then((filled) => {
 					// console.log("history filled ", filled);
 					const trade_history = convertHistoryToOrderedSet(filled, base.id)
