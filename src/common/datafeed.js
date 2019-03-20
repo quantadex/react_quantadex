@@ -22,7 +22,17 @@ const BinanceResolution = {
   "15" : "15m",
   "30" : "30m",
   "60" : "1h",
-  "1d" : "1d"
+  "1D" : "1d"
+}
+
+function getResolutionInSec(resolution) {
+  let resolutionSec = null;
+  if (resolution == "1D") {
+    resolutionSec = 1440
+  } else {
+    resolutionSec = parseInt(resolution)
+  }
+  return resolutionSec;
 }
 
 function parseJSONorNot(mayBeJSON) {
@@ -500,17 +510,11 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
     }, 1000)
   }
 
-  if (resolution == "1D") {
-    resolution = "1440"
-  }
-
   const parts = symbolInfo.ticker.split("@")
   let ticker = parts.length > 1 ? parts[0] : symbolInfo.ticker;
 
   try {
     var { base, counter } = getBaseCounter(ticker);
-    console.log("ticker?", parts, ticker,base, counter);
-
   } catch(e) {
     setTimeout(() => {
       Datafeeds.UDFCompatibleDatafeed.prototype.getBars(
@@ -523,12 +527,14 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
     }, 1000)
     return
   }
+  let resolutionSec = getResolutionInSec(resolution)
+
   const bucketCount = 200
   const endDate = new Date(rangeEndDate * 1000)
   const startDate2 = new Date(rangeStartDate * 1000)
   const startDate = new Date(
     endDate.getTime() -
-    resolution * 60 * bucketCount * 1000
+    resolutionSec * 60 * bucketCount * 1000
   );
 
   var binancePrice = null;
@@ -549,7 +555,7 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
     .exec("get_market_history", [      
       base.id,
       counter.id,
-      resolution * 60,
+      resolutionSec * 60,
       startDate.toISOString().slice(0, -5),
       endDate.toISOString().slice(0, -5)
     ]), binancePrice]).then((res) => {
@@ -975,11 +981,12 @@ Datafeeds.DataPulseUpdater.prototype.subscribeDataListener = function(
   let lastBar = null;
 
   Apis.instance().streamCb = () => {
+    let resolutionSec = getResolutionInSec(resolution)
     const { base, counter } = getBaseCounter(ticker);
     const endDate = new Date()
     const startDate = new Date(
       endDate.getTime() -
-      resolution * 1 * 1000
+      resolutionSec * 1 * 1000
     );
 
     // console.log("Stream Load prices ", symbolInfo, resolution);
@@ -988,7 +995,7 @@ Datafeeds.DataPulseUpdater.prototype.subscribeDataListener = function(
       .exec("get_market_history", [
         base.id,
         counter.id,
-        resolution,
+        resolutionSec,
         startDate.toISOString().slice(0, -5),
         endDate.toISOString().slice(0, -5)
       ]).then((data) => {
