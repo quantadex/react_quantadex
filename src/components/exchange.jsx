@@ -8,7 +8,16 @@ import { connect } from 'react-redux'
 
 class Exchange extends Component {
 	componentDidMount() {
-		this.props.dispatch(switchTicker(this.props.currentTicker));
+		if (!this.props.match.params.ticker) {
+			const default_ticker = window.currentNetwork == "MAINNET" ? 'QDEX_ETH' : 'ETH_USD';
+			this.props.history.replace("/exchange/" + default_ticker)
+		} else {
+			this.props.dispatch(switchTicker(this.props.match.params.ticker.replace("_","/")));
+		}
+	}
+	
+	componentDidUpdate() {
+		this.componentDidMount()
 	}
 
 	render() {

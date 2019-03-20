@@ -217,6 +217,7 @@ class Container extends React.Component {
         <Switch>
 					<Route exact path="/" component={Exchange} />
 					<Route exact path="/exchange" component={Exchange} />
+					<Route exact path="/exchange/:ticker" component={Exchange} />
 					<Route path="/exchange/wallets" component={Fund} />
 					<Route exact path="/exchange/message" component={Message} />
 					<Route exact path="/leaderboard" component={Leaderboard} />

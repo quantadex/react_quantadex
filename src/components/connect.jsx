@@ -387,13 +387,13 @@ class ConnectDialog extends Component {
                     regStep:2,
 					authError: false
 				});
-				return response.json();
+				return response.json()
 			} else {
 				return response.json().then(res => {
 					var msg;
-					if (res.message.includes("already exists")) {
+					if (res.error.includes("already exists")) {
 						msg = "Username already exist"
-					} else if (res.message.includes("is_valid_name")) {
+					} else if (res.error.includes("is_valid_name")) {
 						msg = "Name must start with a letter and only contains alpha numeric, dash, and dot"
 					} else {
 						msg = "Server error. Please try again."
