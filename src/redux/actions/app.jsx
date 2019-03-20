@@ -372,7 +372,15 @@ export function switchTicker(ticker, force_init=false) {
 						markets = e;
 						window.markets = markets.markets
 						window.marketsHash = lodash.keyBy(markets.markets, "name")
-						
+
+						// used by datafeed
+						window.allMarkets = []
+						for (const key in window.markets)  {
+							window.allMarkets.push(...window.markets[key])
+						}
+						window.allMarketsByHash = lodash.keyBy(window.allMarkets, "name")
+						console.log("done building markets", window.allMarketsByHash);
+
 						var marketData = {};
 						var USD_value = {}
 						// console.log("json ", markets.markets);

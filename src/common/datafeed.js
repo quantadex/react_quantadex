@@ -407,6 +407,7 @@ Datafeeds.UDFCompatibleDatafeed.prototype.resolveSymbol = function(
         // exchange: "QDEX",
         timezone: "America/Los_Angeles",
         has_intraday: true,
+        //has_empty_bars: true,
         supported_resolutions: ['1', '5', '15', '30', '60', '1D']
       });
     }, 500)
@@ -441,7 +442,7 @@ function getBaseCounter(market) {
 
 function getExternalPrice(ticker, resolution) {
   if (ticker.startsWith("BINANCE:")) {
-    const symbol = "BTC/USDT"; //symbolInfo.ticker.split(":")[1]
+    const symbol = ticker.split(":")[1]
     let interval = resolution.toLowerCase();
     if (!resolution.endsWith("d")) {
       interval = resolution + "m";
@@ -471,23 +472,27 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
   onDataCallback,
   onErrorCallback
 ) {
-  //	timestamp sample: 1399939200
-  // if (rangeStartDate > 0 && (rangeStartDate + "").length > 10) {
-  //   throw new Error([
-  //     "Got a JS time instead of Unix one.",
-  //     rangeStartDate,
-  //     rangeEndDate
-  //   ]);
-  // }
+
+  if (!window.allMarketsByHash) {
+    setTimeout(() => {
+      Datafeeds.UDFCompatibleDatafeed.prototype.getBars(
+        symbolInfo,
+        resolution,
+        rangeStartDate,
+        rangeEndDate,
+        onDataCallback,
+        onErrorCallback)
+    }, 1000)
+  }
 
   if (resolution == "1D") {
     resolution = "1440"
   }
 
-  try {
-    const parts = symbolInfo.ticker.split("@")
-    let ticker = parts.length > 1 ? parts[0] : symbolInfo.ticker;
+  const parts = symbolInfo.ticker.split("@")
+  let ticker = parts.length > 1 ? parts[0] : symbolInfo.ticker;
 
+  try {
     var { base, counter } = getBaseCounter(ticker);
     console.log("ticker?", parts, ticker,base, counter);
 
@@ -506,6 +511,8 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
   const bucketCount = 200
 
   const endDate = new Date(rangeEndDate * 1000)
+  const startDate2 = new Date(rangeStartDate * 1000)
+
   const startDate = new Date(
     endDate.getTime() -
     resolution * 60 * bucketCount * 1000
@@ -513,8 +520,18 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
 
   console.log("get data?", onDataCallback);
 
-  
-  var binancePrice = getExternalPrice("BINANCE:BTC/USDT", resolution);
+  var binancePrice = null;
+  if (window.allMarketsByHash[ticker]) {
+    if (window.allMarketsByHash[ticker].benchmarkSymbol) {
+      console.log("benchmark symbol=", window.allMarketsByHash[ticker].benchmarkSymbol);
+      binancePrice = getExternalPrice(window.allMarketsByHash[ticker].benchmarkSymbol, resolution);
+    } else {
+      binancePrice = Promise.resolve([])
+    }
+  } else {
+    binancePrice = Promise.resolve([])
+  }
+
   console.log("get data?", onDataCallback);
 
   // console.log("Load prices ", symbolInfo, resolution, rangeStartDate, rangeEndDate);
@@ -542,8 +559,15 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
       if (window.showBenchmark) {
         console.log("binance", binance);
         combined = lodash.unionBy(data, binance, (e) => e.time);
+        combined = combined.filter(e => {
+          return e.time >= startDate2 && e.time <= endDate;
+        })
       } else {
+        console.log("data orig", data.length);
         combined = data;  
+        combined = combined.filter(e => {
+          return e.time >= startDate2 && e.time <= endDate;
+        })
       }
 
       if (combined.length == 0) {
@@ -936,7 +960,10 @@ Datafeeds.DataPulseUpdater.prototype.subscribeDataListener = function(
   }
 
   Apis.instance().streamCb = () => {
-    const { base, counter } = getBaseCounter(symbolInfo.ticker);
+    const parts = symbolInfo.ticker.split("@")
+    let ticker = parts.length > 1 ? parts[0] : symbolInfo.ticker;
+
+    const { base, counter } = getBaseCounter(ticker);
     const endDate = new Date()
     const startDate = new Date(
       endDate.getTime() -
@@ -958,7 +985,7 @@ Datafeeds.DataPulseUpdater.prototype.subscribeDataListener = function(
         } else {
           const no_data = data.length == 0;
           const bars = transformPriceData(data, counter, base);
-          // console.log("Bars ", bars, no_data);
+          console.log("New Bars ", bars, no_data);
           newDataCallback(bars[0]);
           Datafeeds.endDate = endDate;
         }
