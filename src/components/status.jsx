@@ -11,7 +11,7 @@ const container = css`
     line-height: 25px;
     z-index: 2;
 
-    .blocknum, .avg-lat, .net-select {
+    .blocknum, .avg-lat, .net-select, .support {
         border-left: 1px solid #444;
         padding-right: 10px;
     }
@@ -23,6 +23,12 @@ const container = css`
     .blocknum {
         background: url(${devicePath("public/images/blockchain.svg")}) no-repeat 10px;
         padding-left: 40px;
+    }
+    .support {
+        padding-left: 10px;
+        a {
+            color: #1cdad8 !important;
+        }
     }
     .avg-lat {
         background: url(${devicePath("public/images/time.svg")}) no-repeat 10px;
@@ -106,6 +112,7 @@ class Status extends Component {
         return (
             <div id="quanta-status" className={container + (this.props.mobile ? " mobile" : "")}>
                 <div className="brand">QUANTA Fair Trading Protocol</div>
+                <div className="support"><a href="https://quantadex.zendesk.com/hc/en-us" target="_blank">Customer Support</a></div>
                 <div className="blocknum" title="Highest Block">{this.props.blockInfo.blockNumber}</div>
                 <div className="avg-lat" title="Average Block Latency">{ this.props.blockInfo.blockTime}ms</div>
                 <div className="net-select position-relative">

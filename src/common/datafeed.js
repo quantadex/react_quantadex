@@ -502,6 +502,7 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
   onErrorCallback
 ) {
 
+  //TODO: Detect better
   if (!window.allMarketsByHash) {
     setTimeout(() => {
       Datafeeds.UDFCompatibleDatafeed.prototype.getBars(
