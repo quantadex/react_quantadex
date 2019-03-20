@@ -58,7 +58,7 @@ class Header extends Component {
 			<div className={container + " qt-font-small"}>
         <Link to={"/" + this.props.network + "/exchange/" + this.props.currentTicker.replace("/", "_")} className="back-link">Back to Exchange</Link>
 
-        <a href="/" className="logo"></a>
+        <Link to={"/" + this.props.network + "/exchange/" + this.props.currentTicker.replace("/", "_")} className="logo"></Link>
 				<div className="menu">
 					<span className="name">{this.props.name}</span>
 					<HamburgerMenu />
