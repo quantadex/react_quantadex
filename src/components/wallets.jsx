@@ -102,12 +102,12 @@ class Wallets extends Component {
   }
 
   componentDidMount() {
-    fetch(CONFIG.SETTINGS[window.currentNetwork].API_PATH + "/node1/address/eth/" + this.props.name).then(e => e.json())
+    fetch(CONFIG.getEnv().API_PATH + "/node1/address/eth/" + this.props.name).then(e => e.json())
     .then(e => {
       this.setState({ethAddress: e && (e[e.length-1] && e[e.length-1].Address) || undefined})
     })
 
-    fetch(CONFIG.SETTINGS[window.currentNetwork].API_PATH + "/node1/address/btc/" + this.props.name).then(e => e.json())
+    fetch(CONFIG.getEnv().API_PATH + "/node1/address/btc/" + this.props.name).then(e => e.json())
     .then(e => {
       this.setState({btcAddress: e && (e[e.length-1] && e[e.length-1].Address) || undefined})
     })
@@ -184,7 +184,7 @@ class Wallets extends Component {
         <div id='public-address'>
           <h3>Your QUANTA Wallet Account</h3>
           <span className="qt-font-light">{this.props.name}</span>
-          <a href={CONFIG.SETTINGS[window.currentNetwork].EXPLORER_URL + "/account/" + this.props.name} target="_blank"><img src={devicePath("public/images/external-link-light.svg")} /></a>
+          <a href={CONFIG.getEnv().EXPLORER_URL + "/account/" + this.props.name} target="_blank"><img src={devicePath("public/images/external-link-light.svg")} /></a>
         </div>
         <div className="est-fund text-right align-self-center">
           <span className="qt-font-extra-small qt-white-62">On-chain custody estimated funds</span>

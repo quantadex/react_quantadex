@@ -178,13 +178,20 @@ class QTDeposit extends React.Component {
 
 		var forwardContract = web3.eth.contract(JSON.parse(abi));
 		var contractData = forwardContract.new.getData(
-			CONFIG.SETTINGS[window.currentNetwork].CROSSCHAIN_ADDRESS,
+			CONFIG.getEnv().CROSSCHAIN_ADDRESS,
 			quantaAddress,
 			{ data: code }
 		);
 
 		web3.eth.sendTransaction({ data: contractData }, function(err, transactionHash) {
-			if (!err) console.log(transactionHash);
+			if (!err) {
+        console.log(transactionHash);
+        // setInterval(() => {
+        //   web3.eth.getTransaction(transactionHash, (error, transaction) => {
+        //     console.log(transaction)
+        //   })
+        // }, 1000)
+      }
 		});
 	};
   
@@ -199,7 +206,7 @@ class QTDeposit extends React.Component {
       <div className={coin_details + " mx-auto"}>
         <h1>DEPOSIT<br/><SymbolToken name={coin.symbol} showIcon={false} /></h1>
         <div>
-          Asset ID: <span className="value">{coin.id}</span> <a href={CONFIG.SETTINGS[window.currentNetwork].EXPLORER_URL + "/object/" + coin.id} target="_blank"><img src={devicePath("public/images/external-link.svg")} /></a><br/>
+          Asset ID: <span className="value">{coin.id}</span> <a href={CONFIG.getEnv().EXPLORER_URL + "/object/" + coin.id} target="_blank"><img src={devicePath("public/images/external-link.svg")} /></a><br/>
           Issuer: <span className="value">{this.state.issuer}</span><br/>
           Precision: <span className="value">{coin.precision}</span><br/>
           Max Supply: <span className="value">{(parseInt(coin.options.max_supply)/Math.pow(10, coin.precision)).toLocaleString(navigator.language)}</span>

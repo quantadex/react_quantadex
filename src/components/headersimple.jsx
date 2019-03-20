@@ -56,7 +56,7 @@ class Header extends Component {
 	render() {
 		return (
 			<div className={container + " qt-font-small"}>
-        <Link to="/exchange" className="back-link">Back to Exchange</Link>
+        <Link to={"/" + this.props.network + "/exchange/" + this.props.currentTicker.replace("/", "_")} className="back-link">Back to Exchange</Link>
 
         <a href="/" className="logo"></a>
 				<div className="menu">
@@ -71,7 +71,8 @@ class Header extends Component {
 const mapStateToProps = (state) => ({
 		currentTicker: state.app.currentTicker,
     currentPrice: state.app.currentPrice,
-    name: state.app.name
+    name: state.app.name,
+    network: state.app.network
 	});
 
 export default connect(mapStateToProps)(Header);

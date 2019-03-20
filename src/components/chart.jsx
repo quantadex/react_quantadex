@@ -21,7 +21,7 @@ class Chart extends Component {
     self.setState({init: true})
     const dataFeed = new Datafeeds.UDFCompatibleDatafeed("/api/v1");
     window.showBenchmark = this.props.showBenchmark;
-    console.log("show benchmark=", window.showBenchark);
+    // console.log("show benchmark=", window.showBenchark);
 
     let disabled_features = [
       "header_saveload",
@@ -183,7 +183,7 @@ class Chart extends Component {
     if (this.state.init && window.showBenchmark != this.props.showBenchmark) {
       setTimeout(() => {
         window.showBenchmark = this.props.showBenchmark;
-        console.log("update benchmark= ", window.showBenchmark, window.chart_count);
+        // console.log("update benchmark= ", window.showBenchmark, window.chart_count);
         window.chartWidget.setSymbol(this.props.currentTicker + "@adjusted" + window.chart_count, "15")
         window.chart_count++;
       }, 10)

@@ -105,7 +105,7 @@ const coin_details = css`
 class QTWithdraw extends React.Component {
   constructor(props) {
     super(props);
-    const isCrosschain = CONFIG.SETTINGS[window.currentNetwork].CROSSCHAIN_COINS.includes(this.props.asset) || this.props.asset.split("0X").length == 2
+    const isCrosschain = CONFIG.getEnv().CROSSCHAIN_COINS.includes(this.props.asset) || this.props.asset.split("0X").length == 2
     this.state = {
       isCrosschain: isCrosschain,
       showTransfer: !isCrosschain,
@@ -210,7 +210,7 @@ class QTWithdraw extends React.Component {
       <div className={coin_details + " mx-auto"}>
         <h1>{this.state.showTransfer ? "TRANSFER" : "WITHDRAW"}<br/><SymbolToken name={this.coin.symbol} showIcon={false} /></h1>
         <div>
-          Asset ID: <span className="value">{this.coin.id}</span> <a href={CONFIG.SETTINGS[window.currentNetwork].EXPLORER_URL + "/object/" + this.coin.id} target="_blank"><img src={devicePath("public/images/external-link.svg")} /></a><br/>
+          Asset ID: <span className="value">{this.coin.id}</span> <a href={CONFIG.getEnv().EXPLORER_URL + "/object/" + this.coin.id} target="_blank"><img src={devicePath("public/images/external-link.svg")} /></a><br/>
           Issuer: <span className="value">{this.state.issuer}</span><br/>
           Precision: <span className="value">{this.coin.precision}</span><br/>
           Max Supply: <span className="value">{(parseInt(this.coin.options.max_supply)/Math.pow(10, this.coin.precision)).toLocaleString(navigator.language)}</span>

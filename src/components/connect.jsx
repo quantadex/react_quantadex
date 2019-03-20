@@ -322,7 +322,7 @@ class ConnectDialog extends Component {
     
     ConnectWithKey() {
         try {
-			const pKey = PrivateKey.fromWif(this.state.private_key);
+            const pKey = PrivateKey.fromWif(this.state.private_key);
 			this.props.dispatch({
                 type: LOGIN,
                 private_key: this.state.private_key
@@ -371,7 +371,7 @@ class ConnectDialog extends Component {
 
 		this.setState({processing: true, private_key: keys.privateKey})
 
-		fetch(CONFIG.SETTINGS[window.currentNetwork].API_PATH + "/register_account", {
+		fetch(CONFIG.getEnv().API_PATH + "/register_account", {
 			method: "post",
 			headers: {
 					"Content-Type": "application/json",

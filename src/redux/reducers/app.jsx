@@ -1,5 +1,5 @@
 import React from 'react';
-import { INIT_DATA, INIT_BALANCE, SET_MARKET_QUOTE, APPEND_TRADE, UPDATE_ORDER, UPDATE_OPEN_ORDERS, SET_AMOUNT, UPDATE_USER_ORDER, UPDATE_TICKER, UPDATE_TRADES, UPDATE_FEE, UPDATE_DIGITS, UPDATE_NETWORK, LOAD_FILLED_ORDERS } from "../actions/app.jsx";
+import { INIT_DATA, INIT_BALANCE, SET_MARKET_QUOTE, APPEND_TRADE, UPDATE_ORDER, UPDATE_OPEN_ORDERS, SET_AMOUNT, UPDATE_USER_ORDER, UPDATE_TICKER, UPDATE_TRADES, UPDATE_FEE, UPDATE_DIGITS, LOAD_FILLED_ORDERS } from "../actions/app.jsx";
 import { TOGGLE_LEFT_PANEL, TOGGLE_RIGHT_PANEL } from "../actions/app.jsx";
 import { TOGGLE_FAVORITE_LIST, UPDATE_ACCOUNT, UPDATE_BLOCK_INFO } from "../actions/app.jsx";
 import { LOGIN } from "../actions/app.jsx";
@@ -10,14 +10,8 @@ import { toast } from 'react-toastify';
 import lodash from 'lodash'
 import moment from 'moment'
 
-let url_hash = document.URL.split("#")[1]
-let init_ticker = window.currentNetwork == "MAINNET" ? 'ETH/TUSD0X0000000000085D4780B73119B644AE5ECD22B376' : 'ETH/USD'
-if (url_hash && url_hash.split('/').length == 2) {
-  init_ticker = url_hash
-}
-
 let initialState = {
-  network: window.currentNetwork,
+  network: window.location.pathname.startsWith("/testnet") ? "testnet" : "mainnet",
   isMobile: (window.isApp ? (screen.width / window.devicePixelRatio) : screen.width) < 992, 
   private_key: null,
   publicKey: "",
@@ -29,6 +23,7 @@ let initialState = {
   currentPrice: undefined,
   balance: [],
   vesting: [],
+  genesis: [],
   ui: {
     leftOpen: true,
     rightOpen: true
@@ -531,12 +526,14 @@ const app = (state = initialState, action) => {
       }))
       
       const vesting = action.data.accountData.length > 0 && action.data.accountData[0][1].vesting_balances
+      const genesis = action.data.genesis_balance 
 
       return {
         ...state,
         currentTicker: action.data.ticker,
         balance: balances,
         vesting: vesting,
+        genesis: genesis,
         onOrdersFund: onOrdersFund,
         totalFundValue: total_fund_value,
         mostRecentTrade: {
@@ -591,13 +588,6 @@ const app = (state = initialState, action) => {
         ...state,
         balance: lodash.keyBy(action.data.balances,'currency')
       }
-    
-    case UPDATE_NETWORK:
-      window.currentNetwork = action.data
-      return {
-        ...state,
-        network: action.data
-    }
 
     case UPDATE_FEE:
       let asset = window.assets[action.data.asset_id]

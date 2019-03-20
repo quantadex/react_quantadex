@@ -78,7 +78,7 @@ class Dashboard extends Component {
 		} else {
 			list.classList.add("active")
 		}
-		this.props.history.push("/exchange/" + e.replace("/", "_"))
+		this.props.history.push("/" + this.props.match.params.net + "/exchange/" + e.replace("/", "_"))
 	}
 
 	handleChange(e) {
