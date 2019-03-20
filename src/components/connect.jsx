@@ -383,21 +383,30 @@ class ConnectDialog extends Component {
 			})
 		}).then(response => {
 			if (response.status == 200) {
-				this.setState({
-                    regStep:2,
-					authError: false
+				return response.json().then(res => {
+                    if (res.status == "success") {
+                        this.setState({
+                            regStep:2,
+                            authError: false
+                        });
+                    } else {
+                        var msg;
+                        if (res.error.includes("already exists")) {
+                            msg = "Username already exist"
+                        } else if (res.error.includes("is_valid_name")) {
+                            msg = "Name must start with a letter and only contains alpha numeric, dash, and dot"
+                        } else {
+                            msg = "Server error. Please try again."
+                        }
+                        this.setState({
+                            authError: true,
+                            errorMsg: msg
+                        });
+                    }
 				});
-				return response.json();
 			} else {
 				return response.json().then(res => {
-					var msg;
-					if (res.message.includes("already exists")) {
-						msg = "Username already exist"
-					} else if (res.message.includes("is_valid_name")) {
-						msg = "Name must start with a letter and only contains alpha numeric, dash, and dot"
-					} else {
-						msg = "Server error. Please try again."
-					}
+					var msg = "Server error. Please try again."
 					this.setState({
 						authError: true,
 						errorMsg: msg
