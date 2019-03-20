@@ -47,11 +47,11 @@ export const SymbolToken = ({ name, showIcon = true, withLink= true }) => {
 	return (<span className={container + " symbol"}>{token[0]} {token[1] && 
 		(withLink ? 
 		<a className="issuer-tag qt-font-light"
-			href={CONFIG.SETTINGS[window.currentNetwork].ETHERSCAN_URL + "/token/0x" + token[1]} target="_blank">0x{token[1].substr(0, 4)}</a>
+			href={CONFIG.getEnv().ETHERSCAN_URL + "/token/0x" + token[1]} target="_blank">0x{token[1].substr(0, 4)}</a>
 		
 		: <span className="issuer-tag qt-font-light">0x{token[1].substr(0, 4)}</span>)
 		}
-		{showIcon && (CONFIG.SETTINGS[window.currentNetwork].CROSSCHAIN_COINS.includes(name) || name.split("0X").length == 2) ? 
+		{showIcon && (CONFIG.getEnv().CROSSCHAIN_COINS.includes(name) || name.split("0X").length == 2) ? 
 			<img className="crosschain-icon" src={devicePath("public/images/crosschain-coin.svg")} title="Crosschain" />
 			: null
 		}</span>

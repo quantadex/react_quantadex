@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { css } from 'emotion'
 import { connect } from 'react-redux'
-import { UPDATE_NETWORK, LOGIN, switchTicker } from '../redux/actions/app.jsx'
+import { LOGIN } from '../redux/actions/app.jsx'
+import { withRouter} from "react-router-dom";
 
 const container = css`
     display: flex;
@@ -83,31 +84,20 @@ const container = css`
 `;
 
 class Status extends Component {
-    constructor(props) {
-        super(props);
-        this.state= {
-            network: this.props.network
-        }
-    }
-    switchExNet(network) {
-        if (network == this.state.network) return
-        const defaultTicker = network == "MAINNET" ? 'ETH/TUSD0X0000000000085D4780B73119B644AE5ECD22B376' : 'ETH/USD'
-        this.setState({network})
+    switchExNet(net) {
+        let current = window.location.pathname.startsWith("/testnet") ? "testnet" : "mainnet"
+        if (net == current) return
+        const defaultTicker = net == "mainnet" ? 'ETH_TUSD0X0000000000085D4780B73119B644AE5ECD22B376' : 'ETH_USD'
         this.props.dispatch({
             type: LOGIN,
             private_key: null
         });
-        this.props.dispatch({
-			type: UPDATE_NETWORK,
-			data: network
-        });
 
-        //TODO: should redirect
-        //this.props.dispatch(switchTicker(defaultTicker, true));
+        window.location = "/" + net + "/exchange/" + defaultTicker
     }
     
     render() {
-        const netsList = [{name: "MAINNET"}, {name: "TESTNET"}]
+        const netsList = [{name: "mainnet"}, {name: "testnet"}]
 
         return (
             <div id="quanta-status" className={container + (this.props.mobile ? " mobile" : "")}>
@@ -115,8 +105,8 @@ class Status extends Component {
                 <div className="support"><a href="https://quantadex.zendesk.com/hc/en-us" target="_blank">Customer Support</a></div>
                 <div className="blocknum" title="Highest Block">{this.props.blockInfo.blockNumber}</div>
                 <div className="avg-lat" title="Average Block Latency">{ this.props.blockInfo.blockTime}ms</div>
-                <div className="net-select position-relative">
-                    {this.state.network}
+                <div className="net-select position-relative text-uppercase">
+                    {window.location.pathname.startsWith("/testnet") ? "testnet" : "mainnet"}
                     <div className="net-options">
                         {netsList.map(item => {
                             return <div key={item.name} onClick={() => this.switchExNet(item.name)}>{item.name}</div>

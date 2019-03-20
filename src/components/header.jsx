@@ -71,7 +71,7 @@ class Header extends Component {
 				<div className="d-flex justify-content-between align-items-center">
 					<div className="d-flex">
 						<Link to="/exchange" className="header-logo">
-							<img src={this.props.network == "MAINNET" ? devicePath("public/images/logo-light.svg") : devicePath("public/images/qdex-fantasy-light.svg")} width="220" />
+							<img src={this.props.network == "mainnet" ? devicePath("public/images/logo-light.svg") : devicePath("public/images/qdex-fantasy-light.svg")} width="220" />
 						</Link>
 						
 					</div>
@@ -82,7 +82,7 @@ class Header extends Component {
 						</div>
 					</div>
 
-					{this.props.network == "TESTNET" ?
+					{this.props.network == "testnet" ?
 						<div className="leaderboard-link">
 							<Link to="/leaderboard">LEADERBOARD</Link>
 						</div>

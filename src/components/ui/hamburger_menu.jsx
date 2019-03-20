@@ -144,7 +144,7 @@ export class HamburgerMenu extends React.Component {
   }
 }
 
-
+var net = window.location.pathname.startsWith("/testnet") ? "testnet" : "mainnet"
 HamburgerMenu.defaultProps = {
   menuList: [
     {
@@ -158,25 +158,25 @@ HamburgerMenu.defaultProps = {
       iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),
       iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
       text:"Exchange",
-      url:"/exchange"
+      url:"/" + net + "/exchange"
     }]
   },{
     items: [{
       iconPath: devicePath("public/images/menuicons/wallet-grey.svg"),
       iconPathActive: devicePath("public/images/menuicons/wallet-white.svg"),
       text:"Wallets",
-      url:"/exchange/wallets"
+      url:"/" + net + "/wallets"
     },{
       iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),
       iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
       text:"Sign/Verify",
-      url:"/exchange/message"
+      url:"/" + net + "/message"
     },
     {
       iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),
       iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
       text:"Leaderboard",
-      url:"/leaderboard"
+      url:"/" + net + "/leaderboard"
     },
   ],
     backgroundColor:"rgba(40, 48, 52,0.36)"
@@ -197,7 +197,7 @@ HamburgerMenu.propTypes = {
 };
 
 const mapStateToProps = (state) => ({
-  total_fund: state.app.totalFundValue
+  total_fund: state.app.totalFundValue,
 });
 
 export default connect(mapStateToProps)(withRouter(HamburgerMenu))

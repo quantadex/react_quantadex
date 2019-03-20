@@ -216,11 +216,12 @@ class Container extends React.Component {
 				<Router history={history}>
         <Switch>
 					<Route exact path="/" component={Exchange} />
-					<Route exact path="/exchange" component={Exchange} />
-					<Route exact path="/exchange/:ticker" component={Exchange} />
-					<Route path="/exchange/wallets" component={Fund} />
-					<Route exact path="/exchange/message" component={Message} />
-					<Route exact path="/leaderboard" component={Leaderboard} />
+					<Route exact path="/:net" component={Exchange} />
+					<Route exact path="/:net/exchange" component={Exchange} />
+					<Route exact path="/:net/exchange/:ticker" component={Exchange} />
+					<Route exact path="/:net/wallets" component={Fund} />
+					<Route exact path="/:net/message" component={Message} />
+					<Route exact path="/:net/leaderboard" component={Leaderboard} />
         </Switch>
       </Router>
     </Provider>);

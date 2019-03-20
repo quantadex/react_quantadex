@@ -476,7 +476,7 @@ function getExternalPrice(ticker, resolution) {
   if (ticker.startsWith("BINANCE:")) {
     const symbol = ticker.split(":")[1]
     let interval = BinanceResolution[resolution]
-    var url = new URL(CONFIG.SETTINGS[window.currentNetwork].API_PATH +"/get_external_price")
+    var url = new URL(CONFIG.getEnv().API_PATH +"/get_external_price")
     url.search = new URLSearchParams({
       timeframe: interval,
       symbol: symbol,
@@ -542,11 +542,11 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
     endDate.getTime() -
     resolutionSec * 60 * bucketCount * 1000
   );
-  console.log("show benchmark=", window.showBenchmark , ticker);
+  // console.log("show benchmark=", window.showBenchmark , ticker);
   var binancePrice = null;
   if (window.showBenchmark) {
     if (window.allMarketsByHash[ticker] && window.allMarketsByHash[ticker].benchmarkSymbol) {
-      console.log("benchmark symbol=", window.allMarketsByHash[ticker].benchmarkSymbol);
+      // console.log("benchmark symbol=", window.allMarketsByHash[ticker].benchmarkSymbol);
       binancePrice = getExternalPrice(window.allMarketsByHash[ticker].benchmarkSymbol, resolution);
     } else {
       binancePrice = Promise.resolve([])
@@ -565,7 +565,7 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
       startDate.toISOString().slice(0, -5),
       endDate.toISOString().slice(0, -5)
     ]), binancePrice]).then((res) => {
-      console.log("chart data", res, "benchmark=", window.showBenchmark);
+      // console.log("chart data", res, "benchmark=", window.showBenchmark);
       var data = res[0];
       var binance = res[1];
       data = data || [];
@@ -1010,7 +1010,7 @@ Datafeeds.DataPulseUpdater.prototype.subscribeDataListener = function(
         } else {
           const no_data = data.length == 0;
           const bars = transformPriceData(data, counter, base);
-          console.log("New Bars from QUANTA ", bars, no_data);
+          // console.log("New Bars from QUANTA ", bars, no_data);
           //newDataCallback(bars[0]);
           //Datafeeds.endDate = endDate;
           lastBar = bars[0];
@@ -1029,7 +1029,7 @@ Datafeeds.DataPulseUpdater.prototype.subscribeDataListener = function(
         const symbol = benchmark.split(":")[1]
         const interval = BinanceResolution[resolution]
         const streamName = symbol.replace("/", "").toLowerCase() + "@kline_" + interval;
-        console.log("stream name=", streamName);
+        // console.log("stream name=", streamName);
         var socket = new WebSocket("wss://stream.binance.com:9443/ws/" + streamName);
         socket.onmessage = function (event) {
           event = JSON.parse(event.data);

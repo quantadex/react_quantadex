@@ -23,9 +23,10 @@ const container = css`
 
 class Balance extends Component {
     render() {
+        // console.log(this.props)
         return (
             <div className={container + " qt-font-light" + (this.props.isMobile ? " mobile" : "")}>
-                Wallet Balance <Link to="exchange/wallets" className="ml-2"><img src={devicePath("public/images/open-icon.svg")} /></Link>
+                Wallet Balance <Link to={"/" + this.props.network + "/wallets"} className="ml-2"><img src={devicePath("public/images/open-icon.svg")} /></Link>
                 <div className="no-scroll-bar">
                     <div>
                         <table className="w-100 mt-3">
@@ -49,7 +50,8 @@ class Balance extends Component {
 
 const mapStateToProps = (state) => ({
     isMobile: state.app.isMobile,
-    balance: state.app.balance || []
+    balance: state.app.balance || [],
+    network: state.app.network,
 });
 
 export default connect(mapStateToProps)(Balance);

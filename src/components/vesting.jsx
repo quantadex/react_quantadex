@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import CONFIG from '../config.js'
 import { connect } from 'react-redux'
 import { css } from 'emotion'
-import { withdrawVesting } from '../redux/actions/app.jsx'
+import { withdrawVesting, withdrawGenesis } from '../redux/actions/app.jsx'
 import Loader from './ui/loader.jsx'
 import { toast } from 'react-toastify';
 
@@ -32,7 +32,8 @@ const container = css`
 
   button:disabled {
     background: #31383d;
-    border-color: #31383d
+    border-color: #31383d;
+    color: #999;
   }
 `;
 
@@ -40,19 +41,28 @@ class Vesting extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      claim_status: {}
+      claim_status: {},
+      claimed_balance: []
     }
   }
 
-  claimVesting(balance_id, amount, asset, display_amount) {
+  claimBalance(balance_id, amount, asset, display_amount, genesis = false) {
+    const self = this;
     let claim_status = this.state.claim_status
     claim_status[balance_id] = true
     this.setState({claim_status})
-    this.props.dispatch(withdrawVesting({balance_id, amount, asset})).then(e => {
+    this.props.dispatch(genesis ? withdrawGenesis({balance_id, amount, asset}) : withdrawVesting({balance_id, amount, asset})).then(e => {
       toast.success(`Successfully claimed ${display_amount}.`, {
         autoClose: 5000,
         position: toast.POSITION.TOP_CENTER
       })
+      
+      if (genesis) {
+        let claimed = self.state.claimed_balance
+        claimed.push(balance_id)
+        self.setState({claimed_balance: claimed})
+      }
+
     }).catch(e => {
       toast.error("Unable to claim balance. Please try again.", {
         autoClose: 5000,
@@ -67,9 +77,39 @@ class Vesting extends Component {
   render() {
     return (
       <div className={container + " content" + (this.props.isMobile ? " mobile px-4" : "")}>
-        {this.props.vesting.length == 0 ?
+        {this.props.vesting.length + this.props.genesis.length == 0 ?
           <div className="text-center">You have no vesting balance.</div> : null
         }
+
+        {this.props.genesis.map(balance => {
+          const coin = window.assets[balance.balance.asset_id]
+          const display_amount = (balance.balance.amount / Math.pow(10, coin.precision)).toLocaleString(navigator.language) + ' ' + coin.symbol
+          return (
+            <div key={balance.id} className="table-responsive mb-5">
+              <h4>Balance #{balance.id} [GENESIS]</h4>
+              <table className="w-100">
+                <tbody>
+                  <tr className="border-bottom border-dark">
+                    <td>Balance amount</td>
+                    <td className="text-right">{display_amount}</td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td className="text-right">
+                      <button className="my-3" disabled={this.state.claim_status[balance.id] || this.state.claimed_balance.indexOf(balance.id) !== -1}
+                        onClick={() => this.claimBalance(balance.id, balance.balance.amount, balance.balance.asset_id, display_amount, true)}>
+                          {this.state.claim_status[balance.id] ? 
+                            <Loader size="24px"/> : (this.state.claimed_balance.indexOf(balance.id) !== -1 ? "Claimed" : "Claim Now")}
+                        </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+            </div>
+          )
+        })}
+
         {this.props.vesting.map(balance => {
           const coin = window.assets[balance.balance.asset_id]
           const display_amount = (balance.balance.amount / Math.pow(10, coin.precision)).toLocaleString(navigator.language) + ' ' + coin.symbol
@@ -90,7 +130,7 @@ class Vesting extends Component {
                     <td></td>
                     <td className="text-right">
                       <button className="my-3" disabled={this.state.claim_status[balance.id]}
-                        onClick={() => this.claimVesting(balance.id, balance.balance.amount, balance.balance.asset_id, display_amount)}>
+                        onClick={() => this.claimBalance(balance.id, balance.balance.amount, balance.balance.asset_id, display_amount)}>
                           {this.state.claim_status[balance.id] ? 
                             <Loader size="24px"/> :  "Claim Now"}
                         </button>
@@ -109,6 +149,7 @@ class Vesting extends Component {
 
 const mapStateToProps = (state) => ({
     isMobile: state.app.isMobile,
+    genesis: state.app.genesis,
     vesting: state.app.vesting,
 	});
 

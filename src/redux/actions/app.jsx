@@ -28,7 +28,6 @@ export const UPDATE_DIGITS = 'UPDATE_DIGITS'
 export const UPDATE_BLOCK_INFO = 'UPDATE_BLOCK_INFO';
 export const TOGGLE_LEFT_PANEL = 'TOGGLE_LEFT_PANEL';
 export const TOGGLE_RIGHT_PANEL = 'TOGGLE_RIGHT_PANEL';
-export const UPDATE_NETWORK = 'UPDATE_NETWORK';
 export const LOAD_FILLED_ORDERS = 'LOAD_FILLED_ORDERS';
 
 export const TOGGLE_FAVORITE_LIST = 'TOGGLE_FAVORITE_LIST';
@@ -167,6 +166,24 @@ export const withdrawVesting = (data) => {
 	}
 }
 
+export const withdrawGenesis = (data) => {
+	return (dispatch, getState) => {
+		return ApplicationApi.balance_claim({ 
+			account: getState().app.userId,
+			public_key: getState().app.publicKey,
+			balance: data.balance_id,
+			amount: data.amount,
+			asset: data.asset
+		}).then((tr) => {
+			return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key))
+		}).then(e => {
+			switchTicker(getState().app.currentTicker)
+		}).catch(e => {
+			throw e
+		})
+	}
+}
+
 var initAPI = false;
 var initUser = false;
 
@@ -246,7 +263,7 @@ async function processOrderHistory(data, userId) {
 	})
 
 	if (cancels.length > 0) {
-		limitOrders = await fetch(CONFIG.SETTINGS[window.currentNetwork].API_PATH + `/account?operation_type=1&account_id=${userId}&size=100&filter_field=operation_history__operation_result&filter_value=${cancels.join(',')}`)
+		limitOrders = await fetch(CONFIG.getEnv().API_PATH + `/account?operation_type=1&account_id=${userId}&size=100&filter_field=operation_history__operation_result&filter_value=${cancels.join(',')}`)
 			.then(e => e.json())
 			.then(e => {
 				return lodash.keyBy(e, (o) => o.operation_history.operation_result.split(',')[1].replace(/"/g, '').replace(']', ''))
@@ -292,7 +309,7 @@ async function processOrderHistory(data, userId) {
 export const loadOrderHistory = (page) => {
 	return (dispatch, getState) => {
 		const userId = getState().app.userId
-		return fetch(CONFIG.SETTINGS[window.currentNetwork].API_PATH + `/account?filter_field=operation_type&filter_value=2,4&size=${dataSize}&from_=${page * dataSize}&account_id=${userId}`)
+		return fetch(CONFIG.getEnv().API_PATH + `/account?filter_field=operation_type&filter_value=2,4&size=${dataSize}&from_=${page * dataSize}&account_id=${userId}`)
 			.then(e => e.json())
 			.then((filled) => {
 				return processOrderHistory(filled, userId)
@@ -307,11 +324,12 @@ export const loadOrderHistory = (page) => {
 
 var disconnect_notified
 export function switchTicker(ticker, force_init=false) {
+	console.log(ticker)
 	Apis.setAutoReconnect(true)
 	// send GA
 	ReactGA.set({ page: "exchange/" + ticker });
 	ReactGA.pageview("exchange/" + ticker);
-	console.log("Switch ticker ", ticker);
+	// console.log("Switch ticker ", ticker);
 
 	return function (dispatch,getState) {
 		var publicKey = null
@@ -321,8 +339,8 @@ export function switchTicker(ticker, force_init=false) {
 		}
 
 		if (initAPI == false || force_init) {
-			Apis.instance(CONFIG.SETTINGS[window.currentNetwork].WEBSOCKET_PATH, true, 5000, { enableOrders: true }).init_promise.then((res) => {
-				console.log("connected to:", window.currentNetwork, publicKey);
+			Apis.instance(CONFIG.getEnv().WEBSOCKET_PATH, true, 5000, { enableOrders: true }).init_promise.then((res) => {
+				// console.log("connected to:", publicKey);
 
 				// Apis.instance().db_api().exec("set_subscribe_callback", [onUpdate, true]);
 				initAPI = true;
@@ -348,6 +366,7 @@ export function switchTicker(ticker, force_init=false) {
 		}
 
 		function action(ticker) {
+			console.log("action", ticker)
 			var {base, counter} = getBaseCounter(ticker)
 
 			const tmpOrder = createLimitOrderWithPrice("1.2.0", true, window.assets, base.id, counter.id, 1, 1)
@@ -360,10 +379,11 @@ export function switchTicker(ticker, force_init=false) {
 			})
 
 			async function fetchData(ticker, first=false) {
+				console.log("fetch", ticker)
 				var {base, counter} = getBaseCounter(ticker)
 				try {
 					if (!window.markets) {
-						const markets = await fetch(CONFIG.SETTINGS[window.currentNetwork].MARKETS_JSON).then(e => e.json())
+						const markets = await fetch(CONFIG.getEnv().MARKETS_JSON).then(e => e.json())
 						window.markets = markets.markets
 						window.marketsHash = lodash.keyBy(markets.markets, "name")
 
@@ -373,7 +393,7 @@ export function switchTicker(ticker, force_init=false) {
 							window.allMarkets.push(...window.markets[key])
 						}
 						window.allMarketsByHash = lodash.keyBy(window.allMarkets, "name")
-						console.log("done building markets", window.allMarketsByHash);
+						// console.log("done building markets", window.allMarketsByHash);
 
 					}
 
@@ -384,7 +404,7 @@ export function switchTicker(ticker, force_init=false) {
 
 					for (const market in window.markets) {
 						for (const pair of window.markets[market]) {
-							var { base, counter } = getBaseCounter(pair.name);
+							let { base, counter } = getBaseCounter(pair.name);
 							if(!base || !counter) continue
 							const data = await Promise.all([Apis.instance()
 								.db_api()
@@ -418,7 +438,7 @@ export function switchTicker(ticker, force_init=false) {
 					if (!initUser && getState().app.private_key !== null) {
 						const pKey = PrivateKey.fromWif(getState().app.private_key);
 						publicKey = pKey.toPublicKey().toString()
-
+						
 						Apis.instance()
 						.db_api()
 						.exec("get_key_references", [[publicKey]])
@@ -429,7 +449,7 @@ export function switchTicker(ticker, force_init=false) {
 								.db_api()
 								.exec("get_objects", [[vec_account_id[0][0]]])
 								.then((data) => {
-									// console.log("get account ", data);
+									console.log("get account ", data);
 									dispatch({
 										type: UPDATE_ACCOUNT,
 										data: data[0]
@@ -452,18 +472,8 @@ export function switchTicker(ticker, force_init=false) {
 					}
 					
 					return
-				}		
+				}					
 				
-
-				// note: must use short account id
-				// TODO: provide get balances
-				// const shortAddress = WalletApi.getShortAddress("QA4tajffcxUeSnydbSj6J4DxTYPuaC85B2nnqiqTMj63Q5HiCNPE")
-				// console.log("Short address", shortAddress);
-
-				// Apis.instance().db_api().exec("get_balance_objects", [["QAJAskKzhn2fqqF6bWXgM8kEkDCmVjh9SUL"]]).then(e=>{
-				// 	console.log("balance obj????", e);
-				// })				
-
 				const trades = Apis.instance().history_api().exec("get_fill_order_history", [base.id, counter.id, 100]).then((filled) => {
 					// console.log("history filled ", filled);
 					const trade_history = convertHistoryToOrderedSet(filled, base.id)
@@ -475,7 +485,7 @@ export function switchTicker(ticker, force_init=false) {
 
 				if (publicKey && getState().app.userId) {
 					const userId = getState().app.userId
-					my_trades = fetch(CONFIG.SETTINGS[window.currentNetwork].API_PATH + `/account?filter_field=operation_type&filter_value=2,4&size=${dataSize}&account_id=${userId}`).then(e => e.json())
+					my_trades = fetch(CONFIG.getEnv().API_PATH + `/account?filter_field=operation_type&filter_value=2,4&size=${dataSize}&account_id=${userId}`).then(e => e.json())
 					.then((filled) => {
 						const my_history = processOrderHistory(filled, userId)
 						// console.log(my_history)
@@ -490,6 +500,7 @@ export function switchTicker(ticker, force_init=false) {
 				})
 
 				var account_data = [[],[]]
+				var genesis_balance = []
 				
 				if (publicKey && getState().app.userId) {
 					account_data = Apis.instance()
@@ -512,10 +523,16 @@ export function switchTicker(ticker, force_init=false) {
 						})
 						return [results, orders]
 					})
-				}
 
-				console.log("Get all the data! for ", ticker);
-				return Promise.all([orderBook, trades, account_data, my_trades])
+					const shortAddress = WalletApi.getShortAddress(getState().app.publicKey)
+
+					genesis_balance = Apis.instance().db_api().exec("get_balance_objects", [[shortAddress]]).then(e=>{
+						// console.log("balance obj????", e);
+						return e
+					})
+				}
+				// console.log("Get all the data! for ", ticker);
+				return Promise.all([orderBook, trades, account_data, my_trades, genesis_balance])
 					.then((data) => {
 						dispatch({
 							type: INIT_DATA,
@@ -525,7 +542,8 @@ export function switchTicker(ticker, force_init=false) {
 								filledOrders: data[3],
 								openOrders: data[2][1],
 								ticker: ticker,
-								accountData: data[2][0]
+								accountData: data[2][0],
+								genesis_balance: data[4]
 							}
 						})
 						if (first) {
@@ -537,7 +555,7 @@ export function switchTicker(ticker, force_init=false) {
 			}
 			var fetchTime = new Date()
 			Apis.instance().db_api().exec("subscribe_to_market", [(data) => {
-				// console.log("Got a market change ", base, counter, data);
+				// console.log("Got a market change ", ticker, base, counter, data);
 				const curr_ticker = getBaseCounter(getState().app.currentTicker)
 				
 				if (base.id === curr_ticker.base.id && counter.id === curr_ticker.counter.id) {

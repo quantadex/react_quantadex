@@ -23,6 +23,15 @@ const SETTINGS = {
 	}
 };
 
+function getEnv() {
+	if (window.location.pathname.startsWith("/testnet")) {
+		return SETTINGS.TESTNET
+	} else {
+		return SETTINGS.MAINNET
+	}
+}
+
 module.exports = {
-	SETTINGS
+	SETTINGS,
+	getEnv
 };
