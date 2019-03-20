@@ -311,7 +311,7 @@ export function switchTicker(ticker, force_init=false) {
 	// send GA
 	ReactGA.set({ page: "exchange/" + ticker });
 	ReactGA.pageview("exchange/" + ticker);
-	// console.log("Switch ticker ", ticker);
+	console.log("Switch ticker ", ticker);
 
 	return function (dispatch,getState) {
 		var publicKey = null
@@ -320,14 +320,9 @@ export function switchTicker(ticker, force_init=false) {
 			publicKey = pKey.toPublicKey().toString()
 		}
 
-		dispatch({
-			type: UPDATE_TICKER,
-			data: ticker
-		})
-
 		if (initAPI == false || force_init) {
 			Apis.instance(CONFIG.SETTINGS[window.currentNetwork].WEBSOCKET_PATH, true, 5000, { enableOrders: true }).init_promise.then((res) => {
-				// console.log("connected to:", res[0].network, publicKey);
+				console.log("connected to:", window.currentNetwork, publicKey);
 
 				// Apis.instance().db_api().exec("set_subscribe_callback", [onUpdate, true]);
 				initAPI = true;
@@ -519,7 +514,7 @@ export function switchTicker(ticker, force_init=false) {
 					})
 				}
 
-				// console.log("Get all the data! for ", ticker);
+				console.log("Get all the data! for ", ticker);
 				return Promise.all([orderBook, trades, account_data, my_trades])
 					.then((data) => {
 						dispatch({

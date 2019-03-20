@@ -9,15 +9,19 @@ import { connect } from 'react-redux'
 class Exchange extends Component {
 	componentDidMount() {
 		if (!this.props.match.params.ticker) {
-			const default_ticker = window.currentNetwork == "MAINNET" ? 'QDEX_ETH' : 'ETH_USD';
+			const default_ticker = window.currentNetwork == "MAINNET" ? 'ETH_TUSD0X0000000000085D4780B73119B644AE5ECD22B376' : 'ETH_USD';
 			this.props.history.replace("/exchange/" + default_ticker)
 		} else {
-			this.props.dispatch(switchTicker(this.props.match.params.ticker.replace("_","/")));
+			const ticker = this.props.match.params.ticker.replace("_", "/");
+			console.log("Loading exchange for=", ticker);
+			this.props.dispatch(switchTicker(ticker));
 		}
 	}
 	
-	componentDidUpdate() {
-		this.componentDidMount()
+	componentDidUpdate(prevProps) {
+		if (prevProps.match.params.ticker != this.props.match.params.ticker) {
+			this.componentDidMount()
+		}
 	}
 
 	render() {

@@ -11,7 +11,7 @@ import lodash from 'lodash'
 import moment from 'moment'
 
 let url_hash = document.URL.split("#")[1]
-let init_ticker = window.currentNetwork == "MAINNET" ? 'QDEX/ETH' : 'ETH/USD'
+let init_ticker = window.currentNetwork == "MAINNET" ? 'ETH/TUSD0X0000000000085D4780B73119B644AE5ECD22B376' : 'ETH/USD'
 if (url_hash && url_hash.split('/').length == 2) {
   init_ticker = url_hash
 }
@@ -21,7 +21,7 @@ let initialState = {
   isMobile: (window.isApp ? (screen.width / window.devicePixelRatio) : screen.width) < 992, 
   private_key: null,
   publicKey: "",
-  currentTicker: init_ticker,
+  currentTicker: null,
   fee: {},
   tradeHistory: [],
   tradeBook: { bids: [], asks: []},
@@ -534,7 +534,7 @@ const app = (state = initialState, action) => {
 
       return {
         ...state,
-        // currentTicker:action.data.ticker,
+        currentTicker: action.data.ticker,
         balance: balances,
         vesting: vesting,
         onOrdersFund: onOrdersFund,

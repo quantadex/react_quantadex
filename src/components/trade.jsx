@@ -363,6 +363,10 @@ class Trade extends Component {
             value: "25%"
         }
 
+        if (this.props.currentTicker == null) {
+          return <div></div>;
+        }
+
         const tradingPair = this.props.currentTicker.split('/')
         const precisions = window.assetsBySymbol && [window.assetsBySymbol[tradingPair[0]] ? window.assetsBySymbol[tradingPair[0]].precision : 5, window.assetsBySymbol[tradingPair[1]] ? window.assetsBySymbol[tradingPair[1]].precision : 5] || [0,0]
         const balance = this.props.balance

@@ -64,6 +64,9 @@ class OrderBook extends Component {
 	}
 
 	render() {
+		if (this.props.currentTicker == null) {
+			return <div></div>;
+		}
 		var asksIterator = this.props.asks.dataSource.beginIterator();
 		var asksDataSource = []
 		while (asksIterator.value() !== null && asksDataSource.length < 20) {

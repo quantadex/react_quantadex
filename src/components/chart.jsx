@@ -11,7 +11,9 @@ class Chart extends Component {
     };
   }
   componentDidMount() {
-    this.initChart()
+    if (this.props.currentTicker != null) {
+      this.initChart()
+    }
   }
 
   initChart(ticker = this.props.currentTicker) {
@@ -164,27 +166,27 @@ class Chart extends Component {
         button.addClass("custom-button")
       }
       
-      self.setState({init: false})
+      self.setState({init: true})
     })
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.network !== nextProps.network) {
+    //if (this.props.network !== nextProps.network) 
+    {
       this.initChart(nextProps.currentTicker)
     }
   }
 
   componentDidUpdate() {
-    window.showBenchmark = this.props.showBenchmark;
     window.chart_count = window.chart_count || 0;
-    console.log("tryto update ", window.showBenchmark, window.chart_count);
     // TODO: reload with the same resolution
-    if (!this.state.init) {
+    if (this.state.init && window.showBenchmark != this.props.showBenchmark) {
       setTimeout(() => {
-
+        window.showBenchmark = this.props.showBenchmark;
+        console.log("update benchmark= ", window.showBenchmark, window.chart_count);
         window.chartWidget.setSymbol(this.props.currentTicker + "@adjusted" + window.chart_count, "15")
         window.chart_count++;
-      }, 0)
+      }, 10)
     }
   }
 

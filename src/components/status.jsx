@@ -85,7 +85,7 @@ class Status extends Component {
     }
     switchExNet(network) {
         if (network == this.state.network) return
-        const defaultTicker = network == "MAINNET" ? 'QDEX/ETH' : 'ETH/USD'
+        const defaultTicker = network == "MAINNET" ? 'ETH/TUSD0X0000000000085D4780B73119B644AE5ECD22B376' : 'ETH/USD'
         this.setState({network})
         this.props.dispatch({
             type: LOGIN,
@@ -96,7 +96,8 @@ class Status extends Component {
 			data: network
         });
 
-        this.props.dispatch(switchTicker(defaultTicker, true));
+        //TODO: should redirect
+        //this.props.dispatch(switchTicker(defaultTicker, true));
     }
     
     render() {

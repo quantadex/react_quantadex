@@ -509,6 +509,7 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
         onDataCallback,
         onErrorCallback)
     }, 1000)
+    return
   }
 
   const parts = symbolInfo.ticker.split("@")
@@ -537,10 +538,10 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
     endDate.getTime() -
     resolutionSec * 60 * bucketCount * 1000
   );
-
+  console.log("show benchmark=", window.showBenchmark , ticker);
   var binancePrice = null;
-  if (window.allMarketsByHash[ticker]) {
-    if (window.allMarketsByHash[ticker].benchmarkSymbol) {
+  if (window.showBenchmark) {
+    if (window.allMarketsByHash[ticker] && window.allMarketsByHash[ticker].benchmarkSymbol) {
       console.log("benchmark symbol=", window.allMarketsByHash[ticker].benchmarkSymbol);
       binancePrice = getExternalPrice(window.allMarketsByHash[ticker].benchmarkSymbol, resolution);
     } else {
@@ -560,7 +561,7 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
       startDate.toISOString().slice(0, -5),
       endDate.toISOString().slice(0, -5)
     ]), binancePrice]).then((res) => {
-      //console.log("chart data", data);
+      console.log("chart data", res, "benchmark=", window.showBenchmark);
       var data = res[0];
       var binance = res[1];
       data = data || [];
