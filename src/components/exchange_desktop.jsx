@@ -14,6 +14,7 @@ import Leaderboard from './leaderboard.jsx'
 import Status from './status.jsx'
 import FirstTime from './first_time.jsx'
 import QTTableView from './ui/tableView.jsx'
+import ToolTip from './ui/tooltip.jsx'
 import Switch from './ui/switch.jsx';
 import Order from './order.jsx';
 import Markets from './markets.jsx';
@@ -221,6 +222,7 @@ class Exchange extends Component {
 					<span className="benchmark-box">
 						<Switch label="Benchmark Price " onToggle={this.toggleBenchmarkPrice.bind(this)}  active={this.state.showBenchmark}/>
 					</span>
+					<ToolTip style={{ float: "right", marginLeft: 13, marginTop: 10}} message="Enabling benchmark price aggregate prices from Binance/others<br/> to give more pricing information for you to make informed trades." />
 				</div>
 			)
 		}
