@@ -437,6 +437,9 @@ Datafeeds.UDFCompatibleDatafeed.prototype.resolveSymbol = function(
         timezone: "GMT/UTC",
         has_intraday: true,
         //has_empty_bars: true,
+        pricescale: 10000000,
+        minmov: 1,
+        minmove2: 0,
         supported_resolutions: ['1', '5', '15', '30', '60', '1D']
       });
     }, 500)
