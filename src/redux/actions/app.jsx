@@ -446,7 +446,7 @@ export function switchTicker(ticker, force_init=false) {
 								.db_api()
 								.exec("get_objects", [[vec_account_id[0][0]]])
 								.then((data) => {
-									console.log("get account ", data);
+									// console.log("get account ", data);
 									dispatch({
 										type: UPDATE_ACCOUNT,
 										data: data[0]

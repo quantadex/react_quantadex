@@ -349,7 +349,7 @@ class ConnectDialog extends Component {
             const key = PrivateKey.fromWif(this.state.private_key)
             const encryption = encryptWallet(key, this.state.password)
             const text= JSON.stringify(encryption)
-            this.download("quanta_wallet.json", text)
+            this.download(`quanta_${this.props.network}_${this.state.username}.json`, text)
             this.setState({downloaded: true, authError: false})
         } catch(e) {
             this.setState({authError: true, errorMsg: "Invalid Key"})
@@ -687,7 +687,8 @@ class ConnectDialog extends Component {
 } 
 
 const mapStateToProps = (state) => ({
-    currentTicker: state.app.currentTicker
+    currentTicker: state.app.currentTicker,
+    network: state.app.network
 });
 export default connect(mapStateToProps)(ConnectDialog)
 export { Connect, ConnectLink }
