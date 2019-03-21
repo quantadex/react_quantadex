@@ -18,6 +18,10 @@ class DepthChart extends Component {
         let totalAsks = 0
         let mid, min, max
 
+        const comp = this.props.currentTicker && this.props.currentTicker.split("/") || ["",""]
+        const base = comp[0].split("0X")
+        const counter = comp[1].split("0X")
+
         bids.dataSource.map(order => {
             totalBids += parseFloat(order.amount)
             bidsData.push([parseFloat(order.price), totalBids])
@@ -60,7 +64,7 @@ class DepthChart extends Component {
         }
         
         if (init || window.depthChartWidget.xAxis[0].min == undefined) {
-            options.title = { text: ticker }
+            options.title = { text: `${base[0]}${(base[1] ? "0x" + base[1].substr(0, 4) : "")}/${counter[0]}${(counter[1] ? "0x" + counter[1].substr(0, 4) : "")}` }
             options.xAxis = { min: min,  max: max }
         }
         
