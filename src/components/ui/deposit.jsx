@@ -7,6 +7,7 @@ import QRCode from 'qrcode'
 import {SymbolToken} from './ticker.jsx'
 import { css } from 'emotion'
 import globalcss from '../global-css.js'
+import Loader from './loader.jsx'
 
 const container = css`
   position: relative;
@@ -66,6 +67,11 @@ const container = css`
     width: 100%;
     padding: 20px 30px;
     border-left: 1px solid #eee;
+
+    a {
+      color: ${globalcss.COLOR_THEME} !important;
+      text-decoration: underline !important;
+    }
   }
 
   #qr-canvas {
@@ -168,6 +174,7 @@ class QTDeposit extends React.Component {
   }
 
   DeployCrossChain = () => {
+    const self = this
 		const { quantaAddress } = this.props;
 		if (!web3) {
 			return;
@@ -185,12 +192,25 @@ class QTDeposit extends React.Component {
 
 		web3.eth.sendTransaction({ data: contractData }, function(err, transactionHash) {
 			if (!err) {
-        console.log(transactionHash);
-        // setInterval(() => {
-        //   web3.eth.getTransaction(transactionHash, (error, transaction) => {
-        //     console.log(transaction)
-        //   })
-        // }, 1000)
+        // console.log(transactionHash);
+        self.setState({deploy_contract_tx: transactionHash})
+        let deploy_interval = setInterval(() => {
+          web3.eth.getTransaction(transactionHash, (error, transaction) => {
+            if (transaction.blockNumber) {
+              clearInterval(deploy_interval)
+              let address_interval = setInterval(() => {
+                fetch(CONFIG.getEnv().API_PATH + "/node1/address/eth/" + self.props.name).then(e => e.json())
+                .then(e => {
+                  if (e && e[e.length-1]) {
+                    clearInterval(address_interval)
+                    self.setState({contract_block: transaction.blockNumber, deposit_address: e[e.length-1].Address})
+                    self.props.setAddress("eth", e[e.length-1].Address)
+                  }
+                })
+              }, 2000)
+            }
+          })
+        }, 2000)
       }
 		});
 	};
@@ -218,26 +238,50 @@ class QTDeposit extends React.Component {
   MetamaskDeposit() {
     return (
       <div className="input-container">
-          <h5 className="mb-3"><b>CREATE YOUR ETHEREUM CROSSCHAIN ADDRESS</b></h5>
-          <p>
-            Crosschain technology protects your funds in a Ethereum smart contract, 
-            which links your own personal ethereum address to the QUANTA smart contract. 
-            You must have Metamask to create your own address.
-          </p>
-          <p className={this.state.metamask_acc ? "invisible" : ""}>
-            If you recently deployed a contract, wait for approximately 2 
-            confirmation cycles (~30sec) to see your new cross chain address.
-          </p>
+        {this.state.deploy_contract_tx ?
+          <React.Fragment>
+            <h5 className="mb-3"><b>WAITING FOR CROSSCHAIN ADDRESS TO COMPLETE</b></h5>
+            <p>Your crosschain address is being deployed...</p>
+            <p>
+              Transaction ID: <a href={CONFIG.getEnv().ETHERSCAN_URL + "/tx/" + this.state.deploy_contract_tx} target="_blank">{this.state.deploy_contract_tx}</a>
+            </p>
 
-          <div className="d-flex align-items-center mt-5 mb-3">
-            <button className="mr-4 cursor-pointer" disabled={!this.state.metamask_acc}
-              onClick={this.DeployCrossChain}>Deploy Contract</button>
-            <div className={"warning" + (this.state.metamask_acc ? " invisible" : "")}>Please login on Metamask to deploy Contract</div>
-          </div>
+            {this.state.contract_block ? 
+              <p>Block Number: <a href={CONFIG.getEnv().ETHERSCAN_URL + "/block/" + this.state.contract_block} target="_blank">{this.state.contract_block}</a></p>
+              :
+              <Loader type="box" />
+            }
 
-          <div className={!this.state.metamask_acc ? "invisible" : ""}>Ethereum address: {this.state.metamask_acc}</div>
+            <div className="d-flex align-items-center mt-5 mb-3">
+              <button className="mr-4 cursor-pointer" disabled={!this.state.deposit_address}
+                onClick={() => this.setState({deploy_contract_tx: null})}>{this.state.deposit_address ? "View Address" : "Waiting..."}</button>
+            </div>
+          </React.Fragment>
+          :
+          <React.Fragment>
+            <h5 className="mb-3"><b>CREATE YOUR ETHEREUM CROSSCHAIN ADDRESS</b></h5>
+            <p>
+              Crosschain technology protects your funds in a Ethereum smart contract, 
+              which links your own personal ethereum address to the QUANTA smart contract. 
+              You must have Metamask to create your own address.
+            </p>
+            <p className={this.state.metamask_acc ? "" : "invisible"}>
+              If you recently deployed a contract, wait for approximately 2 
+              confirmation cycles (~30sec) to see your new cross chain address.
+            </p>
+
+            <div className="d-flex align-items-center mt-5 mb-3">
+              <button className="mr-4 cursor-pointer" disabled={!this.state.metamask_acc}
+                onClick={this.DeployCrossChain}>Deploy Contract</button>
+              <div className={"warning" + (this.state.metamask_acc ? " invisible" : "")}>Please login on Metamask to deploy Contract</div>
+            </div>
+
+            <div className={!this.state.metamask_acc ? "invisible" : ""}>Ethereum address: {this.state.metamask_acc}</div>
+          </React.Fragment>
+        }
+          
             
-        </div>
+      </div>
     )
   }
 
@@ -296,14 +340,15 @@ class QTDeposit extends React.Component {
           }
         </div>
         <div className="close-dialog cursor-pointer" onClick={this.props.handleClick}>Close</div>
-        {!this.state.deposit_address ? (this.props.isETH ? <this.MetamaskDeposit /> : <this.Deposit />) : <this.Deposit />}
+        {!this.state.deposit_address || this.state.deploy_contract_tx ? (this.props.isETH ? <this.MetamaskDeposit /> : <this.Deposit />) : <this.Deposit />}
       </div>
     );
   }
 }
 
 const mapStateToProps = (state) => ({
-  publicKey: state.app.publicKey
+  publicKey: state.app.publicKey,
+  name: state.app.name
 });
 
 

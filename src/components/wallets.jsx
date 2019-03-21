@@ -178,6 +178,14 @@ class Wallets extends Component {
     this.setState({hideZero: hide})
   }
 
+  setAddress(coin, address) {
+    if (coin == "eth") {
+      this.setState({ethAddress: address})
+    } else if (coin == "btc") {
+      this.setState({btcAddress: address})
+    }
+  }
+
   PublicAddress() {
     return (
       <div className="public-address-container d-flex justify-content-between">
@@ -230,6 +238,7 @@ class Wallets extends Component {
           handleClick: (asset, close) => {
             return <QTDeposit asset={asset} handleClick={close} quantaAddress={this.props.name} 
             isETH={(["ETH", "ERC20"].includes(asset) || asset.split("0X").length == 2)}
+            setAddress={this.setAddress.bind(this)}
             deposit_address={(["ETH", "ERC20"].includes(asset) || asset.split("0X").length == 2) ? this.state.ethAddress : this.state.btcAddress} />
           },
           disabled: (pairs) => {return false}

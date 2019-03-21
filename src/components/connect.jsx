@@ -131,6 +131,10 @@ const dialog = css`
         }
     }
 
+    .container.testnet {
+        background-color: #555;
+    }
+
     .warning {
         background-color: rgba(255, 50, 130, 0.03);
         border: 2px solid #f0185c;
@@ -548,7 +552,7 @@ class ConnectDialog extends Component {
         return (
             <div id="key-connect">
                 <div className="d-flex justify-content-between">
-                    <h4>CONNECT WALLET</h4>
+                    <h4>CONNECT {this.props.network == "testnet" ? "TESTNET" : ""} WALLET</h4>
                     <div className="link mr-5" onClick={() => this.resetInputs({dialogType: "create"})}>Don’t have an account?</div>
                 </div>
                 <QTTabBar
@@ -570,7 +574,7 @@ class ConnectDialog extends Component {
         return (
             <div id="key-create">
                 <div className="d-flex justify-content-between">
-                    <h4>CREATE WALLET</h4>
+                    <h4>CREATE {this.props.network == "testnet" ? "TESTNET" : ""} WALLET</h4>
                     <div className="link mr-5" onClick={() => this.resetInputs({dialogType: "connect"})}>Already have a key?</div>
                 </div>
                 <div className="input-container">
@@ -618,7 +622,7 @@ class ConnectDialog extends Component {
         return (
             <div id="key-create">
                 <div className="d-flex justify-content-between">
-                    <h4>CREATE WALLET</h4>
+                    <h4>CREATE {this.props.network == "testnet" ? "TESTNET" : ""} WALLET</h4>
                     <div className="link mr-5" onClick={() => this.setState({dialogType: "connect"})}>Already have a key?</div>
                 </div>
                 <div className="input-container">
@@ -671,7 +675,7 @@ class ConnectDialog extends Component {
         return (
             <div id="connect-dialog" className={dialog + (this.props.isMobile ? " mobile" : "")} style={{display: "none"}} 
                 onDragOver={(e)=> e.preventDefault()} onDrop={(e) => e.preventDefault()}>
-                <div className="container">
+                <div className={"container " + this.props.network}>
                     <div className="close-btn" onClick={() => this.closeDialog()}><img src={devicePath("public/images/close_btn.svg")} /></div>
                     {this.state.dialogType == "create" ? 
                         this.state.regStep == 1 ? <this.KeyCreate /> : <this.KeyDownload /> :
