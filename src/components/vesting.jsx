@@ -130,7 +130,7 @@ class Vesting extends Component {
                           <td className="text-right">{balance.vesting_policy.begin_balance / Math.pow(10, coin.precision)}</td>
                       </tr>
                         <tr className="border-bottom border-dark">
-                          <td>Begin Balance</td>
+                          <td>Begin Date</td>
                           <td className="text-right">{balance.vesting_policy.begin_timestamp}</td>
                         </tr>                      
                         <tr className="border-bottom border-dark">

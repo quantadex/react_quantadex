@@ -123,7 +123,7 @@ export class HamburgerMenu extends React.Component {
                         )
                       } else {
                         return (
-                          <Link key={index} to={item.url}
+                          <Link key={index} to={item.text == "Exchange" ? item.url + this.props.currentTicker.replace("/", "_") : item.url}
                                 onMouseOver={this.handleHover.bind(this,item.iconPathActive)}
                                 onMouseLeave={this.handleHover.bind(this,item.iconPath)}
                                 className="d-flex menu-row">
@@ -158,7 +158,7 @@ HamburgerMenu.defaultProps = {
       iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),
       iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
       text:"Exchange",
-      url:"/" + net + "/exchange"
+      url:"/" + net + "/exchange/"
     }]
   },{
     items: [{
@@ -198,6 +198,7 @@ HamburgerMenu.propTypes = {
 
 const mapStateToProps = (state) => ({
   total_fund: state.app.totalFundValue,
+  currentTicker: state.app.currentTicker
 });
 
 export default connect(mapStateToProps)(withRouter(HamburgerMenu))

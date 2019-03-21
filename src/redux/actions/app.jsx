@@ -324,7 +324,6 @@ export const loadOrderHistory = (page) => {
 
 var disconnect_notified
 export function switchTicker(ticker, force_init=false) {
-	console.log(ticker)
 	Apis.setAutoReconnect(true)
 	// send GA
 	ReactGA.set({ page: "exchange/" + ticker });
@@ -366,7 +365,6 @@ export function switchTicker(ticker, force_init=false) {
 		}
 
 		function action(ticker) {
-			console.log("action", ticker)
 			var {base, counter} = getBaseCounter(ticker)
 
 			const tmpOrder = createLimitOrderWithPrice("1.2.0", true, window.assets, base.id, counter.id, 1, 1)
@@ -379,7 +377,6 @@ export function switchTicker(ticker, force_init=false) {
 			})
 
 			async function fetchData(ticker, first=false) {
-				console.log("fetch", ticker)
 				var {base, counter} = getBaseCounter(ticker)
 				try {
 					if (!window.markets) {
