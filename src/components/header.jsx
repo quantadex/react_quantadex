@@ -26,6 +26,7 @@ const container = css`
 	}
 
 	.header-coin-name {
+		white-space: nowrap;
 		background: url(${devicePath("public/images/big-arrow-down.svg")}) no-repeat 100%;
 	}
 

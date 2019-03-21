@@ -10,8 +10,9 @@ const container = css`
 		background-color: #454651;
 		font-size: 10px;
 		padding: 3px 5px;
-		margin-right: 4px;
 		color: #ddd;
+		vertical-align: middle;
+		margin-right: 3px;
 	}
 
 	.crosschain-icon {
@@ -60,12 +61,9 @@ export const SymbolToken = ({ name, showIcon = true, withLink= true }) => {
 
 export default ({ticker}) => {
 	if (ticker === undefined || ticker === null) {
-		return "INVALID"
+		return ""
 	}
-	// return <span>{ticker}</span>
 	const comp = ticker.split("/")
-	const base = comp[0].split("0X")
-	const counter = comp[1].split("0X")
 
-	return <span>{base[0]}<b>{base[1] ? "0x" + base[1].substr(0, 4) : ""}</b>/{counter[0]}<b>{counter[1] ? "0x" + counter[1].substr(0, 4): ""}</b></span>
+	return <span><SymbolToken name={comp[0]} showIcon={false} withLink={false} />/ <SymbolToken name={comp[1]} showIcon={false} withLink={false} /></span>
 }
