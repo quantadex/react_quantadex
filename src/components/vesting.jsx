@@ -5,6 +5,14 @@ import { css } from 'emotion'
 import { withdrawVesting, withdrawGenesis } from '../redux/actions/app.jsx'
 import Loader from './ui/loader.jsx'
 import { toast } from 'react-toastify';
+import { PrivateKey, PublicKey, Aes, key, ChainStore } from "@quantadex/bitsharesjs";
+
+function timeStringToDate(block_time) {
+  if (!/Z$/.test(block_time)) {
+    block_time += "Z";
+  }
+  return new Date(block_time);
+}
 
 const container = css`
   color: #999;
@@ -74,7 +82,23 @@ class Vesting extends Component {
     })
   }
 
+  getClaimAmount(balance) {
+    if (balance.vesting_policy) {
+      const object = ChainStore.getObject("2.1.0");
+      const timestamp = timeStringToDate(object.get("time"))
+      const begintime = timeStringToDate(balance.vesting_policy.begin_timestamp)
+
+      const withdrawn_already = BigInt(balance.vesting_policy.begin_balance) - BigInt(balance.balance.amount);
+      const elapsed_seconds = (timestamp.getTime() - begintime.getTime())/1000;
+      var total_vested = (BigInt(balance.vesting_policy.begin_balance) * BigInt(elapsed_seconds) / BigInt(balance.vesting_policy.vesting_duration_seconds))
+      console.log(total_vested, withdrawn_already);
+      return parseInt(total_vested - withdrawn_already);
+    } else {
+      return balance.balance.amount
+    }
+  }
   render() {
+    console.log(this.props.genesis)
     return (
       <div className={container + " content" + (this.props.isMobile ? " mobile px-4" : "")}>
         {this.props.vesting.length + this.props.genesis.length == 0 ?
@@ -93,11 +117,42 @@ class Vesting extends Component {
                     <td>Balance amount</td>
                     <td className="text-right">{display_amount}</td>
                   </tr>
+                  <tr className="border-bottom border-dark">
+                    <td>Last Claim Date amount</td>
+                    <td className="text-right">{balance.last_claim_date}</td>
+                  </tr>                  
+                  {
+                    balance.vesting_policy &&
+                    (
+                      <React.Fragment>
+                      <tr className="border-bottom border-dark">
+                        <td>Begin Balance</td>
+                          <td className="text-right">{balance.vesting_policy.begin_balance / Math.pow(10, coin.precision)}</td>
+                      </tr>
+                        <tr className="border-bottom border-dark">
+                          <td>Begin Balance</td>
+                          <td className="text-right">{balance.vesting_policy.begin_timestamp}</td>
+                        </tr>                      
+                        <tr className="border-bottom border-dark">
+                          <td>Vesting Cliff (sec)</td>
+                          <td className="text-right">{balance.vesting_policy.vesting_cliff_seconds}</td>
+                        </tr>      
+                      <tr className="border-bottom border-dark">
+                        <td>Vesting Duration (sec)</td>
+                          <td className="text-right">{balance.vesting_policy.vesting_duration_seconds}</td>
+                      </tr>    
+                        <tr className="border-bottom border-dark">
+                          <td>Total Claimable</td>
+                          <td className="text-right">{this.getClaimAmount(balance)/Math.pow(10,coin.precision)}</td>
+                        </tr>                            
+                      </React.Fragment>                
+                    )
+                  }
                   <tr>
                     <td></td>
                     <td className="text-right">
                       <button className="my-3" disabled={this.state.claim_status[balance.id] || this.state.claimed_balance.indexOf(balance.id) !== -1}
-                        onClick={() => this.claimBalance(balance.id, balance.balance.amount, balance.balance.asset_id, display_amount, true)}>
+                        onClick={() => this.claimBalance(balance.id, this.getClaimAmount(balance), balance.balance.asset_id, display_amount, true)}>
                           {this.state.claim_status[balance.id] ? 
                             <Loader size="24px"/> : (this.state.claimed_balance.indexOf(balance.id) !== -1 ? "Claimed" : "Claim Now")}
                         </button>
