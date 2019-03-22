@@ -287,7 +287,7 @@ class QTDeposit extends React.Component {
             <div className="d-flex align-items-center mt-5 mb-3">
               <button className="mr-4 cursor-pointer" disabled={!this.state.deposit_address}
                 onClick={() => this.setState({deploy_contract_tx: null})}>{this.state.deposit_address ? "View Address" : "Waiting..."}</button>
-              {!this.state.deposit_address ? <button className="cancel-btn" onClick={this.cancelContract.bind(this)}>CANCEL</button> : null}
+              {!this.state.deposit_address ? <button className="cancel-btn" onClick={this.cancelContract.bind(this)}>BACK</button> : null}
             </div>
           </React.Fragment>
           :

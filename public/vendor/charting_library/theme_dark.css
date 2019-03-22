@@ -1187,3 +1187,7 @@ to {
 .tv-close-panel {
     display: none;
 }
+
+.active .custom-button {
+    color: #66d7d7 !important;
+}

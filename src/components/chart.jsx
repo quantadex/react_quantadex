@@ -161,11 +161,21 @@ class Chart extends Component {
     widget.onChartReady(function() {
       for (let interval of custom_intervals) {
         var button = widget.createButton()
-        .on('click', () => widget.setSymbol(ticker, interval.resolution))
+        .on('click', (e) => {
+          widget.setSymbol(ticker, interval.resolution)
+          let header_buttons = e.target.parentNode.parentNode.childNodes
+          for (let i of header_buttons) {
+            i.classList.remove("active")
+          }
+          e.target.parentNode.classList.add("active")
+        })
         .append($('<span>' + interval.text + '</span>'))
         button.addClass("custom-button")
+
+        if(interval.resolution == "15") {
+          button[0].parentNode.classList.add("active")
+        }
       }
-      
       self.setState({init: true})
     })
   }
