@@ -48,6 +48,17 @@ const container = css`
     background-color: #999;
   }
 
+  button.cancel-btn {
+    background: transparent;
+    color: #777;
+    width: max-content;
+    cursor: pointer;
+  }
+
+  button.cancel-btn:hover {
+    text-decoration: underline;
+  }
+
   .copy-btn {
     padding: 2px 10px;
     width: auto;
@@ -140,12 +151,19 @@ class QTDeposit extends React.Component {
     this.CoinDetails = this.CoinDetails.bind(this)
     this.MetamaskDeposit = this.MetamaskDeposit.bind(this)
     this.Deposit = this.Deposit.bind(this)
+    this.waitForContract = this.waitForContract.bind(this)
   }
 
   componentDidMount() {
+    let transactionHash = localStorage.getItem(this.props.name + '_deploy_contract_tx')
+
     if (!this.state.deposit_address && this.props.isETH) {
       if (typeof web3 === 'undefined') {
         return
+      }
+
+      if (transactionHash) {
+        this.waitForContract(transactionHash)
       }
       
       var self = this
@@ -156,6 +174,8 @@ class QTDeposit extends React.Component {
           self.setState({metamask_acc: metamask.eth.accounts.givenProvider.selectedAddress})
         }
       }, 100);
+    } else {
+      localStorage.removeItem(this.props.name + '_deploy_contract_tx')
     }
   }
 
@@ -193,27 +213,39 @@ class QTDeposit extends React.Component {
 		web3.eth.sendTransaction({ data: contractData }, function(err, transactionHash) {
 			if (!err) {
         // console.log(transactionHash);
-        self.setState({deploy_contract_tx: transactionHash})
-        let deploy_interval = setInterval(() => {
-          web3.eth.getTransaction(transactionHash, (error, transaction) => {
-            if (transaction.blockNumber) {
-              clearInterval(deploy_interval)
-              let address_interval = setInterval(() => {
-                fetch(CONFIG.getEnv().API_PATH + "/node1/address/eth/" + self.props.name).then(e => e.json())
-                .then(e => {
-                  if (e && e[e.length-1]) {
-                    clearInterval(address_interval)
-                    self.setState({contract_block: transaction.blockNumber, deposit_address: e[e.length-1].Address})
-                    self.props.setAddress("eth", e[e.length-1].Address)
-                  }
-                })
-              }, 2000)
-            }
-          })
-        }, 2000)
+        localStorage.setItem(self.props.name + '_deploy_contract_tx', transactionHash);
+        self.waitForContract(transactionHash)
       }
 		});
-	};
+  };
+  
+  waitForContract(transactionHash) {
+    const self = this
+    self.setState({deploy_contract_tx: transactionHash})
+    let deploy_interval = setInterval(() => {
+      web3.eth.getTransaction(transactionHash, (error, transaction) => {
+        if (transaction.blockNumber) {
+          clearInterval(deploy_interval)
+          let address_interval = setInterval(() => {
+            fetch(CONFIG.getEnv().API_PATH + "/node1/address/eth/" + self.props.name).then(e => e.json())
+            .then(e => {
+              if (e && e[e.length-1]) {
+                clearInterval(address_interval)
+                self.setState({contract_block: transaction.blockNumber, deposit_address: e[e.length-1].Address})
+                self.props.setAddress("eth", e[e.length-1].Address)
+                localStorage.removeItem(self.props.name + '_deploy_contract_tx')
+              }
+            })
+          }, 2000)
+        }
+      })
+    }, 2000)
+  }
+
+  cancelContract() {
+    this.setState({deploy_contract_tx: null})
+    localStorage.removeItem(this.props.name + '_deploy_contract_tx')
+  }
   
   CoinDetails() {
     const coin = window.assetsBySymbol[this.props.asset]
@@ -255,6 +287,7 @@ class QTDeposit extends React.Component {
             <div className="d-flex align-items-center mt-5 mb-3">
               <button className="mr-4 cursor-pointer" disabled={!this.state.deposit_address}
                 onClick={() => this.setState({deploy_contract_tx: null})}>{this.state.deposit_address ? "View Address" : "Waiting..."}</button>
+              {!this.state.deposit_address ? <button className="cancel-btn" onClick={this.cancelContract.bind(this)}>CANCEL</button> : null}
             </div>
           </React.Fragment>
           :

@@ -26,7 +26,7 @@ class Balance extends Component {
         // console.log(this.props)
         return (
             <div className={container + " qt-font-light" + (this.props.isMobile ? " mobile" : "")}>
-                Wallet Balance <Link to={"/" + this.props.network + "/wallets"} className="ml-2"><img src={devicePath("public/images/open-icon.svg")} /></Link>
+                Wallet Balance {this.props.name ? <Link to={"/" + this.props.network + "/wallets"} className="ml-2"><img src={devicePath("public/images/open-icon.svg")} /></Link> : null }
                 <div className="no-scroll-bar">
                     <div>
                         <table className="w-100 mt-3">
@@ -52,6 +52,7 @@ const mapStateToProps = (state) => ({
     isMobile: state.app.isMobile,
     balance: state.app.balance || [],
     network: state.app.network,
+    name: state.app.name
 });
 
 export default connect(mapStateToProps)(Balance);

@@ -94,7 +94,7 @@ class Fund extends Component {
 
 	render() {
     if (this.props.private_key == null) {
-			window.location.assign('/')
+			window.location.assign('/' + this.props.match.params.net)
     } 
 
     const tabs = {

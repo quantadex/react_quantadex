@@ -98,7 +98,6 @@ class Vesting extends Component {
     }
   }
   render() {
-    console.log(this.props.genesis)
     return (
       <div className={container + " content" + (this.props.isMobile ? " mobile px-4" : "")}>
         {this.props.vesting.length + this.props.genesis.length == 0 ?
