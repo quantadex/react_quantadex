@@ -122,6 +122,7 @@ export class HamburgerMenu extends React.Component {
                           </a>
                         )
                       } else {
+                        if ( this.props.network == "mainnet" && item.text == "Leaderboard" ) return
                         return (
                           <Link key={index} to={item.text == "Exchange" ? item.url + this.props.currentTicker.replace("/", "_") : item.url}
                                 onMouseOver={this.handleHover.bind(this,item.iconPathActive)}
@@ -198,7 +199,8 @@ HamburgerMenu.propTypes = {
 
 const mapStateToProps = (state) => ({
   total_fund: state.app.totalFundValue,
-  currentTicker: state.app.currentTicker
+  currentTicker: state.app.currentTicker,
+  network: state.app.network
 });
 
 export default connect(mapStateToProps)(withRouter(HamburgerMenu))
