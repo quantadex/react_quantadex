@@ -71,7 +71,6 @@ class Dashboard extends Component {
 	}
 
 	switchMarket(e) {
-		this.props.dispatch(switchTicker(e))
 		const list = document.getElementById("market-list")
 		if (list.classList.contains("active")) {
 			list.classList.remove("active")

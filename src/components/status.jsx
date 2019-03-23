@@ -88,10 +88,6 @@ class Status extends Component {
         let current = window.location.pathname.startsWith("/testnet") ? "testnet" : "mainnet"
         if (net == current) return
         const defaultTicker = net == "mainnet" ? 'ETH_TUSD0X0000000000085D4780B73119B644AE5ECD22B376' : 'ETH_USD'
-        this.props.dispatch({
-            type: LOGIN,
-            private_key: null
-        });
 
         window.location = "/" + net + "/exchange/" + defaultTicker
     }

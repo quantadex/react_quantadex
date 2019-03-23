@@ -322,6 +322,43 @@ export const loadOrderHistory = (page) => {
 	}
 }
 
+export const AccountLogin = (private_key) => {
+	return (dispatch, getState) => {
+		const pKey = PrivateKey.fromWif(private_key);
+		let publicKey = pKey.toPublicKey().toString()
+		
+		return Apis.instance()
+		.db_api()
+		.exec("get_key_references", [[publicKey]])
+		.then(vec_account_id => {
+			// console.log("get_key_references ", vec_account_id[0][0]);
+
+			return Apis.instance()
+				.db_api()
+				.exec("get_objects", [[vec_account_id[0][0]]])
+				.then((data) => {
+					// console.log("get account ", data);
+					
+					dispatch({
+						type: LOGIN,
+						private_key: private_key
+					})
+					dispatch({
+						type: UPDATE_ACCOUNT,
+						data: data[0]
+					})
+				}).then(e => {
+					dispatch(switchTicker(getState().app.currentTicker))
+					return true
+				}).catch(error => {
+					throw "No account for public key: " + publicKey
+				})
+			
+		})
+	}
+}
+
+
 var disconnect_notified
 export function switchTicker(ticker, force_init=false) {
 	Apis.setAutoReconnect(true)
@@ -431,34 +468,6 @@ export function switchTicker(ticker, force_init=false) {
 						data: [marketData, USD_value]
 					})
 
-					// look up account if we're logged in
-					if (!initUser && getState().app.private_key !== null) {
-						const pKey = PrivateKey.fromWif(getState().app.private_key);
-						publicKey = pKey.toPublicKey().toString()
-						
-						Apis.instance()
-						.db_api()
-						.exec("get_key_references", [[publicKey]])
-						.then(vec_account_id => {
-							// console.log("get_key_references ", vec_account_id[0][0]);
-	
-							return Apis.instance()
-								.db_api()
-								.exec("get_objects", [[vec_account_id[0][0]]])
-								.then((data) => {
-									// console.log("get account ", data);
-									dispatch({
-										type: UPDATE_ACCOUNT,
-										data: data[0]
-									})
-								})
-	
-						}).then(e => {
-							initUser = true
-							fetchData(ticker)
-						})
-					}
-
 				} catch(e) {
 					console.log(e)
 					if (!disconnect_notified) {
@@ -479,7 +488,7 @@ export function switchTicker(ticker, force_init=false) {
 				})
 
 				var my_trades = []
-
+				
 				if (publicKey && getState().app.userId) {
 					const userId = getState().app.userId
 					my_trades = fetch(CONFIG.getEnv().API_PATH + `/account?filter_field=operation_type&filter_value=2,4&size=${dataSize}&account_id=${userId}`).then(e => e.json())

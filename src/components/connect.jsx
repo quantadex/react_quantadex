@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { css } from 'emotion'
 import { connect } from 'react-redux'
-import { LOGIN, switchTicker } from '../redux/actions/app.jsx'
+import { LOGIN, switchTicker, AccountLogin } from '../redux/actions/app.jsx'
 import { PrivateKey, changeWalletPassword, decryptWallet, encryptWallet } from "@quantadex/bitsharesjs";
 import WalletApi from "../common/api/WalletApi";
 import QTTabBar from './ui/tabBar.jsx'
@@ -312,11 +312,12 @@ class ConnectDialog extends Component {
         try {
 			const decrypted = decryptWallet(this.state.encrypted_data, this.state.password)
             const private_key = decrypted.toWif()
-			this.props.dispatch({
-                type: LOGIN,
-                private_key: private_key
-            });
-            this.props.dispatch(switchTicker(this.props.currentTicker))
+
+            this.props.dispatch(AccountLogin(private_key))
+            .catch(error => {
+                this.setState({authError: true, errorMsg: error})
+            })
+
 		} catch(e) {
 			console.log(e)
 			this.setState({authError: true, errorMsg: "Incorrect Password"})
@@ -327,13 +328,13 @@ class ConnectDialog extends Component {
     ConnectWithKey() {
         try {
             const pKey = PrivateKey.fromWif(this.state.private_key);
-			this.props.dispatch({
-                type: LOGIN,
-                private_key: this.state.private_key
-            });
-            this.props.dispatch(switchTicker(this.props.currentTicker))
+
+            this.props.dispatch(AccountLogin(this.state.private_key))
+            .catch(error => {
+                this.setState({authError: true, errorMsg: error})
+            })
+
 		} catch(e) {
-			console.log(e)
 			this.setState({authError: true, errorMsg: "Invalid Key"})
 		}
     }
