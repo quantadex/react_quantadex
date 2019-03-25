@@ -120,6 +120,7 @@ class Exchange extends Component {
 			selectedTabIndex: 2,
 			chart: "tv",
 			dialog: undefined,
+			showBenchmark: true
 		};
 	  }
 
@@ -170,7 +171,7 @@ class Exchange extends Component {
 			return (
 				<div>
 					<Switchchart />
-					<Chart chartTools={false}  className={this.state.chart === "tv" ? "d-block": "d-none"} />
+					<Chart chartTools={false} showBenchmark={this.state.showBenchmark} className={this.state.chart === "tv" ? "d-block": "d-none"} />
 					<DepthChart  className={this.state.chart === "depth" ? "d-block": "d-none"} />
 				</div>
 			)
