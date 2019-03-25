@@ -420,6 +420,7 @@ export function switchTicker(ticker, force_init=false) {
 						const markets = await fetch(CONFIG.getEnv().MARKETS_JSON).then(e => e.json())
 						window.markets = markets.markets
 						window.marketsHash = lodash.keyBy(markets.markets, "name")
+						window.wallet_listing = markets.wallet_listing
 
 						// used by datafeed
 						window.allMarkets = []
@@ -434,7 +435,7 @@ export function switchTicker(ticker, force_init=false) {
 					var marketData = {};
 					var USD_value = {}
 
-					// console.log("json ", markets.markets);
+					// console.log("json ", window.markets);
 
 					for (const market in window.markets) {
 						for (const pair of window.markets[market]) {
@@ -488,7 +489,7 @@ export function switchTicker(ticker, force_init=false) {
 				})
 
 				var my_trades = []
-				
+
 				if (publicKey && getState().app.userId) {
 					const userId = getState().app.userId
 					my_trades = fetch(CONFIG.getEnv().API_PATH + `/account?filter_field=operation_type&filter_value=2,4&size=${dataSize}&account_id=${userId}`).then(e => e.json())
