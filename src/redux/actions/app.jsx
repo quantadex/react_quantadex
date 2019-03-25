@@ -142,7 +142,7 @@ export const transferFund = (data) => {
 			// console.log(tr);
 			return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key))
 		}).then(e => {
-			switchTicker(getState().app.currentTicker)
+			dispatch(switchTicker(getState().app.currentTicker))
 		}).catch(e => {
 			throw e
 		})
@@ -159,7 +159,7 @@ export const withdrawVesting = (data) => {
 		}).then((tr) => {
 			return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key))
 		}).then(e => {
-			switchTicker(getState().app.currentTicker)
+			dispatch(switchTicker(getState().app.currentTicker))
 		}).catch(e => {
 			throw e
 		})
@@ -177,7 +177,7 @@ export const withdrawGenesis = (data) => {
 		}).then((tr) => {
 			return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key))
 		}).then(e => {
-			switchTicker(getState().app.currentTicker)
+			dispatch(switchTicker(getState().app.currentTicker))
 		}).catch(e => {
 			throw e
 		})
