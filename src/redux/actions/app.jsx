@@ -184,6 +184,36 @@ export const withdrawGenesis = (data) => {
 	}
 }
 
+export const accountUpgrade = () => {
+	return (dispatch, getState) => {
+		return ApplicationApi.account_upgrade({ 
+			account: getState().app.userId
+		}).then((tr) => {
+			return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key))
+		})
+		.then(e => {
+			let data = {
+				userId: getState().app.userId,
+				name: getState().app.name,
+				publicKey: getState().app.publicKey,
+				lifetime: true
+			}
+			dispatch({
+				type: UPDATE_ACCOUNT,
+				data: data
+			})
+			dispatch(switchTicker(getState().app.currentTicker))
+		}).catch(error => {
+			console.log(error)
+			if (error.message.includes("Insufficient Balance")) {
+				throw "Insufficient Balance"
+			} else {
+				throw "Server error. Please try again"
+			}
+		})
+	}
+}
+
 var initAPI = false;
 var initUser = false;
 
@@ -345,7 +375,7 @@ export const AccountLogin = (private_key) => {
 					})
 					dispatch({
 						type: UPDATE_ACCOUNT,
-						data: data[0]
+						data: {...data[0], lifetime: data[0].membership_expiration_date === "1969-12-31T23:59:59"}
 					})
 				}).then(e => {
 					dispatch(switchTicker(getState().app.currentTicker))
@@ -464,6 +494,7 @@ export function switchTicker(ticker, force_init=false) {
 						}
 					}
 
+					window.USD_value = USD_value
 					dispatch({
 						type: SET_MARKET_QUOTE,
 						data: [marketData, USD_value]
@@ -529,10 +560,19 @@ export function switchTicker(ticker, force_init=false) {
 							orders.push(order)
 						})
 						return [results, orders]
+					}).then(e => {
+						let statistic_id = e[0][0][1].statistics.id
+						return Apis.instance().db_api().exec("get_objects", [[statistic_id]]).then(statistics=>{
+							return [...e, statistics[0].extensions.referral_fee_paid]
+						})
 					})
+					
+					// referral_fee = Apis.instance().db_api().exec("get_objects", [[statistic_id]]).then(e=>{
+					// 	console.log("statistic", e);
+					// 	return e
+					// })
 
 					const shortAddress = WalletApi.getShortAddress(getState().app.publicKey)
-
 					genesis_balance = Apis.instance().db_api().exec("get_balance_objects", [[shortAddress]]).then(e=>{
 						// console.log("balance obj????", e);
 						return e
@@ -550,7 +590,8 @@ export function switchTicker(ticker, force_init=false) {
 								openOrders: data[2][1],
 								ticker: ticker,
 								accountData: data[2][0],
-								genesis_balance: data[4]
+								referral_fee: data[2][2],
+								genesis_balance: data[4],
 							}
 						})
 						if (first) {

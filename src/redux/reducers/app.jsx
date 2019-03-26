@@ -527,6 +527,7 @@ const app = (state = initialState, action) => {
       
       const vesting = action.data.accountData.length > 0 && action.data.accountData[0][1].vesting_balances
       const genesis = action.data.genesis_balance 
+      const referral_paid = action.data.referral_fee || []
 
       return {
         ...state,
@@ -534,6 +535,7 @@ const app = (state = initialState, action) => {
         balance: balances,
         vesting: vesting,
         genesis: genesis,
+        referral_paid: referral_paid,
         onOrdersFund: onOrdersFund,
         totalFundValue: total_fund_value,
         mostRecentTrade: {
@@ -615,7 +617,8 @@ const app = (state = initialState, action) => {
         ...state,
         userId: action.data.id,
         name: action.data.name,
-        publicKey: action.data.owner.key_auths[0][0]
+        publicKey: action.data.publicKey || action.data.owner.key_auths[0][0],
+        lifetime: action.data.lifetime
       }
 
     case UPDATE_OPEN_ORDERS:

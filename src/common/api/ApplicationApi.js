@@ -250,14 +250,6 @@ const ApplicationApi = {
                     fee_asset_id = "1.3.0";
                 }
 
-                // TODO: copy as balance_claim
-                // export const balance_claim = new Serializer("balance_claim", {
-                //     fee: asset,
-                //     deposit_to_account: protocol_id_type("account"),
-                //     balance_to_claim: protocol_id_type("balance"),
-                //     balance_owner_key: public_key,
-                //     total_claimed: asset
-                // });
                 // https://bitshares.org/doxygen/structgraphene_1_1chain_1_1balance__claim__operation.html
                 let tr = new TransactionBuilder();
                 let vesting_balance_withdraw_op = tr.get_type_operation("vesting_balance_withdraw", {
@@ -317,14 +309,6 @@ const ApplicationApi = {
                     fee_asset_id = "1.3.0";
                 }
 
-                // TODO: copy as balance_claim
-                // export const balance_claim = new Serializer("balance_claim", {
-                //     fee: asset,
-                //     deposit_to_account: protocol_id_type("account"),
-                //     balance_to_claim: protocol_id_type("balance"),
-                //     balance_owner_key: public_key,
-                //     total_claimed: asset
-                // });
                 // https://bitshares.org/doxygen/structgraphene_1_1chain_1_1balance__claim__operation.html
                 let tr = new TransactionBuilder();
                 let balance_claim_op = tr.get_type_operation("balance_claim", {
@@ -340,6 +324,55 @@ const ApplicationApi = {
                 
                 return tr.update_head_block().then(() => {
                     tr.add_operation(balance_claim_op);
+                    return tr;
+                });
+            })
+            .catch(() => {});
+    },
+
+    account_upgrade({
+        // OBJECT: { ... }
+        account,
+        fee_asset_id = "1.3.0"
+    }) {
+        let unlock_promise = new Promise((resolve, reject) => resolve());
+
+        return Promise.all([
+            FetchChain("getAccount", account),
+            FetchChain("getAsset", fee_asset_id),
+            unlock_promise
+        ])
+            .then(res => {
+                let [
+                    chain_account,
+                    chain_fee_asset
+                ] = res;
+
+                // Allow user to choose asset with which to pay fees #356
+                let fee_asset = chain_fee_asset.toJS();
+
+                // Default to CORE in case of faulty core_exchange_rate
+                if (
+                    fee_asset.options.core_exchange_rate.base.asset_id ===
+                        "1.3.0" &&
+                    fee_asset.options.core_exchange_rate.quote.asset_id ===
+                        "1.3.0"
+                ) {
+                    fee_asset_id = "1.3.0";
+                }
+
+                let tr = new TransactionBuilder();
+                let account_upgrade_op = tr.get_type_operation("account_upgrade", {
+                    fee: {
+                        amount: 0,
+                        asset_id: fee_asset_id
+                    },
+                    account_to_upgrade: chain_account.get("id"),
+                    upgrade_to_lifetime_member: true,
+                });
+                
+                return tr.update_head_block().then(() => {
+                    tr.add_operation(account_upgrade_op);
                     return tr;
                 });
             })

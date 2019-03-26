@@ -13,6 +13,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Wallets from './wallets.jsx'
 import CrosschainHistory from './crosschain_history.jsx'
 import Vesting from './vesting.jsx'
+import Referral from './referral.jsx'
 
 const container = css`
 	background-color:${globalcss.COLOR_BACKGROUND};
@@ -98,10 +99,10 @@ class Fund extends Component {
     } 
 
     const tabs = {
-			names: ['Wallets', 'Vesting', 'Crosschain History'],
+			names: ['Wallets', 'Vesting', 'Crosschain History', "Referral"],
 			selectedTabIndex: 0,
     }
-    const content = [<Wallets />, <Vesting />, <CrosschainHistory user={this.props.name} />]
+    const content = [<Wallets />, <Vesting />, <CrosschainHistory user={this.props.name} />, <Referral />]
     
 		return (
 		<div className={container + " container-fluid" + (this.props.isMobile ? " mobile" : "")}>
