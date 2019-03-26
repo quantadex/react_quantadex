@@ -2,7 +2,7 @@ import React, {PropTypes} from 'react';
 import { connect } from 'react-redux'
 import CONFIG from '../../config.js'
 import { TransactionBuilder } from "@quantadex/bitsharesjs"
-import { GetName } from '../../redux/actions/app.jsx'
+import { GetAccount } from '../../redux/actions/app.jsx'
 import {SymbolToken} from './ticker.jsx'
 import WAValidator from 'wallet-address-validator'
 
@@ -202,8 +202,8 @@ class QTWithdraw extends React.Component {
   }
   
   CoinDetails() {
-    !this.state.issuer && GetName(this.coin.issuer).then(issuer => {
-      this.setState({issuer: (issuer == "null-account" ? "Native": issuer)})
+    !this.state.issuer && GetAccount(this.coin.issuer).then(issuer => {
+      this.setState({issuer: (issuer.name == "null-account" ? "Native": issuer.name)})
     })
 
     return (

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { css } from 'emotion'
 import { connect } from 'react-redux'
-import { LOGIN, switchTicker, AccountLogin } from '../redux/actions/app.jsx'
+import { AccountLogin, GetAccount } from '../redux/actions/app.jsx'
 import { PrivateKey, changeWalletPassword, decryptWallet, encryptWallet } from "@quantadex/bitsharesjs";
 import WalletApi from "../common/api/WalletApi";
 import QTTabBar from './ui/tabBar.jsx'
@@ -129,6 +129,10 @@ const dialog = css`
                 background-color: #999;
             }
         }
+    }
+
+    .referral {
+        margin-top: -15px;
     }
 
     .container.testnet {
@@ -259,6 +263,22 @@ class ConnectDialog extends Component {
         this.DownloadKey = this.DownloadKey.bind(this)
     }
 
+    componentDidMount() {
+        const search = window.location.search.slice(1).split("=")
+        const referrer = search[search.indexOf("referrer") + 1]
+        if (!referrer) return
+        
+        this.setState({referrer})
+        setTimeout(() => {
+            GetAccount(referrer).then(e => {
+                if (e.membership_expiration_date !== "1969-12-31T23:59:59") {
+                    this.setState({referrer_error: "Referrer account is not a lifetime member - user need to activate the referral program"})
+                }
+            }).catch(error => {
+                this.setState({referrer_error: "Referrer account does not exist"})
+            })
+        }, 1000)
+    }
 
     componentWillReceiveProps(nextProps) {
         if (this.state.dialogType !== nextProps.default) {
@@ -373,6 +393,14 @@ class ConnectDialog extends Component {
         }
 
         const keys = WalletApi.generate_key()
+        const reg_json = {
+            name: this.state.username.toLowerCase(),
+			public_key: keys.publicKey,
+        }
+
+        if (this.state.referrer && !this.state.referrer_error) {
+            reg_json.referrer= this.state.referrer
+        }
 
 		this.setState({processing: true, private_key: keys.privateKey})
 
@@ -382,10 +410,7 @@ class ConnectDialog extends Component {
 					"Content-Type": "application/json",
 					Accept: "application/json"
 			},
-			body: JSON.stringify({
-				name: this.state.username.toLowerCase(),
-				public_key: keys.publicKey,
-			})
+			body: JSON.stringify(reg_json)
 		}).then(response => {
 			if (response.status == 200) {
 				this.setState({
@@ -579,6 +604,13 @@ class ConnectDialog extends Component {
                     <div className="link mr-5" onClick={() => this.resetInputs({dialogType: "connect"})}>Already have a key?</div>
                 </div>
                 <div className="input-container">
+                    {this.state.referrer ? 
+                        <div className="referral text-right small mb-1">
+                            <b>Referral:</b> {this.state.referrer}
+                            {this.state.referrer_error ? <span className="text-danger"><br/>{this.state.referrer_error}</span> : null}
+                        </div>
+                    : null
+                    }
                     <p className="info">
                         The QUANTA blockchain is Graphene-based Architecture which uses 
                         an account system based on username, and public-private key signature. 

@@ -59,9 +59,9 @@ function getBaseCounter(market) {
 	}
 }
 
-export function GetName(id) {
+export function GetAccount(id) {
 	return Apis.instance().db_api().exec("get_accounts", [[id]]).then(e => {
-		return e[0].name
+		return e[0]
 	})
 }
 

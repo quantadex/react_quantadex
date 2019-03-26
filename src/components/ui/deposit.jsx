@@ -1,5 +1,5 @@
 import React, {PropTypes} from 'react';
-import { GetName } from '../../redux/actions/app.jsx'
+import { GetAccount } from '../../redux/actions/app.jsx'
 import { connect } from 'react-redux'
 import CONFIG from '../../config.js';
 import Web3 from 'web3'
@@ -265,8 +265,8 @@ class QTDeposit extends React.Component {
   CoinDetails() {
     const coin = window.assetsBySymbol[this.props.asset]
 
-    !this.state.issuer && GetName(coin.issuer).then(issuer => {
-      this.setState({issuer: (issuer == "null-account" ? "Native": issuer)})
+    !this.state.issuer && GetAccount(coin.issuer).then(issuer => {
+      this.setState({issuer: (issuer.name == "null-account" ? "Native": issuer.name)})
     })
 
     return (

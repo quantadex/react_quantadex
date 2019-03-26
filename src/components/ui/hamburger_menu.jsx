@@ -187,7 +187,7 @@ HamburgerMenu.defaultProps = {
       iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
       text:"Logout",
       onClick: () => {
-        window.location.assign(window.isApp ? "index.html" : "/")
+        window.location.assign(window.isApp ? "index.html" : (window.location.pathname.startsWith("/testnet") ? "/testnet" : "/mainnet"))
       }
     }],
     backgroundColor:"#323b40"
