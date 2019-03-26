@@ -450,7 +450,7 @@ class ConnectDialog extends Component {
         }
 
         this.Encrypt()
-        this.resetInputs({downloaded: true})
+        this.setState({downloaded: true})
     }
 
     uploadFile(file) {
