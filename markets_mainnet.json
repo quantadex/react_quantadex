@@ -20,6 +20,9 @@
 				"benchmarkSymbol": "BINANCE:ETH/USDT"},
 			{ "name": "BAT0X0D8775F648430679A709E98D2B0CB6250D2887EF/TUSD0X0000000000085D4780B73119B644AE5ECD22B376",
 				"benchmarkSymbol": "BINANCE:BAT/USDT"}
+		],
+		"QDEX": [
+			{ "name": "QAIR/QDEX"}
 		]
 	},
 	"wallet_listing": 
