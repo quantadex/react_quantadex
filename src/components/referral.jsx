@@ -132,7 +132,7 @@ class Referral extends Component {
                     {this.props.referral_paid.map(paid => {
                         const coin = window.assets[paid.asset_id]
                         const real_amount = Utils.maxPrecision(paid.amount / Math.pow(10, coin.precision), coin.precision)
-                        const usd_value = Utils.maxPrecision(parseFloat(real_amount) * window.USD_value[paid.asset_id], 2)
+                        const usd_value = window.USD_value[paid.asset_id] ? Utils.maxPrecision(parseFloat(real_amount) * window.USD_value[paid.asset_id], 2) : "-"
                         earned_coin.push[coin.symbol]
                         
                         return (
@@ -149,7 +149,7 @@ class Referral extends Component {
                                 <tr key={coin}>
                                     <td><SymbolToken name={coin} /></td>
                                     <td className="text-right">0</td>
-                                    <td className="text-right">0</td>
+                                    <td className="text-right">-</td>
                                 </tr>
                             )
                         }
