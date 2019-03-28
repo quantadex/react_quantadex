@@ -23,7 +23,6 @@ const container = css`
 
 class Balance extends Component {
     render() {
-        // console.log(this.props)
         return (
             <div className={container + " qt-font-light" + (this.props.isMobile ? " mobile" : "")}>
                 Wallet Balance {this.props.name ? <Link to={"/" + this.props.network + "/wallets"} className="ml-2"><img src={devicePath("public/images/open-icon.svg")} /></Link> : null }

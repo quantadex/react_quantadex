@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { css } from 'emotion'
 import { connect } from 'react-redux'
-import { LOGIN, switchTicker } from '../redux/actions/app.jsx'
+import { AccountLogin, GetAccount } from '../redux/actions/app.jsx'
 import { PrivateKey, changeWalletPassword, decryptWallet, encryptWallet } from "@quantadex/bitsharesjs";
 import WalletApi from "../common/api/WalletApi";
 import QTTabBar from './ui/tabBar.jsx'
@@ -131,6 +131,10 @@ const dialog = css`
         }
     }
 
+    .referral {
+        margin-top: -15px;
+    }
+
     .container.testnet {
         background-color: #555;
     }
@@ -238,7 +242,7 @@ class ConnectDialog extends Component {
             selectedTabIndex: 0,
             regStep: 1,
             encryptStep: 0,
-            encrypted_data: {},
+            encrypted_data: null,
             private_key: "",
             username: "",
             password: "",
@@ -259,6 +263,22 @@ class ConnectDialog extends Component {
         this.DownloadKey = this.DownloadKey.bind(this)
     }
 
+    componentDidMount() {
+        const search = window.location.search.slice(1).split("=")
+        const referrer = search[search.indexOf("referrer") + 1]
+        if (!referrer) return
+        
+        this.setState({referrer})
+        setTimeout(() => {
+            GetAccount(referrer).then(e => {
+                if (e.membership_expiration_date !== "1969-12-31T23:59:59") {
+                    this.setState({referrer_error: "Referrer account is not a lifetime member - user need to activate the referral program"})
+                }
+            }).catch(error => {
+                this.setState({referrer_error: "Referrer account does not exist"})
+            })
+        }, 1000)
+    }
 
     componentWillReceiveProps(nextProps) {
         if (this.state.dialogType !== nextProps.default) {
@@ -310,13 +330,17 @@ class ConnectDialog extends Component {
 
     ConnectWithBin() {
         try {
-			const decrypted = decryptWallet(this.state.encrypted_data, this.state.password)
+            const encrypted_data = this.state.encrypted_data || JSON.parse(sessionStorage.encrypted_data)
+			const decrypted = decryptWallet(encrypted_data, this.state.password)
             const private_key = decrypted.toWif()
-			this.props.dispatch({
-                type: LOGIN,
-                private_key: private_key
-            });
-            this.props.dispatch(switchTicker(this.props.currentTicker))
+
+            this.props.dispatch(AccountLogin(private_key)).then(() => {
+                sessionStorage.setItem("encrypted_data", JSON.stringify(encrypted_data))
+            })
+            .catch(error => {
+                this.setState({authError: true, errorMsg: error})
+            })
+
 		} catch(e) {
 			console.log(e)
 			this.setState({authError: true, errorMsg: "Incorrect Password"})
@@ -327,13 +351,15 @@ class ConnectDialog extends Component {
     ConnectWithKey() {
         try {
             const pKey = PrivateKey.fromWif(this.state.private_key);
-			this.props.dispatch({
-                type: LOGIN,
-                private_key: this.state.private_key
-            });
-            this.props.dispatch(switchTicker(this.props.currentTicker))
+
+            this.props.dispatch(AccountLogin(this.state.private_key)).then(() => {
+                sessionStorage.removeItem("encrypted_data")
+            })
+            .catch(error => {
+                this.setState({authError: true, errorMsg: error})
+            })
+
 		} catch(e) {
-			console.log(e)
 			this.setState({authError: true, errorMsg: "Invalid Key"})
 		}
     }
@@ -372,6 +398,14 @@ class ConnectDialog extends Component {
         }
 
         const keys = WalletApi.generate_key()
+        const reg_json = {
+            name: this.state.username.toLowerCase(),
+			public_key: keys.publicKey,
+        }
+
+        if (this.state.referrer && !this.state.referrer_error) {
+            reg_json.referrer= this.state.referrer
+        }
 
 		this.setState({processing: true, private_key: keys.privateKey})
 
@@ -381,10 +415,7 @@ class ConnectDialog extends Component {
 					"Content-Type": "application/json",
 					Accept: "application/json"
 			},
-			body: JSON.stringify({
-				name: this.state.username.toLowerCase(),
-				public_key: keys.publicKey,
-			})
+			body: JSON.stringify(reg_json)
 		}).then(response => {
 			if (response.status == 200) {
 				this.setState({
@@ -424,7 +455,7 @@ class ConnectDialog extends Component {
         }
 
         this.Encrypt()
-        this.resetInputs({downloaded: true})
+        this.setState({downloaded: true})
     }
 
     uploadFile(file) {
@@ -450,16 +481,26 @@ class ConnectDialog extends Component {
     ConnectEncrypted() {
         return (
             <div className="input-container">
-                <div className={"drop-zone align-items-center" + (this.props.isMobile ? " pt-3" : " d-flex")} onDragOver={(e)=> e.preventDefault()} onDrop={(e) => this.handleDrop(e)}>
-                    Drop your backup file in this area or&nbsp;<label htmlFor="file">browse your files.</label>
+                {!this.state.encrypted_data && sessionStorage.encrypted_data ?
+                <div className="text-secondary text-center mb-2">
+                    Continue as <span className="qt-color-theme">{sessionStorage.name}</span> or&nbsp;<label className="cursor-pointer" htmlFor="file"><u>browse your files.</u></label>
                     <input className="d-none" type="file" name="file" id="file" accept=".json" onChange={(e) => this.uploadFile(e.target.files[0])}/>
                 </div>
+                : 
+                <React.Fragment>
+                    <div className={"drop-zone align-items-center" + (this.props.isMobile ? " pt-3" : " d-flex")} onDragOver={(e)=> e.preventDefault()} onDrop={(e) => this.handleDrop(e)}>
+                        Drop your backup file in this area or&nbsp;<label htmlFor="file">browse your files.</label>
+                        <input className="d-none" type="file" name="file" id="file" accept=".json" onChange={(e) => this.uploadFile(e.target.files[0])}/>
+                    </div>
+                    
+                    <div className="d-flex justify-content-between qt-font-small mb-2">
+                        <div>{this.state.uploaded_file_msg}</div>
+                        <div className="link text-right"
+                            onClick={() => this.resetInputs({encryptStep: 1})}>I don’t have a .json-file</div>
+                    </div>
+                </React.Fragment>
+                }
                 
-                <div className="d-flex justify-content-between qt-font-small mb-2">
-                    <div>{this.state.uploaded_file_msg}</div>
-                    <div className="link text-right"
-                        onClick={() => this.resetInputs({encryptStep: 1})}>I don’t have a .json-file</div>
-                </div>
 
                 <label>PASSWORD</label><br/>
                 <input type="password" name="password" placeholder="Password" 
@@ -472,7 +513,10 @@ class ConnectDialog extends Component {
                     /><br/>
                 <span className="error" hidden={!this.state.authError}>{this.state.errorMsg}</span><br/>
                 <div className="text-center">
-                    <button onClick={this.ConnectWithBin.bind(this)} disabled={this.state.password.length < 8}>Connect Wallet</button>
+                    <button onClick={this.ConnectWithBin.bind(this)} 
+                        disabled={this.state.password.length < 8 || !(this.state.encrypted_data || sessionStorage.encrypted_data)}>
+                        Connect Wallet
+                    </button>
                 </div>
             </div>
         )
@@ -578,6 +622,13 @@ class ConnectDialog extends Component {
                     <div className="link mr-5" onClick={() => this.resetInputs({dialogType: "connect"})}>Already have a key?</div>
                 </div>
                 <div className="input-container">
+                    {this.state.referrer ? 
+                        <div className="referral text-right small mb-1">
+                            <b>Referral:</b> {this.state.referrer}
+                            {this.state.referrer_error ? <span className="text-danger"><br/>{this.state.referrer_error}</span> : null}
+                        </div>
+                    : null
+                    }
                     <p className="info">
                         The QUANTA blockchain is Graphene-based Architecture which uses 
                         an account system based on username, and public-private key signature. 
@@ -660,7 +711,7 @@ class ConnectDialog extends Component {
                     <span className="error" hidden={!this.state.authError}>{this.state.errorMsg}</span><br/>
                     <div className="text-center">
                         <button className="mb-2" onClick={this.DownloadKey}>DOWNLOAD FILE</button>
-                        <div className={"link qt-font-small" + (!this.state.downloaded ? " invisible" : "")} onClick={() => this.setState({dialogType: "connect"})}>
+                        <div className={"link qt-font-small" + (!this.state.downloaded ? " invisible" : "")} onClick={() => this.resetInputs({dialogType: "connect"})}>
                             <u>Proceed to Connect your Wallet</u>
                         </div>
                     </div>

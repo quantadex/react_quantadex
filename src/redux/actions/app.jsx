@@ -59,9 +59,9 @@ function getBaseCounter(market) {
 	}
 }
 
-export function GetName(id) {
+export function GetAccount(id) {
 	return Apis.instance().db_api().exec("get_accounts", [[id]]).then(e => {
-		return e[0].name
+		return e[0]
 	})
 }
 
@@ -142,7 +142,7 @@ export const transferFund = (data) => {
 			// console.log(tr);
 			return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key))
 		}).then(e => {
-			switchTicker(getState().app.currentTicker)
+			dispatch(switchTicker(getState().app.currentTicker))
 		}).catch(e => {
 			throw e
 		})
@@ -159,7 +159,7 @@ export const withdrawVesting = (data) => {
 		}).then((tr) => {
 			return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key))
 		}).then(e => {
-			switchTicker(getState().app.currentTicker)
+			dispatch(switchTicker(getState().app.currentTicker))
 		}).catch(e => {
 			throw e
 		})
@@ -177,9 +177,39 @@ export const withdrawGenesis = (data) => {
 		}).then((tr) => {
 			return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key))
 		}).then(e => {
-			switchTicker(getState().app.currentTicker)
+			dispatch(switchTicker(getState().app.currentTicker))
 		}).catch(e => {
 			throw e
+		})
+	}
+}
+
+export const accountUpgrade = () => {
+	return (dispatch, getState) => {
+		return ApplicationApi.account_upgrade({ 
+			account: getState().app.userId
+		}).then((tr) => {
+			return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key))
+		})
+		.then(e => {
+			let data = {
+				id: getState().app.userId,
+				name: getState().app.name,
+				publicKey: getState().app.publicKey,
+				lifetime: true
+			}
+			dispatch({
+				type: UPDATE_ACCOUNT,
+				data: data
+			})
+			dispatch(switchTicker(getState().app.currentTicker))
+		}).catch(error => {
+			console.log(error)
+			if (error.message.includes("Insufficient Balance")) {
+				throw "Insufficient Balance"
+			} else {
+				throw "Server error. Please try again"
+			}
 		})
 	}
 }
@@ -322,6 +352,49 @@ export const loadOrderHistory = (page) => {
 	}
 }
 
+export const AccountLogin = (private_key) => {
+	return (dispatch, getState) => {
+		const pKey = PrivateKey.fromWif(private_key);
+		let publicKey = pKey.toPublicKey().toString()
+		
+		return Apis.instance()
+		.db_api()
+		.exec("get_key_references", [[publicKey]])
+		.then(vec_account_id => {
+			// console.log("get_key_references ", vec_account_id[0][0]);
+
+			return Apis.instance()
+				.db_api()
+				.exec("get_objects", [[vec_account_id[0][0]]])
+				.then((data) => {
+					// console.log("get account ", data);
+					let lifetime_member = data[0].membership_expiration_date === "1969-12-31T23:59:59"
+					dispatch({
+						type: LOGIN,
+						private_key: private_key
+					})
+					dispatch({
+						type: UPDATE_ACCOUNT,
+						data: {...data[0], lifetime: lifetime_member}
+					})
+
+					sessionStorage.setItem("name", data[0].name)
+					sessionStorage.setItem("id", data[0].id)
+					sessionStorage.setItem("publicKey", data[0].active.key_auths[0][0])
+					sessionStorage.setItem("lifetime", lifetime_member)
+					sessionStorage.setItem("env", window.location.pathname.startsWith("/testnet") ? "testnet" : "mainnet")
+				}).then(e => {
+					dispatch(switchTicker(getState().app.currentTicker))
+					return true
+				}).catch(error => {
+					throw "No account for public key: " + publicKey
+				})
+			
+		})
+	}
+}
+
+
 var disconnect_notified
 export function switchTicker(ticker, force_init=false) {
 	Apis.setAutoReconnect(true)
@@ -383,6 +456,7 @@ export function switchTicker(ticker, force_init=false) {
 						const markets = await fetch(CONFIG.getEnv().MARKETS_JSON).then(e => e.json())
 						window.markets = markets.markets
 						window.marketsHash = lodash.keyBy(markets.markets, "name")
+						window.wallet_listing = markets.wallet_listing
 
 						// used by datafeed
 						window.allMarkets = []
@@ -397,7 +471,7 @@ export function switchTicker(ticker, force_init=false) {
 					var marketData = {};
 					var USD_value = {}
 
-					// console.log("json ", markets.markets);
+					// console.log("json ", window.markets);
 
 					for (const market in window.markets) {
 						for (const pair of window.markets[market]) {
@@ -426,38 +500,11 @@ export function switchTicker(ticker, force_init=false) {
 						}
 					}
 
+					window.USD_value = USD_value
 					dispatch({
 						type: SET_MARKET_QUOTE,
 						data: [marketData, USD_value]
 					})
-
-					// look up account if we're logged in
-					if (!initUser && getState().app.private_key !== null) {
-						const pKey = PrivateKey.fromWif(getState().app.private_key);
-						publicKey = pKey.toPublicKey().toString()
-						
-						Apis.instance()
-						.db_api()
-						.exec("get_key_references", [[publicKey]])
-						.then(vec_account_id => {
-							// console.log("get_key_references ", vec_account_id[0][0]);
-	
-							return Apis.instance()
-								.db_api()
-								.exec("get_objects", [[vec_account_id[0][0]]])
-								.then((data) => {
-									// console.log("get account ", data);
-									dispatch({
-										type: UPDATE_ACCOUNT,
-										data: data[0]
-									})
-								})
-	
-						}).then(e => {
-							initUser = true
-							fetchData(ticker)
-						})
-					}
 
 				} catch(e) {
 					console.log(e)
@@ -480,7 +527,7 @@ export function switchTicker(ticker, force_init=false) {
 
 				var my_trades = []
 
-				if (publicKey && getState().app.userId) {
+				if (getState().app.publicKey && getState().app.userId) {
 					const userId = getState().app.userId
 					my_trades = fetch(CONFIG.getEnv().API_PATH + `/account?filter_field=operation_type&filter_value=2,4&size=${dataSize}&account_id=${userId}`).then(e => e.json())
 					.then((filled) => {
@@ -499,7 +546,7 @@ export function switchTicker(ticker, force_init=false) {
 				var account_data = [[],[]]
 				var genesis_balance = []
 				
-				if (publicKey && getState().app.userId) {
+				if (getState().app.publicKey && getState().app.userId) {
 					account_data = Apis.instance()
 					.db_api()
 					.exec("get_full_accounts", [[getState().app.userId], true])
@@ -519,10 +566,19 @@ export function switchTicker(ticker, force_init=false) {
 							orders.push(order)
 						})
 						return [results, orders]
+					}).then(e => {
+						let statistic_id = e[0][0][1].statistics.id
+						return Apis.instance().db_api().exec("get_objects", [[statistic_id]]).then(statistics=>{
+							return [...e, statistics[0].extensions.referral_fee_paid]
+						})
 					})
+					
+					// referral_fee = Apis.instance().db_api().exec("get_objects", [[statistic_id]]).then(e=>{
+					// 	console.log("statistic", e);
+					// 	return e
+					// })
 
 					const shortAddress = WalletApi.getShortAddress(getState().app.publicKey)
-
 					genesis_balance = Apis.instance().db_api().exec("get_balance_objects", [[shortAddress]]).then(e=>{
 						// console.log("balance obj????", e);
 						return e
@@ -540,12 +596,13 @@ export function switchTicker(ticker, force_init=false) {
 								openOrders: data[2][1],
 								ticker: ticker,
 								accountData: data[2][0],
-								genesis_balance: data[4]
+								referral_fee: data[2][2],
+								genesis_balance: data[4],
 							}
 						})
 						if (first) {
 							const ask_section = document.getElementById("ask-section")
-							ask_section.scrollTop = ask_section.scrollHeight;
+							if (ask_section) ask_section.scrollTop = ask_section.scrollHeight;
 						}
 						
 					})					

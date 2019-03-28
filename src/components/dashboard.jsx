@@ -71,14 +71,13 @@ class Dashboard extends Component {
 	}
 
 	switchMarket(e) {
-		this.props.dispatch(switchTicker(e))
 		const list = document.getElementById("market-list")
 		if (list.classList.contains("active")) {
 			list.classList.remove("active")
 		} else {
 			list.classList.add("active")
 		}
-		this.props.history.push("/" + this.props.match.params.net + "/exchange/" + e.replace("/", "_"))
+		this.props.history.push("/" + (this.props.match.params.net || "mainnet") + "/exchange/" + e.replace("/", "_") + this.props.location.search)
 	}
 
 	handleChange(e) {

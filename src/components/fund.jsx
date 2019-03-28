@@ -13,6 +13,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Wallets from './wallets.jsx'
 import CrosschainHistory from './crosschain_history.jsx'
 import Vesting from './vesting.jsx'
+import Referral from './referral.jsx'
 
 const container = css`
 	background-color:${globalcss.COLOR_BACKGROUND};
@@ -93,15 +94,15 @@ class Fund extends Component {
 	}
 
 	render() {
-    if (this.props.private_key == null) {
+    if (!window.markets) {
 			window.location.assign('/' + this.props.match.params.net)
     } 
 
     const tabs = {
-			names: ['Wallets', 'Vesting', 'Crosschain History'],
+			names: ['Wallets', 'Vesting', 'Crosschain History', "Referral"],
 			selectedTabIndex: 0,
     }
-    const content = [<Wallets />, <Vesting />, <CrosschainHistory user={this.props.name} />]
+    const content = [<Wallets />, <Vesting />, <CrosschainHistory user={this.props.name} />, <Referral />]
     
 		return (
 		<div className={container + " container-fluid" + (this.props.isMobile ? " mobile" : "")}>
@@ -139,6 +140,7 @@ class Fund extends Component {
 const mapStateToProps = (state) => ({
     isMobile: state.app.isMobile,
     private_key: state.app.private_key,
+    publicKey: state.app.publicKey,
 		name: state.app.name
 	});
 

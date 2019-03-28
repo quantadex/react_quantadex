@@ -11,6 +11,7 @@ import QTDropdown from './ui/dropdown.jsx'
 import QTButton from './ui/button.jsx'
 import { Token, SmallToken } from './ui/ticker.jsx'
 import Loader from './ui/loader.jsx'
+import {LockIcon} from './ui/account_lock.jsx'
 import Utils from '../common/utils'
 import lodash from 'lodash';
 
@@ -484,17 +485,29 @@ class Trade extends Component {
                         </table>
                     </div>
 
-                    { this.props.private_key ? 
+                    { this.props.publicKey ? 
                         <div>
                             {this.state.trade_side == 1 ?
-                                <button id="sell-action" className="sell-btn" disabled={this.state.price <= 0 || this.state.qty <= 0 || this.state.processing}
-                                    onClick={this.handleSell.bind(this)}>
-                                    {this.state.processing ? <Loader /> : "PLACE SELL ORDER"}
+                                <button id="sell-action" className="sell-btn" 
+                                  disabled={!this.props.private_key || this.state.price <= 0 || this.state.qty <= 0 || this.state.processing}
+                                  onClick={this.handleSell.bind(this)}>
+                                  {this.state.processing ? <Loader /> : 
+                                    <span>
+                                      {!this.props.private_key ? <LockIcon centerText={true} /> : null}
+                                      PLACE SELL ORDER
+                                    </span>
+                                  }
                                 </button>
                                 :
-                                <button id="buy-action" className="buy-btn" disabled={this.state.price <= 0 || this.state.qty <= 0 || this.state.processing}
-                                    onClick={this.handleBuy.bind(this)}>
-                                    {this.state.processing ? <Loader /> : "PLACE BUY ORDER"}
+                                <button id="buy-action" className="buy-btn" 
+                                  disabled={!this.props.private_key || this.state.price <= 0 || this.state.qty <= 0 || this.state.processing}
+                                  onClick={this.handleBuy.bind(this)}>
+                                  {this.state.processing ? <Loader /> : 
+                                    <span>
+                                      {!this.props.private_key ? <LockIcon centerText={true} /> : null}
+                                      PLACE BUY ORDER
+                                    </span>
+                                  }
                                 </button>
                             }
                         </div>
@@ -507,6 +520,7 @@ class Trade extends Component {
 
 const mapStateToProps = (state) => ({
     private_key: state.app.private_key,
+    publicKey: state.app.publicKey,
     requestedPrice: 0,
     requestedQty: 0,
     bids: state.app.tradeBook.bids,

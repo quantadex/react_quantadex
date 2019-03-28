@@ -181,10 +181,7 @@ class Chart extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    //if (this.props.network !== nextProps.network) 
-    {
       this.initChart(nextProps.currentTicker)
-    }
   }
 
   componentDidUpdate() {

@@ -124,7 +124,7 @@ export class HamburgerMenu extends React.Component {
                       } else {
                         if ( this.props.network == "mainnet" && item.text == "Leaderboard" ) return
                         return (
-                          <Link key={index} to={item.text == "Exchange" ? item.url + this.props.currentTicker.replace("/", "_") : item.url}
+                          <Link key={index} to={item.text == "Exchange" && this.props.currentTicker ? item.url + this.props.currentTicker.replace("/", "_") : item.url}
                                 onMouseOver={this.handleHover.bind(this,item.iconPathActive)}
                                 onMouseLeave={this.handleHover.bind(this,item.iconPath)}
                                 className="d-flex menu-row">
@@ -187,7 +187,8 @@ HamburgerMenu.defaultProps = {
       iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
       text:"Logout",
       onClick: () => {
-        window.location.assign(window.isApp ? "index.html" : "/")
+        sessionStorage.clear()
+        window.location.assign(window.isApp ? "index.html" : (window.location.pathname.startsWith("/testnet") ? "/testnet" : "/mainnet"))
       }
     }],
     backgroundColor:"#323b40"

@@ -2,7 +2,7 @@ import React, {PropTypes} from 'react';
 import { connect } from 'react-redux'
 import CONFIG from '../../config.js'
 import { TransactionBuilder } from "@quantadex/bitsharesjs"
-import { GetName } from '../../redux/actions/app.jsx'
+import { GetAccount } from '../../redux/actions/app.jsx'
 import {SymbolToken} from './ticker.jsx'
 import WAValidator from 'wallet-address-validator'
 
@@ -14,7 +14,6 @@ import { transferFund } from '../../redux/actions/app.jsx'
 import Utils from '../../common/utils'
 
 const container = css`
-  position: relative;
   margin:0 -15px;
   background-color:white;
   color: #28303c;
@@ -46,6 +45,7 @@ const container = css`
   }
 
   .input-container {
+    position: relative;
     width: 100%;
     padding: 15px 30px;
     border-left: 1px solid #eee;
@@ -202,8 +202,8 @@ class QTWithdraw extends React.Component {
   }
   
   CoinDetails() {
-    !this.state.issuer && GetName(this.coin.issuer).then(issuer => {
-      this.setState({issuer: (issuer == "null-account" ? "Native": issuer)})
+    !this.state.issuer && GetAccount(this.coin.issuer).then(issuer => {
+      this.setState({issuer: (issuer.name == "null-account" ? "Native": issuer.name)})
     })
 
     return (
@@ -222,6 +222,7 @@ class QTWithdraw extends React.Component {
   Transfer() {
     return (
       <div className="input-container">
+        <div className="close-dialog cursor-pointer" onClick={this.props.handleClick}>Close</div>
         {this.state.isCrosschain ? 
           <div className="d-md-none toggle qt-font-small mb-3" onClick={this.toggleTransfer}>Switch to {this.state.showTransfer ? "Withdraw" : "Transfer"}</div> 
           : null}
@@ -253,6 +254,7 @@ class QTWithdraw extends React.Component {
   Withdraw() {
     return (
       <div className="input-container">
+        <div className="close-dialog cursor-pointer" onClick={this.props.handleClick}>Close</div>
         {this.state.isCrosschain ? 
           <div className="d-md-none toggle qt-font-small mb-3" onClick={this.toggleTransfer}>Switch to {this.state.showTransfer ? "Withdraw" : "Transfer"}</div> 
           : null}
@@ -295,6 +297,7 @@ class QTWithdraw extends React.Component {
   }
 
   render() {
+    const {showTransfer, issuer, destination, amount, asset, fee, memo} = this.state
     return (
       <div className={container + " d-flex"}>
         <div className="d-none d-md-flex w-75 align-items-center position-relative">
@@ -303,14 +306,19 @@ class QTWithdraw extends React.Component {
             : null}
           <this.CoinDetails />
         </div>
-        <div className="close-dialog cursor-pointer" onClick={this.props.handleClick}>Close</div>
         {this.state.showTransfer ? <this.Transfer /> : <this.Withdraw />}
 
         {this.state.confirmDialog && 
-        <TxDialog data={this.state} 
-          cancel={() => this.closeTransaction()} 
-          submit={() => this.submitTransfer()} />
-      }
+          <TxDialog data={{
+              type: showTransfer ? "Transfer" : "Withdraw",
+              destination: showTransfer ? destination : issuer,
+              amount: {amount, asset},
+              memo: {type: showTransfer ? "Memo" : "Beneficiary Address", memo},
+              fee: fee
+            }} 
+            cancel={() => this.closeTransaction()} 
+            submit={() => this.submitTransfer()} />
+        }
       </div>
     );
   }

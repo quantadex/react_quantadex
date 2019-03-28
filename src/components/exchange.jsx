@@ -10,10 +10,10 @@ class Exchange extends Component {
 	componentDidMount() {
 		if (!this.props.match.params.net) {
 			const default_ticker = 'ETH_TUSD0X0000000000085D4780B73119B644AE5ECD22B376';
-			this.props.history.push("/mainnet/exchange/" + default_ticker)
+			this.props.history.push("/mainnet/exchange/" + default_ticker + this.props.location.search)
 		} else if (!this.props.match.params.ticker) {
 			const default_ticker = this.props.match.params.net == "mainnet" ? 'ETH_TUSD0X0000000000085D4780B73119B644AE5ECD22B376' : "ETH_USD"
-			this.props.history.push("/" + this.props.match.params.net + "/exchange/" + default_ticker)
+			this.props.history.push("/" + this.props.match.params.net + "/exchange/" + default_ticker + this.props.location.search)
 		} else {
 			const ticker = this.props.match.params.ticker.replace("_", "/");
 			// console.log("Loading exchange for=", ticker);

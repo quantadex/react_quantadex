@@ -123,6 +123,7 @@ class Wallets extends Component {
 
   setDataSource(balance) {
     const dataSource = []
+    const in_wallet = []
     let has_BTC = false
     let has_ETH = false
     balance.forEach(currency => {
@@ -132,30 +133,26 @@ class Wallets extends Component {
       if (!has_ETH && currency.asset == this.ETH_id) {
         has_ETH = true
       }
+      let symbol = window.assets[currency.asset].symbol
       const data = {
-        pairs: window.assets[currency.asset].symbol,
+        pairs: symbol,
         balance: currency.balance,
         on_orders: this.props.onOrdersFund[currency.asset] || 0,
         usd_value: currency.usd > 0 ? currency.usd.toLocaleString(navigator.language, {maximumFractionDigits: 2, minimumFractionDigits: 2}) : "N/A"
       }
       dataSource.push(data)
+      in_wallet.push(symbol)
     });
 
-    if (!has_BTC) {
-      dataSource.push({
-        pairs: "BTC",
-        balance: 0,
-        on_orders: 0,
-        usd_value: "N/A"
-      })
-    }
-    if (!has_ETH) {
-      dataSource.push({
-        pairs: "ETH",
-        balance: 0,
-        on_orders: 0,
-        usd_value: "N/A"
-      })
+    for (let coin of window.wallet_listing) {
+      if (in_wallet.indexOf(coin) === -1) {
+        dataSource.push({
+              pairs: coin,
+              balance: 0,
+              on_orders: 0,
+              usd_value: "N/A"
+            })
+      }
     }
 
     dataSource.push({
@@ -174,8 +171,8 @@ class Wallets extends Component {
 		this.setState({filter: e.target.value})
   }
   
-  hideZeroBalance(hide) {
-    this.setState({hideZero: hide})
+  hideZeroBalance() {
+    this.setState({hideZero: !this.state.hideZero})
   }
 
   setAddress(coin, address) {
@@ -226,14 +223,14 @@ class Wallets extends Component {
         width:"90"
     }, {
         buttons: [{
-          label:"WITHDRAW",
+          label: "WITHDRAW",
           color:"theme unite",
           handleClick: (asset, close) => {
 						return <QTWithdraw asset={asset} handleClick={close} />
           },
-          disabled: (pairs) => {return false}
+          disabled: () => {return !this.props.private_key}
         }, {
-          label:"DEPOSIT",
+          label: "DEPOSIT",
           color:"theme unite",
           handleClick: (asset, close) => {
             return <QTDeposit asset={asset} handleClick={close} quantaAddress={this.props.name} 
@@ -241,7 +238,7 @@ class Wallets extends Component {
             setAddress={this.setAddress.bind(this)}
             deposit_address={(["ETH", "ERC20"].includes(asset) || asset.split("0X").length == 2) ? this.state.ethAddress : this.state.btcAddress} />
           },
-          disabled: (pairs) => {return false}
+          disabled: () => {return !this.props.private_key}
         }],
         type: "buttons"
     }]
@@ -252,7 +249,7 @@ class Wallets extends Component {
           
           <div className='filter-container d-flex mt-5 align-items-center'>
           <SearchBox placeholder="Search Coin" onChange={this.handleChange.bind(this)} style={{marginRight: "20px"}}/>
-          <Switch label="Hide Zero Balances" onToggle={this.hideZeroBalance.bind(this)} />
+          <Switch label="Hide Zero Balances" active={this.state.hideZero} onToggle={this.hideZeroBalance.bind(this)} />
           </div>
 
           <div className="table-row">
@@ -266,7 +263,7 @@ class Wallets extends Component {
 
 const mapStateToProps = (state) => ({
     isMobile: state.app.isMobile,
-    balance: state.app.balance,
+    balance: state.app.balance || [],
     onOrdersFund: state.app.onOrdersFund,
     publicKey: state.app.publicKey || "",
     private_key: state.app.private_key,

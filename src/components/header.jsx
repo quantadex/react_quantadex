@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
-import { TOGGLE_LEFT_PANEL, TOGGLE_RIGHT_PANEL } from '../redux/actions/app.jsx'
 import { css } from 'emotion'
 import Ticker from './ui/ticker.jsx';
 import Dashboard from './dashboard.jsx';
+import ConnectDialog from './connect.jsx';
 
 const container = css`
 	margin: 5px 0;
@@ -99,6 +99,7 @@ class Header extends Component {
 					</div>
 					
         		</div>
+				{this.props.private_key ? null : <ConnectDialog default="connect" />}
 			</div>
 		);
 	}
@@ -137,6 +138,7 @@ class Header extends Component {
 
 const mapStateToProps = (state) => ({
 		network: state.app.network,
+		private_key: state.app.private_key,
 		currentTicker: state.app.currentTicker,
 		currentPrice: state.app.mostRecentTrade.price
 	});

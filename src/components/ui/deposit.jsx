@@ -1,5 +1,5 @@
 import React, {PropTypes} from 'react';
-import { GetName } from '../../redux/actions/app.jsx'
+import { GetAccount } from '../../redux/actions/app.jsx'
 import { connect } from 'react-redux'
 import CONFIG from '../../config.js';
 import Web3 from 'web3'
@@ -147,7 +147,6 @@ class QTDeposit extends React.Component {
       fee: {amount: 0, asset: 'QDEX'}
     }
     
-    // var accountInterval
     this.CoinDetails = this.CoinDetails.bind(this)
     this.MetamaskDeposit = this.MetamaskDeposit.bind(this)
     this.Deposit = this.Deposit.bind(this)
@@ -157,24 +156,28 @@ class QTDeposit extends React.Component {
   componentDidMount() {
     let transactionHash = localStorage.getItem(this.props.name + '_deploy_contract_tx')
 
-    if (!this.state.deposit_address && this.props.isETH) {
-      if (typeof web3 === 'undefined') {
-        return
-      }
-
-      if (transactionHash) {
-        this.waitForContract(transactionHash)
-      }
-      
-      var self = this
-      var metamask = new Web3(web3.currentProvider);
-
-      this.accountInterval = setInterval(function() {
-        if (metamask.eth.accounts.givenProvider.selectedAddress !== self.state.metamask_acc) {
-          self.setState({metamask_acc: metamask.eth.accounts.givenProvider.selectedAddress})
+    if (!this.state.deposit_address) {
+      if (this.props.isETH) {
+        if (typeof web3 === 'undefined') {
+          return
         }
-      }, 100);
-    } else {
+  
+        if (transactionHash) {
+          this.waitForContract(transactionHash)
+        }
+        
+        var self = this
+        var metamask = new Web3(web3.currentProvider);
+  
+        this.accountInterval = setInterval(function() {
+          if (metamask.eth.accounts.givenProvider.selectedAddress !== self.state.metamask_acc) {
+            self.setState({metamask_acc: metamask.eth.accounts.givenProvider.selectedAddress})
+          }
+        }, 200);
+      } else {
+        this.waitForBTCAddress()
+      }
+    } else if (this.props.isETH) {
       localStorage.removeItem(this.props.name + '_deploy_contract_tx')
     }
   }
@@ -212,7 +215,6 @@ class QTDeposit extends React.Component {
 
 		web3.eth.sendTransaction({ data: contractData }, function(err, transactionHash) {
 			if (!err) {
-        // console.log(transactionHash);
         localStorage.setItem(self.props.name + '_deploy_contract_tx', transactionHash);
         self.waitForContract(transactionHash)
       }
@@ -244,18 +246,31 @@ class QTDeposit extends React.Component {
 
   cancelContract() {
     this.setState({deploy_contract_tx: null})
-    localStorage.removeItem(this.props.name + '_deploy_contract_tx')
+  }
+
+  waitForBTCAddress() {
+    const self = this
+    let address_interval = setInterval(() => {
+      fetch(CONFIG.getEnv().API_PATH + "/node1/address/btc/" + self.props.name).then(e => e.json())
+      .then(e => {
+        if (e && e[e.length-1]) {
+          clearInterval(address_interval)
+          self.setState({deposit_address: e[e.length-1].Address})
+          self.props.setAddress("btc", e[e.length-1].Address)
+        }
+      })
+    }, 2000)
   }
   
   CoinDetails() {
     const coin = window.assetsBySymbol[this.props.asset]
 
-    !this.state.issuer && GetName(coin.issuer).then(issuer => {
-      this.setState({issuer: (issuer == "null-account" ? "Native": issuer)})
+    !this.state.issuer && GetAccount(coin.issuer).then(issuer => {
+      this.setState({issuer: (issuer.name == "null-account" ? "Native": issuer.name)})
     })
 
     return (
-      <div className={coin_details + " mx-auto"}>
+      <div className={coin_details + " mx-auto py-5"}>
         <h1>DEPOSIT<br/><SymbolToken name={coin.symbol} showIcon={false} /></h1>
         <div>
           Asset ID: <span className="value">{coin.id}</span> <a href={CONFIG.getEnv().EXPLORER_URL + "/object/" + coin.id} target="_blank"><img src={devicePath("public/images/external-link.svg")} /></a><br/>
@@ -268,6 +283,7 @@ class QTDeposit extends React.Component {
   }
 
   MetamaskDeposit() {
+    const pending_tx = localStorage.getItem(this.props.name + "_deploy_contract_tx")
     return (
       <div className="input-container">
         {this.state.deploy_contract_tx ?
@@ -302,6 +318,10 @@ class QTDeposit extends React.Component {
               If you recently deployed a contract, wait for approximately 2 
               confirmation cycles (~30sec) to see your new cross chain address.
             </p>
+            {localStorage.getItem(this.props.name + "_deploy_contract_tx") ? 
+              <p>Pending: <a href={CONFIG.getEnv().ETHERSCAN_URL + "/tx/" + pending_tx} target="_blank">{pending_tx}</a></p>
+              : null
+            }
 
             <div className="d-flex align-items-center mt-5 mb-3">
               <button className="mr-4 cursor-pointer" disabled={!this.state.metamask_acc}
@@ -328,35 +348,36 @@ class QTDeposit extends React.Component {
 
     return (
       <div className="input-container">
-          <h5 className="mb-3"><b>YOUR PERSONAL MULTISIGNATURE DEPOSIT ADDRESS</b></h5>
+        {this.state.deposit_address ? 
+          <React.Fragment>
+            <h5 className="mb-3"><b>YOUR PERSONAL MULTISIGNATURE DEPOSIT ADDRESS</b></h5>
 
-          <div className="d-flex">
-          { this.state.deposit_address ? <canvas id="qr-canvas"></canvas> : null }
-            <p className="ml-4">
-            Important Notes <br/>
-            - Do not send any coin other than {token[0]} {token[1] && ("0x" + token[1].substr(0, 4))} to this address.<br/>
-            - The minimum deposit amount is 0.0001 {token[0]} {token[1] && ("0x" + token[1].substr(0, 4))}.<br/>
-            - Your deposit will be credited after 2 confirmation.<br/>
-            - QUANTA does not support fiat withdrawal or deposit. To buy BTC, ETH with fiat currency, you can exchange your local currency at any major exchange.<br/>
-            - All QUANTA deposit addresses are multi-sig, crosschain addresses.<br/>
-            </p>
-          </div>
-          
-          
-          <div className="d-flex align-items-center mt-4">
-          
-            {this.state.deposit_address ? 
-              <React.Fragment>
+            <div className="d-flex">
+            <canvas id="qr-canvas"></canvas>
+              <p className="ml-4">
+              Important Notes <br/>
+              - Do not send any coin other than {token[0]} {token[1] && ("0x" + token[1].substr(0, 4))} to this address.<br/>
+              - The minimum deposit amount is 0.0001 {token[0]} {token[1] && ("0x" + token[1].substr(0, 4))}.<br/>
+              - Your deposit will be credited after 2 confirmation.<br/>
+              - QUANTA does not support fiat withdrawal or deposit. To buy BTC, ETH with fiat currency, you can exchange your local currency at any major exchange.<br/>
+              - All QUANTA deposit addresses are multi-sig, crosschain addresses.<br/>
+              </p>
+            </div>
+            
+            <div className="d-flex align-items-center mt-4">
                 <input type="text" id="deposit-address" className="text-dark mr-3" 
                   readOnly value={this.state.deposit_address} size={this.state.deposit_address.length + 10} />
                 <button className="copy-btn cursor-pointer" onClick={this.copyText}>Copy</button>
-              </React.Fragment>
-            :
-              <span className="text-danger">Your deposit address is being generated. Please try again later</span>
-            }
+            </div>
+          </React.Fragment>
+        :
+          <div className="h-100 d-flex align-items-center">
+            <div className="text-center">
+              <Loader type="box" />
+              <p>Generating Address...</p>
+            </div>
           </div>
-
-            
+        }
         </div>
     )
   }

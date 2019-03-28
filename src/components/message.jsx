@@ -51,6 +51,11 @@ const container = css`
         button:hover {
             box-shadow: 0 0 5px #777;
         }
+        button:disabled, button:disabled:hover {
+            background: #444;
+            color: #999;
+            box-shadow: none;
+        }
     }
 
     .verify {
@@ -138,7 +143,9 @@ class Message extends Component {
                 <div>
                     <textarea id='message' className="d-block" autoFocus placeholder="Your message here..."></textarea>
                 </div>
-                <button className="my-4 cursor-pointer" onClick={this.signMessage}>Sign</button>
+                <button disabled={!this.props.private_key} className="my-4 cursor-pointer" onClick={this.signMessage}>
+                    {this.props.private_key ? "Sign" : "LOCK"}
+                </button>
                 <div>
                     <textarea className="d-block" readOnly onClick={(e) => this.selectText(e)} value={this.state.signedMsg} >
                     </textarea>
@@ -169,7 +176,7 @@ class Message extends Component {
         
 
     render() {
-        if (this.props.private_key == null) {
+        if (this.props.publicKey == null) {
             window.location.assign('/exchange')
             return
         } 

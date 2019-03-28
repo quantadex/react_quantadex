@@ -10,11 +10,17 @@ import { toast } from 'react-toastify';
 import lodash from 'lodash'
 import moment from 'moment'
 
+let network = window.location.pathname.startsWith("/testnet") ? "testnet" : "mainnet"
+if (sessionStorage.env !== network) sessionStorage.clear()
+
 let initialState = {
-  network: window.location.pathname.startsWith("/testnet") ? "testnet" : "mainnet",
+  network: network,
   isMobile: (window.isApp ? (screen.width / window.devicePixelRatio) : screen.width) < 992, 
   private_key: null,
-  publicKey: "",
+  publicKey: sessionStorage.publicKey || "",
+  name: sessionStorage.name,
+  userId: sessionStorage.id,
+  lifetime: sessionStorage.lifetime === "true",
   currentTicker: null,
   fee: {},
   tradeHistory: [],
@@ -527,6 +533,7 @@ const app = (state = initialState, action) => {
       
       const vesting = action.data.accountData.length > 0 && action.data.accountData[0][1].vesting_balances
       const genesis = action.data.genesis_balance 
+      const referral_paid = action.data.referral_fee || []
 
       return {
         ...state,
@@ -534,6 +541,7 @@ const app = (state = initialState, action) => {
         balance: balances,
         vesting: vesting,
         genesis: genesis,
+        referral_paid: referral_paid,
         onOrdersFund: onOrdersFund,
         totalFundValue: total_fund_value,
         mostRecentTrade: {
@@ -608,17 +616,15 @@ const app = (state = initialState, action) => {
     case LOGIN:
       return {
         ...state,
-        private_key: action.private_key,
-        userId: null,
-        name: null,
-        publicKey: ""
+        private_key: action.private_key
       }
     case UPDATE_ACCOUNT: 
       return {
         ...state,
         userId: action.data.id,
         name: action.data.name,
-        publicKey: action.data.owner.key_auths[0][0]
+        publicKey: action.data.publicKey || action.data.owner.key_auths[0][0],
+        lifetime: action.data.lifetime
       }
 
     case UPDATE_OPEN_ORDERS:
