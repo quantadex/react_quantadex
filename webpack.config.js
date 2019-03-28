@@ -6,7 +6,7 @@ var APP_DIR = path.resolve(__dirname, "src");
 
 var config = {
   entry: {
-    trade: ["babel-polyfill", APP_DIR + '/index.jsx'],
+    trade: ["babel-polyfill", "whatwg-fetch", APP_DIR + '/index.jsx'],
   },
   devServer: {
     contentBase: path.join(__dirname, 'public'),
