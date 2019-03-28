@@ -4,6 +4,8 @@ import { css } from 'emotion'
 
 import { Link } from 'react-router-dom'
 import HamburgerMenu from './ui/hamburger_menu.jsx'
+import Lock from './ui/account_lock.jsx'
+import ConnectDialog from './connect.jsx';
 
 const container = css`
 	height: 52px;
@@ -53,22 +55,33 @@ const container = css`
 `;
 
 class Header extends Component {
+  handleConnectDialog() {
+		setTimeout(() => {
+			document.getElementById("connect-dialog").style.display = "flex"
+		}, 0)
+  }
+  
 	render() {
 		return (
+      <React.Fragment>
 			<div className={container + " qt-font-small"}>
-        <Link to={"/" + this.props.network + "/exchange/" + this.props.currentTicker.replace("/", "_")} className="back-link">Back to Exchange</Link>
+        <Link to={"/" + this.props.network + "/exchange/" + (this.props.currentTicker ? this.props.currentTicker.replace("/", "_") : "")} className="back-link">Back to Exchange</Link>
 
-        <Link to={"/" + this.props.network + "/exchange/" + this.props.currentTicker.replace("/", "_")} className="logo"></Link>
+        <Link to={"/" + this.props.network + "/exchange/" + (this.props.currentTicker ? this.props.currentTicker.replace("/", "_") : "")} className="logo"></Link>
 				<div className="menu">
-					<span className="name">{this.props.name}</span>
+					<span className="name mr-3">{this.props.name}</span>
+					<Lock unlock={() => this.handleConnectDialog()} />
 					<HamburgerMenu />
 				</div>
 			</div>
+      {this.props.private_key ? null : <ConnectDialog default="connect" />}
+      </React.Fragment>
 		);
 	}
 }
 
 const mapStateToProps = (state) => ({
+    private_key: state.app.private_key,
 		currentTicker: state.app.currentTicker,
     currentPrice: state.app.currentPrice,
     name: state.app.name,

@@ -10,11 +10,17 @@ import { toast } from 'react-toastify';
 import lodash from 'lodash'
 import moment from 'moment'
 
+let network = window.location.pathname.startsWith("/testnet") ? "testnet" : "mainnet"
+if (sessionStorage.env !== network) sessionStorage.clear()
+
 let initialState = {
-  network: window.location.pathname.startsWith("/testnet") ? "testnet" : "mainnet",
+  network: network,
   isMobile: (window.isApp ? (screen.width / window.devicePixelRatio) : screen.width) < 992, 
   private_key: null,
-  publicKey: "",
+  publicKey: sessionStorage.publicKey || "",
+  name: sessionStorage.name,
+  userId: sessionStorage.id,
+  lifetime: sessionStorage.lifetime === "true",
   currentTicker: null,
   fee: {},
   tradeHistory: [],

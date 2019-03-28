@@ -94,7 +94,7 @@ class Fund extends Component {
 	}
 
 	render() {
-    if (this.props.private_key == null) {
+    if (!window.markets) {
 			window.location.assign('/' + this.props.match.params.net)
     } 
 
@@ -140,6 +140,7 @@ class Fund extends Component {
 const mapStateToProps = (state) => ({
     isMobile: state.app.isMobile,
     private_key: state.app.private_key,
+    publicKey: state.app.publicKey,
 		name: state.app.name
 	});
 

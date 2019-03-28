@@ -193,7 +193,7 @@ export const accountUpgrade = () => {
 		})
 		.then(e => {
 			let data = {
-				userId: getState().app.userId,
+				id: getState().app.userId,
 				name: getState().app.name,
 				publicKey: getState().app.publicKey,
 				lifetime: true
@@ -368,15 +368,21 @@ export const AccountLogin = (private_key) => {
 				.exec("get_objects", [[vec_account_id[0][0]]])
 				.then((data) => {
 					// console.log("get account ", data);
-					
+					let lifetime_member = data[0].membership_expiration_date === "1969-12-31T23:59:59"
 					dispatch({
 						type: LOGIN,
 						private_key: private_key
 					})
 					dispatch({
 						type: UPDATE_ACCOUNT,
-						data: {...data[0], lifetime: data[0].membership_expiration_date === "1969-12-31T23:59:59"}
+						data: {...data[0], lifetime: lifetime_member}
 					})
+
+					sessionStorage.setItem("name", data[0].name)
+					sessionStorage.setItem("id", data[0].id)
+					sessionStorage.setItem("publicKey", data[0].active.key_auths[0][0])
+					sessionStorage.setItem("lifetime", lifetime_member)
+					sessionStorage.setItem("env", window.location.pathname.startsWith("/testnet") ? "testnet" : "mainnet")
 				}).then(e => {
 					dispatch(switchTicker(getState().app.currentTicker))
 					return true
@@ -521,7 +527,7 @@ export function switchTicker(ticker, force_init=false) {
 
 				var my_trades = []
 
-				if (publicKey && getState().app.userId) {
+				if (getState().app.publicKey && getState().app.userId) {
 					const userId = getState().app.userId
 					my_trades = fetch(CONFIG.getEnv().API_PATH + `/account?filter_field=operation_type&filter_value=2,4&size=${dataSize}&account_id=${userId}`).then(e => e.json())
 					.then((filled) => {
@@ -540,7 +546,7 @@ export function switchTicker(ticker, force_init=false) {
 				var account_data = [[],[]]
 				var genesis_balance = []
 				
-				if (publicKey && getState().app.userId) {
+				if (getState().app.publicKey && getState().app.userId) {
 					account_data = Apis.instance()
 					.db_api()
 					.exec("get_full_accounts", [[getState().app.userId], true])
@@ -596,7 +602,7 @@ export function switchTicker(ticker, force_init=false) {
 						})
 						if (first) {
 							const ask_section = document.getElementById("ask-section")
-							ask_section.scrollTop = ask_section.scrollHeight;
+							if (ask_section) ask_section.scrollTop = ask_section.scrollHeight;
 						}
 						
 					})					

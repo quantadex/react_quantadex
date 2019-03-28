@@ -4,33 +4,18 @@ import Chart from './chart.jsx';
 import DepthChart from './chart_depth.jsx';
 import TradingHistory from './trading_history.jsx';
 import OrderBook from './order_book.jsx';
-import Dashboard from './dashboard.jsx';
 import Menu from './menu.jsx';
 import Orders from './orders.jsx';
 import Trade from './trade.jsx';
 import Balance from './balance.jsx';
-import ConnectDialog, { ConnectLink, Connect } from './connect.jsx';
-import Leaderboard from './leaderboard.jsx'
+import { ConnectLink, Connect } from './connect.jsx';
 import Status from './status.jsx'
-import FirstTime from './first_time.jsx'
-import QTTableView from './ui/tableView.jsx'
 import ToolTip from './ui/tooltip.jsx'
 import Switch from './ui/switch.jsx';
-import Order from './order.jsx';
-import Markets from './markets.jsx';
-import OpenOrders from './open_orders.jsx';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-import {switchTicker, initBalance, getMarketQuotes} from "../redux/actions/app.jsx";
 import { connect } from 'react-redux'
-
 import { css } from 'emotion'
-import globalcss from './global-css.js'
-
-import { Link } from 'react-router-dom'
-
-import QTTableViewSimple from './ui/tableViewSimple.jsx'
 
 const container = css`
 	background-color: #121517;
@@ -230,13 +215,13 @@ class Exchange extends Component {
 			<div className={container}>
 				<div className="d-flex">
 					<Header />
-					{this.props.private_key ? <Menu /> : <ConnectLink onOpen={this.handleConnectDialog.bind(this)} />}
+					{this.props.publicKey ? <Menu unlock={this.handleConnectDialog.bind(this)} /> : <ConnectLink onOpen={this.handleConnectDialog.bind(this)} />}
 				</div>
 				<div className="content d-flex">
 					<section className="compartment left-cols">
 						<Trade />
 						<hr/>
-						{this.props.private_key ? <Balance /> : <Connect onOpen={this.handleConnectDialog.bind(this)} />}
+						{this.props.publicKey ? <Balance /> : <Connect onOpen={this.handleConnectDialog.bind(this)} />}
 					</section>
 					<section className="compartment left-cols">
 						<OrderBook />
@@ -252,8 +237,8 @@ class Exchange extends Component {
 								</div>
 							<section className="compartment" style={this.state.toggle_trade ? {width: "calc(100% - 270px)"} : {width: "100%"}}>
 								<Switchchart />
-								<Chart chartTools={true} showBenchmark={this.state.showBenchmark} className={this.state.chart === "tv" ? "d-block": "d-none" } style={!this.props.private_key && {height: "calc(100vh - 124px)"}} />
-								<DepthChart className={this.state.chart === "depth" ? "d-block": "d-none"} style={!this.props.private_key && {height: "calc(100vh - 124px)"}} />
+								<Chart chartTools={true} showBenchmark={this.state.showBenchmark} className={this.state.chart === "tv" ? "d-block": "d-none" } style={!this.props.publicKey && {height: "calc(100vh - 124px)"}} />
+								<DepthChart className={this.state.chart === "depth" ? "d-block": "d-none"} style={!this.props.publicKey && {height: "calc(100vh - 124px)"}} />
 							</section>
 
 							<section className={"compartment cols" + (this.state.toggle_trade ? "" : " d-none")}>
@@ -261,7 +246,7 @@ class Exchange extends Component {
 							</section>
 						</div>
 						
-						{this.props.private_key ? 
+						{this.props.publicKey ? 
 							<section className="compartment">
 								<Orders />
 							</section>
@@ -274,7 +259,6 @@ class Exchange extends Component {
 					<Status />
 				</section>
 				<ToastContainer />
-				{this.props.private_key ? "" : <ConnectDialog default={this.state.dialog} />}
 			</div>
 		);
 	}
@@ -282,6 +266,7 @@ class Exchange extends Component {
 
 const mapStateToProps = (state) => ({
 		private_key: state.app.private_key,
+		publicKey: state.app.publicKey,
 		leftOpen: state.app.ui.leftOpen,
 		rightOpen: state.app.ui.rightOpen,
 		currentTicker: state.app.currentTicker,

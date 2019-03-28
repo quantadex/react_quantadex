@@ -334,7 +334,8 @@ class Orders extends Component {
                 <div className={"item-details" + (this.state.selectedRow == row.id ? " active" : "")}>
                   <span className="item"><span className="label">AMOUNT</span> {row.amount}</span>
                   <span className="item"><span className="label">TOTAL</span> {row.total}</span>
-                  <button onClick={() => this.handleCancel(row.assets, row.id)}>CANCEL</button>
+                  <button disabled={!this.props.private_key} 
+                    onClick={() => this.handleCancel(row.assets, row.id)}>{!this.props.private_key ? "LOCK" : "CANCEL"}</button>
                 </div>
               </div>
             )
@@ -343,8 +344,9 @@ class Orders extends Component {
       )
     } else {
       return (
-        <QTTableViewSimple dataSource={this.props.openOrders.dataSource.sort((a,b) => (a.id > b.id) ? -1 : ((b.id > a.id) ? 1 : 0))} columns={this.props.openOrders.columns}
-        cancelOrder={this.handleCancel.bind(this)} />
+        <QTTableViewSimple dataSource={this.props.openOrders.dataSource.sort((a,b) => (a.id > b.id) ? -1 : ((b.id > a.id) ? 1 : 0))} 
+        columns={this.props.openOrders.columns}
+        disabled={!this.props.private_key} cancelOrder={this.handleCancel.bind(this)} />
       )
     }
   }
@@ -420,6 +422,7 @@ class Orders extends Component {
 }
 
 const mapStateToProps = (state) => ({
+    private_key: state.app.private_key,
   	bids: state.app.tradeBook.bids,
   	asks: state.app.tradeBook.asks,
 		currentPrice: state.app.currentPrice,

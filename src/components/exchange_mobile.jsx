@@ -176,8 +176,8 @@ class Exchange extends Component {
 				</div>
 			)
 		}
-		const content = [this.props.private_key ? <div><Trade mobile={true} /><Balance /></div> : <Connect onOpen={this.handleConnectDialog.bind(this)}/>, 
-						this.props.private_key ? <Orders mobile={true}/> : <Connect onOpen={this.handleConnectDialog.bind(this)}/> , 
+		const content = [this.props.publicKey ? <div><Trade mobile={true} /><Balance /></div> : <Connect onOpen={this.handleConnectDialog.bind(this)}/>, 
+						this.props.publicKey ? <Orders mobile={true}/> : <Connect onOpen={this.handleConnectDialog.bind(this)}/> , 
 						<ChartContent />, <OrderBook mobile={true}/>, <TradingHistory mobile={true}/>]
 		const Switchchart = () => {
 			return(
@@ -208,8 +208,6 @@ class Exchange extends Component {
 			</div>
 			
 			<ToastContainer />
-			{this.props.private_key ? "" : <ConnectDialog isMobile={true} default={this.state.dialog}/>}
-			{/* { localStorage.getItem("firstTimeComplete") ? null : <FirstTime mobile={true}/> } */}
 		</div>
 		);
 	}
@@ -218,6 +216,7 @@ class Exchange extends Component {
 const mapStateToProps = (state) => ({
 		network: state.app.network,
 		private_key: state.app.private_key,
+		publicKey: state.app.publicKey,
 		leftOpen: state.app.ui.leftOpen,
 		rightOpen: state.app.ui.rightOpen,
 		currentTicker: state.app.currentTicker,

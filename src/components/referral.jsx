@@ -6,6 +6,7 @@ import { accountUpgrade } from '../redux/actions/app.jsx'
 import Loader from './ui/loader.jsx'
 import { toast } from 'react-toastify';
 import TxDialog from './ui/transaction_dialog.jsx'
+import {LockIcon} from './ui/account_lock.jsx'
 import Utils from '../common/utils'
 import {SymbolToken} from './ui/ticker.jsx'
 
@@ -78,6 +79,7 @@ class Referral extends Component {
   upgradeAccount() {
     const self = this;
     this.props.dispatch(accountUpgrade()).then(e => {
+      sessionStorage.setItem("lifetime", "true")
       toast.success(`Successfully upgrade account.`, {
         autoClose: 5000,
         position: toast.POSITION.TOP_CENTER
@@ -100,7 +102,10 @@ class Referral extends Component {
 
   render() {
     const earned_coin = []
-    const fund = this.props.qdex_amount ? this.props.qdex_amount.balance : 0
+    const qdex_amount = this.props.qdex_amount && this.props.qdex_amount.find(obj => {
+                          return obj.asset === "1.3.0"
+                        })
+    const fund = qdex_amount ? qdex_amount.balance : 0
     return (
       <div className={container + " content" + (this.props.isMobile ? " mobile px-4" : "")}>
         <div className="referral my-5 text-center">
@@ -113,7 +118,11 @@ class Referral extends Component {
                     <button className="copy-btn cursor-pointer" onClick={this.copyText}>Copy</button>
                 </div>
 
-                : <button className="mt-5 px-5" onClick={() => this.setState({confirmDialog: true})}>JOIN REFERAL PROGRAM</button>
+                : <button className="mt-5 px-5" disabled={!this.props.private_key}
+                    onClick={() => this.setState({confirmDialog: true})}>
+                    {this.props.private_key ? "" : <LockIcon /> }
+                    JOIN REFERAL PROGRAM
+                  </button>
             }
             
         </div>
@@ -169,13 +178,12 @@ class Referral extends Component {
 }
 
 const mapStateToProps = (state) => ({
+    private_key: state.app.private_key,
     isMobile: state.app.isMobile,
     lifetime: state.app.lifetime,
     name: state.app.name,
     referral_paid: state.app.referral_paid,
-    qdex_amount: state.app.balance.find(obj => {
-        return obj.asset === "1.3.0"
-      })
+    qdex_amount: state.app.balance || []
 });
 
 

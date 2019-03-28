@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import { css } from 'emotion'
 import { withdrawVesting, withdrawGenesis } from '../redux/actions/app.jsx'
 import Loader from './ui/loader.jsx'
+import {LockIcon} from './ui/account_lock.jsx'
 import { toast } from 'react-toastify';
 import { PrivateKey, PublicKey, Aes, key, ChainStore } from "@quantadex/bitsharesjs";
 
@@ -23,7 +24,6 @@ const container = css`
   }
 
   button {
-    width: 100px;
     text-align: center;
     background: transparent;
     color: #1cdad8;
@@ -150,10 +150,13 @@ class Vesting extends Component {
                   <tr>
                     <td></td>
                     <td className="text-right">
-                      <button className="my-3" disabled={this.state.claim_status[balance.id] || this.state.claimed_balance.indexOf(balance.id) !== -1}
+                      <button className="my-3" 
+                        disabled={!this.props.private_key || this.state.claim_status[balance.id] || this.state.claimed_balance.indexOf(balance.id) !== -1}
                         onClick={() => this.claimBalance(balance.id, this.getClaimAmount(balance), balance.balance.asset_id, display_amount, true)}>
+                          {!this.props.private_key ? <LockIcon /> : null}
                           {this.state.claim_status[balance.id] ? 
-                            <Loader size="24px"/> : (this.state.claimed_balance.indexOf(balance.id) !== -1 ? "Claimed" : "Claim Now")}
+                            <Loader size="24px"/> : (this.state.claimed_balance.indexOf(balance.id) !== -1 ? "Claimed" : "Claim Now")
+                          }
                         </button>
                     </td>
                   </tr>
@@ -183,10 +186,11 @@ class Vesting extends Component {
                   <tr>
                     <td></td>
                     <td className="text-right">
-                      <button className="my-3" disabled={this.state.claim_status[balance.id]}
+                      <button className="my-3" disabled={!this.props.private_key || this.state.claim_status[balance.id]}
                         onClick={() => this.claimBalance(balance.id, balance.balance.amount, balance.balance.asset_id, display_amount)}>
+                          {!this.props.private_key ? <LockIcon /> : null}
                           {this.state.claim_status[balance.id] ? 
-                            <Loader size="24px"/> :  "Claim Now"}
+                            <Loader size="24px"/> : "Claim Now"}
                         </button>
                     </td>
                   </tr>
@@ -203,8 +207,9 @@ class Vesting extends Component {
 
 const mapStateToProps = (state) => ({
     isMobile: state.app.isMobile,
+    private_key: state.app.private_key,
     genesis: state.app.genesis,
-    vesting: state.app.vesting,
+    vesting: state.app.vesting || [],
 	});
 
 

@@ -5,6 +5,7 @@ import moment from 'moment';
 import { css } from 'emotion'
 import globalcss from './global-css.js'
 import HamburgerMenu from './ui/hamburger_menu.jsx'
+import Lock from './ui/account_lock.jsx'
 
 const container = css`
 	padding: 0 20px;
@@ -16,9 +17,9 @@ const container = css`
 	}
 
 	.name {
-		margin-right:10px;
-		max-width: 100px;
-    overflow: hidden;
+		max-width: 88px;
+		overflow: hidden;
+		white-space: nowrap;
     text-overflow: ellipsis;
 	}
 
@@ -31,10 +32,12 @@ const container = css`
 
 class Menu extends Component {
   render() {
+		const {private_key, isMobile, style, name} = this.props
     return (
-      <div className={container + (this.props.isMobile ? " mobile" : "")}  style={this.props.style}>
+      <div className={container + (isMobile ? " mobile" : "")}  style={style}>
 				<div className="row qt-font-bold qt-font-small justify-content-end">
-					<span className="name">{this.props.name}</span>
+					<span className="name mr-3">{name}</span>
+					<Lock unlock={() => this.props.unlock("connect")} />
 					{this.props.name && <HamburgerMenu />}
 				</div>
       </div>
@@ -43,9 +46,7 @@ class Menu extends Component {
 }
 
 const mapStateToProps = (state) => ({
-  	// bids: state.app.tradeBook.bids,
-  	// asks: state.app.tradeBook.asks,
-		// currentPrice: state.app.currentPrice,
+		private_key: state.app.private_key,
 		name: state.app.name
 	});
 

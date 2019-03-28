@@ -242,7 +242,7 @@ class ConnectDialog extends Component {
             selectedTabIndex: 0,
             regStep: 1,
             encryptStep: 0,
-            encrypted_data: {},
+            encrypted_data: null,
             private_key: "",
             username: "",
             password: "",
@@ -330,10 +330,13 @@ class ConnectDialog extends Component {
 
     ConnectWithBin() {
         try {
-			const decrypted = decryptWallet(this.state.encrypted_data, this.state.password)
+            const encrypted_data = this.state.encrypted_data || JSON.parse(sessionStorage.encrypted_data)
+			const decrypted = decryptWallet(encrypted_data, this.state.password)
             const private_key = decrypted.toWif()
 
-            this.props.dispatch(AccountLogin(private_key))
+            this.props.dispatch(AccountLogin(private_key)).then(() => {
+                sessionStorage.setItem("encrypted_data", JSON.stringify(encrypted_data))
+            })
             .catch(error => {
                 this.setState({authError: true, errorMsg: error})
             })
@@ -349,7 +352,9 @@ class ConnectDialog extends Component {
         try {
             const pKey = PrivateKey.fromWif(this.state.private_key);
 
-            this.props.dispatch(AccountLogin(this.state.private_key))
+            this.props.dispatch(AccountLogin(this.state.private_key)).then(() => {
+                sessionStorage.removeItem("encrypted_data")
+            })
             .catch(error => {
                 this.setState({authError: true, errorMsg: error})
             })
@@ -476,16 +481,26 @@ class ConnectDialog extends Component {
     ConnectEncrypted() {
         return (
             <div className="input-container">
-                <div className={"drop-zone align-items-center" + (this.props.isMobile ? " pt-3" : " d-flex")} onDragOver={(e)=> e.preventDefault()} onDrop={(e) => this.handleDrop(e)}>
-                    Drop your backup file in this area or&nbsp;<label htmlFor="file">browse your files.</label>
+                {!this.state.encrypted_data && sessionStorage.encrypted_data ?
+                <div className="text-secondary text-center mb-2">
+                    Continue as <span className="qt-color-theme">{sessionStorage.name}</span> or&nbsp;<label className="cursor-pointer" htmlFor="file"><u>browse your files.</u></label>
                     <input className="d-none" type="file" name="file" id="file" accept=".json" onChange={(e) => this.uploadFile(e.target.files[0])}/>
                 </div>
+                : 
+                <React.Fragment>
+                    <div className={"drop-zone align-items-center" + (this.props.isMobile ? " pt-3" : " d-flex")} onDragOver={(e)=> e.preventDefault()} onDrop={(e) => this.handleDrop(e)}>
+                        Drop your backup file in this area or&nbsp;<label htmlFor="file">browse your files.</label>
+                        <input className="d-none" type="file" name="file" id="file" accept=".json" onChange={(e) => this.uploadFile(e.target.files[0])}/>
+                    </div>
+                    
+                    <div className="d-flex justify-content-between qt-font-small mb-2">
+                        <div>{this.state.uploaded_file_msg}</div>
+                        <div className="link text-right"
+                            onClick={() => this.resetInputs({encryptStep: 1})}>I don’t have a .json-file</div>
+                    </div>
+                </React.Fragment>
+                }
                 
-                <div className="d-flex justify-content-between qt-font-small mb-2">
-                    <div>{this.state.uploaded_file_msg}</div>
-                    <div className="link text-right"
-                        onClick={() => this.resetInputs({encryptStep: 1})}>I don’t have a .json-file</div>
-                </div>
 
                 <label>PASSWORD</label><br/>
                 <input type="password" name="password" placeholder="Password" 
@@ -498,7 +513,10 @@ class ConnectDialog extends Component {
                     /><br/>
                 <span className="error" hidden={!this.state.authError}>{this.state.errorMsg}</span><br/>
                 <div className="text-center">
-                    <button onClick={this.ConnectWithBin.bind(this)} disabled={this.state.password.length < 8}>Connect Wallet</button>
+                    <button onClick={this.ConnectWithBin.bind(this)} 
+                        disabled={this.state.password.length < 8 || !(this.state.encrypted_data || sessionStorage.encrypted_data)}>
+                        Connect Wallet
+                    </button>
                 </div>
             </div>
         )
@@ -693,7 +711,7 @@ class ConnectDialog extends Component {
                     <span className="error" hidden={!this.state.authError}>{this.state.errorMsg}</span><br/>
                     <div className="text-center">
                         <button className="mb-2" onClick={this.DownloadKey}>DOWNLOAD FILE</button>
-                        <div className={"link qt-font-small" + (!this.state.downloaded ? " invisible" : "")} onClick={() => this.setState({dialogType: "connect"})}>
+                        <div className={"link qt-font-small" + (!this.state.downloaded ? " invisible" : "")} onClick={() => this.resetInputs({dialogType: "connect"})}>
                             <u>Proceed to Connect your Wallet</u>
                         </div>
                     </div>

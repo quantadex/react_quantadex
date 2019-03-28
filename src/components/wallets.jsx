@@ -223,14 +223,14 @@ class Wallets extends Component {
         width:"90"
     }, {
         buttons: [{
-          label:"WITHDRAW",
+          label: "WITHDRAW",
           color:"theme unite",
           handleClick: (asset, close) => {
 						return <QTWithdraw asset={asset} handleClick={close} />
           },
-          disabled: (pairs) => {return false}
+          disabled: () => {return !this.props.private_key}
         }, {
-          label:"DEPOSIT",
+          label: "DEPOSIT",
           color:"theme unite",
           handleClick: (asset, close) => {
             return <QTDeposit asset={asset} handleClick={close} quantaAddress={this.props.name} 
@@ -238,7 +238,7 @@ class Wallets extends Component {
             setAddress={this.setAddress.bind(this)}
             deposit_address={(["ETH", "ERC20"].includes(asset) || asset.split("0X").length == 2) ? this.state.ethAddress : this.state.btcAddress} />
           },
-          disabled: (pairs) => {return false}
+          disabled: () => {return !this.props.private_key}
         }],
         type: "buttons"
     }]
@@ -263,7 +263,7 @@ class Wallets extends Component {
 
 const mapStateToProps = (state) => ({
     isMobile: state.app.isMobile,
-    balance: state.app.balance,
+    balance: state.app.balance || [],
     onOrdersFund: state.app.onOrdersFund,
     publicKey: state.app.publicKey || "",
     private_key: state.app.private_key,

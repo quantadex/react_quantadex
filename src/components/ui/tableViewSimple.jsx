@@ -167,7 +167,8 @@ export default class QTTableViewSimple extends React.Component {
                         <td key={index + "-" + colindex} id={"cancel-" + row.id.replace(/\./g, '-')} className={col.float}>
                             <div className="loader"></div>
                             <QTButton className="grey inverse qt-font-semibold qt-font-base" 
-                            borderWidth="1" width="66" height="18" label="CANCEL"
+                            borderWidth="1" width="66" height="18" label={this.props.disabled ? "LOCK" : "CANCEL"}
+                            disabled={this.props.disabled}
                             onClick={() => {
                               this.props.cancelOrder(row.assets, row.id)
                             }}/>
