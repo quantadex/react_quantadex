@@ -112,6 +112,7 @@ export class HamburgerMenu extends React.Component {
                   {
                     e.items.map((item, index) => {
                       if (item.onClick) {
+                        if ( this.props.private_key && item.text == "Unlock" ) return
                         return (
                           <a key={index} onClick={item.onClick}
                              className="d-flex menu-row qt-cursor-pointer"
@@ -185,6 +186,15 @@ HamburgerMenu.defaultProps = {
     items: [{
       iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),
       iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
+      text:"Unlock",
+      onClick: () => {
+        setTimeout(() => {
+          document.getElementById("connect-dialog").style.display = "flex"
+        }, 0)
+      }
+    },{
+      iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),
+      iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
       text:"Logout",
       onClick: () => {
         sessionStorage.clear()
@@ -201,7 +211,8 @@ HamburgerMenu.propTypes = {
 const mapStateToProps = (state) => ({
   total_fund: state.app.totalFundValue,
   currentTicker: state.app.currentTicker,
-  network: state.app.network
+  network: state.app.network,
+  private_key: state.app.private_key
 });
 
 export default connect(mapStateToProps)(withRouter(HamburgerMenu))
