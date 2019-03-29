@@ -575,11 +575,6 @@ export function switchTicker(ticker, force_init=false) {
 							return [...e, statistics[0].extensions.referral_fee_paid]
 						})
 					})
-					
-					// referral_fee = Apis.instance().db_api().exec("get_objects", [[statistic_id]]).then(e=>{
-					// 	console.log("statistic", e);
-					// 	return e
-					// })
 
 					const shortAddress = WalletApi.getShortAddress(getState().app.publicKey)
 					genesis_balance = Apis.instance().db_api().exec("get_balance_objects", [[shortAddress]]).then(e=>{

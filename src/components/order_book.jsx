@@ -56,7 +56,7 @@ class OrderBook extends Component {
 			type: 'SET_AMOUNT',
 			data: {
 				inputBuy: e.price,
-				inputBuyAmount: e.amount,
+				inputBuyAmount: e.volume,
 				inputSide: side,
 				setTime: set_time
 			}
@@ -69,12 +69,15 @@ class OrderBook extends Component {
 		}
 		var asksIterator = this.props.asks.dataSource.beginIterator();
 		var asksDataSource = []
+		var askVolume = 0
 		while (asksIterator.value() !== null && asksDataSource.length < 20) {
 			const ask = asksIterator.value()
+			askVolume += parseFloat(ask.amount)
 			asksDataSource.push({
 				...ask,
 				price: parseFloat(ask.price).toFixed(this.props.decimals.value),
-				total: parseFloat(ask.total).toFixed(this.props.decimals.maxTotalDecimals)
+				total: parseFloat(ask.total).toFixed(this.props.decimals.maxTotalDecimals),
+				volume: askVolume
 			})
 			asksIterator = asksIterator.next()
 		}
@@ -84,12 +87,15 @@ class OrderBook extends Component {
 
 		var bidsIterator = this.props.bids.dataSource.beginIterator();
 		var bidsDataSource = []
+		var bidVolume = 0
 		while (bidsIterator.value() !== null && bidsDataSource.length < 20) {
 			const bid = bidsIterator.value()
+			bidVolume += parseFloat(bid.amount)
 			bidsDataSource.push({
 				...bid,
 				price: parseFloat(bid.price).toFixed(this.props.decimals.value),
-				total: parseFloat(bid.total).toFixed(this.props.decimals.maxTotalDecimals)
+				total: parseFloat(bid.total).toFixed(this.props.decimals.maxTotalDecimals),
+				volume: bidVolume
 			})
 			bidsIterator = bidsIterator.next()
 		}
