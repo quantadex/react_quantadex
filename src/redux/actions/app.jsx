@@ -455,7 +455,10 @@ export function switchTicker(ticker, force_init=false) {
 					if (!window.markets) {
 						const markets = await fetch(CONFIG.getEnv().MARKETS_JSON).then(e => e.json())
 						window.markets = markets.markets
-						window.marketsHash = lodash.keyBy(markets.markets, "name")
+						window.marketsHash = Object.keys(markets.markets).reduce(function (previous, key) {
+							let ob = lodash.keyBy({...markets.markets[key]}, "name")
+							return {...previous, ...ob}
+						}, {})
 						window.wallet_listing = markets.wallet_listing
 
 						// used by datafeed
