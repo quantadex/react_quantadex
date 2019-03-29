@@ -54,7 +54,7 @@
     "webpack": "^3.12.0",
     "webpack-cli": "^2.1.5",
     "webpack-dev-server": "^3.1.10",
-    "whatwg-fetch": "^2.0.3",
+    "whatwg-fetch": "^2.0.4",
     "with-query": "^1.0.2",
     "zxcvbn": "^4.4.2"
   },

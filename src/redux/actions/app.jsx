@@ -455,7 +455,10 @@ export function switchTicker(ticker, force_init=false) {
 					if (!window.markets) {
 						const markets = await fetch(CONFIG.getEnv().MARKETS_JSON).then(e => e.json())
 						window.markets = markets.markets
-						window.marketsHash = lodash.keyBy(markets.markets, "name")
+						window.marketsHash = Object.keys(markets.markets).reduce(function (previous, key) {
+							let ob = lodash.keyBy({...markets.markets[key]}, "name")
+							return {...previous, ...ob}
+						}, {})
 						window.wallet_listing = markets.wallet_listing
 
 						// used by datafeed
@@ -572,11 +575,6 @@ export function switchTicker(ticker, force_init=false) {
 							return [...e, statistics[0].extensions.referral_fee_paid]
 						})
 					})
-					
-					// referral_fee = Apis.instance().db_api().exec("get_objects", [[statistic_id]]).then(e=>{
-					// 	console.log("statistic", e);
-					// 	return e
-					// })
 
 					const shortAddress = WalletApi.getShortAddress(getState().app.publicKey)
 					genesis_balance = Apis.instance().db_api().exec("get_balance_objects", [[shortAddress]]).then(e=>{
