@@ -9,6 +9,7 @@ import QTTabBar from './ui/tabBar.jsx'
 import QTButton from './ui/button.jsx'
 import QTTableViewSimple from './ui/tableViewSimple.jsx'
 import Loader from './ui/loader.jsx'
+import Switch from "./ui/switch.jsx"
 
 import {cancelTransaction, loadOrderHistory} from "../redux/actions/app.jsx";
 import ReactGA from 'react-ga';
@@ -221,6 +222,7 @@ class Orders extends Component {
     super(props);
     this.state = {
       selectedTabIndex: 0,
+      hideMarkets: false,
       isFocused: false,
       cancelling: [],
       selectedRow: null,
@@ -313,6 +315,10 @@ class Orders extends Component {
     if (this.props.openOrders.dataSource.length == 0) {
       return <div className="empty-list">You have no active orders</div>
     }
+
+    const dataSource = this.props.openOrders.dataSource.filter(row => !this.state.hideMarkets || row.assets === this.props.currentTicker)
+    dataSource.sort((a,b) => (a.id > b.id) ? -1 : ((b.id > a.id) ? 1 : 0))
+
     if (this.props.mobile) {
       return (
         <div>
@@ -323,7 +329,7 @@ class Orders extends Component {
               <span className="item-type text-right">TYPE</span>
             </div>
           </div>
-          {this.props.openOrders.dataSource.sort((a,b) => (a.id > b.id) ? -1 : ((b.id > a.id) ? 1 : 0)).map((row) => {
+          {dataSource.map((row) => {
             return (
               <div key={row.id} className="list-row" onClick={() => this.toggleDetails(row.id)}>
                 <div className="d-flex list-item">
@@ -344,7 +350,7 @@ class Orders extends Component {
       )
     } else {
       return (
-        <QTTableViewSimple dataSource={this.props.openOrders.dataSource.sort((a,b) => (a.id > b.id) ? -1 : ((b.id > a.id) ? 1 : 0))} 
+        <QTTableViewSimple dataSource={dataSource} 
         columns={this.props.openOrders.columns}
         disabled={!this.props.private_key} cancelOrder={this.handleCancel.bind(this)} />
       )
@@ -355,6 +361,8 @@ class Orders extends Component {
     if (this.props.filledOrders.dataSource.length == 0) {
       return <div className="empty-list">You have no recent filled orders in this market</div>
     }
+
+    const dataSource = this.props.filledOrders.dataSource.concat(this.props.filledOrders.dataSource2).filter(row => !this.state.hideMarkets || row.assets === this.props.currentTicker)
 
     if (this.props.mobile) {
       return (
@@ -367,7 +375,7 @@ class Orders extends Component {
               <span className="item-type text-right">TYPE</span>
             </div>
           </div>
-          {this.props.filledOrders.dataSource.concat(this.props.filledOrders.dataSource2).map((row, index) => {
+          {dataSource.map((row, index) => {
             return (
               <div key={row.id + index} className="list-row" onClick={() => this.toggleDetails(index)}>
                 <div className="d-flex list-item">
@@ -387,7 +395,7 @@ class Orders extends Component {
       )
     } else {
       return (
-        <QTTableViewSimple dataSource={this.props.filledOrders.dataSource.concat(this.props.filledOrders.dataSource2)} columns={this.props.filledOrders.columns}/>
+        <QTTableViewSimple dataSource={dataSource} columns={this.props.filledOrders.columns}/>
       )
     }
   }
@@ -401,7 +409,7 @@ class Orders extends Component {
 
     return (
       <div className={container + (this.props.mobile ? " mobile" : "")}>
-      <div className="sticky">
+      <div className="sticky d-flex align-items-center">
           <QTTabBar
             className="button small static set-width qt-font-bold d-flex justify-content-left"
             width={120}
@@ -409,6 +417,7 @@ class Orders extends Component {
             tabs = {tabs}
             switchTab = {this.handleSwitch.bind(this)}
           />
+          <Switch label="Current Market Only" active={this.state.hideMarkets} onToggle={() => this.setState({hideMarkets: !this.state.hideMarkets})} />
         </div>
         <section className="order-list no-scroll-bar">
           <div id="scroll-order-list" onScroll={(e) => this.handleScroll(e.target)}>

@@ -3,7 +3,7 @@ import CONFIG from '../../config'
 import { css } from 'emotion'
 
 const container = css`
-	font-family: SFCompactTextSemiBold;
+	font-family: SFCompactTextRegular;
 	
 	.issuer-tag {
 		border-radius: 2px;
@@ -59,11 +59,11 @@ export const SymbolToken = ({ name, showIcon = true, withLink= true }) => {
 	)
 }
 
-export default ({ticker}) => {
+export default ({ticker, withLink=false}) => {
 	if (ticker === undefined || ticker === null) {
 		return ""
 	}
 	const comp = ticker.split("/")
 
-	return <span><SymbolToken name={comp[0]} showIcon={false} withLink={false} />/ <SymbolToken name={comp[1]} showIcon={false} withLink={false} /></span>
+	return <span><SymbolToken name={comp[0]} showIcon={false} withLink={withLink} />/ <SymbolToken name={comp[1]} showIcon={false} withLink={withLink} /></span>
 }
