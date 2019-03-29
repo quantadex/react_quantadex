@@ -6,6 +6,7 @@ import { LOGIN } from "../actions/app.jsx";
 import { dataSize } from "../actions/app.jsx";
 import SortedSet from 'js-sorted-set'
 import { toast } from 'react-toastify';
+import Ticker, {SymbolToken} from '../../components/ui/ticker.jsx'
 
 import lodash from 'lodash'
 import moment from 'moment'
@@ -41,7 +42,7 @@ let initialState = {
     dataSource: [],
     columns: [{
       name:"PAIR",
-      key:"assets",
+      key:"pair",
       type:"string",
       sortable:false,
       color: (value) => {return "white"},
@@ -118,7 +119,7 @@ let initialState = {
     dataSource2: [],
     columns: [{
       name:"PAIR",
-      key:"assets",
+      key:"pair",
       type:"string",
       sortable:false,
       color: (value) => {return "white"},
@@ -211,7 +212,7 @@ let initialState = {
       dataSource: new SortedSet({ comparator: function(a, b) { return parseFloat(a.price) - parseFloat(b.price); }}),
 
       columns: [{
-        name: (ticker) => {return "Price " + ticker.split('/')[1].substr(0,3)},
+        name: (ticker) => {return "Price " + ticker.split('/')[1].split('0X')[0]},
         key:"price",
         type:"number",
         sortable:false,
@@ -229,7 +230,7 @@ let initialState = {
         fontWeight:"light",
         float:"right"
       },{
-        name: (ticker) => {return "Total " + ticker.split('/')[1].substr(0,3)},
+        name: (ticker) => {return "Total " + ticker.split('/')[1].split('0X')[0]},
         key:"total",
         type:"number",
         sortable:false,
@@ -404,9 +405,10 @@ function processFilledOrder(orders) {
     return {
       id: order.id,
       assets: ticker.join('/'),
-      price: order.getPrice() + ' ' + ticker[1],
-      amount: parseFloat(amount) + ' ' + ticker[0],
-      total: total.toLocaleString(navigator.language, {maximumFractionDigits: window.assetsBySymbol[ticker[1]].precision}) + ' ' + ticker[1],
+      pair: <Ticker ticker={ticker.join('/')} withLink={true} />,
+      price: <span>{order.getPrice()} <SymbolToken name={ticker[1]} showIcon={false} /></span>,
+      amount: <span>{amount} <SymbolToken name={ticker[0]} showIcon={false} /></span>,
+      total: <span>{total.toLocaleString(navigator.language, {maximumFractionDigits: window.assetsBySymbol[ticker[1]].precision})} <SymbolToken name={ticker[1]} showIcon={false} /></span>,
       maker: order.seller ? "False" : String(order.is_maker),
       type: order.isBid ? 'BUY' : 'SELL',
       date: order.time.toLocaleString(navigator.language, { day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false }),
@@ -508,9 +510,10 @@ const app = (state = initialState, action) => {
         currentOrders.push(order.id)
         return {
           assets: ticker.join('/'),
-          price: order.getPrice() + ' ' + ticker[1],
-          amount: amount + ' ' + ticker[0],
-          total: total.toLocaleString(navigator.language, {maximumFractionDigits: window.assetsBySymbol[ticker[1]].precision}) + ' ' + ticker[1],
+          pair: <Ticker ticker={ticker.join('/')} withLink={true} />,
+          price: <span>{order.getPrice()} <SymbolToken name={ticker[1]} showIcon={false} /></span>,
+          amount: <span>{amount} <SymbolToken name={ticker[0]} showIcon={false} /></span>,
+          total: <span>{total.toLocaleString(navigator.language, {maximumFractionDigits: window.assetsBySymbol[ticker[1]].precision})} <SymbolToken name={ticker[1]} showIcon={false} /></span>,
           type: order.isBid() ? 'BUY' : 'SELL',
           date: (new Date(order.expiration.setFullYear(order.expiration.getFullYear() - 5))).toLocaleString('en-US', { day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false }),
           id: order.id
