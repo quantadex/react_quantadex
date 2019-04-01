@@ -87,7 +87,7 @@ class Status extends Component {
     switchExNet(net) {
         let current = window.location.pathname.startsWith("/testnet") ? "testnet" : "mainnet"
         if (net == current) return
-        const defaultTicker = net == "mainnet" ? 'ETH_TUSD0X0000000000085D4780B73119B644AE5ECD22B376' : 'ETH_USD'
+        const defaultTicker = net == "mainnet" ? 'ETH_BTC' : 'ETH_USD'
 
         window.location = "/" + net + "/exchange/" + defaultTicker
     }

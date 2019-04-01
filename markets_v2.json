@@ -1,17 +1,23 @@
 {
 	"markets": {
 		"BTC": [
-			{ "name": "QDEX/BTC"},
-			{ "name": "ETH/BTC", "benchmarkSymbol": "BINANCE:ETH/BTC"}
+			{ "name": "ETH/BTC", "benchmarkSymbol": "BINANCE:ETH/BTC"},
+			{
+				"name": "QDEX/BTC"
+			}
 		],
 		"ETH": [
-			{ "name": "QDEX/ETH"},
-			{ "name": "BTC/ETH", "benchmarkSymbol": "BINANCE:BTC/ETH"}
+			{ "name": "BTC/ETH", "benchmarkSymbol": "BINANCE:BTC/ETH"},
+			{
+				"name": "QDEX/ETH"
+			}
 		],
 		"USD": [
-			{ "name": "QDEX/USD"},
 			{ "name": "BTC/USD", "benchmarkSymbol": "BINANCE:BTC/USDT"},
-			{ "name": "ETH/USD", "benchmarkSymbol": "BINANCE:ETH/USDT"}
+			{ "name": "ETH/USD", "benchmarkSymbol": "BINANCE:ETH/USDT"},
+			{
+				"name": "QDEX/USD"
+			}
 		]
 	},
 	"wallet_listing": 
