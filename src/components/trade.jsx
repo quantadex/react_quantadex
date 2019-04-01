@@ -267,14 +267,16 @@ class Trade extends Component {
     notify_success = (toastId, msg) => toast.update(toastId, {
         render: msg,
         type: toast.TYPE.SUCCESS,
-        autoClose: 5000,
-        position: toast.POSITION.TOP_CENTER
+        autoClose: 2000,
+        position: toast.POSITION.TOP_CENTER,
+        pauseOnFocusLoss: false
     });
     notify_failed = (toastId, msg) => toast.update(toastId, {
         render: msg,
         type: toast.TYPE.ERROR,
-        autoClose: 5000,
-        position: toast.POSITION.TOP_CENTER
+        autoClose: 2000,
+        position: toast.POSITION.TOP_CENTER,
+        pauseOnFocusLoss: false
     });
 
     toastMsg(label, success, e) {
@@ -287,7 +289,8 @@ class Trade extends Component {
     }
 
     handleBuy(e) {
-        const label = this.props.currentTicker.split('/')[1] + " " + this.state.price + " @ " + this.state.qty
+        const asset = this.props.currentTicker.split('/')[1].split('0X')
+        const label = asset[0] + (asset[1] ? '0x' + asset[1].substr(0,4) : "") + " " + this.state.price + " @ " + this.state.qty
         const toastId = toast("BUYING " + label, { autoClose: false, position: toast.POSITION.TOP_CENTER });
 
         ReactGA.event({
@@ -311,7 +314,8 @@ class Trade extends Component {
     }
 
     handleSell(e) {
-        const label = this.props.currentTicker.split('/')[1] + " " + this.state.price + " @ " + this.state.qty
+        const asset = this.props.currentTicker.split('/')[1].split('0X')
+        const label = asset[0] + (asset[1] ? '0x' + asset[1].substr(0,4) : "") + " " + this.state.price + " @ " + this.state.qty
         const toastId = toast("SELLING " + label, { autoClose: false, position: toast.POSITION.TOP_CENTER });
 
         ReactGA.event({

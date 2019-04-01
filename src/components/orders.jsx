@@ -242,14 +242,16 @@ class Orders extends Component {
   notify_success = (toastId) => toast.update(toastId, {
     render: "Order cancelled",
     type: toast.TYPE.SUCCESS,
-    autoClose: 5000,
-    position: toast.POSITION.TOP_CENTER
+    autoClose: 2000,
+    position: toast.POSITION.TOP_CENTER,
+    pauseOnFocusLoss: false
   });
   notify_failed = (toastId) => toast.update(toastId, {
     render: "Unable to cancel order",
     type: toast.TYPE.ERROR,
-    autoClose: 5000,
-    position: toast.POSITION.TOP_CENTER
+    autoClose: 2000,
+    position: toast.POSITION.TOP_CENTER,
+    pauseOnFocusLoss: false
   });
 
   handleCancel(market, order) {
