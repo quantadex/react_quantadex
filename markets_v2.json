@@ -1,22 +1,25 @@
 {
 	"markets": {
 		"BTC": [
-			{ "name": "ETH/BTC", "benchmarkSymbol": "BINANCE:ETH/BTC"},
+			{ "name": "ETH/BTC", "benchmarkSymbol": "BINANCE:ETH/BTC", "pricePrecision": 6},
 			{
-				"name": "QDEX/BTC"
+				"name": "QDEX/BTC",
+				"pricePrecision": 6
 			}
 		],
 		"ETH": [
-			{ "name": "BTC/ETH", "benchmarkSymbol": "BINANCE:BTC/ETH"},
+			{ "name": "BTC/ETH", "benchmarkSymbol": "BINANCE:BTC/ETH",
+				"pricePrecision": 6},
 			{
-				"name": "QDEX/ETH"
+				"name": "QDEX/ETH",
+				"pricePrecision": 6
 			}
 		],
 		"USD": [
-			{ "name": "BTC/USD", "benchmarkSymbol": "BINANCE:BTC/USDT"},
-			{ "name": "ETH/USD", "benchmarkSymbol": "BINANCE:ETH/USDT"},
+			{ "name": "BTC/USD", "benchmarkSymbol": "BINANCE:BTC/USDT", "pricePrecision": 2},
+			{ "name": "ETH/USD", "benchmarkSymbol": "BINANCE:ETH/USDT", "pricePrecision": 2},
 			{
-				"name": "QDEX/USD"
+				"name": "QDEX/USD", "pricePrecision": 2
 			}
 		]
 	},
