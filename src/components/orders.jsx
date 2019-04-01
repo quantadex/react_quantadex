@@ -162,7 +162,7 @@ const container = css`
       }
 
       .item-assets {
-        width: 30%;
+        width: 50%;
       }
       .item-price {
         width:50%;
@@ -242,14 +242,16 @@ class Orders extends Component {
   notify_success = (toastId) => toast.update(toastId, {
     render: "Order cancelled",
     type: toast.TYPE.SUCCESS,
-    autoClose: 5000,
-    position: toast.POSITION.TOP_CENTER
+    autoClose: 2000,
+    position: toast.POSITION.TOP_CENTER,
+    pauseOnFocusLoss: false
   });
   notify_failed = (toastId) => toast.update(toastId, {
     render: "Unable to cancel order",
     type: toast.TYPE.ERROR,
-    autoClose: 5000,
-    position: toast.POSITION.TOP_CENTER
+    autoClose: 2000,
+    position: toast.POSITION.TOP_CENTER,
+    pauseOnFocusLoss: false
   });
 
   handleCancel(market, order) {
@@ -333,11 +335,11 @@ class Orders extends Component {
             return (
               <div key={row.id} className="list-row" onClick={() => this.toggleDetails(row.id)}>
                 <div className="d-flex list-item">
-                  <span className="item-assets">{row.assets}</span>
+                  <span className="item-assets">{row.pair}</span>
                   <span className="item-price text-right">{row.price}</span>
                   <span className={"text-right item-type item-type-" + row.type}>{row.type}</span>
                 </div>
-                <div className={"item-details" + (this.state.selectedRow == row.id ? " active" : "")}>
+                <div className={"item-details mt-2" + (this.state.selectedRow == row.id ? " active" : "")}>
                   <span className="item"><span className="label">AMOUNT</span> {row.amount}</span>
                   <span className="item"><span className="label">TOTAL</span> {row.total}</span>
                   <button disabled={!this.props.private_key} 
@@ -379,12 +381,12 @@ class Orders extends Component {
             return (
               <div key={row.id + index} className="list-row" onClick={() => this.toggleDetails(index)}>
                 <div className="d-flex list-item">
-                  <span className="item-assets">{row.assets}</span>
+                  <span className="item-assets">{row.pair}</span>
                   <span className="item-price text-right">{row.price}</span>
                   <span className="item-status text-right">{row.status}</span>
                   <span className={"text-right item-type item-type-" + row.type}>{row.type}</span>
                 </div>
-                <div className={"item-details" + (this.state.selectedRow == index ? " active" : "")}>
+                <div className={"item-details mt-2" + (this.state.selectedRow == index ? " active" : "")}>
                   <span className="item"><span className="label">AMOUNT</span> {row.amount}</span>
                   <span className="item"><span className="label">TOTAL</span> {row.total}</span>
                 </div>

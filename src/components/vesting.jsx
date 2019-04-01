@@ -61,8 +61,9 @@ class Vesting extends Component {
     this.setState({claim_status})
     this.props.dispatch(genesis ? withdrawGenesis({balance_id, amount, asset}) : withdrawVesting({balance_id, amount, asset})).then(e => {
       toast.success(`Successfully claimed ${display_amount}.`, {
-        autoClose: 5000,
-        position: toast.POSITION.TOP_CENTER
+        autoClose: 2000,
+        position: toast.POSITION.TOP_CENTER,
+        pauseOnFocusLoss: false
       })
       
       if (genesis) {
@@ -73,8 +74,9 @@ class Vesting extends Component {
 
     }).catch(e => {
       toast.error("Unable to claim balance. Please try again.", {
-        autoClose: 5000,
-        position: toast.POSITION.TOP_CENTER
+        autoClose: 2000,
+        position: toast.POSITION.TOP_CENTER,
+        pauseOnFocusLoss: false
       })
     }).finally(() => {
       claim_status[balance_id] = false

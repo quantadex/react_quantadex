@@ -514,7 +514,8 @@ export function switchTicker(ticker, force_init=false) {
 					if (!disconnect_notified) {
 						disconnect_notified = toast.error("Lost connection to server. Please refresh the page.", {
 							position: toast.POSITION.TOP_CENTER,
-							autoClose: false
+							autoClose: false,
+							pauseOnFocusLoss: false
 						});
 					}
 					

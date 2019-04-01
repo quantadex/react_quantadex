@@ -396,8 +396,9 @@ function processFilledOrder(orders) {
         </div>)
         toastId = toast.success(msg, {
                     position: toast.POSITION.TOP_CENTER,
-                    autoClose: 5000,
-                    toastId: order.id
+                    autoClose: 2000,
+                    toastId: order.id,
+                    pauseOnFocusLoss: false
                   });
       }
     }

@@ -81,13 +81,15 @@ class Referral extends Component {
     this.props.dispatch(accountUpgrade()).then(e => {
       sessionStorage.setItem("lifetime", "true")
       toast.success(`Successfully upgrade account.`, {
-        autoClose: 5000,
-        position: toast.POSITION.TOP_CENTER
+        autoClose: 2000,
+        position: toast.POSITION.TOP_CENTER,
+        pauseOnFocusLoss: false
       })
     }).catch(error => {
       toast.error(error, {
-        autoClose: 5000,
-        position: toast.POSITION.TOP_CENTER
+        autoClose: 2000,
+        position: toast.POSITION.TOP_CENTER,
+        pauseOnFocusLoss: false
       })
     }).finally(() => {
         self.setState({confirmDialog: false})
