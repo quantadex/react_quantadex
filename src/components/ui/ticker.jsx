@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import CONFIG from '../../config'
 import { css } from 'emotion'
+import ReactTooltip from 'react-tooltip'
 
 const container = css`
 	font-family: SFCompactTextRegular;
@@ -53,7 +54,10 @@ export const SymbolToken = ({ name, showIcon = true, withLink= true }) => {
 		: <span className="issuer-tag qt-font-light">0x{token[1].substr(0, 4)}</span>)
 		}
 		{showIcon && (CONFIG.getEnv().CROSSCHAIN_COINS.includes(name) || name.split("0X").length == 2) ? 
-			<img className="crosschain-icon" src={devicePath("public/images/crosschain-coin.svg")} title="Crosschain" />
+			<span className="position-relative crosschain-icon">
+				<img src={devicePath("public/images/crosschain-coin.svg")} data-tip="Secured & managed by QUANTA crosschain technology." data-place="right" />
+				<ReactTooltip multiline={true}/>
+			</span>
 			: null
 		}</span>
 	)

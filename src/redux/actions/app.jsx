@@ -12,6 +12,7 @@ import { aggregateOrderBook, convertHistoryToOrderedSet } from "../../common/Pri
 import ReactGA from 'react-ga';
 import { toast } from 'react-toastify';
 import CONFIG from '../../config.js'
+import Utils from "../../common/utils.js";
 
 export const INIT_DATA = 'INIT_DATA';
 export const LOGIN = 'LOGIN';
@@ -390,12 +391,21 @@ export const AccountLogin = (private_key) => {
 					throw "No account for public key: " + publicKey
 				})
 			
+		}).catch(error => {
+			throw "Cannot connect to server"
 		})
 	}
 }
 
+window.binance_price = {"BTCUSDT": 0, "ETHUSDT": 0}
+const binance_socket = new WebSocket('wss://stream.binance.com:9443/stream?streams=btcusdt@miniTicker/ethusdt@miniTicker');
+binance_socket.addEventListener('message', function (event) {
+	const data = JSON.parse(event.data).data
+	window.binance_price[data.s] = data.c
+});
 
 var disconnect_notified
+var market_depth_time
 export function switchTicker(ticker, force_init=false) {
 	Apis.setAutoReconnect(true)
 	// send GA
@@ -486,13 +496,28 @@ export function switchTicker(ticker, force_init=false) {
 							Apis.instance()
 								.db_api()
 								.exec("get_24_volume", [counter.id, base.id])])
+
+							if (!market_depth_time || ((new Date()) - market_depth_time) > (60*5*1000)) {
+								const depth = await Apis.instance().db_api().exec("get_order_book", [counter.id, base.id, 50])
+								let asks_depth = depth.asks.reduce((total, next) => {
+									return total + parseFloat(next.base)
+								}, 0)
+								let bids_depth = depth.bids.reduce((total, next) => {
+									return total + parseFloat(next.base)
+								}, 0)
+								
+								window.allMarketsByHash[pair.name].depth = asks_depth + bids_depth
+							}
 							
 							if (!marketData[market]) {
 								marketData[market] = []
 							}
+							let latest = data[0].latest === "0" ? (parseFloat(data[0].highest_bid) + parseFloat(data[0].lowest_ask))/2 : data[0].latest
+							latest = Utils.maxPrecision(latest, window.allMarketsByHash[pair.name].pricePrecision)
+							window.allMarketsByHash[pair.name].last = latest
 							marketData[market].push({
 								name: pair.name,
-								last: data[0].latest,
+								last: latest,
 								base_volume: data[1].base_volume,
 								quote_volume: data[1].quote_volume
 							})
@@ -502,6 +527,7 @@ export function switchTicker(ticker, force_init=false) {
 							}
 						}
 					}
+					market_depth_time = new Date()
 
 					window.USD_value = USD_value
 					dispatch({

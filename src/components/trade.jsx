@@ -259,7 +259,8 @@ class Trade extends Component {
             currentTicker: nextProps.currentPrice.ticker, 
             currentPrice: nextProps.currentPrice.price, 
             price: nextProps.currentPrice.price, 
-            qty: 0
+            qty: 0,
+            total: 0
           })
         }
     }

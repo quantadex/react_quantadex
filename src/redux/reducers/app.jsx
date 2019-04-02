@@ -481,6 +481,10 @@ const app = (state = initialState, action) => {
           time: moment(trade.time || "").utc().format("HH:mm:ss")
         }
       })
+
+      if (lastTradePrice === undefined) {
+        lastTradePrice = window.allMarketsByHash[action.data.ticker].last
+      }
       
       var spread = undefined
       var spreadDollar = 0

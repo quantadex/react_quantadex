@@ -128,18 +128,22 @@ class Dashboard extends Component {
 							<tr>
 								<td>Pairs</td>
 								<td className="text-right">Price</td>
-								<td className="text-right">Volume</td>
+								<td className="text-right">Depth</td>
 							</tr>
 						</thead>
 						<tbody>
 							{
 								lodash.sortBy(this.props.markets[subtabs.names[this.state.selectedCoin]], 'base_volume').reverse().filter(market => market.name.toLowerCase().includes(this.state.filter)).map((market, index) => {
+									let pair = market.name.split('/')
+									let usd_price = pair[1] === "ETH" ? window.binance_price["ETHUSDT"] 
+													: (pair[1] === "BTC" ? window.binance_price["BTCUSDT"] 
+														: pair[1].startsWith("TUSD") || pair[1] == "USD" ? 1 : 0)
 									return <tr key={index} onClick={() => this.switchMarket(market.name)}>
 										<td className="market">
-											<SymbolToken name={market.name.split('/')[0]} showIcon={false} withLink={false} />
+											<SymbolToken name={pair[0]} showIcon={false} withLink={false} />
 										</td>
 										<td className="text-right">{market.last}</td>
-										<td className="text-right">{market.base_volume}</td>
+										<td className="text-right">{window.allMarketsByHash[market.name].depth == 0 || usd_price == 0 ? "-" : "$" + Math.round(window.allMarketsByHash[market.name].depth * parseFloat(usd_price))}</td>
 									</tr>
 								})
 							}
