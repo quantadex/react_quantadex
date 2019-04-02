@@ -129,7 +129,8 @@ class Dashboard extends Component {
 							<tr>
 								<td>Pairs</td>
 								<td className="text-right">Price</td>
-								<td className="text-right">Depth</td>
+								<td className="text-right">
+								<img src={devicePath("public/images/question.png")} data-tip="The market depth for this token on the QUANTA Network" /> Depth</td>
 							</tr>
 						</thead>
 						<tbody>
@@ -143,7 +144,7 @@ class Dashboard extends Component {
 										<td className="market">
 											<SymbolToken name={pair[0]} showIcon={false} withLink={false} />
 										</td>
-										<td className="text-right">{market.last}</td>
+										<td className="text-right">{market.last == 0 ? "-" : market.last}</td>
 										<td className="text-right">{window.allMarketsByHash[market.name].depth == 0 || usd_price == 0 ? "-" : "$" + Math.round(window.allMarketsByHash[market.name].depth * parseFloat(usd_price))}</td>
 									</tr>
 								})

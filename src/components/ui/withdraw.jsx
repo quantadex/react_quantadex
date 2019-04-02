@@ -12,6 +12,7 @@ import { toast } from 'react-toastify';
 import TxDialog from './transaction_dialog.jsx'
 import { transferFund } from '../../redux/actions/app.jsx'
 import Utils from '../../common/utils'
+import ReactTooltip from 'react-tooltip'
 
 const container = css`
   margin:0 -15px;
@@ -65,7 +66,7 @@ const container = css`
   }
 
   img {
-    vertical-align: baseline;
+    vertical-align: text-bottom;
   }
   
   .close-dialog {
@@ -124,10 +125,6 @@ class QTWithdraw extends React.Component {
   }
 
   componentDidMount() {
-    $(function(){
-      $('[data-toggle="tooltip"]').tooltip();   
-    });
-
     let fee_asset = "1.3.0"
     let tr = new TransactionBuilder();
     let transfer_op = tr.get_type_operation("transfer", {
@@ -260,9 +257,9 @@ class QTWithdraw extends React.Component {
           : null}
         <div className="mb-3">
           <label className="my-0">DESTINATION ACCOUNT</label>
-          <div className="d-inline ml-2 cursor-pointer" data-toggle="tooltip" data-placement="right" 
-            title="Withdraw requires funds to go back to the QUANTA cross-chain issuer for processing.">
-              <img src={devicePath("public/images/question.svg")} />
+          <div className="d-inline ml-2 cursor-pointer" 
+            data-tip="Withdraw requires funds to go back to the QUANTA cross-chain issuer for processing.">
+              <img src={devicePath("public/images/question.png")} />
           </div>
           <input type="text" readOnly value={this.state.issuer || ""}/>
         </div>
@@ -272,9 +269,9 @@ class QTWithdraw extends React.Component {
         </div>
         <div className="mb-3">
           <label className="my-0">BENEFICIARY ADDRESS</label>
-          <div className="d-inline ml-2 cursor-pointer" data-toggle="tooltip" data-placement="right" 
-            title="Specify the outgoing address where you want to withdraw your tokens.">
-              <img src={devicePath("public/images/question.svg")} />
+          <div className="d-inline ml-2 cursor-pointer" 
+            data-tip="Specify the outgoing address where you want to withdraw your tokens.">
+              <img src={devicePath("public/images/question.png")} />
           </div>
           {this.state.error && <span className="text-danger float-right">{this.state.errorMsg}</span>}
           <input type="text" spellCheck="false" value={this.state.memo} 
@@ -319,6 +316,7 @@ class QTWithdraw extends React.Component {
             cancel={() => this.closeTransaction()} 
             submit={() => this.submitTransfer()} />
         }
+        <ReactTooltip multiline={true}/>
       </div>
     );
   }
