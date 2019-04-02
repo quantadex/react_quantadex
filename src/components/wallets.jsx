@@ -8,6 +8,7 @@ import QTDeposit from './ui/deposit.jsx'
 import QTWithdraw from './ui/withdraw.jsx'
 import SearchBox from "./ui/searchBox.jsx"
 import Switch from "./ui/switch.jsx"
+import ReactGA from 'react-ga';
 
 const container = css`
   .public-address-container {
@@ -233,6 +234,10 @@ class Wallets extends Component {
           label: "DEPOSIT",
           color:"theme unite",
           handleClick: (asset, close) => {
+            ReactGA.event({
+              category: 'DEPOSIT_EXPAND',
+              action: asset
+            });
             return <QTDeposit asset={asset} handleClick={close} quantaAddress={this.props.name} 
             isETH={(["ETH", "ERC20"].includes(asset) || asset.split("0X").length == 2)}
             setAddress={this.setAddress.bind(this)}

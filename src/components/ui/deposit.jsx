@@ -8,6 +8,7 @@ import {SymbolToken} from './ticker.jsx'
 import { css } from 'emotion'
 import globalcss from '../global-css.js'
 import Loader from './loader.jsx'
+import ReactGA from 'react-ga';
 
 const container = css`
   position: relative;
@@ -44,7 +45,7 @@ const container = css`
     border-radius: 2px;
   }
 
-  button:disabled {
+  button:disabled, .disabled {
     background-color: #999;
   }
 
@@ -196,7 +197,18 @@ class QTDeposit extends React.Component {
     document.execCommand("copy");
   }
 
+  logClick = () => {
+    ReactGA.event({
+      category: 'Click',
+      action: 'deploy_contract_disabled'
+    });
+  }
+
   DeployCrossChain = () => {
+    ReactGA.event({
+      category: 'Click',
+      action: 'deploy_contract_enabled'
+    });
     const self = this
 		const { quantaAddress } = this.props;
 		if (!web3) {
@@ -324,8 +336,8 @@ class QTDeposit extends React.Component {
             }
 
             <div className="d-flex align-items-center mt-5 mb-3">
-              <button className="mr-4 cursor-pointer" disabled={!this.state.metamask_acc}
-                onClick={this.DeployCrossChain}>Deploy Contract</button>
+              <button className={"mr-4 cursor-pointer" + (this.state.metamask_acc ? "" : " disabled")}
+                onClick={this.state.metamask_acc ? this.DeployCrossChain : this.logClick}>Deploy Contract</button>
               <div className={"warning" + (this.state.metamask_acc ? " invisible" : "")}>Please login on Metamask to deploy Contract</div>
             </div>
 
