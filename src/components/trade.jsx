@@ -345,7 +345,7 @@ class Trade extends Component {
 
     setPercentAmount(perc, symbol) {
       const coin = window.assetsBySymbol[symbol].id
-      const amount = this.props.balance[coin].balance * (parseInt(perc)/100)
+      const amount = this.props.balance[coin] ? this.props.balance[coin].balance * (parseInt(perc)/100) : 0
 
       let qty, total
       if (this.state.trade_side == 0) {

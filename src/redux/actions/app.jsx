@@ -453,14 +453,16 @@ export function switchTicker(ticker, force_init=false) {
 		function action(ticker) {
 			var {base, counter} = getBaseCounter(ticker)
 
-			const tmpOrder = createLimitOrderWithPrice("1.2.0", true, window.assets, base.id, counter.id, 1, 1)
-			const tr = createLimitOrder2(tmpOrder)
-			tr.set_required_fees().then(e => {
-				dispatch({
-					type: UPDATE_FEE,
-					data: tr.operations[0][1].fee
+			if (base && counter) {
+				const tmpOrder = createLimitOrderWithPrice("1.2.0", true, window.assets, base.id, counter.id, 1, 1)
+				const tr = createLimitOrder2(tmpOrder)
+				tr.set_required_fees().then(e => {
+					dispatch({
+						type: UPDATE_FEE,
+						data: tr.operations[0][1].fee
+					})
 				})
-			})
+			}
 
 			async function fetchData(ticker, first=false) {
 				var {base, counter} = getBaseCounter(ticker)
