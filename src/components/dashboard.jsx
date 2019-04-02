@@ -98,7 +98,7 @@ class Dashboard extends Component {
 			names: Object.keys(this.props.markets),
 			selectedTabIndex: 0,
 		}
-		console.log(this.props.markets[subtabs.names[this.state.selectedCoin]]);
+		// console.log(this.props.markets[subtabs.names[this.state.selectedCoin]]);
 
 		return (
 			<div className={container + (this.props.mobile ? " mobile" : "")} onClick={e => e.stopPropagation()}>
