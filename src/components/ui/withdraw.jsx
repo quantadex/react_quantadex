@@ -155,7 +155,7 @@ class QTWithdraw extends React.Component {
 
   validateAddress(address) {
     let coin = this.state.asset == "BTC" ? "BTC" : "ETH"
-    let valid = WAValidator.validate(address, coin, 'testnet')
+    let valid = WAValidator.validate(address, coin, this.props.network == "testnet" ? "testnet" : "prod")
 
     if (!valid) {
       this.setState({error: true, errorMsg: "Invalid address"})
@@ -324,4 +324,8 @@ class QTWithdraw extends React.Component {
   }
 }
 
-export default connect()(QTWithdraw);
+
+const mapStateToProps = (state) => ({
+  network: state.app.network
+});
+export default connect(mapStateToProps)(QTWithdraw);

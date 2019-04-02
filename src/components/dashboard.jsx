@@ -93,11 +93,12 @@ class Dashboard extends Component {
 		// 	names: ['All','Trading','Favorites'],
 		// 	selectedTabIndex: 0
 		// }
-
+		
 		const subtabs = {
 			names: Object.keys(this.props.markets),
 			selectedTabIndex: 0,
 		}
+		console.log(this.props.markets[subtabs.names[this.state.selectedCoin]]);
 
 		return (
 			<div className={container + (this.props.mobile ? " mobile" : "")} onClick={e => e.stopPropagation()}>
@@ -133,7 +134,7 @@ class Dashboard extends Component {
 						</thead>
 						<tbody>
 							{
-								lodash.sortBy(this.props.markets[subtabs.names[this.state.selectedCoin]], 'base_volume').reverse().filter(market => market.name.toLowerCase().includes(this.state.filter)).map((market, index) => {
+								this.props.markets[subtabs.names[this.state.selectedCoin]] && this.props.markets[subtabs.names[this.state.selectedCoin]].filter(market => market.name.toLowerCase().includes(this.state.filter)).map((market, index) => {
 									let pair = market.name.split('/')
 									let usd_price = pair[1] === "ETH" ? window.binance_price["ETHUSDT"] 
 													: (pair[1] === "BTC" ? window.binance_price["BTCUSDT"] 
@@ -155,6 +156,7 @@ class Dashboard extends Component {
 	}
 }
 
+// lodash.sortBy(this.props.markets[subtabs.names[this.state.selectedCoin]], 'base_volume')
 
 const mapStateToProps = (state) => ({
 	markets: state.app.markets,
