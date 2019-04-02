@@ -442,6 +442,9 @@ export function switchTicker(ticker, force_init=false) {
 					action(ticker)
 				});
 			})
+			.catch(e => {
+				Rollbar.error("Failed to initialize Apis socket", e);
+			})
 			
 		} else {
 				action(ticker)
@@ -463,7 +466,9 @@ export function switchTicker(ticker, force_init=false) {
 				var {base, counter} = getBaseCounter(ticker)
 				try {
 					if (!window.markets) {
-						const markets = await fetch(CONFIG.getEnv().MARKETS_JSON).then(e => e.json())
+						const markets = await fetch(CONFIG.getEnv().MARKETS_JSON).then(e => e.json()).catch(e => {
+							Rollbar.error("Failed to get Markets JSON", e);
+						})
 						window.markets = markets.markets
 						window.marketsHash = Object.keys(markets.markets).reduce(function (previous, key) {
 							let ob = lodash.keyBy({...markets.markets[key]}, "name")

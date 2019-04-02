@@ -46,6 +46,7 @@
     "redux": "^3.7.2",
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.2.0",
+    "rollbar": "^2.5.4",
     "stellar-base": "0.9.0",
     "stellar-sdk": "^0.8.2",
     "validatorjs": "^3.14.2",

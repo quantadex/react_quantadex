@@ -12,7 +12,11 @@ class Chart extends Component {
   }
   componentDidMount() {
     if (this.props.currentTicker != null) {
-      this.initChart()
+      try {
+        this.initChart()
+      } catch (e) {
+        Rollbar.error("Failed to load chart: " + this.props.currentTicker, e);
+      }
     }
   }
 
@@ -181,7 +185,11 @@ class Chart extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    try {
       this.initChart(nextProps.currentTicker)
+    } catch (e) {
+      Rollbar.error("Failed to load chart: " + nextProps.currentTicker, e);
+    }
   }
 
   componentDidUpdate() {
