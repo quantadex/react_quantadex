@@ -357,7 +357,7 @@ export const AccountLogin = (private_key) => {
 	return (dispatch, getState) => {
 		const pKey = PrivateKey.fromWif(private_key);
 		let publicKey = pKey.toPublicKey().toString()
-		
+
 		return Apis.instance()
 		.db_api()
 		.exec("get_key_references", [[publicKey]])
@@ -392,7 +392,7 @@ export const AccountLogin = (private_key) => {
 				})
 			
 		}).catch(error => {
-			throw "Cannot connect to server"
+			throw "No account for public key: " + publicKey
 		})
 	}
 }

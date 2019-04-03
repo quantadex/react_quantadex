@@ -5,19 +5,11 @@ import { css } from 'emotion'
 import { Link } from 'react-router-dom'
 import HamburgerMenu from './ui/hamburger_menu.jsx'
 import Lock from './ui/account_lock.jsx'
-import ConnectDialog from './connect.jsx';
+import Connect from './connect.jsx';
 
 const container = css`
 	height: 52px;
   width:100%;
-  position:relative;
-
-  .back-link {
-    position:absolute;
-    left:0;
-    top: 50%;
-    transform: translateY(-50%);
-  }
 
   .back-link:before {
     background-image: url(${devicePath("public/images/menu-arrow-left.svg")});
@@ -31,10 +23,6 @@ const container = css`
   }
 
   .menu {
-    position:absolute;
-    right:0;
-    top: 50%;
-    transform: translateY(-50%);
 		display:flex;
 
 		.name {
@@ -47,34 +35,24 @@ const container = css`
     height:19px;
     background-image: url(${devicePath("public/images/group-4.svg")});
     background-size:cover;
-    position:absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%,-50%);
   }
 `;
 
 class Header extends Component {
-  handleConnectDialog() {
-		setTimeout(() => {
-			document.getElementById("connect-dialog").style.display = "flex"
-		}, 0)
-  }
   
 	render() {
 		return (
       <React.Fragment>
-			<div className={container + " qt-font-small"}>
+			<div className={container + " qt-font-small d-flex justify-content-between align-items-center"}>
         <Link to={"/" + this.props.network + "/exchange/" + (this.props.currentTicker ? this.props.currentTicker.replace("/", "_") : "")} className="back-link">Back to Exchange</Link>
 
         <Link to={"/" + this.props.network + "/exchange/" + (this.props.currentTicker ? this.props.currentTicker.replace("/", "_") : "")} className="logo"></Link>
 				<div className="menu">
 					<span className="name mr-3">{this.props.name}</span>
-					<Lock unlock={() => this.handleConnectDialog()} />
+					<Connect type="lock" />
 					<HamburgerMenu />
 				</div>
 			</div>
-      {this.props.private_key ? null : <ConnectDialog default="connect" />}
       </React.Fragment>
 		);
 	}

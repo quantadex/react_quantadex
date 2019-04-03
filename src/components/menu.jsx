@@ -5,7 +5,7 @@ import moment from 'moment';
 import { css } from 'emotion'
 import globalcss from './global-css.js'
 import HamburgerMenu from './ui/hamburger_menu.jsx'
-import Lock from './ui/account_lock.jsx'
+import Connect from './connect.jsx';
 
 const container = css`
 	padding: 0 20px;
@@ -32,12 +32,12 @@ const container = css`
 
 class Menu extends Component {
   render() {
-		const {private_key, isMobile, style, name} = this.props
+		const {isMobile, style, name} = this.props
     return (
       <div className={container + (isMobile ? " mobile" : "")}  style={style}>
 				<div className="row qt-font-bold qt-font-small justify-content-end">
 					<span className="name mr-3">{name}</span>
-					<Lock unlock={() => this.props.unlock("connect")} />
+					<Connect type="lock" />
 					{this.props.name && <HamburgerMenu />}
 				</div>
       </div>

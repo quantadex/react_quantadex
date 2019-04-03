@@ -8,7 +8,7 @@ import Menu from './menu.jsx';
 import Orders from './orders.jsx';
 import Trade from './trade.jsx';
 import Balance from './balance.jsx';
-import { ConnectLink, Connect } from './connect.jsx';
+import Connect from './connect.jsx';
 import Status from './status.jsx'
 import ToolTip from './ui/tooltip.jsx'
 import Switch from './ui/switch.jsx';
@@ -187,13 +187,6 @@ class Exchange extends Component {
 		this.resizeDepthChart()
 	}
 
-	handleConnectDialog(type) {
-		this.setState({dialog: type})
-		setTimeout(() => {
-			document.getElementById("connect-dialog").style.display = "flex"
-		}, 0)
-	}
-
 	toggleBenchmarkPrice() {
 		this.setState({ showBenchmark: !this.state.showBenchmark })
 	}
@@ -215,13 +208,13 @@ class Exchange extends Component {
 			<div className={container}>
 				<div className="d-flex">
 					<Header />
-					{this.props.publicKey ? <Menu unlock={this.handleConnectDialog.bind(this)} /> : <ConnectLink onOpen={this.handleConnectDialog.bind(this)} />}
+					{this.props.publicKey ? <Menu /> : <Connect type="link" />}
 				</div>
 				<div className="content d-flex">
 					<section className="compartment left-cols">
 						<Trade />
 						<hr/>
-						{this.props.publicKey ? <Balance /> : <Connect onOpen={this.handleConnectDialog.bind(this)} />}
+						{this.props.publicKey ? <Balance /> : <Connect/>}
 					</section>
 					<section className="compartment left-cols">
 						<OrderBook />

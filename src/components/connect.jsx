@@ -6,6 +6,7 @@ import { PrivateKey, changeWalletPassword, decryptWallet, encryptWallet } from "
 import WalletApi from "../common/api/WalletApi";
 import QTTabBar from './ui/tabBar.jsx'
 import Loader from '../components/ui/loader.jsx'
+import Lock from './ui/account_lock.jsx'
 import CONFIG from '../config.js'
 
 const container = css`
@@ -210,26 +211,48 @@ const dialog = css`
     }
 `
 
-class ConnectLink extends Component {
-    render() {
-        return (
-            <div className={container + " link cursor-pointer" + (this.props.isMobile ? " mobile" : "")} onClick={() => this.props.onOpen("connect")}>CONNECT WALLET</div>
-        )
-    }
-    
-} 
-
 class Connect extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            showDialog: false,
+            dialogType: "connect"
+        };
+    }
+
+    openDialog(dialogType) {
+        this.setState({showDialog: true, dialogType})
+    }
+
+    closeDialog() {
+        this.setState({showDialog: false})
+    }
+
     render() {
         return (
-            <div className={container}>
-                <p>Connect your <span className="qt-font-bold">Quanta</span> wallet to start trading in this market.</p>
-                <button onClick={() => this.props.onOpen("create")}>GET STARTED</button>
-                <div>
-                    or<br/>
-                    <div className="connect-link" onClick={() => this.props.onOpen("connect")}>Connect Wallet</div>
+            <React.Fragment>
+                {
+                    this.props.type == "link" ? 
+                    <div className={container + " link cursor-pointer" + (this.props.isMobile ? " mobile" : "")} onClick={() => this.openDialog("connect")} >CONNECT WALLET</div>
+                :   this.props.type == "lock" ?
+                    <Lock unlock={() => this.openDialog("connect")}/>
+                    :
+                    <div className={container}>
+                        <p>Connect your <span className="qt-font-bold">Quanta</span> wallet to start trading in this market.</p>
+                        <button onClick={() => this.openDialog("create")}>GET STARTED</button>
+                        <div>
+                            or<br/>
+                            <div className="connect-link" onClick={() => this.openDialog("connect")}>Connect Wallet</div>
+                        </div>
                 </div>
-            </div>
+                }
+                {!this.props.private_key && this.state.showDialog ? 
+                    <ConnectDialog default={this.state.dialogType} 
+                        close={this.closeDialog.bind(this)} 
+                        dispatch={this.props.dispatch}
+                        network={this.props.network} /> 
+                    : null}
+            </React.Fragment>
         )
     }
 }
@@ -265,19 +288,18 @@ class ConnectDialog extends Component {
 
     componentDidMount() {
         const search = window.location.search.slice(1).split("=")
-        const referrer = search[search.indexOf("referrer") + 1]
+        const referrer = search.indexOf("referrer") !== -1 && search[search.indexOf("referrer") + 1]
         if (!referrer) return
         
         this.setState({referrer})
-        setTimeout(() => {
-            GetAccount(referrer).then(e => {
-                if (e.membership_expiration_date !== "1969-12-31T23:59:59") {
-                    this.setState({referrer_error: "Referrer account is not a lifetime member - user need to activate the referral program"})
-                }
-            }).catch(error => {
-                this.setState({referrer_error: "Referrer account does not exist"})
-            })
-        }, 1000)
+        
+        GetAccount(referrer).then(e => {
+            if (e.membership_expiration_date !== "1969-12-31T23:59:59") {
+                this.setState({referrer_error: "Referrer account is not a lifetime member - user need to activate the referral program"})
+            }
+        }).catch(error => {
+            this.setState({referrer_error: "Referrer account does not exist"})
+        })
     }
 
     componentWillReceiveProps(nextProps) {
@@ -298,10 +320,10 @@ class ConnectDialog extends Component {
         })
     }
 
-    closeDialog() {
-        document.getElementById("connect-dialog").style.display = "none"
-        this.resetInputs()
-    }
+    // closeDialog() {
+    //     document.getElementById("connect-dialog").style.display = "none"
+    //     this.resetInputs()
+    // }
     
     handleSwitch(index) {
         this.setState({selectedTabIndex: Number(index)})
@@ -722,12 +744,11 @@ class ConnectDialog extends Component {
     }
 
     render() {
-
         return (
-            <div id="connect-dialog" className={dialog + (this.props.isMobile ? " mobile" : "")} style={{display: "none"}} 
+            <div id="connect-dialog" className={dialog + " d-flex align-content-center qt-font-regular" + (this.props.isMobile ? " mobile" : "")} 
                 onDragOver={(e)=> e.preventDefault()} onDrop={(e) => e.preventDefault()}>
                 <div className={"container " + this.props.network}>
-                    <div className="close-btn" onClick={() => this.closeDialog()}><img src={devicePath("public/images/close_btn.svg")} /></div>
+                    <div className="close-btn" onClick={this.props.close}><img src={devicePath("public/images/close_btn.svg")} /></div>
                     {this.state.dialogType == "create" ? 
                         this.state.regStep == 1 ? <this.KeyCreate /> : <this.KeyDownload /> :
                         <this.KeyConnect />
@@ -742,8 +763,7 @@ class ConnectDialog extends Component {
 } 
 
 const mapStateToProps = (state) => ({
-    currentTicker: state.app.currentTicker,
-    network: state.app.network
+    network: state.app.network,
+    private_key: state.app.private_key
 });
-export default connect(mapStateToProps)(ConnectDialog)
-export { Connect, ConnectLink }
+export default connect(mapStateToProps)(Connect)

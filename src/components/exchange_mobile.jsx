@@ -8,7 +8,7 @@ import MobileHeader from './ui/mobileHeader.jsx';
 import Orders from './orders.jsx';
 import Trade from './trade.jsx';
 import Balance from './balance.jsx'
-import ConnectDialog, { Connect } from './connect.jsx';
+import Connect from './connect.jsx';
 import Status from './status.jsx'
 import MobileNav from './ui/mobileNav.jsx';
 import { ToastContainer } from 'react-toastify';
@@ -142,13 +142,6 @@ class Exchange extends Component {
 		this.toggleMarketsList(null, true)
 	}
 
-	handleConnectDialog(type) {
-		this.setState({dialog: type})
-		setTimeout(() => {
-			document.getElementById("connect-dialog").style.display = "flex"
-		}, 0)
-	}
-
 	toggleMarketsList(e, force = false) {
 		const list = document.getElementById("market-list")
 		if (force) {
@@ -176,8 +169,8 @@ class Exchange extends Component {
 				</div>
 			)
 		}
-		const content = [this.props.publicKey ? <div><Trade mobile={true} /><Balance /></div> : <Connect onOpen={this.handleConnectDialog.bind(this)}/>, 
-						this.props.publicKey ? <Orders mobile={true}/> : <Connect onOpen={this.handleConnectDialog.bind(this)}/> , 
+		const content = [this.props.publicKey ? <div><Trade mobile={true} /><Balance /></div> : <Connect />, 
+						this.props.publicKey ? <Orders mobile={true}/> : <Connect /> , 
 						<ChartContent />, <OrderBook mobile={true}/>, <TradingHistory mobile={true}/>]
 		const Switchchart = () => {
 			return(
