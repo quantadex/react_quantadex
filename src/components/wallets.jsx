@@ -24,6 +24,22 @@ const container = css`
       margin-left: 10px;
     }
   }
+  .changelly {
+    position: relative;
+    a {
+      color: ${globalcss.COLOR_THEME};
+      border: 1px solid ${globalcss.COLOR_THEME};
+      border-radius: 2px;
+      padding: 5px 10px;
+    }
+
+    span {
+      position: absolute;    
+      right: 0;
+      bottom: -20px;
+    }
+  }
+  
 
   &.mobile {
     .public-address-container {
@@ -204,6 +220,31 @@ class Wallets extends Component {
     )
   }
 
+  Changelly() {
+    return (
+      <div className="d-flex ml-auto my-2 changelly">
+        <img className="mr-3" src={devicePath("public/images/visa-logo.svg")} alt="Visa" />
+        <img className="mr-3" src={devicePath("public/images/mastercard-logo.svg")} alt="Mastercard" />
+        <ReactGA.OutboundLink
+          eventLabel="Clicked Buy BTC with credit card"
+          to="https://payments.changelly.com/"
+          target="_blank"
+          className="text-uppercase"
+        >
+          BUY BTC with credit card
+        </ReactGA.OutboundLink>
+        <span className="small text-muted">
+          <img 
+            className="mr-2 align-bottom"
+            data-tip="Copy & paste your BTC deposit address to Changelly, and buy with your credit card" 
+            src={devicePath("public/images/question.png")} 
+          /> 
+          Powered by Changelly
+        </span>
+      </div>
+    )
+  }
+
   render() {
     const columns = [{
         title: "PAIRS",
@@ -255,9 +296,10 @@ class Wallets extends Component {
       <div className={container + " content" + (this.props.isMobile ? " mobile" : "")}>
           <this.PublicAddress />
           
-          <div className='filter-container d-flex mt-5 align-items-center'>
+          <div className='filter-container d-flex flex-wrap mt-5 align-items-center'>
           <SearchBox placeholder="Search Coin" onChange={this.handleChange.bind(this)} style={{marginRight: "20px"}}/>
           <Switch label="Hide Zero Balances" active={this.state.hideZero} onToggle={this.hideZeroBalance.bind(this)} />
+          <this.Changelly />
           </div>
 
           <div className="table-row">
