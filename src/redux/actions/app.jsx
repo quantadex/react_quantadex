@@ -27,11 +27,11 @@ export const UPDATE_USER_ORDER = 'UPDATE_USER_ORDER';
 export const UPDATE_TRADES = 'UPDATE_TRADES'
 export const UPDATE_DIGITS = 'UPDATE_DIGITS'
 export const UPDATE_BLOCK_INFO = 'UPDATE_BLOCK_INFO';
-export const TOGGLE_LEFT_PANEL = 'TOGGLE_LEFT_PANEL';
-export const TOGGLE_RIGHT_PANEL = 'TOGGLE_RIGHT_PANEL';
+// export const TOGGLE_LEFT_PANEL = 'TOGGLE_LEFT_PANEL';
+// export const TOGGLE_RIGHT_PANEL = 'TOGGLE_RIGHT_PANEL';
 export const LOAD_FILLED_ORDERS = 'LOAD_FILLED_ORDERS';
-
-export const TOGGLE_FAVORITE_LIST = 'TOGGLE_FAVORITE_LIST';
+export const TOGGLE_CONNECT_DIALOG = 'TOGGLE_CONNECT_DIALOG';
+// export const TOGGLE_FAVORITE_LIST = 'TOGGLE_FAVORITE_LIST';
 export const INIT_BALANCE = 'INIT_BALANCE'
 export const UPDATE_OPEN_ORDERS = 'UPDATE_OPEN_ORDERS'
 
@@ -386,6 +386,10 @@ export const AccountLogin = (private_key) => {
 					sessionStorage.setItem("env", window.location.pathname.startsWith("/testnet") ? "testnet" : "mainnet")
 				}).then(e => {
 					dispatch(switchTicker(getState().app.currentTicker))
+					dispatch({
+						type: TOGGLE_CONNECT_DIALOG,
+						data: false
+					})
 					return true
 				}).catch(error => {
 					throw "No account for public key: " + publicKey

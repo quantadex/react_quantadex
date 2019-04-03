@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { css } from 'emotion'
 import { connect } from 'react-redux'
-import { AccountLogin, GetAccount } from '../redux/actions/app.jsx'
+import { AccountLogin, GetAccount, TOGGLE_CONNECT_DIALOG } from '../redux/actions/app.jsx'
 import { PrivateKey, changeWalletPassword, decryptWallet, encryptWallet } from "@quantadex/bitsharesjs";
 import WalletApi from "../common/api/WalletApi";
 import QTTabBar from './ui/tabBar.jsx'
@@ -212,20 +212,11 @@ const dialog = css`
 `
 
 class Connect extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            showDialog: false,
-            dialogType: "connect"
-        };
-    }
-
     openDialog(dialogType) {
-        this.setState({showDialog: true, dialogType})
-    }
-
-    closeDialog() {
-        this.setState({showDialog: false})
+        this.props.dispatch({
+            type: TOGGLE_CONNECT_DIALOG,
+            data: dialogType
+        })
     }
 
     render() {
@@ -246,18 +237,12 @@ class Connect extends Component {
                         </div>
                 </div>
                 }
-                {!this.props.private_key && this.state.showDialog ? 
-                    <ConnectDialog default={this.state.dialogType} 
-                        close={this.closeDialog.bind(this)} 
-                        dispatch={this.props.dispatch}
-                        network={this.props.network} /> 
-                    : null}
             </React.Fragment>
         )
     }
 }
 
-class ConnectDialog extends Component {
+export class ConnectDialog extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -320,10 +305,12 @@ class ConnectDialog extends Component {
         })
     }
 
-    // closeDialog() {
-    //     document.getElementById("connect-dialog").style.display = "none"
-    //     this.resetInputs()
-    // }
+    closeDialog() {
+        this.props.dispatch({
+            type: TOGGLE_CONNECT_DIALOG,
+            data: false
+        })
+    }
     
     handleSwitch(index) {
         this.setState({selectedTabIndex: Number(index)})
@@ -748,7 +735,7 @@ class ConnectDialog extends Component {
             <div id="connect-dialog" className={dialog + " d-flex align-content-center qt-font-regular" + (this.props.isMobile ? " mobile" : "")} 
                 onDragOver={(e)=> e.preventDefault()} onDrop={(e) => e.preventDefault()}>
                 <div className={"container " + this.props.network}>
-                    <div className="close-btn" onClick={this.props.close}><img src={devicePath("public/images/close_btn.svg")} /></div>
+                    <div className="close-btn" onClick={this.closeDialog.bind(this)}><img src={devicePath("public/images/close_btn.svg")} /></div>
                     {this.state.dialogType == "create" ? 
                         this.state.regStep == 1 ? <this.KeyCreate /> : <this.KeyDownload /> :
                         <this.KeyConnect />
@@ -766,4 +753,5 @@ const mapStateToProps = (state) => ({
     network: state.app.network,
     private_key: state.app.private_key
 });
+
 export default connect(mapStateToProps)(Connect)

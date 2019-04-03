@@ -1,7 +1,7 @@
 import React, {PropTypes} from 'react';
 import { Redirect, withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
-import { LOGIN } from '../../redux/actions/app.jsx'
+import { TOGGLE_CONNECT_DIALOG } from '../../redux/actions/app.jsx'
 import { css } from 'emotion'
 
 import { Link } from 'react-router-dom'
@@ -114,7 +114,7 @@ export class HamburgerMenu extends React.Component {
                       if (item.onClick) {
                         if ( this.props.private_key && item.text == "Unlock" ) return
                         return (
-                          <a key={index} onClick={item.onClick}
+                          <a key={index} onClick={item.text == "Unlock" ? () => item.onClick(this.props.dispatch) : item.onClick}
                              className="d-flex menu-row qt-cursor-pointer"
                              onMouseOver={this.handleHover.bind(this,item.iconPathActive)}
                              onMouseLeave={this.handleHover.bind(this,item.iconPath)}>
@@ -187,10 +187,11 @@ HamburgerMenu.defaultProps = {
       iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),
       iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
       text:"Unlock",
-      onClick: () => {
-        setTimeout(() => {
-          document.getElementById("connect-dialog").style.display = "flex"
-        }, 0)
+      onClick: (dispatch) => {
+        dispatch({
+          type: TOGGLE_CONNECT_DIALOG,
+          data: "connect"
+        })
       }
     },{
       iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),

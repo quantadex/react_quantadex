@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom'
 import { connect } from 'react-redux'
-import Connect from '../connect.jsx';
+import Connect, { ConnectDialog } from '../connect.jsx';
 import { css } from 'emotion'
 import Menu from '../menu.jsx';
 
@@ -25,6 +25,12 @@ class MobileHeader extends Component {
                         <Menu isMobile={true} style={{padding: 0, alignSelf: "center", minWidth: 0}}/> 
                         : <Connect type="link" isMobile={true}/>}
                 </div>
+                { this.props.connectDialog ? 
+					<ConnectDialog default={this.props.connectDialog} 
+						network={this.props.network} 
+						dispatch={this.props.dispatch}/> 
+					: null
+				}
             </React.Fragment>
         )
     }
@@ -33,7 +39,8 @@ class MobileHeader extends Component {
 const mapStateToProps = (state) => ({
 	network: state.app.network,
     publicKey: state.app.publicKey,
-    private_key: state.app.private_key
+    private_key: state.app.private_key,
+    connectDialog: state.app.ui.connectDialog
 });
 
 

@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { css } from 'emotion'
 import Ticker from './ui/ticker.jsx';
 import Dashboard from './dashboard.jsx';
+import { ConnectDialog } from './connect.jsx';
 
 const container = css`
 	margin: 5px 0;
@@ -98,6 +99,12 @@ class Header extends Component {
 					</div>
 					
         		</div>
+				{ this.props.connectDialog ? 
+					<ConnectDialog default={this.props.connectDialog} 
+						network={this.props.network} 
+						dispatch={this.props.dispatch}/> 
+					: null
+				}
 			</div>
 		);
 	}
@@ -138,7 +145,8 @@ const mapStateToProps = (state) => ({
 		network: state.app.network,
 		private_key: state.app.private_key,
 		currentTicker: state.app.currentTicker,
-		currentPrice: state.app.mostRecentTrade.price
+		currentPrice: state.app.mostRecentTrade.price,
+		connectDialog: state.app.ui.connectDialog
 	});
 
 export default connect(mapStateToProps)(Header);

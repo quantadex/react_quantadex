@@ -1,8 +1,12 @@
 import React from 'react';
-import { INIT_DATA, INIT_BALANCE, SET_MARKET_QUOTE, APPEND_TRADE, UPDATE_ORDER, UPDATE_OPEN_ORDERS, SET_AMOUNT, UPDATE_USER_ORDER, UPDATE_TICKER, UPDATE_TRADES, UPDATE_FEE, UPDATE_DIGITS, LOAD_FILLED_ORDERS } from "../actions/app.jsx";
-import { TOGGLE_LEFT_PANEL, TOGGLE_RIGHT_PANEL } from "../actions/app.jsx";
-import { TOGGLE_FAVORITE_LIST, UPDATE_ACCOUNT, UPDATE_BLOCK_INFO } from "../actions/app.jsx";
-import { LOGIN } from "../actions/app.jsx";
+import { 
+  INIT_DATA, INIT_BALANCE, SET_MARKET_QUOTE, 
+  APPEND_TRADE, UPDATE_ORDER, UPDATE_OPEN_ORDERS, 
+  SET_AMOUNT, UPDATE_USER_ORDER, UPDATE_TICKER, 
+  UPDATE_TRADES, UPDATE_FEE, UPDATE_DIGITS, LOAD_FILLED_ORDERS 
+} from "../actions/app.jsx";
+import { UPDATE_ACCOUNT, UPDATE_BLOCK_INFO } from "../actions/app.jsx";
+import { LOGIN, TOGGLE_CONNECT_DIALOG } from "../actions/app.jsx";
 import { dataSize } from "../actions/app.jsx";
 import SortedSet from 'js-sorted-set'
 import { toast } from 'react-toastify';
@@ -32,8 +36,7 @@ let initialState = {
   vesting: [],
   genesis: [],
   ui: {
-    leftOpen: true,
-    rightOpen: true
+    connectDialog: false
   },
   mostRecentTrade: {
     price: undefined
@@ -422,7 +425,7 @@ function processFilledOrder(orders) {
 }
 var currentOrders = []
 const app = (state = initialState, action) => {
-  //console.log("Reduce ", action);
+  // console.log("Reduce ", action);
 
   switch (action.type) {
     case INIT_DATA:
@@ -798,38 +801,46 @@ const app = (state = initialState, action) => {
       //     asks: action.data.asks
       //   }
       // }
-    case TOGGLE_LEFT_PANEL:
+    case TOGGLE_CONNECT_DIALOG:
       return {
         ...state,
         ui: {
           ...state.ui,
-          leftOpen: !state.ui.leftOpen,
+          connectDialog: action.data,
         }
-      }
+    }
+    // case TOGGLE_LEFT_PANEL:
+    //   return {
+    //     ...state,
+    //     ui: {
+    //       ...state.ui,
+    //       leftOpen: !state.ui.leftOpen,
+    //     }
+    //   }
 
-    case TOGGLE_RIGHT_PANEL:
-      return {
-        ...state,
-        ui: {
-          ...state.ui,
-          rightOpen: !state.ui.rightOpen
-        }
-      }
-    case TOGGLE_FAVORITE_LIST:
-      return {
-        ...state,
-        dashboard: {
-          ...state.dashboard,
-          dataSource: state.dashboard.dataSource.map((item) => {
-            if (item.pair == action.pair) {
-              item.favoriteList = !item.favoriteList
-            }
+    // case TOGGLE_RIGHT_PANEL:
+    //   return {
+    //     ...state,
+    //     ui: {
+    //       ...state.ui,
+    //       rightOpen: !state.ui.rightOpen
+    //     }
+    //   }
+    // case TOGGLE_FAVORITE_LIST:
+    //   return {
+    //     ...state,
+    //     dashboard: {
+    //       ...state.dashboard,
+    //       dataSource: state.dashboard.dataSource.map((item) => {
+    //         if (item.pair == action.pair) {
+    //           item.favoriteList = !item.favoriteList
+    //         }
 
-            return item
+    //         return item
 
-          })
-        }
-      }
+    //       })
+    //     }
+    //   }
     default:
       return state
   }

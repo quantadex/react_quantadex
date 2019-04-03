@@ -4,8 +4,7 @@ import { css } from 'emotion'
 
 import { Link } from 'react-router-dom'
 import HamburgerMenu from './ui/hamburger_menu.jsx'
-import Lock from './ui/account_lock.jsx'
-import Connect from './connect.jsx';
+import Connect, { ConnectDialog } from './connect.jsx';
 
 const container = css`
 	height: 52px;
@@ -43,16 +42,22 @@ class Header extends Component {
 	render() {
 		return (
       <React.Fragment>
-			<div className={container + " qt-font-small d-flex justify-content-between align-items-center"}>
-        <Link to={"/" + this.props.network + "/exchange/" + (this.props.currentTicker ? this.props.currentTicker.replace("/", "_") : "")} className="back-link">Back to Exchange</Link>
+        <div className={container + " qt-font-small d-flex justify-content-between align-items-center"}>
+          <Link to={"/" + this.props.network + "/exchange/" + (this.props.currentTicker ? this.props.currentTicker.replace("/", "_") : "")} className="back-link">Back to Exchange</Link>
 
-        <Link to={"/" + this.props.network + "/exchange/" + (this.props.currentTicker ? this.props.currentTicker.replace("/", "_") : "")} className="logo"></Link>
-				<div className="menu">
-					<span className="name mr-3">{this.props.name}</span>
-					<Connect type="lock" />
-					<HamburgerMenu />
-				</div>
-			</div>
+          <Link to={"/" + this.props.network + "/exchange/" + (this.props.currentTicker ? this.props.currentTicker.replace("/", "_") : "")} className="logo"></Link>
+          <div className="menu">
+            <span className="name mr-3">{this.props.name}</span>
+            <Connect type="lock" />
+            <HamburgerMenu />
+          </div>
+        </div>
+        { this.props.connectDialog ? 
+					<ConnectDialog default={this.props.connectDialog} 
+						network={this.props.network} 
+						dispatch={this.props.dispatch}/> 
+					: null
+				}
       </React.Fragment>
 		);
 	}
@@ -63,7 +68,8 @@ const mapStateToProps = (state) => ({
 		currentTicker: state.app.currentTicker,
     currentPrice: state.app.currentPrice,
     name: state.app.name,
-    network: state.app.network
+    network: state.app.network,
+    connectDialog: state.app.ui.connectDialog
 	});
 
 export default connect(mapStateToProps)(Header);
