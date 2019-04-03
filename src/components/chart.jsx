@@ -199,8 +199,8 @@ class Chart extends Component {
       setTimeout(() => {
         window.showBenchmark = this.props.showBenchmark;
         // console.log("update benchmark= ", window.showBenchmark, window.chart_count);
-        window.chartWidget.setSymbol(this.props.currentTicker + "@adjusted" + window.chart_count, "15")
-        window.chart_count++;
+        // window.chartWidget.setSymbol(this.props.currentTicker + "@adjusted" + window.chart_count, "15")
+        // window.chart_count++;
       }, 10)
     }
   }

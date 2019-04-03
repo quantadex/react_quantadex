@@ -427,8 +427,8 @@ Datafeeds.UDFCompatibleDatafeed.prototype.resolveSymbol = function(
       const parts = symbolName.split("@")
       let ticker = parts.length > 1 ? parts[0] : symbolName;
       const comp = ticker.split("/")
-      const base = comp[0].split("0X")
-      const counter = comp[1].split("0X")
+      const base = comp[0] && comp[0].split("0X") || []
+      const counter = comp[1] && comp[1].split("0X") || []
       onResultReady({
         name: symbolName,
         ticker: symbolName,

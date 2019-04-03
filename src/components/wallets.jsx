@@ -275,7 +275,7 @@ const mapStateToProps = (state) => ({
     onOrdersFund: state.app.onOrdersFund,
     publicKey: state.app.publicKey || "",
     private_key: state.app.private_key,
-    estimated_fund: state.app.totalFundValue,
+    estimated_fund: state.app.totalFundValue || 0,
     usd_value: state.app.usd_value,
 		name: state.app.name
 	});

@@ -197,10 +197,16 @@ class Exchange extends Component {
 				<div className="switch-chart d-flex">
 					<button className={this.state.chart === "tv" ? "active": ""} onClick={() => this.toggleChart("tv")}>Price Chart</button>
 					<button className={this.state.chart === "depth" ? "active": ""} onClick={() => this.toggleChart("depth")}>Depth Chart</button>
-					<span className="benchmark-box">
-						<Switch label="Benchmark Price " onToggle={this.toggleBenchmarkPrice.bind(this)}  active={this.state.showBenchmark}/>
-					</span>
-					<ToolTip style={{ float: "right", marginLeft: 13, marginTop: 10}} message="Enabling benchmark price aggregate prices from Binance/others<br/> to give more pricing information for you to make informed trades." />
+					{this.state.chart === "tv" ?
+					<React.Fragment>
+						<span className="benchmark-box">
+							<Switch label="Benchmark Price " onToggle={this.toggleBenchmarkPrice.bind(this)}  active={this.state.showBenchmark}/>
+						</span>
+						<ToolTip style={{ float: "right", marginLeft: 13, marginTop: 10}} message="Enabling benchmark price aggregate prices from Binance/others<br/> to give more pricing information for you to make informed trades." />
+					</React.Fragment>
+					: null
+					}
+					
 				</div>
 			)
 		}

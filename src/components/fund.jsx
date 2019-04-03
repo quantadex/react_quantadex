@@ -95,7 +95,8 @@ class Fund extends Component {
 
 	render() {
     if (!window.markets) {
-			window.location.assign('/' + this.props.match.params.net)
+      window.location.assign('/' + this.props.match.params.net)
+      return null
     } 
 
     const tabs = {
