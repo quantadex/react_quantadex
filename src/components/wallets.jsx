@@ -93,7 +93,6 @@ class Wallets extends Component {
       dataSource: [],
       filter: "",
       hideZero: false,
-      txData: undefined,
       confirmDialog: false,
     }
 
@@ -102,13 +101,14 @@ class Wallets extends Component {
     this.ETH_id = window.assetsBySymbol["ETH"].id
   }
 
-  componentDidMount() {
-    fetch(CONFIG.getEnv().API_PATH + "/node1/address/eth/" + this.props.name).then(e => e.json())
+  componentDidMount(name=this.props.name) {
+    this.setState({ethAddress: undefined, btcAddress: undefined})
+    fetch(CONFIG.getEnv().API_PATH + "/node1/address/eth/" + name).then(e => e.json())
     .then(e => {
       this.setState({ethAddress: e && (e[e.length-1] && e[e.length-1].Address) || undefined})
     })
 
-    fetch(CONFIG.getEnv().API_PATH + "/node1/address/btc/" + this.props.name).then(e => e.json())
+    fetch(CONFIG.getEnv().API_PATH + "/node1/address/btc/" + name).then(e => e.json())
     .then(e => {
       this.setState({btcAddress: e && (e[e.length-1] && e[e.length-1].Address) || undefined})
     })
@@ -117,6 +117,9 @@ class Wallets extends Component {
   }
 
 	componentWillReceiveProps(nextProps) {
+    if (this.props.name !== nextProps.name) {
+      this.componentDidMount(nextProps.name)
+    }
     if (this.props.balance != nextProps.balance) {
       this.setDataSource(nextProps.balance)
     }
@@ -259,7 +262,7 @@ class Wallets extends Component {
 
           <div className="table-row">
           <QTTableView dataSource={this.state.dataSource.filter(data => data.pairs.toLowerCase().includes(this.state.filter.toLowerCase()) && 
-              (!this.state.hideZero || data.balance > 0))} columns={columns} mobile={this.props.isMobile}/>
+              (!this.state.hideZero || data.balance > 0))} columns={columns} mobile={this.props.isMobile} unlocked={this.props.private_key && true}/>
           </div>
       </div>
     );

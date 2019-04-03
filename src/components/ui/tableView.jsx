@@ -205,7 +205,7 @@ export default class QTTableView extends React.Component {
                   }
                 </div>
                 {
-                  this.state.appendedUI.index == index
+                  this.state.appendedUI.index == index && this.props.unlocked
                   ? this.state.appendedUI.block
                   : ""
                 }

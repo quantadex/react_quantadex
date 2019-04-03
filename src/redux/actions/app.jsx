@@ -362,7 +362,10 @@ export const AccountLogin = (private_key) => {
 		.db_api()
 		.exec("get_key_references", [[publicKey]])
 		.then(vec_account_id => {
-			// console.log("get_key_references ", vec_account_id[0][0]);
+			// console.log("get_key_references ", vec_account_id);
+			if (vec_account_id[0].length == 0) {
+				throw "No account for public key: " + publicKey
+			}
 
 			return Apis.instance()
 				.db_api()
@@ -392,11 +395,15 @@ export const AccountLogin = (private_key) => {
 					})
 					return true
 				}).catch(error => {
-					throw "No account for public key: " + publicKey
+					if (error.message.includes("Bad Cast")) {
+						throw "No account for public key: " + publicKey
+					} else {
+						throw "Server error. Please try again."
+					}
 				})
 			
 		}).catch(error => {
-			throw "No account for public key: " + publicKey
+			throw error
 		})
 	}
 }
