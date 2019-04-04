@@ -133,7 +133,7 @@ class OrderBook extends Component {
 					</div>
 					<div className="d-flex flex-column justify-content-center">
 						<div className="qt-opacity-half qt-font-base text-right">Spread</div>
-						<div className="qt-number-small text-right">{this.props.spread != undefined ? this.props.spread.toFixed(2) + "%" : "N/A"}</div>
+						<div className="qt-number-small text-right">{this.props.spread != undefined ? this.props.spread.toFixed(2) + "%" : "-"}</div>
 					</div>
 				</section>
 				<section className="orderbook-bid no-scroll-bar pushed-margin">

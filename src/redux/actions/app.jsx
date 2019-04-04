@@ -530,7 +530,7 @@ export function switchTicker(ticker, force_init=false) {
 							if (!marketData[market]) {
 								marketData[market] = []
 							}
-							let latest = data[0].latest === "0" ? (parseFloat(data[0].highest_bid) + parseFloat(data[0].lowest_ask))/2 : data[0].latest
+							let latest = data[0].latest === "0" ? data[0].highest_bid === "0" || data[0].highest_ask === "0" ? "-" : (parseFloat(data[0].highest_bid) + parseFloat(data[0].lowest_ask))/2 : data[0].latest
 							latest = Utils.maxPrecision(latest, window.allMarketsByHash[pair.name].pricePrecision)
 							window.allMarketsByHash[pair.name].last = latest
 							marketData[market].push({
