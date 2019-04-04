@@ -367,7 +367,6 @@ export class ConnectDialog extends Component {
             .catch(error => {
                 this.setState({authError: true, errorMsg: error})
             })
-
 		} catch(e) {
 			this.setState({authError: true, errorMsg: "Invalid Key"})
 		}
@@ -579,6 +578,7 @@ export class ConnectDialog extends Component {
             <div className="input-container">
                 <label>PRIVATE KEY</label><br/>
                 <input id="pkey-input" type="text" autoComplete="off" autoFocus placeholder="Private Key" spellCheck="false" 
+                    name="privateKey"
                    value={this.state.private_key}
                    onChange={(e) => this.setState({private_key: e.target.value})}
                    onKeyPress={e => {
