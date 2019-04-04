@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import CONFIG from '../config.js'
 import Header from './headersimple.jsx';
 import { connect } from 'react-redux'
 import { css } from 'emotion'
@@ -9,6 +8,7 @@ import QTTabBar from './ui/tabBar.jsx'
 import MobileHeader from './ui/mobileHeader.jsx';
 import MobileNav from './ui/mobileNav.jsx';
 import { ToastContainer } from 'react-toastify';
+import {switchTicker} from "../redux/actions/app.jsx";
 import 'react-toastify/dist/ReactToastify.css';
 import Wallets from './wallets.jsx'
 import CrosschainHistory from './crosschain_history.jsx'
@@ -95,9 +95,13 @@ class Fund extends Component {
 
 	render() {
     if (!window.markets) {
-      window.location.assign('/' + this.props.match.params.net)
-      return null
+			const default_ticker = this.props.match.params.net == "mainnet" ? 'ETH/BTC' : "ETH/USD"
+			this.props.dispatch(switchTicker(default_ticker));
     } 
+    
+    if (!this.props.currentTicker) {
+      return <div className={container + " container-fluid" + (this.props.isMobile ? " mobile" : "")}></div>
+    }
 
     const tabs = {
 			names: ['Wallets', 'Vesting', 'Crosschain History', "Referral"],
@@ -142,7 +146,8 @@ const mapStateToProps = (state) => ({
     isMobile: state.app.isMobile,
     private_key: state.app.private_key,
     publicKey: state.app.publicKey,
-		name: state.app.name
+    name: state.app.name,
+    currentTicker: state.app.currentTicker
 	});
 
 

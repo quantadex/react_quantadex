@@ -5,6 +5,7 @@ import TradingHistory from './trading_history.jsx';
 import OrderBook from './order_book.jsx';
 import Dashboard from './dashboard.jsx';
 import MobileHeader from './ui/mobileHeader.jsx';
+import Announcement from './announcement.jsx'
 import Orders from './orders.jsx';
 import Trade from './trade.jsx';
 import Balance from './balance.jsx'
@@ -17,6 +18,7 @@ import { connect } from 'react-redux'
 import Ticker from './ui/ticker.jsx';
 import { css } from 'emotion'
 import globalcss from './global-css.js'
+import CONFIG from '../config.js'
 
 const container = css`
 	background-color:${globalcss.COLOR_BACKGROUND};
@@ -111,6 +113,20 @@ const container = css`
 		height: calc(100% - 182px);
 		overflow-y: scroll;
 	}
+
+	&.has-announcement {
+		.content {
+			height: calc(100% - 208px);
+		}
+
+		#tv_chart_container, #depth_chart_container {
+			height: calc(100vh - 208px);
+		}
+		
+		.orderbook-ask, .orderbook-bid {
+			height: calc(50vh - 110px);
+		}
+	}
 `;
 
 class Exchange extends Component {
@@ -120,10 +136,21 @@ class Exchange extends Component {
 			selectedTabIndex: 2,
 			chart: "tv",
 			dialog: undefined,
-			showBenchmark: true
+			showBenchmark: true,
+			announcements: false
 		};
 	  }
 
+	componentDidMount() {
+        fetch(CONFIG.getEnv().ANNOUNCEMENT_JSON).then(e => e.json())
+        .then(data => {
+            const entries = data.entries
+            if (entries && entries.length > 0) {
+                this.setState({announcements: entries.slice(0,3)})
+            }
+        })
+	}
+	
 	componentWillReceiveProps(nextProps) {
 		if (nextProps.inputSetTime != undefined && nextProps.inputSetTime != this.state.inputSetTime) {
 			this.setState({
@@ -180,9 +207,12 @@ class Exchange extends Component {
 				</div>
 			)
 		}
+
+		const {announcements} = this.state
 		return (
-		<div className={container}>
+		<div className={container + (announcements ? " has-announcement" : "")}>
 			<MobileHeader />
+			{announcements ? <Announcement announcements={announcements} className="border-bottom border-dark" /> : null}
 			<div className="d-flex qt-font-normal qt-font-bold p-4 justify-content-between border-bottom border-dark">
 				<div id="market-dropdown" onClick={this.toggleMarketsList}>MARKETS</div>
 				<div><Ticker ticker={this.props.currentTicker} /></div>

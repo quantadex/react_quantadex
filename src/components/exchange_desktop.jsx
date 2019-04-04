@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Header from './header.jsx';
+import Announcement from './announcement.jsx'
 import Chart from './chart.jsx';
 import DepthChart from './chart_depth.jsx';
 import TradingHistory from './trading_history.jsx';
@@ -16,6 +17,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { connect } from 'react-redux'
 import { css } from 'emotion'
+import CONFIG from '../config.js'
 
 const container = css`
 	background-color: #121517;
@@ -52,8 +54,32 @@ const container = css`
 	}
 	
 	#tv_chart_container, #depth_chart_container {
-		height: calc(100vh - 390px);
+		height: calc(100vh - 124px);
 		width: 100%;
+	}
+
+	&.has-user {
+		#tv_chart_container, #depth_chart_container {
+			height: calc(100vh - 390px);
+		}
+	}
+
+	&.has-announcement {
+		.left-cols {
+			height: calc(100vh - 120px);
+		}
+
+		#tv_chart_container, #depth_chart_container {
+			height: calc(100vh - 152px);
+		}
+
+		.orderbook-ask, .orderbook-bid {
+			height: calc(50vh - 110px);
+		}
+
+		&.has-user #tv_chart_container, #depth_chart_container {
+			height: calc(100vh - 417px);
+		}
 	}
 
 	.trade-toggle {
@@ -164,10 +190,20 @@ class Exchange extends Component {
 			chart: "tv",
 			toggle_trade: false,
 			dialog: undefined,
-			showBenchmark: true
+			showBenchmark: true,
+			announcements: false
 		}
-		
 	}
+
+	componentDidMount() {
+        fetch(CONFIG.getEnv().ANNOUNCEMENT_JSON).then(e => e.json())
+        .then(data => {
+            const entries = data.entries
+            if (entries && entries.length > 0) {
+                this.setState({announcements: entries.slice(0,3)})
+            }
+        })
+    }
 
 	resizeDepthChart() {
 		setTimeout(() =>{
@@ -210,12 +246,14 @@ class Exchange extends Component {
 				</div>
 			)
 		}
+		const {announcements} = this.state
 		return (
-			<div className={container}>
+			<div className={container + (announcements ? " has-announcement" : "") + (this.props.publicKey ? " has-user" : "")}>
 				<div className="d-flex">
 					<Header />
 					{this.props.publicKey ? <Menu /> : <Connect type="link" />}
 				</div>
+				{announcements ? <Announcement announcements={announcements}/> : null}
 				<div className="content d-flex">
 					<section className="compartment left-cols">
 						<Trade />
@@ -236,8 +274,8 @@ class Exchange extends Component {
 								</div>
 							<section className="compartment" style={this.state.toggle_trade ? {width: "calc(100% - 270px)"} : {width: "100%"}}>
 								<Switchchart />
-								<Chart chartTools={true} showBenchmark={this.state.showBenchmark} className={this.state.chart === "tv" ? "d-block": "d-none" } style={!this.props.publicKey && {height: "calc(100vh - 124px)"}} />
-								<DepthChart className={this.state.chart === "depth" ? "d-block": "d-none"} style={!this.props.publicKey && {height: "calc(100vh - 124px)"}} />
+								<Chart chartTools={true} showBenchmark={this.state.showBenchmark} className={this.state.chart === "tv" ? "d-block": "d-none" } />
+								<DepthChart className={this.state.chart === "depth" ? "d-block": "d-none"} />
 							</section>
 
 							<section className={"compartment cols" + (this.state.toggle_trade ? "" : " d-none")}>
@@ -268,7 +306,7 @@ const mapStateToProps = (state) => ({
 		publicKey: state.app.publicKey,
 		leftOpen: state.app.ui.leftOpen,
 		rightOpen: state.app.ui.rightOpen,
-		currentTicker: state.app.currentTicker,
+		currentTicker: state.app.currentTicker
 	});
 
 

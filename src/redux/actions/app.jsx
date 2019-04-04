@@ -468,7 +468,7 @@ export function switchTicker(ticker, force_init=false) {
 
 		function action(ticker) {
 			var {base, counter} = getBaseCounter(ticker)
-
+			if (!base || !counter) return
 			if (base && counter) {
 				const tmpOrder = createLimitOrderWithPrice("1.2.0", true, window.assets, base.id, counter.id, 1, 1)
 				const tr = createLimitOrder2(tmpOrder)
