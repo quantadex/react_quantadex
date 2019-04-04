@@ -403,7 +403,12 @@ export const AccountLogin = (private_key) => {
 				})
 			
 		}).catch(error => {
-			throw error
+			if (typeof error == "string") {
+				throw error
+			} else {
+				Rollbar.error("Failed to Login", error);
+				throw "Server error. Please try again."
+			}
 		})
 	}
 }
