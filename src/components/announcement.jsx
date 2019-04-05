@@ -24,6 +24,9 @@ export default class Announcement extends Component {
             <div id="announcements-container" 
                 className={container + " " + this.props.className + " d-flex justify-content-around flex-wrap mb-1 qt-font-light"}>
                 {announcements.map((item, index) => {
+                    if (item.link.startsWith("http")) {
+                        return <a key={index} href={item.link} target="_blank">{item.title}</a>
+                    }
                     return <Link key={index} to={item.link}>{item.title}</Link>
                 })}
             </div>
