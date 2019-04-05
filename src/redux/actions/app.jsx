@@ -374,12 +374,12 @@ export const AccountLogin = (private_key) => {
 					// console.log("get account ", data);
 					let lifetime_member = data[0].membership_expiration_date === "1969-12-31T23:59:59"
 					dispatch({
-						type: LOGIN,
-						private_key: private_key
-					})
-					dispatch({
 						type: UPDATE_ACCOUNT,
 						data: {...data[0], lifetime: lifetime_member}
+					})
+					dispatch({
+						type: LOGIN,
+						private_key: private_key
 					})
 
 					sessionStorage.setItem("name", data[0].name)

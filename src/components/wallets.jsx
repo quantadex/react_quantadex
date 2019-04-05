@@ -113,22 +113,9 @@ class Wallets extends Component {
     }
 
     this.PublicAddress = this.PublicAddress.bind(this)
-    this.BTC_id = window.assetsBySymbol["BTC"].id
-    this.ETH_id = window.assetsBySymbol["ETH"].id
   }
 
-  componentDidMount(name=this.props.name) {
-    this.setState({ethAddress: undefined, btcAddress: undefined})
-    fetch(CONFIG.getEnv().API_PATH + "/node1/address/eth/" + name).then(e => e.json())
-    .then(e => {
-      this.setState({ethAddress: e && (e[e.length-1] && e[e.length-1].Address) || undefined})
-    })
-
-    fetch(CONFIG.getEnv().API_PATH + "/node1/address/btc/" + name).then(e => e.json())
-    .then(e => {
-      this.setState({btcAddress: e && (e[e.length-1] && e[e.length-1].Address) || undefined})
-    })
-
+  componentDidMount() {
     this.setDataSource(this.props.balance)
   }
 
@@ -144,15 +131,7 @@ class Wallets extends Component {
   setDataSource(balance) {
     const dataSource = []
     const in_wallet = []
-    let has_BTC = false
-    let has_ETH = false
     balance.forEach(currency => {
-      if (!has_BTC && currency.asset == this.BTC_id) {
-        has_BTC = true
-      }
-      if (!has_ETH && currency.asset == this.ETH_id) {
-        has_ETH = true
-      }
       let symbol = window.assets[currency.asset].symbol
       const data = {
         pairs: symbol,
@@ -193,14 +172,6 @@ class Wallets extends Component {
   
   hideZeroBalance() {
     this.setState({hideZero: !this.state.hideZero})
-  }
-
-  setAddress(coin, address) {
-    if (coin == "eth") {
-      this.setState({ethAddress: address})
-    } else if (coin == "btc") {
-      this.setState({btcAddress: address})
-    }
   }
 
   PublicAddress() {
@@ -283,9 +254,7 @@ class Wallets extends Component {
               action: asset
             });
             return <QTDeposit asset={asset} handleClick={close} quantaAddress={this.props.name} 
-            isETH={(["ETH", "ERC20"].includes(asset) || asset.split("0X").length == 2)}
-            setAddress={this.setAddress.bind(this)}
-            deposit_address={(["ETH", "ERC20"].includes(asset) || asset.split("0X").length == 2) ? this.state.ethAddress : this.state.btcAddress} />
+            isETH={(["ETH", "ERC20"].includes(asset) || asset.split("0X").length == 2)} />
           },
           disabled: () => {return !this.props.private_key}
         }],
