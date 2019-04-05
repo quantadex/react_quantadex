@@ -420,10 +420,15 @@ binance_socket.addEventListener('message', function (event) {
 	window.binance_price[data.s] = data.c
 });
 
-var disconnect_notified
 var market_depth_time
+
+function reconnect(instance, dispatch, ticker) {
+	setTimeout(() => {
+		instance.close()
+		dispatch(switchTicker(ticker, true))
+	}, 1000)
+}
 export function switchTicker(ticker, force_init=false) {
-	Apis.setAutoReconnect(true)
 	// send GA
 	ReactGA.set({ page: "exchange/" + ticker });
 	ReactGA.pageview("exchange/" + ticker);
@@ -459,11 +464,18 @@ export function switchTicker(ticker, force_init=false) {
 				});
 			})
 			.catch(e => {
-				Rollbar.error("Failed to initialize Apis socket", e);
+				// Rollbar.error("Failed to initialize Apis socket", e);
+				reconnect(Apis.instance(), dispatch, ticker)
+				return null
 			})
 			
 		} else {
+			try {
 				action(ticker)
+			} catch(e) {
+				console.log(e)
+				reconnect(Apis.instance(), dispatch, ticker)
+			}
 		}
 
 		function action(ticker) {
@@ -560,14 +572,7 @@ export function switchTicker(ticker, force_init=false) {
 
 				} catch(e) {
 					console.log(e)
-					if (!disconnect_notified) {
-						disconnect_notified = toast.error("Lost connection to server. Please refresh the page.", {
-							position: toast.POSITION.TOP_CENTER,
-							autoClose: false,
-							pauseOnFocusLoss: false
-						});
-					}
-					
+					reconnect(Apis.instance(), dispatch, ticker)
 					return
 				}					
 				
@@ -659,15 +664,20 @@ export function switchTicker(ticker, force_init=false) {
 			Apis.instance().db_api().exec("subscribe_to_market", [(data) => {
 				// console.log("Got a market change ", ticker, base, counter, data);
 				const curr_ticker = getBaseCounter(getState().app.currentTicker)
-				
+
 				if (base.id === curr_ticker.base.id && counter.id === curr_ticker.counter.id) {
-					if (new Date() - fetchTime > 50) {
-						fetchData(ticker)
-						fetchTime = new Date()
-					}
-					
-					if (Apis.instance().streamCb) {
-						Apis.instance().streamCb()
+					try {
+						if (new Date() - fetchTime > 50) {
+							fetchData(ticker)
+							fetchTime = new Date()
+						}
+						
+						if (Apis.instance().streamCb) {
+							Apis.instance().streamCb()
+						}
+					} catch (e) {
+						console.log(e)
+						reconnect(Apis.instance(), dispatch, ticker)
 					}
 				}
 			}, base.id, counter.id])
