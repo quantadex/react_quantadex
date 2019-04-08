@@ -167,11 +167,12 @@ class Chart extends Component {
         var button = widget.createButton()
         .on('click', (e) => {
           widget.setSymbol(ticker, interval.resolution)
-          let header_buttons = e.target.parentNode.parentNode.childNodes
+          let target = e.target.classList.contains("custom-button") ? e.target : e.target.parentNode
+          let header_buttons = target.parentNode.parentNode.childNodes
           for (let i of header_buttons) {
             i.classList.remove("active")
           }
-          e.target.parentNode.classList.add("active")
+          target.parentNode.classList.add("active")
         })
         .append($('<span>' + interval.text + '</span>'))
         button.addClass("custom-button")
