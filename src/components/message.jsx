@@ -176,10 +176,10 @@ class Message extends Component {
         
 
     render() {
-        if (this.props.publicKey == null) {
-            window.location.assign('/exchange')
-            return
-        } 
+        // if (this.props.publicKey == null) {
+        //     window.location.assign('/exchange')
+        //     return
+        // } 
 
         const tabs = {
             names: ['Sign Message', 'Verify Message'],

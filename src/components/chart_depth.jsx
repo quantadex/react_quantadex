@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { connect } from 'react-redux'
 import Highchart from 'highcharts'
 import lodash from 'lodash';
+import Utils from '../common/utils.js'
 
 class DepthChart extends Component {
     constructor(props) {
@@ -17,19 +18,20 @@ class DepthChart extends Component {
         let totalBids = 0
         let totalAsks = 0
         let mid, min, max
-
+        
         const comp = this.props.currentTicker && this.props.currentTicker.split("/") || ["",""]
         const base = comp[0].split("0X")
         const counter = comp[1].split("0X")
+        const precision = window.marketsHash[this.props.currentTicker] && window.marketsHash[this.props.currentTicker].pricePrecision || 5
 
         bids.dataSource.map(order => {
             totalBids += parseFloat(order.amount)
-            bidsData.push([parseFloat(order.price), totalBids])
+            bidsData.push([Number(Utils.maxPrecision(parseFloat(order.price), precision)), Number(Utils.maxPrecision(totalBids, precision))])
         })
         bidsData.reverse()
         asks.dataSource.map(order => {
             totalAsks += parseFloat(order.amount)
-            asksData.push([parseFloat(order.price), totalAsks])
+            asksData.push([Number(Utils.maxPrecision(parseFloat(order.price), precision)), Number(Utils.maxPrecision(totalAsks, precision))])
         })
         
         if (bidsData.length > 0 && asksData.length > 0) {
@@ -37,12 +39,20 @@ class DepthChart extends Component {
             min = mid * 0.4
             max = mid * 1.6
 
+            let lowest = bidsData[0][0]
+            let highest = asksData[asksData.length - 1][0]
+
             if (max < asksData[0][0]) {
 				max = asksData[0][0] * 1.5;
 			}
 			if (min > bidsData[bidsData.length - 1][0]) {
 				min = bidsData[bidsData.length - 1][0] * 0.5;
-			}
+            }
+            if(min < lowest && max > highest) {
+                let gap = Math.max(mid - lowest, highest - mid)
+                min = mid - gap
+                max = mid + gap
+            }
         } else if (bidsData.length && !asksData.length) {
 			min = bidsData[bidsData.length - 1][0] * 0.4;
 			max = bidsData[bidsData.length - 1][0] * 1.6;

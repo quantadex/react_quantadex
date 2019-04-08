@@ -77,7 +77,7 @@ const container = css`
 			height: calc(50vh - 110px);
 		}
 
-		&.has-user #tv_chart_container, #depth_chart_container {
+		&.has-user #tv_chart_container, &.has-user #depth_chart_container {
 			height: calc(100vh - 417px);
 		}
 	}
