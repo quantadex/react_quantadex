@@ -198,7 +198,7 @@ HamburgerMenu.defaultProps = {
       iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
       text:"Logout",
       onClick: () => {
-        sessionStorage.clear()
+        localStorage.clear()
         window.location.assign(window.isApp ? "index.html" : (window.location.pathname.startsWith("/testnet") ? "/testnet" : "/mainnet"))
       }
     }],

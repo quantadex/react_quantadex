@@ -339,12 +339,12 @@ export class ConnectDialog extends Component {
 
     ConnectWithBin() {
         try {
-            const encrypted_data = this.state.encrypted_data || JSON.parse(sessionStorage.encrypted_data)
+            const encrypted_data = this.state.encrypted_data || JSON.parse(localStorage.encrypted_data)
 			const decrypted = decryptWallet(encrypted_data, this.state.password)
             const private_key = decrypted.toWif()
 
             this.props.dispatch(AccountLogin(private_key)).then(() => {
-                sessionStorage.setItem("encrypted_data", JSON.stringify(encrypted_data))
+                localStorage.setItem("encrypted_data", JSON.stringify(encrypted_data))
             })
             .catch(error => {
                 this.setState({authError: true, errorMsg: error})
@@ -362,7 +362,7 @@ export class ConnectDialog extends Component {
             const pKey = PrivateKey.fromWif(this.state.private_key);
 
             this.props.dispatch(AccountLogin(this.state.private_key)).then(() => {
-                sessionStorage.removeItem("encrypted_data")
+                localStorage.removeItem("encrypted_data")
             })
             .catch(error => {
                 this.setState({authError: true, errorMsg: error})
@@ -489,9 +489,9 @@ export class ConnectDialog extends Component {
     ConnectEncrypted() {
         return (
             <div className="input-container">
-                {!this.state.encrypted_data && sessionStorage.encrypted_data ?
+                {!this.state.encrypted_data && localStorage.encrypted_data ?
                 <div className="text-secondary text-center mb-2">
-                    Continue as <span className="qt-color-theme">{sessionStorage.name}</span> or&nbsp;<label className="cursor-pointer" htmlFor="file"><u>browse your files.</u></label>
+                    Continue as <span className="qt-color-theme">{localStorage.name}</span> or&nbsp;<label className="cursor-pointer" htmlFor="file"><u>browse your files.</u></label>
                     <input className="d-none" type="file" name="file" id="file" accept=".json" onChange={(e) => this.uploadFile(e.target.files[0])}/>
                 </div>
                 : 
@@ -522,7 +522,7 @@ export class ConnectDialog extends Component {
                 <span className="error" hidden={!this.state.authError}>{this.state.errorMsg}</span><br/>
                 <div className="text-center">
                     <button onClick={this.ConnectWithBin.bind(this)} 
-                        disabled={this.state.password.length < 8 || !(this.state.encrypted_data || sessionStorage.encrypted_data)}>
+                        disabled={this.state.password.length < 8 || !(this.state.encrypted_data || localStorage.encrypted_data)}>
                         Connect Wallet
                     </button>
                 </div>

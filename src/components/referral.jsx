@@ -79,7 +79,7 @@ class Referral extends Component {
   upgradeAccount() {
     const self = this;
     this.props.dispatch(accountUpgrade()).then(e => {
-      sessionStorage.setItem("lifetime", "true")
+      localStorage.setItem("lifetime", "true")
       toast.success(`Successfully upgrade account.`, {
         autoClose: 2000,
         position: toast.POSITION.TOP_CENTER,

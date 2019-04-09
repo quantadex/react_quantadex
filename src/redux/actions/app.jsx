@@ -382,11 +382,11 @@ export const AccountLogin = (private_key) => {
 						private_key: private_key
 					})
 
-					sessionStorage.setItem("name", data[0].name)
-					sessionStorage.setItem("id", data[0].id)
-					sessionStorage.setItem("publicKey", data[0].active.key_auths[0][0])
-					sessionStorage.setItem("lifetime", lifetime_member)
-					sessionStorage.setItem("env", window.location.pathname.startsWith("/testnet") ? "testnet" : "mainnet")
+					localStorage.setItem("name", data[0].name)
+					localStorage.setItem("id", data[0].id)
+					localStorage.setItem("publicKey", data[0].active.key_auths[0][0])
+					localStorage.setItem("lifetime", lifetime_member)
+					localStorage.setItem("env", window.location.pathname.startsWith("/testnet") ? "testnet" : "mainnet")
 				}).then(e => {
 					dispatch(switchTicker(getState().app.currentTicker))
 					dispatch({

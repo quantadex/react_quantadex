@@ -16,16 +16,16 @@ import lodash from 'lodash'
 import moment from 'moment'
 
 let network = window.location.pathname.startsWith("/testnet") ? "testnet" : "mainnet"
-if (sessionStorage.env !== network) sessionStorage.clear()
+if (localStorage.env !== network) localStorage.clear()
 
 let initialState = {
   network: network,
   isMobile: (window.isApp ? (screen.width / window.devicePixelRatio) : screen.width) < 992, 
   private_key: null,
-  publicKey: sessionStorage.publicKey || "",
-  name: sessionStorage.name,
-  userId: sessionStorage.id,
-  lifetime: sessionStorage.lifetime === "true",
+  publicKey: localStorage.publicKey || "",
+  name: localStorage.name,
+  userId: localStorage.id,
+  lifetime: localStorage.lifetime === "true",
   currentTicker: null,
   fee: {},
   tradeHistory: [],
