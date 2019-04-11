@@ -8,7 +8,7 @@ import MobileHeader from './ui/mobileHeader.jsx';
 import Announcement from './announcement.jsx'
 import Orders from './orders.jsx';
 import Trade from './trade.jsx';
-import { ConnectDialog } from './connect.jsx'
+import Connect, { ConnectDialog } from './connect.jsx'
 import Message from './message.jsx'
 import Fund from './fund.jsx'
 import Settings from './settings.jsx'
@@ -23,18 +23,8 @@ import CONFIG from '../config.js'
 
 const container = css`
 	background-color: #121517;
-	position: relative;
 	height: 100vh;
 	width: 100%;
-
-	.exchange-bottom {
-		position: fixed;
-		width: 100%;
-		height: 63px;
-		bottom: 0;
-		background-color: #23282c;
-		z-index: 99;
-	}
 	
 	#tv_chart_container, #depth_chart_container {
 		height: calc(100vh - 350px);
@@ -91,7 +81,8 @@ const container = css`
 	}
 
 	.mobile-content {
-		height: calc(100% - 114px);
+		height: 100%;
+		margin-bottom: 63px;
 		overflow-y: scroll;
 		.tabs {
 			width: 100%;
@@ -114,7 +105,7 @@ const container = css`
 	}
 
 	.trade-options {
-		position: absolute;
+		position: fixed;
 		bottom: 63px;
 		text-align: center;
 		padding: 5px 10px;
@@ -237,29 +228,32 @@ class Exchange extends Component {
 
 		switch (index) {
 			case 0: 
-				return {header: "Markets"}
+				return {header: <img src="/public/images/logo.svg" alt="QUANTADEX" />}
 			case 1: 
-				return {header: <this.MarketsList />, forward: publicKey ? {label: <this.OrderStatus />, action: () => this.handleSwitch("orders")} : null }
+				return {header: <this.MarketsList />, 
+					left: () => this.handleSwitch("market_detail"),
+					left_icon: "/public/images/chart-icon.svg",
+					right: publicKey ? {label: <this.OrderStatus />, action: () => this.handleSwitch("orders")} : null }
 			case 2: 
 				return {header: "Wallet"}
 			case 3: 
 				return {header: "Settings"}
 
 			case "market_detail": 
-				return {header: <this.MarketsList />, back: () => this.handleSwitch(selectedTabIndex)}
+				return {header: <this.MarketsList />, left: () => this.handleSwitch(selectedTabIndex)}
 			case "connect": 
-				return {header: "Connect", back: () => this.handleSwitch(selectedTabIndex)}
+				return {header: "Connect", left: () => this.handleSwitch(selectedTabIndex)}
 			case "create": 
-				return {header: "Connect", back: () => this.handleSwitch(selectedTabIndex)}
+				return {header: "Connect", left: () => this.handleSwitch(selectedTabIndex)}
 			case "message": 
-				return {header: "Sign / Verify", back: () => this.handleSwitch(selectedTabIndex)}
+				return {header: "Sign / Verify", left: () => this.handleSwitch(selectedTabIndex)}
 			case "orders": 
-				return {header: "Orders", back: () => this.handleSwitch(selectedTabIndex)}
+				return {header: "Orders", left: () => this.handleSwitch(selectedTabIndex)}
 		}
 	}
 
 	Content(index) {
-		const { network, dispatch } = this.props
+		const { network, dispatch, publicKey } = this.props
 		const { announcements, params, selectedTabIndex } = this.state
 		switch (index) {
 			case 0: 
@@ -278,9 +272,15 @@ class Exchange extends Component {
 				</React.Fragment>
 			)
 		case 2: 
+			if (publicKey) {
+				return <Fund />
+			} 
 			return (
-				<Fund />
+				<div className="d-flex h-100 mx-auto" style={{maxWidth: "225px"}}>
+					<Connect mobile_nav={this.handleSwitch.bind(this)} />
+				</div>
 			)
+			
 		case 3: 
 			return (
 				<Settings mobile_nav={this.handleSwitch.bind(this)} />
@@ -290,7 +290,7 @@ class Exchange extends Component {
 			return(
 				<div style={{paddingBottom: "50px"}}>
 					<this.ChartContent />
-					<OrderBook mobile={true} mirror={true} mobile_nav={() => this.handleSwitch(selectedTabIndex)}/>
+					<OrderBook mobile={true} mirror={true}/>
 					<this.TradeButtons />
 				</div>
 			)
@@ -319,7 +319,7 @@ class Exchange extends Component {
 										selectedTabIndex: selectedTabIndex }
 
 		return (
-		<div className={container}>
+		<div className={container + " d-flex flex-column"}>
 			<MobileHeader header={this.Header(headerIndex)} />
 			
 			<div id="content" className="mobile-content">
@@ -329,9 +329,7 @@ class Exchange extends Component {
 				{this.Content(contentIndex)}
 			</div>
 
-			<div className={"exchange-bottom"}>
-				<MobileNav tabs={tabs} selectedTabIndex={selectedTabIndex} switchTab={this.handleSwitch.bind(this)} />
-			</div>
+			<MobileNav tabs={tabs} selectedTabIndex={selectedTabIndex} switchTab={this.handleSwitch.bind(this)} />
 			
 			<ToastContainer />
 		</div>

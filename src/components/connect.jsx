@@ -26,7 +26,6 @@ const container = css`
     }
 
     .connect-link {
-        display: inline;
         color: #fff;
         text-decoration: underline;
         cursor: pointer;
@@ -201,6 +200,7 @@ const dialog = css`
     &.mobile {
         position: relative;
         background-color: transparent;
+        z-index: 1;
 
         .container {
             width: 100% !important;
@@ -217,10 +217,15 @@ const dialog = css`
 
 class Connect extends Component {
     openDialog(dialogType) {
-        this.props.dispatch({
-            type: TOGGLE_CONNECT_DIALOG,
-            data: dialogType
-        })
+        const { mobile_nav, dispatch } = this.props
+        if (mobile_nav) {
+            mobile_nav(dialogType)
+        } else {
+            dispatch({
+                type: TOGGLE_CONNECT_DIALOG,
+                data: dialogType
+            })
+        }
     }
 
     render() {
@@ -237,8 +242,8 @@ class Connect extends Component {
                         <p>Connect your <span className="qt-font-bold">Quanta</span> wallet to start trading in this market.</p>
                         <button onClick={() => this.openDialog("create")}>GET STARTED</button>
                         <div>
-                            or<br/>
-                            <div className="connect-link" onClick={() => this.openDialog("connect")}>Connect Wallet</div>
+                            or
+                            <div className="connect-link mt-3" onClick={() => this.openDialog("connect")}>Connect Wallet</div>
                         </div>
                 </div>
                 }

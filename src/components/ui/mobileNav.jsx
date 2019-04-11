@@ -2,8 +2,13 @@ import React, { Component } from 'react';
 import { css } from 'emotion'
 
 const container = css `
+    position: fixed;
+    width: 100%;
+    height: 63px;
+    bottom: 0;
     background-color: #222730;
     padding: 8px 0 5px;
+    z-index: 99;
 
     .nav-item {
         flex: 1 1 auto;
@@ -17,28 +22,13 @@ const container = css `
 `
 
 export default class MobileNav extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-          selectedTabIndex:this.props.selectedTabIndex,
-        }
-    }
-
-    componentWillReceiveProps(nextProps) {
-		if (nextProps.selectedTabIndex != undefined && nextProps.selectedTabIndex != this.state.selectedTabIndex) {
-			this.setState({
-				selectedTabIndex: nextProps.selectedTabIndex
-			  })
-		}
-    }
-    
     render() {
-        const {selectedTabIndex} = this.state
+        const {selectedTabIndex} = this.props
         return (
             <div className={container + " d-flex"}>
                 { this.props.tabs.names.map((tab, index) => {
                     return (
-                        <div key={index} data-index={index} 
+                        <div key={index}
                             className={"nav-item" + (selectedTabIndex == index ? " active" : "")}
                             onClick={() => {
                                 this.setState({selectedTabIndex: index})
