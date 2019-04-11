@@ -148,13 +148,14 @@ const container = css`
   &.mobile {
     padding: 15px;
     margin: 0;
-    .scroll-up {
-      display: none;
+    
+    .sticky, thead th {
+      background: #121517;
     }
 
     .order-list {
       padding: 0;
-      height: calc(100vh - 235px);
+      height: calc(100vh - 168px);
 
       .list-row {
         padding: 5px 0;
@@ -172,7 +173,7 @@ const container = css`
         padding-right: 20px;
       }
       .item-status {
-        width: 20%;
+        width: 30%;
       }
 
       .filled-order {
@@ -403,6 +404,7 @@ class Orders extends Component {
   }
 
   render() {
+    const { mobile } = this.props
     const tabs = {
       names: ['Open Orders', 'Order History'],
       selectedTabIndex: 0,
@@ -410,16 +412,19 @@ class Orders extends Component {
     const OrdersList = [<this.OpenOrders />, <this.FilledOrders />]
 
     return (
-      <div className={container + (this.props.mobile ? " mobile" : "")}>
+      <div className={container + (mobile ? " mobile" : "")}>
       <div className="sticky d-flex align-items-center">
           <QTTabBar
-            className="button small static set-width qt-font-bold d-flex justify-content-left"
+            className={"small static set-width qt-font-bold d-flex justify-content-left " + (mobile ? "underline" : "button")}
             width={120}
             gutter={10}
             tabs = {tabs}
             switchTab = {this.handleSwitch.bind(this)}
           />
-          <Switch label="Current Market Only" active={this.state.hideMarkets} onToggle={() => this.setState({hideMarkets: !this.state.hideMarkets})} />
+          <Switch label="Current Market Only" 
+            className={mobile ? "ml-4" : ""}
+            active={this.state.hideMarkets} 
+            onToggle={() => this.setState({hideMarkets: !this.state.hideMarkets})} />
         </div>
         <section className="order-list no-scroll-bar">
           <div id="scroll-order-list" onScroll={(e) => this.handleScroll(e.target)}>

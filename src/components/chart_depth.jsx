@@ -85,7 +85,7 @@ class DepthChart extends Component {
         window.depthChartWidget = Highchart.chart("depth_chart_container", {
             chart: {
                 type: 'area',
-                backgroundColor: '#23282c'
+                backgroundColor: this.props.mobile ? "#121517" : "#23282c"
             },
             title: {
                 text: this.props.currentTicker,

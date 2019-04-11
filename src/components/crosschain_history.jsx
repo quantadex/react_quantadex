@@ -76,7 +76,7 @@ class CrosschainHistory extends Component {
           <Switch label="Hide Deposit" onToggle={() => this.setState({hideDeposit: !this.state.hideDeposit})} />
         </div>
         <div className="table-responsive">
-          <table className="w-100 mt-5">
+          <table className="w-100 mt-5 text-nowrap">
             <thead>
               <tr className="qt-white-27">
                 <th>TYPE</th>

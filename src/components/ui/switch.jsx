@@ -37,10 +37,11 @@ const container = css `
 export default class Switch extends Component {
 
     render() {
+        const { label, onToggle, active, className } = this.props
         return (
-            <div className={container + " qt-font-extra-small"}>
-                <span>{this.props.label}</span>
-                <div id={"container"} className={(this.props.active ? "active" : "")} onClick={this.props.onToggle}>
+            <div className={container + " qt-font-extra-small " + (className || "")}>
+                <span>{label}</span>
+                <div id={"container"} className={(active ? "active" : "")} onClick={onToggle}>
                     <span id="switch"></span>
                 </div>
             </div>

@@ -71,13 +71,12 @@ class Dashboard extends Component {
 	}
 
 	switchMarket(e) {
-		const list = document.getElementById("market-list")
-		if (list.classList.contains("active")) {
-			list.classList.remove("active")
-		} else {
-			list.classList.add("active")
-		}
-		this.props.history.push("/" + (this.props.match.params.net || "mainnet") + "/exchange/" + e.replace("/", "_") + this.props.location.search)
+		const { mobile_nav, closeSelf, history, match, location } = this.props
+
+		if (mobile_nav) mobile_nav()
+		if (closeSelf) closeSelf()
+
+		history.push("/" + (match.params.net || "mainnet") + "/exchange/" + e.replace("/", "_") + location.search)
 	}
 
 	handleChange(e) {
@@ -89,19 +88,15 @@ class Dashboard extends Component {
 	}
 
 	render() {
-		// const tabs = {
-		// 	names: ['All','Trading','Favorites'],
-		// 	selectedTabIndex: 0
-		// }
+		const { markets, mobile } = this.props
 		
 		const subtabs = {
-			names: Object.keys(this.props.markets),
+			names: Object.keys(markets),
 			selectedTabIndex: 0,
 		}
-		// console.log(this.props.markets[subtabs.names[this.state.selectedCoin]]);
 
 		return (
-			<div className={container + (this.props.mobile ? " mobile" : "")} onClick={e => e.stopPropagation()}>
+			<div className={container + (mobile ? " mobile" : "")} onClick={e => e.stopPropagation()}>
 				<div className="d-flex justify-content-between border-bottom border-dark mb-3">
 					<h4>MARKETS</h4>
 					<SearchBox onChange={this.handleChange.bind(this)} placeholder="Search Pairs" 
@@ -135,7 +130,7 @@ class Dashboard extends Component {
 						</thead>
 						<tbody>
 							{
-								this.props.markets[subtabs.names[this.state.selectedCoin]] && this.props.markets[subtabs.names[this.state.selectedCoin]].filter(market => market.name.toLowerCase().includes(this.state.filter)).map((market, index) => {
+								markets[subtabs.names[this.state.selectedCoin]] && markets[subtabs.names[this.state.selectedCoin]].filter(market => market.name.toLowerCase().includes(this.state.filter)).map((market, index) => {
 									let pair = market.name.split('/')
 									let usd_price = pair[1] === "ETH" ? window.binance_price["ETHUSDT"] 
 													: (pair[1] === "BTC" ? window.binance_price["BTCUSDT"] 

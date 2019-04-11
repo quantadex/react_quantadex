@@ -23,14 +23,6 @@ const container = css`
     padding:0 20px;
   }
 
-  .mobile-nav {
-		position: fixed;
-		width: 100%;
-		bottom: 0;
-		background-color: #23282c;
-		z-index: 99;
-	}
-
   .tab-row {
     background-color: rgba(52, 62, 68, 0.4);
     height:72px;
@@ -69,9 +61,11 @@ const container = css`
 
   &.mobile {
     padding: 0;
+    background-color: transparent !important;
+    min-height: unset;
 
-    .tab-row {
-      display: none !important;
+    .content {
+      margin-top: 20px;
     }
 
     .table-row .row {
@@ -95,7 +89,7 @@ class Fund extends Component {
 
 	render() {
     if (!window.markets) {
-			const default_ticker = this.props.match.params.net == "mainnet" ? 'ETH/BTC' : "ETH/USD"
+			const default_ticker = this.props.match && this.props.match.params.net == "testnet" ? "ETH/USD" : 'ETH/BTC'
 			this.props.dispatch(switchTicker(default_ticker));
     } 
     
@@ -108,11 +102,11 @@ class Fund extends Component {
 			selectedTabIndex: 0,
     }
     const content = [<Wallets />, <Vesting />, <CrosschainHistory user={this.props.name} />, <Referral />]
-    
+    const {isMobile} = this.props
 		return (
-		<div className={container + " container-fluid" + (this.props.isMobile ? " mobile" : "")}>
-      {this.props.isMobile ? 
-          <MobileHeader />
+		<div className={container + " container-fluid" + (isMobile ? " mobile" : "")}>
+      {isMobile ? 
+          null
         :
         <div className="row header-row">
           <Header />
@@ -123,19 +117,13 @@ class Fund extends Component {
         <div className="tabs">
           <QTTabBar
             className="pad-sides underline fluid even-width qt-font-semibold d-flex"
-            width={200}
+            width={isMobile || 200}
             tabs = {tabs}
             switchTab = {this.handleSwitch.bind(this)}
           />
         </div>
       </div>
       {content[this.state.selectedTabIndex]}
-        {this.props.isMobile ? 
-        <div className="mobile-nav">
-          <MobileNav tabs={tabs} selectedTabIndex={this.state.selectedTabIndex} switchTab={this.handleSwitch.bind(this)} /> 
-        </div>
-          : null
-        }
       <ToastContainer />
 		</div>
 		);

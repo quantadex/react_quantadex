@@ -70,6 +70,7 @@ class Chart extends Component {
 
     const upColor = "#50b3b7"
     const downColor = "#ff3282"
+    const background_color = this.props.mobile ? "#121517" : "#23282c"
 
     // TradingView.onready(function() {
       var widget = (window.chartWidget = new TradingView.widget({
@@ -104,21 +105,21 @@ class Chart extends Component {
         enabled_features: enabled_features,
         charts_storage_url: "https://saveload.tradingview.com",
         charts_storage_api_version: "1.1",
-        custom_css_url: window.isApp ? "../theme_dark.css" : "/public/vendor/charting_library/theme_dark.css",
+        custom_css_url: "/public/vendor/charting_library/" + (this.props.mobile ? "theme_dark_mobile.css" : "theme_dark.css"),
         client_id: "tradingview.com",
         user_id: "public_user_id",
         overrides: {
           "paneProperties.leftAxisProperties.autoScale": true,
 					"paneProperties.topMargin": 25,
           "paneProperties.bottomMargin": 25,
-          "paneProperties.background": "#23282c",
+          "paneProperties.background": background_color,
           "paneProperties.vertGridProperties.color": "#333",
           "paneProperties.horzGridProperties.color": "#333",
           "paneProperties.vertGridProperties.style": 2,
           "paneProperties.horzGridProperties.style": 2,
           "paneProperties.crossHairProperties.color": "#444",
-          "scalesProperties.backgroundColor": "#23282c",
-          "scalesProperties.lineColor": "#23282c",
+          "scalesProperties.backgroundColor": background_color,
+          "scalesProperties.lineColor": background_color,
           "scalesProperties.textColor": "#999",
           "symbolWatermarkProperties.color": "rgba(0, 0, 0, 0)",
           "mainSeriesProperties.style": 1, //  Candles styles

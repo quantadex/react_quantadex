@@ -69,6 +69,8 @@ const container = css`
     }
 
     &.mobile {
+        background-color: transparent;
+        min-height: unset;
         padding: 0;
         .row {
             margin: 0;
@@ -176,11 +178,11 @@ class Message extends Component {
         
 
     render() {
-        // if (this.props.publicKey == null) {
+        // if (publicKey == null) {
         //     window.location.assign('/exchange')
         //     return
         // } 
-
+        const { isMobile } = this.props
         const tabs = {
             names: ['Sign Message', 'Verify Message'],
             selectedTabIndex: 0,
@@ -189,9 +191,9 @@ class Message extends Component {
         const content = [<this.Sign />, <this.Verify />]
 
         return (
-            <div className={container + " container-fluid" + (this.props.isMobile ? " mobile" : "")}>
-                {this.props.isMobile ? 
-                    <MobileHeader />
+            <div className={container + " container-fluid" + (isMobile ? " mobile" : "")}>
+                {isMobile ? 
+                    null
                     :
                     <div className="row header-row">
                     <Header />
@@ -200,8 +202,8 @@ class Message extends Component {
                 <div className="tab-row row d-flex flex-column align-items-center">
                     <div className="tabs">
                         <QTTabBar
-                            className="underline static set-width qt-font-bold d-flex justify-content-left"
-                            width={130}
+                            className="underline static even-width qt-font-bold d-flex justify-content-left"
+                            width={isMobile || 130}
                             gutter={10}
                             tabs = {tabs}
                             switchTab = {this.handleSwitch.bind(this)}

@@ -6,6 +6,7 @@ import QTButton from './button.jsx'
 
 const container = css`
   width:100%;
+  position: relative;
 
   thead {
     pointer-events: none;
@@ -42,6 +43,14 @@ const container = css`
 
   th.right, td.right {
     text-align: right;
+  }
+
+  th.left-mirror, td.left-mirror {
+    padding-left: 5px;
+  }
+
+  th.right-mirror, td.right-mirror {
+    padding-right: 5px;
   }
 
   th.center, td.center {

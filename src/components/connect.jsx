@@ -65,6 +65,7 @@ const dialog = css`
     }
 
     .link {
+        text-align: right;
         color: #66d7d7;
         cursor: pointer;
     }
@@ -198,9 +199,12 @@ const dialog = css`
     }
 
     &.mobile {
+        position: relative;
+        background-color: transparent;
+
         .container {
             width: 100% !important;
-
+            background-color: transparent;
             .input-container {
                 button {
                     margin: 0;
@@ -220,12 +224,13 @@ class Connect extends Component {
     }
 
     render() {
+        const { type, isMobile } = this.props
         return (
             <React.Fragment>
                 {
-                    this.props.type == "link" ? 
-                    <div className={container + " link cursor-pointer" + (this.props.isMobile ? " mobile" : "")} onClick={() => this.openDialog("connect")} >CONNECT WALLET</div>
-                :   this.props.type == "lock" ?
+                    type == "link" ? 
+                    <div className={container + " link cursor-pointer" + (isMobile ? " mobile" : "")} onClick={() => this.openDialog("connect")} >CONNECT WALLET</div>
+                :   type == "lock" ?
                     <Lock unlock={() => this.openDialog("connect")}/>
                     :
                     <div className={container}>
@@ -338,13 +343,18 @@ export class ConnectDialog extends Component {
     }
 
     ConnectWithBin() {
+        const { mobile_nav, dispatch } = this.props
+        const { password } = this.state
         try {
             const encrypted_data = this.state.encrypted_data || JSON.parse(localStorage.encrypted_data)
-			const decrypted = decryptWallet(encrypted_data, this.state.password)
+			const decrypted = decryptWallet(encrypted_data, password)
             const private_key = decrypted.toWif()
 
-            this.props.dispatch(AccountLogin(private_key)).then(() => {
+            dispatch(AccountLogin(private_key)).then(() => {
                 localStorage.setItem("encrypted_data", JSON.stringify(encrypted_data))
+                if (mobile_nav) {
+                    mobile_nav()
+                }
             })
             .catch(error => {
                 this.setState({authError: true, errorMsg: error})
@@ -358,11 +368,16 @@ export class ConnectDialog extends Component {
     }
     
     ConnectWithKey() {
+        const { mobile_nav, dispatch } = this.props
+        const { private_key } = this.state
         try {
-            const pKey = PrivateKey.fromWif(this.state.private_key);
+            const pKey = PrivateKey.fromWif(private_key);
 
-            this.props.dispatch(AccountLogin(this.state.private_key)).then(() => {
+            dispatch(AccountLogin(private_key)).then(() => {
                 localStorage.removeItem("encrypted_data")
+                if (mobile_nav) {
+                    mobile_nav()
+                }
             })
             .catch(error => {
                 this.setState({authError: true, errorMsg: error})
@@ -373,21 +388,23 @@ export class ConnectDialog extends Component {
     }
 
     Encrypt() {
-        if (this.state.password !== this.state.confirm_password) {
+        const { network } = this.props
+        const { password, confirm_password, private_key, username } = this.state
+        if (password !== confirm_password) {
             this.setState({authError: true, errorMsg: "Your password inputs are not the same"})
             return
         } 
 
-        if (!this.validatePassword(this.state.password)) {
+        if (!this.validatePassword(password)) {
             this.setState({authError: true, errorMsg: "Password must contains at least 8 characters, 1 uppercase, and 1 number."})
             return
         }
 
         try {
-            const key = PrivateKey.fromWif(this.state.private_key)
-            const encryption = encryptWallet(key, this.state.password)
+            const key = PrivateKey.fromWif(private_key)
+            const encryption = encryptWallet(key, password)
             const text= JSON.stringify(encryption)
-            this.download(`quanta_${this.props.network}_${this.state.username}.json`, text)
+            this.download(`quanta_${network}_${username}.json`, text)
             this.setState({downloaded: true, authError: false})
         } catch(e) {
             this.setState({authError: true, errorMsg: "Invalid Key"})
@@ -395,24 +412,25 @@ export class ConnectDialog extends Component {
     }
 
     registerAccount() {
-        if (this.state.password !== this.state.confirm_password) {
+        const { password, confirm_password, username, referrer, referrer_error } = this.state
+        if (password !== confirm_password) {
             this.setState({authError: true, errorMsg: "Your password inputs are not the same"})
             return
         } 
 
-        if (!this.validatePassword(this.state.password)) {
+        if (!this.validatePassword(password)) {
             this.setState({authError: true, errorMsg: "Password must contains at least 8 characters, 1 uppercase, and 1 number."})
             return
         }
 
         const keys = WalletApi.generate_key()
         const reg_json = {
-            name: this.state.username.toLowerCase(),
+            name: username.toLowerCase(),
 			public_key: keys.publicKey,
         }
 
-        if (this.state.referrer && !this.state.referrer_error) {
-            reg_json.referrer= this.state.referrer
+        if (referrer && !referrer_error) {
+            reg_json.referrer= referrer
         }
 
 		this.setState({processing: true, private_key: keys.privateKey})
@@ -487,22 +505,24 @@ export class ConnectDialog extends Component {
     }
 
     ConnectEncrypted() {
+        const { isMobile } = this.props
+        const { encrypted_data, uploaded_file_msg, password, authError, errorMsg } = this.state
         return (
             <div className="input-container">
-                {!this.state.encrypted_data && localStorage.encrypted_data ?
+                {!encrypted_data && localStorage.encrypted_data ?
                 <div className="text-secondary text-center mb-2">
                     Continue as <span className="qt-color-theme">{localStorage.name}</span> or&nbsp;<label className="cursor-pointer" htmlFor="file"><u>browse your files.</u></label>
                     <input className="d-none" type="file" name="file" id="file" accept=".json" onChange={(e) => this.uploadFile(e.target.files[0])}/>
                 </div>
                 : 
                 <React.Fragment>
-                    <div className={"drop-zone align-items-center" + (this.props.isMobile ? " pt-3" : " d-flex")} onDragOver={(e)=> e.preventDefault()} onDrop={(e) => this.handleDrop(e)}>
+                    <div className={"drop-zone align-items-center" + (isMobile ? " pt-3" : " d-flex")} onDragOver={(e)=> e.preventDefault()} onDrop={(e) => this.handleDrop(e)}>
                         Drop your backup file in this area or&nbsp;<label htmlFor="file">browse your files.</label>
                         <input className="d-none" type="file" name="file" id="file" accept=".json" onChange={(e) => this.uploadFile(e.target.files[0])}/>
                     </div>
                     
                     <div className="d-flex justify-content-between qt-font-small mb-2">
-                        <div>{this.state.uploaded_file_msg}</div>
+                        <div>{uploaded_file_msg}</div>
                         <div className="link text-right"
                             onClick={() => this.resetInputs({encryptStep: 1})}>I don’t have a .json-file</div>
                     </div>
@@ -512,17 +532,17 @@ export class ConnectDialog extends Component {
 
                 <label>PASSWORD</label><br/>
                 <input type="password" name="password" placeholder="Password" 
-                    value={this.state.password} onChange={(e) => this.setState({password: e.target.value})}
+                    value={password} onChange={(e) => this.setState({password: e.target.value})}
                     onKeyPress={e => {
-                        if (e.key == "Enter" && this.state.password.length > 0) {
+                        if (e.key == "Enter" && password.length > 0) {
                             this.ConnectWithBin()
                         }
                        }}
                     /><br/>
-                <span className="error" hidden={!this.state.authError}>{this.state.errorMsg}</span><br/>
+                <span className="error" hidden={!authError}>{errorMsg}</span><br/>
                 <div className="text-center">
                     <button onClick={this.ConnectWithBin.bind(this)} 
-                        disabled={this.state.password.length < 8 || !(this.state.encrypted_data || localStorage.encrypted_data)}>
+                        disabled={password.length < 8 || !(encrypted_data || localStorage.encrypted_data)}>
                         Connect Wallet
                     </button>
                 </div>
@@ -531,6 +551,7 @@ export class ConnectDialog extends Component {
     }
 
     EncryptKey() {
+        const { private_key, password, confirm_password, authError, errorMsg, downloaded } = this.state
         return (
             <div className="input-container">
                 <div className="link float-right qt-font-small" onClick={() => this.resetInputs({encryptStep: 0})}>Close</div>
@@ -543,30 +564,30 @@ export class ConnectDialog extends Component {
                 <div className="mb-2">
                     <label>PRIVATE KEY</label><br/>
                     <input id="key-input" type="text" autoComplete="off" placeholder="Private Key" spellCheck="false" 
-                        value={this.state.private_key} onChange={(e) => this.setState({private_key: e.target.value})}/>
+                        value={private_key} onChange={(e) => this.setState({private_key: e.target.value})}/>
                 </div>
                 
                 <div className="mb-2">
                     <label>PASSWORD</label><br/>
                     <input id="en-pw-input" type="password" placeholder="Password"
-                        value={this.state.password} onChange={(e) => this.setState({password: e.target.value})}/>
+                        value={password} onChange={(e) => this.setState({password: e.target.value})}/>
                 </div>
 
                 <div className="mb-2">
                     <label>CONFIRM PASSWORD</label><br/>
                     <input id="en-pwconf-input" type="password" placeholder="Confirm Password" spellCheck="false" 
-                        value={this.state.confirm_password} onChange={(e) => this.setState({confirm_password: e.target.value})}/>
+                        value={confirm_password} onChange={(e) => this.setState({confirm_password: e.target.value})}/>
                 </div>
 
-                <span className="error" hidden={!this.state.authError}>{this.state.errorMsg}</span><br/>
+                <span className="error" hidden={!authError}>{errorMsg}</span><br/>
 
                 <div className="text-center">
-                    <button onClick={this.Encrypt.bind(this)} disabled={this.state.private_key.length == 0 || this.state.password.length == 0 || this.state.confirm_password.length == 0}>
+                    <button onClick={this.Encrypt.bind(this)} disabled={private_key.length == 0 || password.length == 0 || confirm_password.length == 0}>
                         ENCRYPT KEY
                     </button>
                 </div>
 
-                <div className={"link qt-font-small text-center" + (!this.state.downloaded ? " invisible" : "")} onClick={() => this.resetInputs({encryptStep: 0})}>
+                <div className={"link qt-font-small text-center" + (!downloaded ? " invisible" : "")} onClick={() => this.resetInputs({encryptStep: 0})}>
                     <u>Proceed to Connect Wallet</u>
                 </div>
             </div>
@@ -574,22 +595,23 @@ export class ConnectDialog extends Component {
     }
 
     ConnectPrivateKey() {
+        const { private_key, authError, errorMsg } = this.state
         return (
             <div className="input-container">
                 <label>PRIVATE KEY</label><br/>
                 <input id="pkey-input" type="text" autoComplete="off" autoFocus placeholder="Private Key" spellCheck="false" 
                     name="privateKey"
-                   value={this.state.private_key}
+                   value={private_key}
                    onChange={(e) => this.setState({private_key: e.target.value})}
                    onKeyPress={e => {
-                    if (e.key == "Enter" && this.state.private_key.length > 0) {
+                    if (e.key == "Enter" && private_key.length > 0) {
                         this.ConnectWithKey()
                     }
                    }}/><br/>
-                <span className="error" hidden={!this.state.authError}>{this.state.errorMsg}</span><br/>
+                <span className="error" hidden={!authError}>{errorMsg}</span><br/>
 
                 <div className="text-center">
-                    <button onClick={this.ConnectWithKey.bind(this)} disabled={this.state.private_key.length == 0}>Connect Wallet</button>
+                    <button onClick={this.ConnectWithKey.bind(this)} disabled={private_key.length == 0}>Connect Wallet</button>
                 </div>
             </div>
         )
@@ -597,16 +619,18 @@ export class ConnectDialog extends Component {
 
     
     KeyConnect() {
+        const { isMobile, network } = this.props
+        const { selectedTabIndex, encryptStep } = this.state
         const tabs = {
             names: ["Encrypted Key", "Private Key"],
-            selectedTabIndex: this.state.selectedTabIndex,
+            selectedTabIndex: selectedTabIndex,
         }
 
         return (
             <div id="key-connect">
                 <div className="d-flex justify-content-between">
-                    <h4>CONNECT {this.props.network == "testnet" ? "TESTNET" : ""} WALLET</h4>
-                    <div className="link mr-5" onClick={() => this.resetInputs({dialogType: "create"})}>Don’t have an account?</div>
+                    <h4>CONNECT {network == "testnet" ? "TESTNET" : ""} WALLET</h4>
+                    <div className={"link text-nowrap" + (isMobile ? "" : " mr-5")} onClick={() => this.resetInputs({dialogType: "create"})}>Don’t have an account?</div>
                 </div>
                 <QTTabBar
                     className="underline small static set-width qt-font-bold d-flex justify-content-left"
@@ -616,25 +640,27 @@ export class ConnectDialog extends Component {
                     switchTab={this.handleSwitch.bind(this)}
                 />
                 
-                {this.state.selectedTabIndex == 0 ? 
-                    (this.state.encryptStep == 0 ? <this.ConnectEncrypted /> : <this.EncryptKey />)
+                {selectedTabIndex == 0 ? 
+                    (encryptStep == 0 ? <this.ConnectEncrypted /> : <this.EncryptKey />)
                     : <this.ConnectPrivateKey />}
             </div>
         )
     }
 
     KeyCreate() {
+        const { isMobile, network } = this.props
+        const { referrer, referrer_error, username, password, confirm_password, authError, errorMsg, processing } = this.state
         return (
             <div id="key-create">
                 <div className="d-flex justify-content-between">
-                    <h4>CREATE {this.props.network == "testnet" ? "TESTNET" : ""} WALLET</h4>
-                    <div className="link mr-5" onClick={() => this.resetInputs({dialogType: "connect"})}>Already have a key?</div>
+                    <h4>CREATE {network == "testnet" ? "TESTNET" : ""} WALLET</h4>
+                    <div className={"link text-nowrap" + (isMobile ? "" : " mr-5")} onClick={() => this.resetInputs({dialogType: "connect"})}>Already have a key?</div>
                 </div>
                 <div className="input-container">
-                    {this.state.referrer ? 
+                    {referrer ? 
                         <div className="referral text-right small mb-1">
-                            <b>Referral:</b> {this.state.referrer}
-                            {this.state.referrer_error ? <span className="text-danger"><br/>{this.state.referrer_error}</span> : null}
+                            <b>Referral:</b> {referrer}
+                            {referrer_error ? <span className="text-danger"><br/>{referrer_error}</span> : null}
                         </div>
                     : null
                     }
@@ -650,27 +676,27 @@ export class ConnectDialog extends Component {
                     <div className="mb-2">
                         <label>USERNAME</label><br/>
                         <input id="name-input" type="text" autoComplete="off" placeholder="Username" spellCheck="false" 
-                            value={this.state.username} onChange={(e) => this.setState({username: e.target.value})}/>
+                            value={username} onChange={(e) => this.setState({username: e.target.value})}/>
                     </div>
                     
 
                     <div className="mb-2">
                         <label>PASSWORD</label><br/>
                         <input id="pw-input" type="password" placeholder="Password"
-                            value={this.state.password} onChange={(e) => this.setState({password: e.target.value})}/>
+                            value={password} onChange={(e) => this.setState({password: e.target.value})}/>
                     </div>
 
                     <div className="mb-2">
                         <label>CONFIRM PASSWORD</label><br/>
                         <input id="pwconf-input" type="password" placeholder="Confirm Password" spellCheck="false" 
-                            value={this.state.confirm_password} onChange={(e) => this.setState({confirm_password: e.target.value})}/>
+                            value={confirm_password} onChange={(e) => this.setState({confirm_password: e.target.value})}/>
                     </div>
 
-                    <span className="error" hidden={!this.state.authError}>{this.state.errorMsg}</span><br/>
+                    <span className="error" hidden={!authError}>{errorMsg}</span><br/>
 
                     <div className="text-center">
-                        <button onClick={this.registerAccount.bind(this)} disabled={this.state.username.length == 0 || this.state.password.length == 0 || this.state.confirm_password.length == 0}>
-                            {this.state.processing ? <Loader /> : "REGISTER ACCOUNT"}
+                        <button onClick={this.registerAccount.bind(this)} disabled={username.length == 0 || password.length == 0 || confirm_password.length == 0}>
+                            {processing ? <Loader /> : "REGISTER ACCOUNT"}
                         </button>
                     </div>
                 </div>
@@ -679,11 +705,12 @@ export class ConnectDialog extends Component {
     }
 
     KeyDownload() {
+        const { isMobile, network } = this.props
+        const { authError, errorMsg, downloaded } = this.state
         return (
             <div id="key-create">
                 <div className="d-flex justify-content-between">
-                    <h4>CREATE {this.props.network == "testnet" ? "TESTNET" : ""} WALLET</h4>
-                    <div className="link mr-5" onClick={() => this.setState({dialogType: "connect"})}>Already have a key?</div>
+                    <h4>CREATE {network == "testnet" ? "TESTNET" : ""} WALLET</h4>
                 </div>
                 <div className="input-container">
                     <h5>ACCOUNT REGISTERED</h5>
@@ -717,10 +744,10 @@ export class ConnectDialog extends Component {
                         
                         </form>
                     </div>
-                    <span className="error" hidden={!this.state.authError}>{this.state.errorMsg}</span><br/>
+                    <span className="error" hidden={!authError}>{errorMsg}</span><br/>
                     <div className="text-center">
                         <button className="mb-2" onClick={this.DownloadKey}>DOWNLOAD FILE</button>
-                        <div className={"link qt-font-small" + (!this.state.downloaded ? " invisible" : "")} onClick={() => this.resetInputs({dialogType: "connect"})}>
+                        <div className={"link qt-font-small" + (!downloaded ? " invisible" : "")} onClick={() => this.resetInputs({dialogType: "connect"})}>
                             <u>Proceed to Connect your Wallet</u>
                         </div>
                     </div>
@@ -731,13 +758,18 @@ export class ConnectDialog extends Component {
     }
 
     render() {
+        const { isMobile, network } = this.props
+        const { dialogType, regStep } = this.state
         return (
-            <div id="connect-dialog" className={dialog + " d-flex align-content-center qt-font-regular" + (this.props.isMobile ? " mobile" : "")} 
+            <div id="connect-dialog" className={dialog + " d-flex align-content-center qt-font-regular" + (isMobile ? " mobile" : "")} 
                 onDragOver={(e)=> e.preventDefault()} onDrop={(e) => e.preventDefault()}>
-                <div className={"container " + this.props.network}>
-                    <div className="close-btn" onClick={this.closeDialog.bind(this)}><img src={devicePath("public/images/close_btn.svg")} /></div>
-                    {this.state.dialogType == "create" ? 
-                        this.state.regStep == 1 ? <this.KeyCreate /> : <this.KeyDownload /> :
+                <div className={"container " + network}>
+                    {!isMobile ? 
+                        <div className="close-btn" onClick={this.closeDialog.bind(this)}><img src={devicePath("public/images/close_btn.svg")} /></div> 
+                        : null
+                    }
+                    {dialogType == "create" ? 
+                        regStep == 1 ? <this.KeyCreate /> : <this.KeyDownload /> :
                         <this.KeyConnect />
                     }
                     <p>Your private keys are not sent to QUANTA. All transactions are signed within your browser <br/>

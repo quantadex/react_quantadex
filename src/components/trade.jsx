@@ -15,8 +15,7 @@ import {LockIcon} from './ui/account_lock.jsx'
 import Utils from '../common/utils'
 import lodash from 'lodash';
 
-import { buyTransaction } from "../redux/actions/app.jsx";
-import { sellTransaction } from "../redux/actions/app.jsx";
+import { buyTransaction, sellTransaction, TOGGLE_CONNECT_DIALOG } from "../redux/actions/app.jsx";
 import ReactGA from 'react-ga';
 
 const container = css`
@@ -59,7 +58,7 @@ const container = css`
       border-radius: 2px;
       cursor: pointer;
     }
-    button:disabled {
+    button:disabled, .gray-btn {
       background-color: #31383d;
     }
   }
@@ -211,7 +210,7 @@ class Trade extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            trade_side: 0,
+            trade_side: this.props.trade_side || 0,
             processing: false,
             qty: 0,
             price: 0,
@@ -224,29 +223,31 @@ class Trade extends Component {
     }
 
     componentDidMount() {
-      if (!this.props.mobile) {
+      const { currentTicker, mobile, inputSetTime, currentPrice, inputBuyAmount, inputBuy} = this.props
+      if (!mobile) {
         return
       }
-      if (this.props.inputSetTime && this.props.currentPrice.price && (new Date() - this.props.inputSetTime) < 50) {
+      if (inputSetTime && currentPrice.price && (new Date() - inputSetTime) < 50) {
         this.setState({
-          qty: parseFloat(this.props.inputBuyAmount),
-          price: parseFloat(this.props.inputBuy),
-          total: parseFloat(this.props.inputBuyAmount) * parseFloat(this.props.inputBuy),
-          inputSetTime: this.props.inputSetTime,
-          currentPrice: this.props.currentPrice.price,
-          currentTicker: this.props.currentTicker
+          qty: parseFloat(inputBuyAmount),
+          price: parseFloat(inputBuy),
+          total: parseFloat(inputBuyAmount) * parseFloat(inputBuy),
+          inputSetTime: inputSetTime,
+          currentPrice: currentPrice.price,
+          currentTicker: currentTicker
         })
       } else {
         this.setState({
-          price: parseFloat(this.props.currentPrice.price),
-          currentPrice: this.props.currentPrice.price,
-          currentTicker: this.props.currentTicker
+          price: parseFloat(currentPrice.price),
+          currentPrice: currentPrice.price,
+          currentTicker: currentTicker
         })
       }
     }
 
     componentWillReceiveProps(nextProps) {
-        if (!this.props.mobile && nextProps.inputSetTime != undefined && nextProps.inputSetTime != this.state.inputSetTime) {
+        const { inputSetTime, currentPrice, currentTicker } = this.state
+        if (nextProps.inputSetTime != undefined && nextProps.inputSetTime != inputSetTime) {
             this.setState({
                 qty: parseFloat(nextProps.inputBuyAmount),
                 price: parseFloat(nextProps.inputBuy),
@@ -254,7 +255,7 @@ class Trade extends Component {
                 inputSetTime: nextProps.inputSetTime
             })
         }
-        if (this.state.currentPrice !== nextProps.currentPrice.price && (this.state.currentTicker !== nextProps.currentPrice.ticker || !this.state.currentPrice)) {
+        if (currentPrice !== nextProps.currentPrice.price && (currentTicker !== nextProps.currentPrice.ticker || !currentPrice)) {
           this.setState({
             currentTicker: nextProps.currentPrice.ticker, 
             currentPrice: nextProps.currentPrice.price, 
@@ -290,19 +291,21 @@ class Trade extends Component {
     }
 
     handleBuy(e) {
-        const asset = this.props.currentTicker.split('/')[1].split('0X')
-        const label = asset[0] + (asset[1] ? '0x' + asset[1].substr(0,4) : "") + " " + this.state.price + " @ " + this.state.qty
+        const { dispatch, currentTicker } = this.props
+        const { price, qty } = this.state
+        const asset = currentTicker.split('/')[1].split('0X')
+        const label = asset[0] + (asset[1] ? '0x' + asset[1].substr(0,4) : "") + " " + price + " @ " + qty
         const toastId = toast("BUYING " + label, { autoClose: false, position: toast.POSITION.TOP_CENTER });
 
         ReactGA.event({
             category: 'BUY',
-            action: this.props.currentTicker
+            action: currentTicker
         });
 
         this.setState({ processing: true })
-        let price = Utils.maxPrecision(this.state.price, window.assetsBySymbol[this.props.currentTicker.split('/')[1]].precision)
-        let amount = Utils.maxPrecision(this.state.qty, window.assetsBySymbol[this.props.currentTicker.split('/')[0]].precision)
-        this.props.dispatch(buyTransaction(this.props.currentTicker, price, amount))
+        let price_adj = Utils.maxPrecision(price, window.assetsBySymbol[currentTicker.split('/')[1]].precision)
+        let amount = Utils.maxPrecision(qty, window.assetsBySymbol[currentTicker.split('/')[0]].precision)
+        dispatch(buyTransaction(currentTicker, price_adj, amount))
             .then((e) => {
                 const msg = this.toastMsg("BUY " + label, true, e)
                 this.notify_success(toastId, msg)
@@ -315,19 +318,21 @@ class Trade extends Component {
     }
 
     handleSell(e) {
-        const asset = this.props.currentTicker.split('/')[1].split('0X')
-        const label = asset[0] + (asset[1] ? '0x' + asset[1].substr(0,4) : "") + " " + this.state.price + " @ " + this.state.qty
+        const { dispatch, currentTicker } = this.props
+        const { price, qty } = this.state
+        const asset = currentTicker.split('/')[1].split('0X')
+        const label = asset[0] + (asset[1] ? '0x' + asset[1].substr(0,4) : "") + " " + price + " @ " + qty
         const toastId = toast("SELLING " + label, { autoClose: false, position: toast.POSITION.TOP_CENTER });
 
         ReactGA.event({
             category: 'SELL',
-            action: this.props.currentTicker
+            action: currentTicker
         });
 
         this.setState({ processing: true })
-        let price = Utils.maxPrecision(this.state.price, window.assetsBySymbol[this.props.currentTicker.split('/')[1]].precision)
-        let amount = Utils.maxPrecision(this.state.qty, window.assetsBySymbol[this.props.currentTicker.split('/')[0]].precision)
-        this.props.dispatch(sellTransaction(this.props.currentTicker, price, amount))
+        let price_adj = Utils.maxPrecision(price, window.assetsBySymbol[currentTicker.split('/')[1]].precision)
+        let amount = Utils.maxPrecision(qty, window.assetsBySymbol[currentTicker.split('/')[0]].precision)
+        dispatch(sellTransaction(currentTicker, price_adj, amount))
             .then((e) => {
                 const msg = this.toastMsg("SELL " + label, true, e)
                 this.notify_success(toastId, msg)
@@ -344,38 +349,38 @@ class Trade extends Component {
     }
 
     setPercentAmount(perc, symbol) {
+      const { balance } = this.props
+      const { trade_side, price} = this.state
       const coin = window.assetsBySymbol[symbol].id
-      const amount = this.props.balance[coin] ? this.props.balance[coin].balance * (parseInt(perc)/100) : 0
+      const amount = balance[coin] ? balance[coin].balance * (parseInt(perc)/100) : 0
 
       let qty, total
-      if (this.state.trade_side == 0) {
-        qty = amount / this.state.price
+      if (trade_side == 0) {
+        qty = amount / price
         total = amount
       } else {
         qty = amount
-        total = qty * this.state.price
+        total = qty * price
       }
       this.setState({qty, total})
     }
 
     render() {
-        // const tabs = {
-        //     names: ['LIMIT', 'MARKET', 'STOP-LIMIT'],
-        //     selectedTabIndex: 0,
-        // }
-
+        const { currentTicker, balance, mobile, mobile_nav, fee, publicKey, private_key } = this.props
+        const { trade_side, price, qty, total, processing} = this.state
         const dropdown_items = {
             items: ["25%", "50%", "75%", "100%"],
             value: "25%"
         }
-
-        if (this.props.currentTicker == null) {
+        
+        if (currentTicker == null) {
           return <div></div>;
         }
 
-        const tradingPair = this.props.currentTicker.split('/')
-        const precisions = window.assetsBySymbol && [window.assetsBySymbol[tradingPair[0]] ? window.assetsBySymbol[tradingPair[0]].precision : 5, window.assetsBySymbol[tradingPair[1]] ? window.assetsBySymbol[tradingPair[1]].precision : 5] || [0,0]
-        const balance = this.props.balance
+        const tradingPair = currentTicker.split('/')
+        const base = window.assetsBySymbol && window.assetsBySymbol[tradingPair[0]]
+        const counter = window.assetsBySymbol && window.assetsBySymbol[tradingPair[1]]
+        const precisions = [base ? base.precision : 5, counter ? counter.precision : 5] || [0,0]
         var pairBalance = []
         Object.keys(balance).forEach((currency) => {
             if (!window.assets[balance[currency].asset]) {
@@ -391,10 +396,10 @@ class Trade extends Component {
         })
         
         return (
-            <div className={container + " container-fluid" + (this.props.mobile ? " mobile" : "")}>
+            <div className={container + " container-fluid" + (mobile ? " mobile" : "")}>
                 <div className="buy-sell-toggle">
-                    <button id="buy-switch" className={"buy-btn" + (this.state.trade_side !== 0 ? " inactive" : "")} onClick={this.switchTradeTo.bind(this, 0)}>BUY <SmallToken name={tradingPair[0]} /></button>
-                    <button id="sell-switch" className={"sell-btn" + (this.state.trade_side !== 1 ? " inactive" : "")} onClick={this.switchTradeTo.bind(this, 1)}>SELL <SmallToken name={tradingPair[0]} /></button>
+                    <button id="buy-switch" className={"buy-btn" + (trade_side !== 0 ? " inactive" : "")} onClick={this.switchTradeTo.bind(this, 0)}>BUY <SmallToken name={tradingPair[0]} /></button>
+                    <button id="sell-switch" className={"sell-btn" + (trade_side !== 1 ? " inactive" : "")} onClick={this.switchTradeTo.bind(this, 1)}>SELL <SmallToken name={tradingPair[0]} /></button>
                 </div>
 
                 <div className="transac-actions">
@@ -405,12 +410,12 @@ class Trade extends Component {
                             autoComplete="off"
                             onFocus={(e) => e.target.select()}
                             min="0"
-                            value={Utils.maxPrecision(this.state.price, precisions[1])}
+                            value={Utils.maxPrecision(price, precisions[1])}
                             onChange={(e) => {
                               let value = Utils.maxPrecision(e.target.value, precisions[1])
                               this.setState({
                               price: value,
-                              total: this.state.qty * value
+                              total: qty * value
                             })}} />
                         <SmallToken name={tradingPair[1]} />
                     </div>
@@ -424,18 +429,18 @@ class Trade extends Component {
                             reverse={true}
                             width="58"
                             height="32"
-                            onChange={(e) => this.props.balance && this.setPercentAmount(e, tradingPair[this.state.trade_side == 0 ? 1 : 0])}/>
+                            onChange={(e) => balance && this.setPercentAmount(e, tradingPair[trade_side == 0 ? 1 : 0])}/>
                           <input type="number" className="trade-input qt-number-bold qt-font-small rounded-0-left" title=""
                               name="amount"
                               autoComplete="off"
                               onFocus={(e) => e.target.select()}
                               min="0"
-                              value={Utils.maxPrecision(this.state.qty, precisions[0])}
+                              value={Utils.maxPrecision(qty, precisions[0])}
                               onChange={(e) => {
                                 let value = Utils.maxPrecision(e.target.value, precisions[0])
                                 this.setState({
                                 qty: value,
-                                total: value * this.state.price
+                                total: value * price
                               })}} />
                           <SmallToken name={tradingPair[0]} />
                         </div>
@@ -450,11 +455,11 @@ class Trade extends Component {
                             onFocus={(e) => e.target.select()}
                             className="trade-input qt-number-bold qt-font-small"
                             min="0"
-                            value={Utils.maxPrecision(this.state.total, precisions[1])}
+                            value={Utils.maxPrecision(total, precisions[1])}
                             onChange={(e) => {
                               let value = Utils.maxPrecision(e.target.value, precisions[1])
                               this.setState({
-                              qty: value/this.state.price,
+                              qty: value/price,
                               total: value
                             })}}
                             />
@@ -467,56 +472,113 @@ class Trade extends Component {
                             <tbody>
                                 <tr>
                                     <td>Maker</td>
-                                    <td className="text-left text-muted pl-3">{window.assetsBySymbol && (window.assetsBySymbol[tradingPair[this.state.trade_side]].options.market_fee_percent)/100}%</td>
+                                    <td className="text-left text-muted pl-3">{window.assetsBySymbol && (window.assetsBySymbol[tradingPair[trade_side]].options.market_fee_percent)/100}%</td>
                                     <td className="text-right pr-2">{window.assetsBySymbol 
-                                        && window.assetsBySymbol[tradingPair[this.state.trade_side]].options.market_fee_percent != 0 
-                                        && ((((this.state.qty * Math.pow(10, 6)) * (this.state.price * Math.pow(10, 6))) / Math.pow(10, 12))*((window.assetsBySymbol[tradingPair[this.state.trade_side]].options.market_fee_percent)/10000)).toLocaleString(navigator.language, {maximumFractionDigits: 6}) || 0}</td>
-                                    <td className="text-muted"><SmallToken name={tradingPair[this.state.trade_side]} /></td>
+                                        && window.assetsBySymbol[tradingPair[trade_side]].options.market_fee_percent != 0 
+                                        && ((((qty * Math.pow(10, 6)) * (price * Math.pow(10, 6))) / Math.pow(10, 12))*((window.assetsBySymbol[tradingPair[trade_side]].options.market_fee_percent)/10000)).toLocaleString(navigator.language, {maximumFractionDigits: 6}) || 0}</td>
+                                    <td className="text-muted"><SmallToken name={tradingPair[trade_side]} /></td>
                                 </tr>
                                 <tr>
                                     <td>Taker</td>
-                                    <td className="text-left text-muted pl-3">{window.assetsBySymbol && window.assetsBySymbol[tradingPair[this.state.trade_side]].options.market_fee_percent}%</td>
+                                    <td className="text-left text-muted pl-3">{window.assetsBySymbol && window.assetsBySymbol[tradingPair[trade_side]].options.market_fee_percent}%</td>
                                     <td className="text-right pr-2">{window.assetsBySymbol 
-                                        && window.assetsBySymbol[tradingPair[this.state.trade_side]].options.market_fee_percent != 0 
-                                        && ((((this.state.qty * Math.pow(10, 6)) * (this.state.price * Math.pow(10, 6))) / Math.pow(10, 12))*((window.assetsBySymbol[tradingPair[this.state.trade_side]].options.market_fee_percent)/10000).toLocaleString(navigator.language, {maximumFractionDigits: 6})) || 0}</td>
-                                    <td className="text-muted"><SmallToken name={tradingPair[this.state.trade_side]} /></td>
+                                        && window.assetsBySymbol[tradingPair[trade_side]].options.market_fee_percent != 0 
+                                        && ((((qty * Math.pow(10, 6)) * (price * Math.pow(10, 6))) / Math.pow(10, 12))*((window.assetsBySymbol[tradingPair[trade_side]].options.market_fee_percent)/10000).toLocaleString(navigator.language, {maximumFractionDigits: 6})) || 0}</td>
+                                    <td className="text-muted"><SmallToken name={tradingPair[trade_side]} /></td>
                                 </tr>
                                 <tr>
                                     <td colSpan="2">Platform Fees</td>
-                                    <td className="text-right pr-2">{this.props.fee.amount}</td>
-                                    <td className="text-muted"><SmallToken name={this.props.fee.symbol} /></td>
+                                    <td className="text-right pr-2">{fee.amount}</td>
+                                    <td className="text-muted"><SmallToken name={fee.symbol} /></td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
 
-                    { this.props.publicKey ? 
-                        <div>
-                            {this.state.trade_side == 1 ?
+                    { private_key ? 
+                      <div>
+                        {trade_side == 1 ?
                                 <button id="sell-action" className="sell-btn" 
-                                  disabled={!this.props.private_key || this.state.price <= 0 || this.state.qty <= 0 || this.state.processing}
+                                  disabled={price <= 0 || qty <= 0 || processing}
                                   onClick={this.handleSell.bind(this)}>
-                                  {this.state.processing ? <Loader /> : 
+                                  {processing ? <Loader /> : 
                                     <span>
-                                      {!this.props.private_key ? <LockIcon centerText={true} /> : null}
+                                      {!private_key ? <LockIcon centerText={true} /> : null}
                                       PLACE SELL ORDER
                                     </span>
                                   }
                                 </button>
                                 :
                                 <button id="buy-action" className="buy-btn" 
-                                  disabled={!this.props.private_key || this.state.price <= 0 || this.state.qty <= 0 || this.state.processing}
+                                  disabled={price <= 0 || qty <= 0 || processing}
                                   onClick={this.handleBuy.bind(this)}>
-                                  {this.state.processing ? <Loader /> : 
+                                  {processing ? <Loader /> : 
                                     <span>
-                                      {!this.props.private_key ? <LockIcon centerText={true} /> : null}
+                                      {!private_key ? <LockIcon centerText={true} /> : null}
                                       PLACE BUY ORDER
                                     </span>
                                   }
                                 </button>
                             }
+                      </div>
+
+                      : 
+                      
+                      publicKey ?
+                        <button className="gray-btn" 
+                          onClick={mobile && mobile_nav ? () => mobile_nav() 
+                            : 
+                            () => this.props.dispatch({
+                              type: TOGGLE_CONNECT_DIALOG,
+                              data: "connect"
+                            })
+                          }>
+                            <span>
+                              <LockIcon centerText={true} /> CONNECT WALLET
+                            </span>
+                        </button>
+                        
+                        : null
+                    }
+
+                    { mobile && publicKey ?
+                      <div className="d-flex justify-content-around flex-wrap qt-font-light qt-font-small text-secondary">
+                        <span className="mx-2">{base.symbol} Balance: {balance[base.id] ? balance[base.id].balance : 0}</span>
+                        <span className="mx-2">{counter.symbol} Balance: {balance[counter.id] ? balance[counter.id].balance : 0}</span>
+                      </div>
+                      : null
+                    }
+
+                    {/* { publicKey ? 
+                        <div>
+                            {trade_side == 1 ?
+                                <button id="sell-action" className="sell-btn" 
+                                  disabled={!private_key || price <= 0 || qty <= 0 || processing}
+                                  onClick={this.handleSell.bind(this)}>
+                                  {processing ? <Loader /> : 
+                                    <span>
+                                      {!private_key ? <LockIcon centerText={true} /> : null}
+                                      PLACE SELL ORDER
+                                    </span>
+                                  }
+                                </button>
+                                :
+                                <button id="buy-action" className="buy-btn" 
+                                  disabled={!private_key || price <= 0 || qty <= 0 || processing}
+                                  onClick={this.handleBuy.bind(this)}>
+                                  {processing ? <Loader /> : 
+                                    <span>
+                                      {!private_key ? <LockIcon centerText={true} /> : null}
+                                      PLACE BUY ORDER
+                                    </span>
+                                  }
+                                </button>
+                            }
+
+                            
+                            
                         </div>
-                    : "" }
+                    : null } */}
                 </div>
             </div>
         )

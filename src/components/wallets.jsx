@@ -71,7 +71,6 @@ const container = css`
 
     .filter-container, .table-row {
       padding: 0 15px;
-      margin-top: 20px !important;
     }
 
     .filter-container input {
@@ -263,7 +262,8 @@ class Wallets extends Component {
     
     return (
       <div className={container + " content" + (this.props.isMobile ? " mobile" : "")}>
-          <this.PublicAddress />
+        { this.props.publicKey ? <this.PublicAddress /> : null }
+          
           
           <div className='filter-container d-flex flex-wrap mt-5 align-items-center'>
           <SearchBox placeholder="Search Coin" onChange={this.handleChange.bind(this)} style={{marginRight: "20px"}}/>

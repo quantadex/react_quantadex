@@ -8,9 +8,10 @@ import MobileHeader from './ui/mobileHeader.jsx';
 import Announcement from './announcement.jsx'
 import Orders from './orders.jsx';
 import Trade from './trade.jsx';
-import Balance from './balance.jsx'
-import Connect from './connect.jsx';
-import Status from './status.jsx'
+import { ConnectDialog } from './connect.jsx'
+import Message from './message.jsx'
+import Fund from './fund.jsx'
+import Settings from './settings.jsx'
 import MobileNav from './ui/mobileNav.jsx';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -21,7 +22,7 @@ import globalcss from './global-css.js'
 import CONFIG from '../config.js'
 
 const container = css`
-	background-color:${globalcss.COLOR_BACKGROUND};
+	background-color: #121517;
 	position: relative;
 	height: 100vh;
 	width: 100%;
@@ -29,64 +30,43 @@ const container = css`
 	.exchange-bottom {
 		position: fixed;
 		width: 100%;
+		height: 63px;
 		bottom: 0;
 		background-color: #23282c;
 		z-index: 99;
 	}
 	
 	#tv_chart_container, #depth_chart_container {
-		height: calc(100vh - 180px);
+		height: calc(100vh - 350px);
 		min-height: 370px !important;
 	}
 
 	.switch-chart {
-		position: absolute;
-		flex-flow: column;
-		right: 10px;
 		margin-top: 10px;
 		z-index: 1;
 
 		button {
+			width: 50%;
+			background: transparent;
 			margin-bottom: 10px;
 			padding: 5px 10px;
 			font-size: 12px;
-			border-radius: 20px;
 			font-weight: bold;
-			background: #111;
 			color: #ddd;
-			border: 2px solid #333;
+			border-bottom: 1px solid #333;
 			cursor: pointer;
 		}
 		button.active {
-			color: #50b3b7;
-			border-color: #50b3b7;
+			color: #fff;
+			border-bottom: 2px solid #fff;
 		}
 	}
 
-	.exchange-dashboard {
-		border-bottom: solid 1px #121517;
-	}
-
-	.no-scroll-bar {
-		position: relative;
-		overflow: hidden;
-	}
-
-	.pushed-margin {
-		margin-left: -10px;
-
-		th:first-child, td:first-child {
-			padding-left: 10px;
-		}
-	}
-	
-	.no-scroll-bar > div {
-		height: 100%;
-		box-sizing: content-box;
-		position: absolute;
-		left: 0;
-		right: 0;
-		overflow-y: scroll;
+	.order-status-btn {
+		width: min-content;
+		min-height: 26px;
+		background: url('/public/images/order-status.svg') no-repeat 0 50%;
+		padding-left: 35px;
 	}
 
 	#market-dropdown {
@@ -96,35 +76,68 @@ const container = css`
 	}
 
 	#market-list {
-		position: absolute;
+		position: fixed;
+		top: 50px;
+		height: 0px;
 		width: 100%;
-		height: 0;
 		overflow: hidden;
-		background-color: #222;
+		background-color: #121517;
 		transition: height 0.3s;
 		z-index: 10;
 	}
 
 	#market-list.active {
-		height: calc(100% - 182px);
+		height: calc(100% - 112px);
 	}
 
-	.content {
-		height: calc(100% - 182px);
+	.mobile-content {
+		height: calc(100% - 114px);
 		overflow-y: scroll;
+		.tabs {
+			width: 100%;
+			font-size: 12px;
+		}
+	
+		.tab-row {
+			background-color: transparent;
+			margin: 0;
+			height: auto;
+			border: none;
+			font-size: 12px;
+			white-space: nowrap;
+			position: -webkit-sticky;
+			position: sticky;
+			top: 0;
+			background: #121517;
+			z-index: 1;
+		}
 	}
 
-	&.has-announcement {
-		.content {
-			height: calc(100% - 208px);
-		}
-
-		#tv_chart_container, #depth_chart_container {
-			height: calc(100vh - 208px);
+	.trade-options {
+		position: absolute;
+		bottom: 63px;
+		text-align: center;
+		padding: 5px 10px;
+		background-color: #222730;
+		
+		button {
+			display: block;
+			height: 37px;
+      width: 100%;
+      padding: 8px;
+      font-size: 14px;
+      color: #fff;
 		}
 		
-		.orderbook-ask, .orderbook-bid {
-			height: calc(50vh - 110px);
+		.buy-btn {
+			background-color: #50b3b7;
+			border-top-left-radius: 2px;
+      border-bottom-left-radius: 2px;
+		}
+		.sell-btn {
+			background-color: #da3c76;
+			border-top-right-radius: 2px;
+      border-bottom-right-radius: 2px;
 		}
 	}
 `;
@@ -133,13 +146,22 @@ class Exchange extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			selectedTabIndex: 2,
+			selectedTabIndex: 0,
+			headerIndex: 0,
+			contentIndex: 0,
+			params: {},
+			showMarkets: false,
 			chart: "tv",
 			dialog: undefined,
 			showBenchmark: true,
-			announcements: false
-		};
-	  }
+			announcements: false,
+		}
+
+		this.MarketsList = this.MarketsList.bind(this)
+		this.Switchchart = this.Switchchart.bind(this)
+		this.ChartContent = this.ChartContent.bind(this)
+		this.TradeButtons = this.TradeButtons.bind(this)
+	}
 
 	componentDidMount() {
         fetch(CONFIG.getEnv().ANNOUNCEMENT_JSON).then(e => e.json())
@@ -150,84 +172,165 @@ class Exchange extends Component {
             }
         })
 	}
-	
-	componentWillReceiveProps(nextProps) {
-		if (nextProps.inputSetTime != undefined && nextProps.inputSetTime != this.state.inputSetTime) {
-			this.setState({
-				inputSetTime: nextProps.inputSetTime,
-				selectedTabIndex: 0
-			  })
+
+	handleSwitch(index, params = {}) {
+		var data = {contentIndex: index, headerIndex: index, showMarkets: false, params}
+
+		if (typeof index === "number") {
+			data.selectedTabIndex = index
+		}
+		this.setState(data)
+		document.getElementById("content").scrollTo({top: 0})
+	}
+
+	Switchchart() {
+		const { chart } = this.state
+		return(
+			<div className="switch-chart d-flex">
+				<button className={chart === "tv" ? "active": ""} onClick={() => this.setState({ chart: "tv" })}>Price Chart</button>
+				<button className={chart === "depth" ? "active": ""} onClick={() => this.setState({ chart: "depth" })}>Depth Chart</button>
+			</div>
+		)
+	}
+
+	ChartContent() {
+		const { showBenchmark, chart } = this.state
+		return (
+			<div>
+				<this.Switchchart />
+				<Chart chartTools={false} mobile={true} showBenchmark={showBenchmark} className={chart === "tv" ? "d-block": "d-none"} />
+				<DepthChart mobile={true} className={chart === "depth" ? "d-block": "d-none"} />
+			</div>
+		)
+	}
+
+	MarketsList() {
+		return (
+			<div id="market-dropdown" onClick={() => this.setState({showMarkets: !this.state.showMarkets})}>
+				<Ticker ticker={this.props.currentTicker} />
+			</div>
+		)
+	}
+
+	OrderStatus() {
+		return (
+			<div className="order-status-btn">
+				Order Status
+			</div>
+		)
+	}
+
+	TradeButtons() {
+		const coin = this.props.currentTicker.split('/')[0].split('0X')
+		const coin_label = coin[0] + (coin[1] ? '0x' + coin[1].substr(0,4) : "")
+		return (
+			<div className="trade-options d-flex w-100">
+				<button className="buy-btn" onClick={() => this.handleSwitch(1, {trade_side: 0})}>BUY {coin_label}</button>
+				<button className="sell-btn" onClick={() => this.handleSwitch(1, {trade_side: 1})}>SELL {coin_label}</button>
+			</div>
+		)
+	}
+
+	Header(index) {
+		const { publicKey } = this.props
+		const { selectedTabIndex } = this.state
+
+		switch (index) {
+			case 0: 
+				return {header: "Markets"}
+			case 1: 
+				return {header: <this.MarketsList />, forward: publicKey ? {label: <this.OrderStatus />, action: () => this.handleSwitch("orders")} : null }
+			case 2: 
+				return {header: "Wallet"}
+			case 3: 
+				return {header: "Settings"}
+
+			case "market_detail": 
+				return {header: <this.MarketsList />, back: () => this.handleSwitch(selectedTabIndex)}
+			case "connect": 
+				return {header: "Connect", back: () => this.handleSwitch(selectedTabIndex)}
+			case "create": 
+				return {header: "Connect", back: () => this.handleSwitch(selectedTabIndex)}
+			case "message": 
+				return {header: "Sign / Verify", back: () => this.handleSwitch(selectedTabIndex)}
+			case "orders": 
+				return {header: "Orders", back: () => this.handleSwitch(selectedTabIndex)}
 		}
 	}
 
-	toggleChart(chart) {
-		this.setState({ chart: chart })
-	}
+	Content(index) {
+		const { network, dispatch } = this.props
+		const { announcements, params, selectedTabIndex } = this.state
+		switch (index) {
+			case 0: 
+			return (
+				<React.Fragment>
+					{announcements ? <Announcement announcements={announcements} className="border-bottom border-dark" /> : null}
+					<Dashboard mobile={true} mobile_nav={() => this.handleSwitch("market_detail")} />
+				</React.Fragment>
+			)
+		case 1: 
+			return (
+				<React.Fragment>
+					<Trade mobile={true} mobile_nav={() => this.handleSwitch("connect")} trade_side={params.trade_side || 0}/>
+					<OrderBook mobile={true} mirror={true}/>
+					<TradingHistory mobile={true}/>
+				</React.Fragment>
+			)
+		case 2: 
+			return (
+				<Fund />
+			)
+		case 3: 
+			return (
+				<Settings mobile_nav={this.handleSwitch.bind(this)} />
+			)
 
-	handleSwitch(index) {
-		this.setState({selectedTabIndex: index})
-		this.toggleMarketsList(null, true)
-	}
-
-	toggleMarketsList(e, force = false) {
-		const list = document.getElementById("market-list")
-		if (force) {
-			list.classList.remove("active")
-			return
-		}
-
-		if (list.classList.contains("active")) {
-			list.classList.remove("active")
-		} else {
-			list.classList.add("active")
+		case "market_detail": 
+			return(
+				<div style={{paddingBottom: "50px"}}>
+					<this.ChartContent />
+					<OrderBook mobile={true} mirror={true} mobile_nav={() => this.handleSwitch(selectedTabIndex)}/>
+					<this.TradeButtons />
+				</div>
+			)
+		case "connect": 
+			return (
+				<ConnectDialog default="connect" network={network} dispatch={dispatch} isMobile={true} mobile_nav={() => this.handleSwitch(selectedTabIndex)} />
+			)
+		case "create": 
+			return (
+				<ConnectDialog default="create" network={network} dispatch={dispatch} isMobile={true} mobile_nav={() => this.handleSwitch(selectedTabIndex)} />
+			)
+		case "message": 
+			return (
+				<Message />
+			)
+		case "orders": 
+			return (
+				<Orders mobile={true}/>
+			)
 		}
 	}
 
 	render() {
-		const tabs = {	names: ["Trade", "Orders", "Chart", "Book", "History"],
-						selectedTabIndex: 2 }
+		const { showMarkets, selectedTabIndex, contentIndex, headerIndex } = this.state
+		const tabs = {	names: ["Markets", "Trade", "Wallet", "Settings"],
+										selectedTabIndex: selectedTabIndex }
 
-		const ChartContent = () => {
-			return (
-				<div>
-					<Switchchart />
-					<Chart chartTools={false} showBenchmark={this.state.showBenchmark} className={this.state.chart === "tv" ? "d-block": "d-none"} />
-					<DepthChart  className={this.state.chart === "depth" ? "d-block": "d-none"} />
-				</div>
-			)
-		}
-		const content = [this.props.publicKey ? <div><Trade mobile={true} /><Balance /></div> : <Connect />, 
-						this.props.publicKey ? <Orders mobile={true}/> : <Connect /> , 
-						<ChartContent />, <OrderBook mobile={true}/>, <TradingHistory mobile={true}/>]
-		const Switchchart = () => {
-			return(
-				<div className="switch-chart d-flex">
-					<button className={this.state.chart === "tv" ? "active": ""} onClick={() => this.toggleChart("tv")}>Price</button>
-					<button className={this.state.chart === "depth" ? "active": ""} onClick={() => this.toggleChart("depth")}>Depth</button>
-				</div>
-			)
-		}
-
-		const {announcements} = this.state
 		return (
-		<div className={container + (announcements ? " has-announcement" : "")}>
-			<MobileHeader />
-			{announcements ? <Announcement announcements={announcements} className="border-bottom border-dark" /> : null}
-			<div className="d-flex qt-font-normal qt-font-bold p-4 justify-content-between border-bottom border-dark">
-				<div id="market-dropdown" onClick={this.toggleMarketsList}>MARKETS</div>
-				<div><Ticker ticker={this.props.currentTicker} /></div>
-			</div>
-			<div id="market-list">
-				<Dashboard mobile={true}/>
-			</div>
+		<div className={container}>
+			<MobileHeader header={this.Header(headerIndex)} />
 			
-			<div className="content">
-				{content[this.state.selectedTabIndex]}
+			<div id="content" className="mobile-content">
+				<div id="market-list" className={showMarkets ? "active" : ""}>
+					<Dashboard mobile={true} mobile_nav={() => this.setState({showMarkets: false})} />
+				</div>
+				{this.Content(contentIndex)}
 			</div>
 
 			<div className={"exchange-bottom"}>
-				<MobileNav tabs={tabs} selectedTabIndex={this.state.selectedTabIndex} switchTab={this.handleSwitch.bind(this)} />
-				<Status mobile={true} />
+				<MobileNav tabs={tabs} selectedTabIndex={selectedTabIndex} switchTab={this.handleSwitch.bind(this)} />
 			</div>
 			
 			<ToastContainer />
@@ -240,8 +343,6 @@ const mapStateToProps = (state) => ({
 		network: state.app.network,
 		private_key: state.app.private_key,
 		publicKey: state.app.publicKey,
-		leftOpen: state.app.ui.leftOpen,
-		rightOpen: state.app.ui.rightOpen,
 		currentTicker: state.app.currentTicker,
 		inputSetTime: state.app.setTime,
 	});

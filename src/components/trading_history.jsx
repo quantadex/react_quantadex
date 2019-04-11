@@ -28,9 +28,16 @@ const container = css`
 	}
 
 	&.mobile {
-		height: 100%;
 		thead th {
-			background: #22282c;
+			background: #121517;
+		}
+
+		.perc-bar.left {
+			left: 0;
+		}
+
+		.perc-bar.right {
+			right: 0;
 		}
 	}
 `;

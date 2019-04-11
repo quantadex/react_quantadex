@@ -56,23 +56,22 @@ const container = css`
 `;
 
 class Header extends Component {
-
-	handleMarketClick() {
-		const list = document.getElementById("market-list")
-		if (list.classList.contains("active")) {
-			list.classList.remove("active")
-		} else {
-			list.classList.add("active")
+	constructor(props) {
+		super(props);
+		this.state = {
+			showMarkets: false
 		}
 	}
 
 	render() {
+		const { network, currentTicker, dispatch, connectDialog } = this.props
+		const { showMarkets } = this.state
 		return (
 			<div className={container}>
 				<div className="d-flex justify-content-between align-items-center">
 					<div className="w-100">
-						<Link to={"/" + this.props.network + "/exchange/" + (this.props.currentTicker ? this.props.currentTicker.replace("/", "_") : "")} className="header-logo">
-							<img src={this.props.network == "mainnet" ? devicePath("public/images/logo-light.svg") : devicePath("public/images/qdex-fantasy-light.svg")} width="220" />
+						<Link to={"/" + network + "/exchange/" + (currentTicker ? currentTicker.replace("/", "_") : "")} className="header-logo">
+							<img src={network == "mainnet" ? devicePath("public/images/logo-light.svg") : devicePath("public/images/qdex-fantasy-light.svg")} width="220" />
 						</Link>
 						
 					</div>
@@ -83,26 +82,27 @@ class Header extends Component {
 						</div>
 					</div> */}
 
-					{this.props.network == "testnet" ?
+					{network == "testnet" ?
 						<div className="leaderboard-link">
-							<Link to={"/" + this.props.network + "/leaderboard"}>LEADERBOARD</Link>
+							<Link to={"/" + network + "/leaderboard"}>LEADERBOARD</Link>
 						</div>
 					: "" }
 
-					<div className="d-flex align-items-center position-relative cursor-pointer" onClick={this.handleMarketClick.bind(this)}>
+					<div className="d-flex align-items-center position-relative cursor-pointer" 
+						onClick={() => this.setState({showMarkets: !showMarkets})}>
 						<span className="header-coin-name qt-font-normal qt-font-bold qt-color-theme">
-							<Ticker ticker={this.props.currentTicker} />
+							<Ticker ticker={currentTicker} />
 						</span>
-						<div id="market-list" className="markets">
-							<Dashboard />
+						<div id="market-list" className={"markets" + (showMarkets ? " active" : "")}>
+							<Dashboard closeSelf={() => this.setState({showMarkets: false})} />
 						</div>
 					</div>
 					
         		</div>
-				{ this.props.connectDialog ? 
-					<ConnectDialog default={this.props.connectDialog} 
-						network={this.props.network} 
-						dispatch={this.props.dispatch}/> 
+				{ connectDialog ? 
+					<ConnectDialog default={connectDialog} 
+						network={network} 
+						dispatch={dispatch}/> 
 					: null
 				}
 			</div>
