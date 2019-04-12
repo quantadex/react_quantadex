@@ -17,7 +17,7 @@ const container = css `
         color: #72747a;
     }
     .nav-item.active {
-        color: #2db7e4;
+        color: #66d7d7;
     }
 `
 

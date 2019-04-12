@@ -27,7 +27,7 @@ export default class Announcement extends Component {
                     if (item.link.startsWith("http")) {
                         return <a key={index} href={item.link} target="_blank">{item.title}</a>
                     }
-                    return <Link key={index} to={item.link}>{item.title}</Link>
+                    return <Link key={index} to={item.link + window.location.search}>{item.title}</Link>
                 })}
             </div>
         )

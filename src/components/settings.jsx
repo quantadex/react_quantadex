@@ -44,6 +44,9 @@ class Settings extends Component {
                 localStorage.clear()
                 window.location.assign(window.isApp ? "index.html" : (window.location.pathname.startsWith("/testnet") ? "/testnet" : "/mainnet"))
             }
+        },{
+            title: <a href="https://quantadex.zendesk.com/hc/en-us" target="_blank">Customer Support</a>,
+            className: "mt-5"
         }]
 
         return (
@@ -51,7 +54,7 @@ class Settings extends Component {
                 {tabs.map((item, index) => {
                     if (item.hide) return
                     return (
-                        <div key={index} className={"menu-item mb-4" + (item.nav ? " nav" : "")} onClick={item.action}>
+                        <div key={index} className={"menu-item mb-4" + (item.nav ? " nav" : "") + (item.className ? " " + item.className : "")} onClick={item.action}>
                             {item.title}
                         </div>
                     )

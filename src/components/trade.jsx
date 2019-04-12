@@ -510,7 +510,6 @@ class Trade extends Component {
                             onClick={this.handleSell.bind(this)}>
                             {processing ? <Loader /> : 
                               <span>
-                                {!private_key ? <LockIcon centerText={true} /> : null}
                                 PLACE SELL ORDER
                               </span>
                             }
@@ -521,7 +520,6 @@ class Trade extends Component {
                             onClick={this.handleBuy.bind(this)}>
                             {processing ? <Loader /> : 
                               <span>
-                                {!private_key ? <LockIcon centerText={true} /> : null}
                                 PLACE BUY ORDER
                               </span>
                             }
@@ -530,7 +528,8 @@ class Trade extends Component {
                       </div>
 
                       : 
-                      <button className="connect-btn" 
+                      publicKey ? 
+                        <button className="connect-btn" 
                         onClick={mobile && mobile_nav ? () => mobile_nav() 
                           : 
                           () => this.props.dispatch({
@@ -539,7 +538,8 @@ class Trade extends Component {
                           })
                         }>
                         CONNECT WALLET TO TRADE
-                      </button>
+                      </button> 
+                      : null
                     }
 
                     { mobile && publicKey ?
