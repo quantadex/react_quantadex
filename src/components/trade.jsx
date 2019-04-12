@@ -58,9 +58,16 @@ const container = css`
       border-radius: 2px;
       cursor: pointer;
     }
-    button:disabled, .gray-btn {
+    button:disabled {
       background-color: #31383d;
     }
+  }
+
+  button.connect-btn {
+    background-color: transparent;
+    border: 2px solid #66d7d7;
+    border-radius: 5px;
+    color: #66d7d7;
   }
 
   .buy-btn, .sell-btn {
@@ -498,87 +505,50 @@ class Trade extends Component {
                     { private_key ? 
                       <div>
                         {trade_side == 1 ?
-                                <button id="sell-action" className="sell-btn" 
-                                  disabled={price <= 0 || qty <= 0 || processing}
-                                  onClick={this.handleSell.bind(this)}>
-                                  {processing ? <Loader /> : 
-                                    <span>
-                                      {!private_key ? <LockIcon centerText={true} /> : null}
-                                      PLACE SELL ORDER
-                                    </span>
-                                  }
-                                </button>
-                                :
-                                <button id="buy-action" className="buy-btn" 
-                                  disabled={price <= 0 || qty <= 0 || processing}
-                                  onClick={this.handleBuy.bind(this)}>
-                                  {processing ? <Loader /> : 
-                                    <span>
-                                      {!private_key ? <LockIcon centerText={true} /> : null}
-                                      PLACE BUY ORDER
-                                    </span>
-                                  }
-                                </button>
+                          <button id="sell-action" className="sell-btn" 
+                            disabled={price <= 0 || qty <= 0 || processing}
+                            onClick={this.handleSell.bind(this)}>
+                            {processing ? <Loader /> : 
+                              <span>
+                                PLACE SELL ORDER
+                              </span>
                             }
+                          </button>
+                          :
+                          <button id="buy-action" className="buy-btn" 
+                            disabled={price <= 0 || qty <= 0 || processing}
+                            onClick={this.handleBuy.bind(this)}>
+                            {processing ? <Loader /> : 
+                              <span>
+                                PLACE BUY ORDER
+                              </span>
+                            }
+                          </button>
+                        }
                       </div>
 
                       : 
-                      
-                      publicKey ?
-                        <button className="gray-btn" 
-                          onClick={mobile && mobile_nav ? () => mobile_nav() 
-                            : 
-                            () => this.props.dispatch({
-                              type: TOGGLE_CONNECT_DIALOG,
-                              data: "connect"
-                            })
-                          }>
-                            <span>
-                              <LockIcon centerText={true} /> CONNECT WALLET
-                            </span>
-                        </button>
-                        
-                        : null
+                      publicKey ? 
+                        <button className="connect-btn" 
+                        onClick={mobile && mobile_nav ? () => mobile_nav() 
+                          : 
+                          () => this.props.dispatch({
+                            type: TOGGLE_CONNECT_DIALOG,
+                            data: "connect"
+                          })
+                        }>
+                        CONNECT WALLET TO TRADE
+                      </button> 
+                      : null
                     }
 
                     { mobile && publicKey ?
                       <div className="d-flex justify-content-around flex-wrap qt-font-light qt-font-small text-secondary">
-                        <span className="mx-2">{base.symbol} Balance: {balance[base.id] ? balance[base.id].balance : 0}</span>
-                        <span className="mx-2">{counter.symbol} Balance: {balance[counter.id] ? balance[counter.id].balance : 0}</span>
+                        <span className="mx-2">{base.symbol.split("0X")[0]} Balance: {balance[base.id] ? balance[base.id].balance : 0}</span>
+                        <span className="mx-2">{counter.symbol.split("0X")[0]} Balance: {balance[counter.id] ? balance[counter.id].balance : 0}</span>
                       </div>
                       : null
                     }
-
-                    {/* { publicKey ? 
-                        <div>
-                            {trade_side == 1 ?
-                                <button id="sell-action" className="sell-btn" 
-                                  disabled={!private_key || price <= 0 || qty <= 0 || processing}
-                                  onClick={this.handleSell.bind(this)}>
-                                  {processing ? <Loader /> : 
-                                    <span>
-                                      {!private_key ? <LockIcon centerText={true} /> : null}
-                                      PLACE SELL ORDER
-                                    </span>
-                                  }
-                                </button>
-                                :
-                                <button id="buy-action" className="buy-btn" 
-                                  disabled={!private_key || price <= 0 || qty <= 0 || processing}
-                                  onClick={this.handleBuy.bind(this)}>
-                                  {processing ? <Loader /> : 
-                                    <span>
-                                      {!private_key ? <LockIcon centerText={true} /> : null}
-                                      PLACE BUY ORDER
-                                    </span>
-                                  }
-                                </button>
-                            }
-
-                            
-                            
-                        </div>
-                    : null } */}
                 </div>
             </div>
         )

@@ -8,27 +8,29 @@ import { connect } from 'react-redux'
 
 class Exchange extends Component {
 	componentDidMount() {
-		if (!this.props.match.params.net || (this.props.match.params.net !== "mainnet" && this.props.match.params.net !== "testnet")) {
+		const { match, history, location, dispatch } = this.props
+		if (!match.params.net || (match.params.net !== "mainnet" && match.params.net !== "testnet")) {
 			const default_ticker = 'ETH_BTC';
-			this.props.history.push("/mainnet/exchange/" + default_ticker + this.props.location.search)
-		} else if (!this.props.match.params.ticker) {
-			const default_ticker = this.props.match.params.net == "mainnet" ? 'ETH_BTC' : "ETH_USD"
-			this.props.history.push("/" + this.props.match.params.net + "/exchange/" + default_ticker + this.props.location.search)
+			history.push("/mainnet/exchange/" + default_ticker + location.search)
+		} else if (!match.params.ticker) {
+			const default_ticker = match.params.net == "mainnet" ? 'ETH_BTC' : "ETH_USD"
+			history.push("/" + match.params.net + "/exchange/" + default_ticker + location.search)
 		} else {
-			const ticker = this.props.match.params.ticker.replace("_", "/");
-			// console.log("Loading exchange for=", ticker);
-			this.props.dispatch(switchTicker(ticker));
+			const ticker = match.params.ticker.replace("_", "/");
+			dispatch(switchTicker(ticker));
 		}
 	}
 	
 	componentDidUpdate(prevProps) {
-		if (prevProps.match.params.ticker != this.props.match.params.ticker || prevProps.match.params.net != this.props.match.params.net) {
+		const { match } = this.props
+		if (prevProps.match.params.ticker != match.params.ticker || prevProps.match.params.net != match.params.net) {
 			this.componentDidMount()
 		}
 	}
 
 	render() {
-		if (this.props.isMobile) {
+		const { isMobile, location } = this.props
+		if (isMobile || location.search.includes("mobile=true")) {
 			return <ExchangeMobile />
 		}
 		return <ExchangeDesktop />
