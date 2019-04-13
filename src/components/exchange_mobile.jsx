@@ -13,6 +13,7 @@ import Message from './message.jsx'
 import Fund from './fund.jsx'
 import Settings from './settings.jsx'
 import MobileNav from './ui/mobileNav.jsx';
+import Status from './status.jsx'
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { connect } from 'react-redux'
@@ -31,14 +32,20 @@ const container = css`
 		min-height: 370px !important;
 	}
 
+	.exchange-bottom {
+		position: fixed;
+		bottom: 0;
+		background-color: #121517;
+		width: 100%;
+	}
+
 	.switch-chart {
-		margin-top: 10px;
+		white-space: nowrap;
 		z-index: 1;
 
 		button {
 			width: 50%;
 			background: transparent;
-			margin-bottom: 10px;
 			padding: 5px 10px;
 			font-size: 12px;
 			font-weight: bold;
@@ -60,6 +67,8 @@ const container = css`
 	}
 
 	#market-dropdown {
+		width: max-content;
+		white-space: nowrap;
 		padding-right: 15px;
 		background: url(${devicePath("public/images/menu-arrow-down.svg")}) no-repeat 100% 50%;
 		cursor: pointer;
@@ -131,6 +140,24 @@ const container = css`
       border-bottom-right-radius: 2px;
 		}
 	}
+
+	&.web {
+		.mobile-content {
+			margin-bottom: 40px
+		}
+
+		#market-list {
+			top: 81px;
+		}
+
+		#market-list.active {
+			height: calc(100% - 146px);
+		}
+
+		.trade-options {
+			bottom: 65px;
+		}
+	}
 `;
 
 class Exchange extends Component {
@@ -138,8 +165,8 @@ class Exchange extends Component {
 		super(props);
 		this.state = {
 			selectedTabIndex: 0,
-			headerIndex: 0,
-			contentIndex: 0,
+			headerIndex: window.isApp ? "markets" : "chart",
+			contentIndex: window.isApp ? "markets" : "chart",
 			params: {},
 			showMarkets: false,
 			chart: "tv",
@@ -165,9 +192,14 @@ class Exchange extends Component {
 	}
 
 	handleSwitch(index, params = {}) {
-		var data = {contentIndex: index, headerIndex: index, showMarkets: false, params}
+		var contentIndex = index
+		var tabIndex = typeof index === "number"
+		if (tabIndex) {
+			contentIndex = window.isApp ? ["markets", "trade", "wallet", "settings"][index] : ["chart", "trade", "orders", "wallet"][index]
+		}
 
-		if (typeof index === "number") {
+		var data = {contentIndex: contentIndex, headerIndex: contentIndex, showMarkets: false, params}
+		if (tabIndex) {
 			data.selectedTabIndex = index
 		}
 		this.setState(data)
@@ -177,9 +209,10 @@ class Exchange extends Component {
 	Switchchart() {
 		const { chart } = this.state
 		return(
-			<div className="switch-chart d-flex">
+			<div className="switch-chart d-flex align-items-center">
 				<button className={chart === "tv" ? "active": ""} onClick={() => this.setState({ chart: "tv" })}>Price Chart</button>
 				<button className={chart === "depth" ? "active": ""} onClick={() => this.setState({ chart: "depth" })}>Depth Chart</button>
+				{!window.isApp ? <this.MarketsList /> : null}
 			</div>
 		)
 	}
@@ -197,7 +230,7 @@ class Exchange extends Component {
 
 	MarketsList() {
 		return (
-			<div id="market-dropdown" onClick={() => this.setState({showMarkets: !this.state.showMarkets})}>
+			<div id="market-dropdown" className={"mx-3" + (window.isApp ? "" : " qt-font-small")} onClick={() => this.setState({showMarkets: !this.state.showMarkets})}>
 				<Ticker ticker={this.props.currentTicker} />
 			</div>
 		)
@@ -212,7 +245,9 @@ class Exchange extends Component {
 	}
 
 	TradeButtons() {
-		const coin = this.props.currentTicker.split('/')[0].split('0X')
+		const { currentTicker } = this.props
+		if (!currentTicker) return null
+		const coin = currentTicker.split('/')[0].split('0X')
 		const coin_label = coin[0] + (coin[1] ? '0x' + coin[1].substr(0,4) : "")
 		return (
 			<div className="trade-options d-flex w-100">
@@ -227,19 +262,19 @@ class Exchange extends Component {
 		const { selectedTabIndex } = this.state
 
 		switch (index) {
-			case 0: 
+			case "markets": 
 				return {header: <img src="/public/images/logo.svg" alt="QUANTADEX" />}
-			case 1: 
+			case "trade": 
 				return {header: <this.MarketsList />, 
-					left: () => this.handleSwitch("market_detail"),
+					left: () => this.handleSwitch("chart"),
 					left_icon: "/public/images/chart-icon.svg",
 					right: publicKey ? {label: <this.OrderStatus />, action: () => this.handleSwitch("orders")} : null }
-			case 2: 
+			case "wallet": 
 				return {header: "Wallet"}
-			case 3: 
+			case "settings": 
 				return {header: "Settings"}
 
-			case "market_detail": 
+			case "chart": 
 				return {header: <this.MarketsList />, left: () => this.handleSwitch(selectedTabIndex)}
 			case "connect": 
 				return {header: "Connect", left: () => this.handleSwitch(selectedTabIndex)}
@@ -256,22 +291,23 @@ class Exchange extends Component {
 		const { network, dispatch, publicKey } = this.props
 		const { announcements, params, selectedTabIndex } = this.state
 		switch (index) {
-			case 0: 
+			case "markets": 
 			return (
 				<React.Fragment>
 					{announcements ? <Announcement announcements={announcements} className="border-bottom border-dark" /> : null}
-					<Dashboard mobile={true} mobile_nav={() => this.handleSwitch("market_detail")} />
+					<Dashboard mobile={true} mobile_nav={() => this.handleSwitch("chart")} />
 				</React.Fragment>
 			)
-		case 1: 
+		case "trade": 
 			return (
 				<React.Fragment>
+					{!window.isApp ? <div className="mt-3"><this.MarketsList /></div> : null}
 					<Trade mobile={true} mobile_nav={() => this.handleSwitch("connect")} trade_side={params.trade_side || 0}/>
 					<OrderBook mobile={true} mirror={true}/>
 					<TradingHistory mobile={true}/>
 				</React.Fragment>
 			)
-		case 2: 
+		case "wallet": 
 			if (publicKey) {
 				return <Fund />
 			} 
@@ -281,12 +317,12 @@ class Exchange extends Component {
 				</div>
 			)
 			
-		case 3: 
+		case "settings": 
 			return (
 				<Settings mobile_nav={this.handleSwitch.bind(this)} />
 			)
 
-		case "market_detail": 
+		case "chart": 
 			return(
 				<div style={{paddingBottom: "50px"}}>
 					<this.ChartContent />
@@ -307,20 +343,25 @@ class Exchange extends Component {
 				<Message />
 			)
 		case "orders": 
+			if (publicKey) {
+				return <Orders mobile={true}/>
+			} 
 			return (
-				<Orders mobile={true}/>
+				<div className="d-flex h-100 mx-auto" style={{maxWidth: "225px"}}>
+					<Connect mobile_nav={this.handleSwitch.bind(this)} />
+				</div>
 			)
 		}
 	}
 
 	render() {
 		const { showMarkets, selectedTabIndex, contentIndex, headerIndex } = this.state
-		const tabs = {	names: ["Markets", "Trade", "Wallet", "Settings"],
-										selectedTabIndex: selectedTabIndex }
+		const tabs = {	names: ["Markets", "Trade", "Wallet", "Settings"] }
+		const web_tabs = { names: ["Chart", "Trade", "Orders", "Wallet"] }
 
 		return (
-		<div className={container + " d-flex flex-column"}>
-			<MobileHeader header={this.Header(headerIndex)} />
+		<div className={container + " d-flex flex-column" + (window.isApp ? " app" : " web")}>
+			<MobileHeader header={this.Header(headerIndex)} mobile_nav={this.handleSwitch.bind(this)} />
 			
 			<div id="content" className="mobile-content">
 				<div id="market-list" className={showMarkets ? "active" : ""}>
@@ -328,9 +369,10 @@ class Exchange extends Component {
 				</div>
 				{this.Content(contentIndex)}
 			</div>
-
-			<MobileNav tabs={tabs} selectedTabIndex={selectedTabIndex} switchTab={this.handleSwitch.bind(this)} />
-			
+			<div className="exchange-bottom">
+				<MobileNav tabs={window.isApp ? tabs : web_tabs} selectedTabIndex={selectedTabIndex} switchTab={this.handleSwitch.bind(this)} />
+				<Status mobile={true}/>
+			</div>
 			<ToastContainer />
 		</div>
 		);

@@ -91,13 +91,13 @@ export class HamburgerMenu extends React.Component {
 
   render() {
     const a = Math.random()
+    const { mobile_nav, isMobile } = this.props
     return (
       <div ref="hamburgerMenu" className={container}>
         <a><img src={devicePath("public/images/menuicons/hamburger.svg")} width="16" height="16" /></a>
         <div className={"hamburger-menu flex-column position-absolute qt-font-small qt-font-regular " + (this.state.menuOpen ? 'd-flex' : 'd-none')}>
           {
             this.props.menuList.map((e, index) => {
-
               if (index == 0) {
                 return (
                   <div key={index} className="group-head d-flex flex-column align-items-center justify-content-center">
@@ -106,15 +106,16 @@ export class HamburgerMenu extends React.Component {
                   </div>
                 )
               }
+              if (isMobile && index == 1) return
 
               return (
                 <div key={index} className={"group " + css`background-color:${e.backgroundColor};`}>
                   {
                     e.items.map((item, index) => {
-                      if (item.onClick) {
+                      if (item.mobile_nav || item.onClick) {
                         if ( this.props.private_key && item.text == "Unlock" ) return
                         return (
-                          <a key={index} onClick={item.text == "Unlock" ? () => item.onClick(this.props.dispatch) : item.onClick}
+                          <a key={index} onClick={item.mobile_nav ? () => item.mobile_nav(mobile_nav) : item.text == "Unlock" ? () => item.onClick(this.props.dispatch) : item.onClick}
                              className="d-flex menu-row qt-cursor-pointer"
                              onMouseOver={this.handleHover.bind(this,item.iconPathActive)}
                              onMouseLeave={this.handleHover.bind(this,item.iconPath)}>
@@ -167,19 +168,21 @@ HamburgerMenu.defaultProps = {
       iconPath: devicePath("public/images/menuicons/wallet-grey.svg"),
       iconPathActive: devicePath("public/images/menuicons/wallet-white.svg"),
       text:"Wallets",
-      url:"/" + net + "/wallets"
+      url:"/" + net + "/wallets",
+      mobile_nav: (mobile_nav) => mobile_nav(3)
     },{
       iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),
       iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
       text:"Sign/Verify",
-      url:"/" + net + "/message"
+      url:"/" + net + "/message",
+      mobile_nav: (mobile_nav) => mobile_nav("message")
     },
-    {
-      iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),
-      iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
-      text:"Leaderboard",
-      url:"/" + net + "/leaderboard"
-    },
+    // {
+    //   iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),
+    //   iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
+    //   text:"Leaderboard",
+    //   url:"/" + net + "/leaderboard"
+    // },
   ],
     backgroundColor:"rgba(40, 48, 52,0.36)"
   },{
@@ -192,14 +195,15 @@ HamburgerMenu.defaultProps = {
           type: TOGGLE_CONNECT_DIALOG,
           data: "connect"
         })
-      }
+      },
+      mobile_nav: (mobile_nav) => mobile_nav("connect")
     },{
       iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),
       iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
       text:"Logout",
       onClick: () => {
         localStorage.clear()
-        window.location.assign(window.isApp ? "index.html" : (window.location.pathname.startsWith("/testnet") ? "/testnet" : "/mainnet"))
+        window.location.assign(window.location.pathname.startsWith("/testnet") ? "/testnet" : "/mainnet")
       }
     }],
     backgroundColor:"#323b40"
@@ -213,7 +217,8 @@ const mapStateToProps = (state) => ({
   total_fund: state.app.totalFundValue,
   currentTicker: state.app.currentTicker,
   network: state.app.network,
-  private_key: state.app.private_key
+  private_key: state.app.private_key,
+  isMobile: state.app.isMobile
 });
 
 export default connect(mapStateToProps)(withRouter(HamburgerMenu))

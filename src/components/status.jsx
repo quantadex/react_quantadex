@@ -74,6 +74,11 @@ const container = css`
             display: none;
         }
 
+        .support {
+            width: 100%;
+            text-align: center;
+        }
+
         .explorer, .avg-lat {
             display: inline-block;
         }
@@ -93,14 +98,15 @@ class Status extends Component {
     }
     
     render() {
+        const { mobile, blockInfo } = this.props
         const netsList = [{name: "mainnet"}, {name: "testnet"}]
 
         return (
-            <div id="quanta-status" className={container + (this.props.mobile ? " mobile" : "")}>
+            <div id="quanta-status" className={container + (mobile ? " mobile" : "")}>
                 <div className="brand">QUANTA Fair Trading Protocol</div>
-                <div className="support"><a href="https://quantadex.zendesk.com/hc/en-us" target="_blank">Customer Support</a></div>
-                <div className="blocknum" title="Highest Block">{this.props.blockInfo.blockNumber}</div>
-                <div className="avg-lat" title="Average Block Latency">{ this.props.blockInfo.blockTime}ms</div>
+                <div className="support"><a href="https://quantadex.zendesk.com/hc/en-us" target="_blank">{mobile ? "Help" : "Customer Support"}</a></div>
+                <div className="blocknum" title="Highest Block">{blockInfo.blockNumber}</div>
+                <div className="avg-lat" title="Average Block Latency">{blockInfo.blockTime}ms</div>
                 <div className="net-select position-relative text-uppercase">
                     {window.location.pathname.startsWith("/testnet") ? "testnet" : "mainnet"}
                     <div className="net-options">

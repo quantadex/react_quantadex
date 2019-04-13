@@ -30,7 +30,7 @@ class Exchange extends Component {
 
 	render() {
 		const { isMobile, location } = this.props
-		if (isMobile || location.search.includes("mobile=true")) {
+		if (isMobile || location.search.includes("app=true")) {
 			return <ExchangeMobile />
 		}
 		return <ExchangeDesktop />
