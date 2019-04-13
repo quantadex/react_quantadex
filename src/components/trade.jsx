@@ -528,7 +528,7 @@ class Trade extends Component {
                       </div>
 
                       : 
-                      publicKey ? 
+                      mobile || publicKey ? 
                         <button className="connect-btn" 
                         onClick={mobile && mobile_nav ? () => mobile_nav() 
                           : 

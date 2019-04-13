@@ -196,12 +196,13 @@ injectGlobal`
 
 const store = createStore(reducer, compose(applyMiddleware(thunk)))
 
-var history
-if (window.isApp) {
-	history = createHashHistory()
-} else {
-	history = createBrowserHistory()
-}
+// var history
+// if (window.isApp) {
+// 	history = createHashHistory()
+// } else {
+	
+// }
+var history = createBrowserHistory()
 history.listen((location, action) => {
 	//console.log("history change ", location.pathname);
 	ReactGA.set({ page: location.pathname });

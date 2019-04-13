@@ -19,9 +19,9 @@
 		<div id="app" />
 	
 	<script type="text/javascript">
-		window.isApp = (document.URL.indexOf("http://") === -1 && document.URL.indexOf("https://") === -1);
+		window.isApp = window.location.search.includes("app=true");
 		var devicePath = function (url) {
-			return window.isApp ? url : ("/" + url)
+			return ("/" + url)
 		}
 
 		var _rollbarConfig = {

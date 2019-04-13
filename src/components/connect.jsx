@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { css } from 'emotion'
 import { connect } from 'react-redux'
 import { AccountLogin, GetAccount, TOGGLE_CONNECT_DIALOG } from '../redux/actions/app.jsx'
-import { PrivateKey, changeWalletPassword, decryptWallet, encryptWallet } from "@quantadex/bitsharesjs";
+import { PrivateKey, decryptWallet, encryptWallet } from "@quantadex/bitsharesjs";
 import WalletApi from "../common/api/WalletApi";
 import QTTabBar from './ui/tabBar.jsx'
 import Loader from '../components/ui/loader.jsx'
@@ -788,7 +788,8 @@ export class ConnectDialog extends Component {
 
 const mapStateToProps = (state) => ({
     network: state.app.network,
-    private_key: state.app.private_key
+    private_key: state.app.private_key,
+    isMobile: state.app.isMobile
 });
 
 export default connect(mapStateToProps)(Connect)

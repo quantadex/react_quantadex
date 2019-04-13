@@ -32,13 +32,13 @@ const container = css`
 
 class Menu extends Component {
   render() {
-		const {isMobile, style, name} = this.props
+		const {isMobile, style, name, mobile_nav} = this.props
     return (
       <div className={container + (isMobile ? " mobile" : "")}  style={style}>
 				<div className="row qt-font-bold qt-font-small justify-content-end">
 					<span className="name mr-3">{name}</span>
-					<Connect type="lock" />
-					{this.props.name && <HamburgerMenu />}
+					<Connect type="lock" mobile_nav={() => mobile_nav("connect")}/>
+					{name && <HamburgerMenu mobile_nav={mobile_nav} />}
 				</div>
       </div>
     )
