@@ -111,7 +111,6 @@ const dialog = css`
             }
 
             .error {
-                position: absolute;
                 color: #f0185c;
                 font-size: 11px;
             }

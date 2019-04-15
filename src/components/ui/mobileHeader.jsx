@@ -6,7 +6,7 @@ import Connect from "../connect.jsx"
 import Menu from "../menu.jsx"
 
 const container = css `
-    min-height: 50px;
+    min-height: 60px;
     z-index: 999;
 
     .left, .right {

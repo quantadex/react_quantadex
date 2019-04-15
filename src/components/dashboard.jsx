@@ -55,6 +55,7 @@ const container = css`
 		}
 		table tr {
 			border-bottom: 1px solid #333;
+			line-height: 30px;
 		}
 	}
 `;
@@ -96,7 +97,7 @@ class Dashboard extends Component {
 		}
 
 		return (
-			<div className={container + (mobile ? " mobile" : "")} onClick={e => e.stopPropagation()}>
+			<div className={container + (mobile ? " mobile qt-font-small" : "")} onClick={e => e.stopPropagation()}>
 				<div className="d-flex justify-content-between border-bottom border-dark mb-3">
 					<h4>MARKETS</h4>
 					<SearchBox onChange={this.handleChange.bind(this)} placeholder="Search Pairs" 
