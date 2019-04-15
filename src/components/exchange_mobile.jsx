@@ -371,7 +371,7 @@ class Exchange extends Component {
 			</div>
 			<div className="exchange-bottom">
 				<MobileNav tabs={window.isApp ? tabs : web_tabs} selectedTabIndex={selectedTabIndex} switchTab={this.handleSwitch.bind(this)} />
-				<Status mobile={true}/>
+				{window.isApp ? null : <Status mobile={true}/>}
 			</div>
 			<ToastContainer />
 		</div>
