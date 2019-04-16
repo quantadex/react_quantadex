@@ -2,6 +2,4 @@ node_modules/*
 node_modules
 public/build/*
 public/build/bundle_trade.js
-mobile_app
-mobile_app/*
 mobile_app.zip
