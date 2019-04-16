@@ -43,9 +43,9 @@ const container = css `
 
 export default class MobileNav extends Component {
     render() {
-        const {selectedTabIndex, tabs, switchTab} = this.props
+        const {hide, selectedTabIndex, tabs, switchTab} = this.props
         return (
-            <div className={container + " d-flex" + (window.isApp ? " app" : " web")}>
+            <div className={container + (hide ? " d-none" : " d-flex") + (window.isApp ? " app" : " web")}>
                 { tabs.names.map((tab, index) => {
                     return (
                         <div key={index}

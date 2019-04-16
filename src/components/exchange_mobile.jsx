@@ -37,6 +37,7 @@ const container = css`
 		bottom: 0;
 		background-color: #121517;
 		width: 100%;
+		z-index: 99;
 	}
 
 	.switch-chart {
@@ -76,17 +77,18 @@ const container = css`
 
 	#market-list {
 		position: fixed;
-		top: 50px;
+		top: 60px;
 		height: 0px;
 		width: 100%;
-		overflow: hidden;
+		overflow: scroll;
 		background-color: #121517;
 		transition: height 0.3s;
 		z-index: 10;
 	}
 
 	#market-list.active {
-		height: calc(100% - 112px);
+		height: calc(100% - 60px);
+		padding-bottom: 65px;
 	}
 
 	.mobile-content {
@@ -115,7 +117,7 @@ const container = css`
 
 	.trade-options {
 		position: fixed;
-		bottom: 63px;
+		bottom: 0px;
 		text-align: center;
 		padding: 5px 10px;
 		background-color: #222730;
@@ -143,15 +145,16 @@ const container = css`
 
 	&.web {
 		.mobile-content {
-			margin-bottom: 40px
+			margin-bottom: 65px;
 		}
 
 		#market-list {
-			top: 81px;
+			top: 91px;
 		}
 
 		#market-list.active {
-			height: calc(100% - 146px);
+			height: calc(100% - 91px);
+			padding-bottom: 70px;
 		}
 
 		.trade-options {
@@ -324,7 +327,7 @@ class Exchange extends Component {
 
 		case "chart": 
 			return(
-				<div style={{paddingBottom: "50px"}}>
+				<div style={{paddingBottom: window.isApp ? "0px" : "50px"}}>
 					<this.ChartContent />
 					<OrderBook mobile={true} mirror={true}/>
 					<this.TradeButtons />
@@ -370,8 +373,13 @@ class Exchange extends Component {
 				{this.Content(contentIndex)}
 			</div>
 			<div className="exchange-bottom">
-				<MobileNav tabs={window.isApp ? tabs : web_tabs} selectedTabIndex={selectedTabIndex} switchTab={this.handleSwitch.bind(this)} />
-				<Status mobile={true}/>
+				<MobileNav 
+					hide={window.isApp && contentIndex === "chart"}
+					tabs={window.isApp ? tabs : web_tabs} 
+					selectedTabIndex={selectedTabIndex} 
+					switchTab={this.handleSwitch.bind(this)} 
+				/>
+				{window.isApp ? null : <Status mobile={true}/>}
 			</div>
 			<ToastContainer />
 		</div>
