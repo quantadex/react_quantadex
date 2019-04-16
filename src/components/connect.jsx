@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { css } from 'emotion'
 import { connect } from 'react-redux'
 import { AccountLogin, GetAccount, TOGGLE_CONNECT_DIALOG } from '../redux/actions/app.jsx'
-import { PrivateKey, decryptWallet, encryptWallet } from "@quantadex/bitsharesjs";
+import { PrivateKey, PublicKey, decryptWallet, encryptWallet } from "@quantadex/bitsharesjs";
 import WalletApi from "../common/api/WalletApi";
 import QTTabBar from './ui/tabBar.jsx'
 import Loader from '../components/ui/loader.jsx'
@@ -76,7 +76,7 @@ const dialog = css`
 
     .container {
         position: relative;
-        width: auto;
+        width: 100%;
         max-width: 750px;
         background-color: #4f637e;
         border-radius: 5px;
@@ -108,6 +108,21 @@ const dialog = css`
                 padding: 20px;
                 width: 100%;
                 border-radius: 4px;
+            }
+
+            input:read-only {
+                background: #eee;
+            }
+
+            .generate-key {
+                background: url('/public/images/generate.svg') no-repeat 0 50%;
+                padding-left: 18px;
+            }
+
+            .personal-key input {
+                padding: 0;
+                height: auto;
+                width: auto ;
             }
 
             .error {
@@ -259,8 +274,13 @@ export class ConnectDialog extends Component {
             selectedTabIndex: 0,
             regStep: 1,
             encryptStep: 0,
+            no_email: false,
             encrypted_data: null,
             private_key: "",
+            public_key: "",
+            valid_key: true,
+            email: "",
+            email_code: "",
             username: "",
             password: "",
             confirm_password: "",
@@ -273,14 +293,19 @@ export class ConnectDialog extends Component {
         this.handleChange = this.handleChange.bind(this)
         this.KeyConnect = this.KeyConnect.bind(this)
         this.KeyCreate = this.KeyCreate.bind(this)
+        this.VerifyEmail = this.VerifyEmail.bind(this)
+        this.ConfirmEmail = this.ConfirmEmail.bind(this)
+        this.Register = this.Register.bind(this)
         this.KeyDownload = this.KeyDownload.bind(this)
         this.ConnectEncrypted = this.ConnectEncrypted.bind(this)
         this.ConnectPrivateKey = this.ConnectPrivateKey.bind(this)
         this.EncryptKey = this.EncryptKey.bind(this)
-        this.DownloadKey = this.DownloadKey.bind(this)
+        this.downloadKey = this.downloadKey.bind(this)
+        this.generateKey = this.generateKey.bind(this)
     }
 
     componentDidMount() {
+        this.generateKey()
         const search = window.location.search.slice(1).split("=")
         const referrer = search.indexOf("referrer") !== -1 && search[search.indexOf("referrer") + 1]
         if (!referrer) return
@@ -416,28 +441,29 @@ export class ConnectDialog extends Component {
     }
 
     registerAccount() {
-        const { password, confirm_password, username, referrer, referrer_error } = this.state
-        if (password !== confirm_password) {
-            this.setState({authError: true, errorMsg: "Your password inputs are not the same"})
-            return
-        } 
+        const { password, confirm_password, username, personal_key, public_key, private_key, no_email, email, email_code, referrer, referrer_error } = this.state
+        if(!personal_key) {
+            if (password !== confirm_password) {
+                this.setState({authError: true, errorMsg: "Your password inputs are not the same"})
+                return
+            } 
 
-        if (!this.validatePassword(password)) {
-            this.setState({authError: true, errorMsg: "Password must contains at least 8 characters, 1 uppercase, and 1 number."})
-            return
+            if (!this.validatePassword(password)) {
+                this.setState({authError: true, errorMsg: "Password must contains at least 8 characters, 1 uppercase, and 1 number."})
+                return
+            }
         }
 
-        const keys = WalletApi.generate_key()
         const reg_json = {
             name: username.toLowerCase(),
-			public_key: keys.publicKey,
+			public_key: public_key,
         }
 
         if (referrer && !referrer_error) {
             reg_json.referrer= referrer
         }
-
-		this.setState({processing: true, private_key: keys.privateKey})
+        
+        this.setState({processing: true})
 
 		fetch(CONFIG.getEnv().API_PATH + "/register_account", {
 			method: "post",
@@ -449,9 +475,27 @@ export class ConnectDialog extends Component {
 		}).then(response => {
 			if (response.status == 200) {
 				this.setState({
-                    regStep:2,
+                    regStep: 4,
 					authError: false
-				});
+                });
+                if (!no_email) {
+                    const encryption = encryptWallet(PrivateKey.fromWif(private_key), password)
+                    const text= JSON.stringify(encryption)
+                    fetch(CONFIG.getEnv().API_PATH + "/send_walletinfo", {
+                        method: "post",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Accept: "application/json"
+                        },
+                        body: JSON.stringify({
+                            email: email,
+                            confirm: email_code,
+                            public_key: public_key,
+                            account: username,
+                            json: window.btoa(text)
+                        })
+                    })
+                }
 				return response.json()
 			} else {
 				return response.json().then(res => {
@@ -475,15 +519,7 @@ export class ConnectDialog extends Component {
 		})
     }
 
-    DownloadKey() {
-        const checks = document.forms.agreements.getElementsByTagName("input")
-        for (let input of checks) {
-            if (!input.checked) {
-                this.setState({authError: true, errorMsg: "You must agree to all of the above"})
-                return
-            }
-        }
-
+    downloadKey() {
         this.Encrypt()
         this.setState({downloaded: true})
     }
@@ -506,6 +542,196 @@ export class ConnectDialog extends Component {
         e.preventDefault();
         var file = e.dataTransfer.files[0]
         this.uploadFile(file)
+    }
+
+    VerifyEmail() {
+        const self = this
+        const { email, email_error, processing } = this.state
+        function verify() {
+            const isValid = email.match(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)
+            // console.log(email, isValid)
+            if (isValid) {
+                self.setState({email_error: false, processing: true})
+                fetch(CONFIG.getEnv().API_PATH + "/verify_email", {
+                    method: "post",
+                    headers: {
+                            "Content-Type": "application/json",
+                            Accept: "application/json"
+                    },
+                    body: JSON.stringify({ email: email })
+                }).then(e => e.json()).then(response => {
+                    if (response.success) {
+                        self.setState({
+                            regStep:2
+                        });
+                    } 
+                }).finally(() => {
+                    self.setState({processing: false})
+                })
+            } else {
+                self.setState({email_error: "Not a valid email address."})
+            }
+            
+        }
+
+        return (
+            <React.Fragment>
+                <h3 className="text-dark qt-font-bold">1/3 - VERIFY YOUR EMAIL</h3>
+                <p className="qt-font-small my-4">
+                    The QUANTA blockchain is Graphene-based Architecture which uses an 
+                    account system based on username, and public-private key signature. 
+                    This wallet creation will generate you a random public-private key, 
+                    and register your account with the blockchain, then encrypt your private 
+                    key with a password  into a private “json” key.
+                </p>
+
+                <label>EMAIL TO RECEIVE THE ENCRYPTED KEY</label><br/>
+                <input type="email" name="email" placeholder="Email" spellCheck="false"
+                    value={email} onChange={(e) => this.setState({email: e.target.value})}
+                />
+                {email_error ? <span className="text-danger">{email_error}</span> : null}
+                <div className="text-center mt-5">
+                    <button onClick={verify} disabled={processing} >
+                        {processing ? <Loader /> : "VERIFY EMAIL"}
+                    </button>
+                </div>
+                <div className="link qt-font-small text-center mt-4" 
+                    onClick={() => this.setState({no_email: true, regStep: 3})}>
+                    <u>Skip. Download locally</u>
+                </div>
+            </React.Fragment>
+        )
+    }
+
+    ConfirmEmail() {
+        const self = this
+        const { email, email_code, processing } = this.state
+        function confirm() {
+            self.setState({processing: true})
+            fetch(CONFIG.getEnv().API_PATH + "/confirm_email", {
+                method: "post",
+                headers: {
+                        "Content-Type": "application/json",
+                        Accept: "application/json"
+                },
+                body: JSON.stringify({ email: email, confirm: email_code })
+            }).then(e => e.json()).then(response => {
+                if (response.success) {
+                    self.setState({
+                        regStep:3
+                    });
+                } 
+            }).finally(() => {
+                self.setState({processing: false})
+            })
+        }
+
+        return (
+            <React.Fragment>
+                <h3 className="text-dark qt-font-bold">2/3 - CONFIRM YOUR EMAIL</h3>
+                <p className="qt-font-small my-4">
+                    We sent a code to {email}. Enter it below:
+                </p>
+
+                <label>VERIFICATION CODE</label><br/>
+                <input type="text" name="email_code" spellCheck="false"
+                    value={email_code} onChange={(e) => this.setState({email_code: e.target.value})}
+                />
+
+                <div className="text-center mt-5">
+                    <button onClick={confirm} disabled={processing} >
+                        {processing ? <Loader /> : "NEXT"}
+                    </button>
+                </div>
+            </React.Fragment>
+        )
+    }
+
+    generateKey() {
+        const keys = WalletApi.generate_key()
+        this.setState({ public_key: keys.publicKey, private_key: keys.privateKey, valid_key: true })
+    }
+
+    Register() {
+        const { no_email, username, public_key, personal_key, valid_key, password, confirm_password, authError, errorMsg, processing } = this.state
+
+        return (
+            <React.Fragment>
+                <h3 className="text-dark qt-font-bold">{no_email ? "": "3/3 - "}SETUP YOUR WALLET</h3>
+                <div className="mb-2">
+                    <label>USERNAME</label>
+                    <br/>
+                    <input id="name-input" type="text" autoComplete="off" placeholder="Username" spellCheck="false" 
+                        value={username} onChange={(e) => this.setState({username: e.target.value})}/>
+                </div>
+
+                <div className="mb-2">
+                    <div className="d-flex justify-content-between">
+                        <label>PUBLIC KEY</label>
+                        <div className="d-flex align-items-center">
+                            <label className="generate-key cursor-pointer mb-0" onClick={this.generateKey}>Generate</label>
+                            { no_email ?
+                                <div className="personal-key d-flex align-items-center ml-5">
+                                    <input type="checkbox" name="personal-key" 
+                                        onChange={e => {
+                                            this.setState({personal_key: e.target.checked})
+                                            if (!e.target.checked && !valid_key) this.generateKey()
+                                        }}/>
+                                    <label className="mb-0 ml-2" htmlFor="personal-key">Use my own public key</label>
+                                </div>
+                                : null
+                            }
+                        </div>
+                    </div>
+                    <input type="text" autoComplete="off" placeholder="Public Key" spellCheck="false" readOnly={!personal_key}
+                        value={public_key} onChange={(e) => {
+                            const valid_key = PublicKey.fromPublicKeyString(e.target.value)
+                            this.setState({public_key: e.target.value, valid_key: valid_key && true})
+                        }}/>
+                    {!valid_key ? <span className="text-danger">Invalid Key</span> : null}
+                </div>
+                {!personal_key ?
+                    <React.Fragment>
+                        <div className="mb-2">
+                            <label>WALLET PASSWORD</label>
+                            <br/>
+                            <input id="pw-input" type="password" placeholder="Password"
+                                value={password} onChange={(e) => this.setState({password: e.target.value})}/>
+                        </div>
+
+                        <div className="mb-2">
+                            <label>CONFIRM WALLET PASSWORD</label>
+                            <br/>
+                            <input id="pwconf-input" type="password" placeholder="Confirm Password" spellCheck="false" 
+                                value={confirm_password} onChange={(e) => this.setState({confirm_password: e.target.value})}/>
+                        </div>
+                    </React.Fragment>
+                : null
+                }
+
+                <span className="error" hidden={!authError}>{errorMsg}</span><br/>
+
+                <div className="text-center">
+                    <button onClick={this.registerAccount.bind(this)} 
+                        disabled={!valid_key || username.length == 0 || (!personal_key && (password.length == 0 || confirm_password.length == 0)) || processing}>
+                        {processing ? <Loader /> : "REGISTER ACCOUNT"}
+                    </button>
+                </div>
+            </React.Fragment>
+        )
+    }
+
+    keyCreateStep(step) {
+        switch (step) {
+            case 1:
+                return <this.VerifyEmail />
+            case 2:
+                return <this.ConfirmEmail />
+            case 3:
+                return <this.Register />
+            case 4:
+                return <this.KeyDownload />
+        }
     }
 
     ConnectEncrypted() {
@@ -653,7 +879,7 @@ export class ConnectDialog extends Component {
 
     KeyCreate() {
         const { isMobile, network } = this.props
-        const { referrer, referrer_error, username, password, confirm_password, authError, errorMsg, processing } = this.state
+        const { regStep, referrer, referrer_error } = this.state
         return (
             <div id="key-create">
                 <div className="d-flex justify-content-between">
@@ -668,41 +894,7 @@ export class ConnectDialog extends Component {
                         </div>
                     : null
                     }
-                    <p className="info">
-                        The QUANTA blockchain is Graphene-based Architecture which uses 
-                        an account system based on username, and public-private key signature. 
-                        This wallet creation will generate you a random public-private key, 
-                        and register your account with the blockchain, then encrypt your private 
-                        key with a password into a private “json” key to download to your computer. 
-                        Beware, if you lose the password, you will lose your funds forever.
-                    </p>
-
-                    <div className="mb-2">
-                        <label>USERNAME</label><br/>
-                        <input id="name-input" type="text" autoComplete="off" placeholder="Username" spellCheck="false" 
-                            value={username} onChange={(e) => this.setState({username: e.target.value})}/>
-                    </div>
-                    
-
-                    <div className="mb-2">
-                        <label>PASSWORD</label><br/>
-                        <input id="pw-input" type="password" placeholder="Password"
-                            value={password} onChange={(e) => this.setState({password: e.target.value})}/>
-                    </div>
-
-                    <div className="mb-2">
-                        <label>CONFIRM PASSWORD</label><br/>
-                        <input id="pwconf-input" type="password" placeholder="Confirm Password" spellCheck="false" 
-                            value={confirm_password} onChange={(e) => this.setState({confirm_password: e.target.value})}/>
-                    </div>
-
-                    <span className="error" hidden={!authError}>{errorMsg}</span><br/>
-
-                    <div className="text-center">
-                        <button onClick={this.registerAccount.bind(this)} disabled={username.length == 0 || password.length == 0 || confirm_password.length == 0}>
-                            {processing ? <Loader /> : "REGISTER ACCOUNT"}
-                        </button>
-                    </div>
+                    {this.keyCreateStep(regStep)}
                 </div>
             </div>
         )
@@ -710,60 +902,51 @@ export class ConnectDialog extends Component {
 
     KeyDownload() {
         const { isMobile, network } = this.props
-        const { authError, errorMsg, downloaded } = this.state
+        const { authError, errorMsg, no_email, personal_key, downloaded } = this.state
         return (
-            <div id="key-create">
-                <div className="d-flex justify-content-between">
-                    <h4>CREATE {network == "testnet" ? "TESTNET" : ""} WALLET</h4>
-                </div>
-                <div className="input-container">
-                    <h5>ACCOUNT REGISTERED</h5>
-                    <div className="warning qt-font-light">
-                        <h5>IMPORTANT INFORMATION</h5>
-                        <ul>
-                            <li>Store this wallet securely. QUANTA does not have your keys.</li>
-                            <li>If you lose it you will lose your tokens.</li>
-                            <li>Do not share it! Your funds will be stolen if you use this file on a malicious/phishing site.</li>
-                            <li>Make a backup! Secure it like the millions of dollars it may one day be worth.</li>
-                            <li>This is not a ERC-20.</li>
-                        </ul>
-                    </div>
-
-                    <div className="agreements my-5">
-                        <form name="agreements">
-                            <div>
-                                <input type="checkbox" id="pw" name="pw"/>
-                                <label htmlFor="pw">I have remembered or otherwise stored my password.</label>
-                            </div>
-                            <div>
-                                <input type="checkbox" id="rc" name="rc" />
-                                <label htmlFor="rc">I understand that no one can recover my password or file 
-                                    if I lose or forget it. Thus if I lose access to my account, I will lose 
-                                    access to my funds without a recovery opportunity.</label>
-                            </div>
-                            <div>
-                                <input type="checkbox" id="ts" name="ts" />
-                                <label htmlFor="ts">I agree with Terms of Service and Privacy Policy.</label>
-                            </div>
+            <React.Fragment>
+                <h5>ACCOUNT REGISTERED</h5>
+                <div className="warning qt-font-light">
+                    <h5>IMPORTANT INFORMATION</h5>
+                    <ul>
+                        <li>We do not store your encrypted or unencrypted key.</li>
+                        {no_email ?
+                            <li>You have elected not to use email backup, keep your private key safe.</li>
+                        :
+                            <li>We have emailed you your encrypted key and a QR code to login on your mobile app.</li>
+                        }
+                        {personal_key ?
+                            null
+                        :
+                            <li>Your password is used to decrypt the wallet. We cannot recover this if you lose it.</li>
+                        }
                         
-                        </form>
-                    </div>
-                    <span className="error" hidden={!authError}>{errorMsg}</span><br/>
-                    <div className="text-center">
-                        <button className="mb-2" onClick={this.DownloadKey}>DOWNLOAD FILE</button>
-                        <div className={"link qt-font-small" + (!downloaded ? " invisible" : "")} onClick={() => this.resetInputs({dialogType: "connect"})}>
+                    </ul>
+                </div>
+
+                <div className="text-center mt-5">
+                    { personal_key ? 
+                        null
+                        :
+                        <button className="mb-2" onClick={this.downloadKey}>DOWNLOAD JSON</button>
+                    }
+
+                    { personal_key || downloaded ?
+                        <div className="link qt-font-small text-center mb-2" 
+                            onClick={() => this.resetInputs({dialogType: "connect"})}>
                             <u>Proceed to Connect your Wallet</u>
                         </div>
-                    </div>
-
+                        : null
+                    }
+                    
                 </div>
-            </div>
+            </React.Fragment>
         )
     }
 
     render() {
         const { isMobile, network } = this.props
-        const { dialogType, regStep } = this.state
+        const { dialogType } = this.state
         return (
             <div id="connect-dialog" className={dialog + " d-flex align-content-center qt-font-regular" + (isMobile ? " mobile" : "")} 
                 onDragOver={(e)=> e.preventDefault()} onDrop={(e) => e.preventDefault()}>
@@ -773,10 +956,11 @@ export class ConnectDialog extends Component {
                         : null
                     }
                     {dialogType == "create" ? 
-                        regStep == 1 ? <this.KeyCreate /> : <this.KeyDownload /> :
+                        <this.KeyCreate />
+                        :
                         <this.KeyConnect />
                     }
-                    <p>Your private keys are not sent to QUANTA. All transactions are signed within your browser <br/>
+                    <p>Your private keys are not sent to QUANTA. All transactions are signed within your browser 
                         and keys are not exposed over the internet.</p>
                 </div>
             </div>
