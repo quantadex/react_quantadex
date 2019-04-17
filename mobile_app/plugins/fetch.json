@@ -1,26 +1,26 @@
 {
-  "cordova-plugin-qrscanner": {
-    "source": {
-      "type": "registry",
-      "id": "cordova-plugin-qrscanner"
+    "cordova-plugin-qrscanner": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-qrscanner@~3.0.1"
+        },
+        "is_top_level": true,
+        "variables": {}
     },
-    "is_top_level": true,
-    "variables": {}
-  },
-  "cordova-plugin-compat": {
-    "source": {
-      "type": "registry",
-      "id": "https://github.com/apache/cordova-plugin-compat.git"
+    "cordova-plugin-compat": {
+        "source": {
+            "type": "registry",
+            "id": "https://github.com/apache/cordova-plugin-compat.git"
+        },
+        "is_top_level": true,
+        "variables": {}
     },
-    "is_top_level": true,
-    "variables": {}
-  },
-  "cordova-plugin-whitelist": {
-    "source": {
-      "type": "registry",
-      "id": "cordova-plugin-whitelist@1"
-    },
-    "is_top_level": true,
-    "variables": {}
-  }
+    "cordova-plugin-whitelist": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-whitelist@1"
+        },
+        "is_top_level": true,
+        "variables": {}
+    }
 }
