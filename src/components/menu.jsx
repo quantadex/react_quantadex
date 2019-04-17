@@ -37,7 +37,7 @@ class Menu extends Component {
       <div className={container + (isMobile ? " mobile" : "")}  style={style}>
 				<div className="row qt-font-bold qt-font-small justify-content-end">
 					<span className="name mr-3">{name}</span>
-					<Connect type="lock" mobile_nav={() => mobile_nav("connect")}/>
+					<Connect type="lock" mobile_nav={isMobile ? () => mobile_nav("connect") : null}/>
 					{name && <HamburgerMenu mobile_nav={mobile_nav} />}
 				</div>
       </div>
@@ -47,7 +47,8 @@ class Menu extends Component {
 
 const mapStateToProps = (state) => ({
 		private_key: state.app.private_key,
-		name: state.app.name
+		name: state.app.name,
+		isMobile: state.app.isMobile
 	});
 
 export default connect(mapStateToProps)(Menu);

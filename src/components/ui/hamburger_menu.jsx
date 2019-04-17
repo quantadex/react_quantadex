@@ -112,10 +112,10 @@ export class HamburgerMenu extends React.Component {
                 <div key={index} className={"group " + css`background-color:${e.backgroundColor};`}>
                   {
                     e.items.map((item, index) => {
-                      if (item.mobile_nav || item.onClick) {
+                      if ((isMobile && item.mobile_nav) || item.onClick) {
                         if ( this.props.private_key && item.text == "Unlock" ) return
                         return (
-                          <a key={index} onClick={item.mobile_nav ? () => item.mobile_nav(mobile_nav) : item.text == "Unlock" ? () => item.onClick(this.props.dispatch) : item.onClick}
+                          <a key={index} onClick={isMobile && item.mobile_nav ? () => item.mobile_nav(mobile_nav) : item.text == "Unlock" ? () => item.onClick(this.props.dispatch) : item.onClick}
                              className="d-flex menu-row qt-cursor-pointer"
                              onMouseOver={this.handleHover.bind(this,item.iconPathActive)}
                              onMouseLeave={this.handleHover.bind(this,item.iconPath)}>

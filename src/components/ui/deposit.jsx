@@ -2,7 +2,6 @@ import React, {PropTypes} from 'react';
 import { GetAccount } from '../../redux/actions/app.jsx'
 import { connect } from 'react-redux'
 import CONFIG from '../../config.js';
-import Web3 from 'web3'
 import QRCode from 'qrcode'
 import {SymbolToken} from './ticker.jsx'
 import { css } from 'emotion'
