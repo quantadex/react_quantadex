@@ -7,6 +7,7 @@ import WalletApi from "../common/api/WalletApi";
 import QTTabBar from './ui/tabBar.jsx'
 import Loader from '../components/ui/loader.jsx'
 import Lock from './ui/account_lock.jsx'
+import QRScanner from 'cordova-plugin-qrscanner'
 import CONFIG from '../config.js'
 
 const container = css`
@@ -737,6 +738,40 @@ export class ConnectDialog extends Component {
     ConnectEncrypted() {
         const { isMobile } = this.props
         const { encrypted_data, uploaded_file_msg, password, authError, errorMsg } = this.state
+
+        if (isMobile) {
+            function scanQR() {
+                QRScanner.prepare((err, status) => {
+                    console.log(1, err, status)
+                    if (status.authorized) {
+                        QRScanner.scan((err, contents) => {
+                            if(err){
+                                console.error(err._message);
+                            }
+                            alert('The QR Code contains: ' + contents);
+                            QRScanner.hide()
+                        })
+                        QRScanner.show(function(status){
+                            console.log("???", status);
+                            document.getElementById('app').style.display="none"
+                            document.getElementsByTagName("BODY")[0].setAttribute('style','background-color: transparent');
+                            
+                        });
+                    }
+                })
+                
+                
+            }
+            return (
+                <div className="input-container">
+                    <p>
+                        On your desktop, open the email containing your wallet QR code.
+                    </p>
+
+                    <button onClick={scanQR}>SCAN QR CODE</button>
+                </div>
+            )
+        }
         return (
             <div className="input-container">
                 {!encrypted_data && localStorage.encrypted_data ?

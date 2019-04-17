@@ -1,0 +1,21 @@
+{
+    "name": "io.cordova.hellocordova",
+    "version": "1.0.0",
+    "displayName": "QDex",
+    "cordova": {
+        "platforms": [
+            "android"
+        ],
+        "plugins": {
+            "cordova-plugin-whitelist": {},
+            "cordova-plugin-qrscanner": {},
+            "cordova-plugin-compat": {}
+        }
+    },
+    "dependencies": {
+        "cordova-android": "^6.2.3",
+        "cordova-plugin-compat": "https://github.com/apache/cordova-plugin-compat.git",
+        "cordova-plugin-qrscanner": "~3.0.1",
+        "cordova-plugin-whitelist": "^1.3.3"
+    }
+}

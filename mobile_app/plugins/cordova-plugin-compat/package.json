@@ -1,0 +1,82 @@
+{
+  "_args": [
+    [
+      "https://github.com/apache/cordova-plugin-compat.git",
+      "/mnt/c/Projects/react_quantadex/release12/mobile_app"
+    ]
+  ],
+  "_from": "git+https://github.com/apache/cordova-plugin-compat.git#6a1c89613061b41ed700d301e2846e3854fa4264",
+  "_id": "cordova-plugin-compat@1.2.1-dev",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/cordova-plugin-compat",
+  "_phantomChildren": {},
+  "_requested": {
+    "hosted": {
+      "directUrl": "https://raw.githubusercontent.com/apache/cordova-plugin-compat/master/package.json",
+      "gitUrl": "git://github.com/apache/cordova-plugin-compat.git",
+      "httpsUrl": "git+https://github.com/apache/cordova-plugin-compat.git",
+      "shortcut": "github:apache/cordova-plugin-compat",
+      "ssh": "git@github.com:apache/cordova-plugin-compat.git",
+      "sshUrl": "git+ssh://git@github.com/apache/cordova-plugin-compat.git",
+      "type": "github"
+    },
+    "name": null,
+    "raw": "https://github.com/apache/cordova-plugin-compat.git",
+    "rawSpec": "https://github.com/apache/cordova-plugin-compat.git",
+    "scope": null,
+    "spec": "git+https://github.com/apache/cordova-plugin-compat.git",
+    "type": "hosted"
+  },
+  "_requiredBy": [
+    "#USER"
+  ],
+  "_resolved": "git+https://github.com/apache/cordova-plugin-compat.git#6a1c89613061b41ed700d301e2846e3854fa4264",
+  "_shasum": "97129d1b9b323785ab203015ed4dee5b80102967",
+  "_shrinkwrap": null,
+  "_spec": "https://github.com/apache/cordova-plugin-compat.git",
+  "_where": "/mnt/c/Projects/react_quantadex/release12/mobile_app",
+  "author": {
+    "name": "Apache Software Foundation"
+  },
+  "bugs": {
+    "url": "https://github.com/apache/cordova-plugin-compat/issues"
+  },
+  "cordova": {
+    "id": "cordova-plugin-compat",
+    "platforms": [
+      "android"
+    ]
+  },
+  "dependencies": {},
+  "description": "[DEPRECATED] This repo is for remaining backwards compatible with previous versions of Cordova.",
+  "devDependencies": {},
+  "engines": {
+    "cordovaDependencies": {
+      "<1.2.0": {
+        "cordova": ">=5.0.0"
+      },
+      ">=1.2.0": {
+        "cordova": ">=5.0.0",
+        "cordova-android": "<6.3.0"
+      }
+    }
+  },
+  "gitHead": "6a1c89613061b41ed700d301e2846e3854fa4264",
+  "homepage": "http://github.com/apache/cordova-plugin-compat#readme",
+  "keywords": [
+    "cordova-android",
+    "ecosystem:cordova",
+    "ecosystem:phonegap"
+  ],
+  "license": "Apache-2.0",
+  "name": "cordova-plugin-compat",
+  "optionalDependencies": {},
+  "readme": "<!--\n#\n# Licensed to the Apache Software Foundation (ASF) under one\n# or more contributor license agreements.  See the NOTICE file\n# distributed with this work for additional information\n# regarding copyright ownership.  The ASF licenses this file\n# to you under the Apache License, Version 2.0 (the\n# \"License\"); you may not use this file except in compliance\n# with the License.  You may obtain a copy of the License at\n#\n# http://www.apache.org/licenses/LICENSE-2.0\n#\n# Unless required by applicable law or agreed to in writing,\n# software distributed under the License is distributed on an\n# \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY\n#  KIND, either express or implied.  See the License for the\n# specific language governing permissions and limitations\n# under the License.\n#\n-->\n\ncordova-plugin-compat\n------------------------\n\n---\n📌 **Deprecation Notice**\n\nThis repository is deprecated and no more work will be done on this by Apache Cordova. You can continue to use this and it should work as-is but any future issues will not be fixed by the Cordova community.\n\nFeel free to fork this repository and improve your fork. Existing forks are listed in [Network](../../network) and [Forks](../../network/members).\n\n- Learn more: https://github.com/apache/cordova/blob/master/deprecated.md#deprecated-other\n---\n\nThis repo is for remaining backwards compatible with previous versions of Cordova.\n\n## Deprecated\n\n> This plugin is no longer being worked on as the functionality provided by this plugin is now included in cordova-android 6.3.0. You should upgrade your application to use version 1.2.0 of this plugin. It will detect whether or not the plugin is required based on the version of cordova-android your app uses.\n\n## USAGE\n\nYour plugin can depend on this plugin and use it to handle the new run time permissions Android 6.0.0 (cordova-android 5.0.0) introduced. \n\nView [this commit](https://github.com/apache/cordova-plugin-camera/commit/a9c18710f23e86f5b7f8918dfab7c87a85064870) to see how to depend on `cordova-plugin-compat`. View [this file](https://github.com/apache/cordova-plugin-camera/blob/master/src/android/CameraLauncher.java) to see how `PermissionHelper` is being used to request and store permissions. Read more about Android permissions at http://cordova.apache.org/docs/en/latest/guide/platforms/android/plugin.html#android-permissions.\n",
+  "readmeFilename": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/apache/cordova-plugin-compat.git"
+  },
+  "version": "1.2.1-dev"
+}
