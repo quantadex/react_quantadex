@@ -8,14 +8,14 @@
         ],
         "plugins": {
             "cordova-plugin-whitelist": {},
-            "cordova-plugin-qrscanner": {},
-            "cordova-plugin-compat": {}
+            "cordova-plugin-compat": {},
+            "phonegap-plugin-barcodescanner": {}
         }
     },
     "dependencies": {
         "cordova-android": "^6.2.3",
         "cordova-plugin-compat": "https://github.com/apache/cordova-plugin-compat.git",
-        "cordova-plugin-qrscanner": "~3.0.1",
-        "cordova-plugin-whitelist": "^1.3.3"
+        "cordova-plugin-whitelist": "^1.3.3",
+        "phonegap-plugin-barcodescanner": "^6.0.8"
     }
 }

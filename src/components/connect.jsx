@@ -7,7 +7,6 @@ import WalletApi from "../common/api/WalletApi";
 import QTTabBar from './ui/tabBar.jsx'
 import Loader from '../components/ui/loader.jsx'
 import Lock from './ui/account_lock.jsx'
-import QRScanner from 'cordova-plugin-qrscanner'
 import CONFIG from '../config.js'
 
 const container = css`
@@ -741,26 +740,30 @@ export class ConnectDialog extends Component {
 
         if (isMobile) {
             function scanQR() {
-                QRScanner.prepare((err, status) => {
-                    console.log(1, err, status)
-                    if (status.authorized) {
-                        QRScanner.scan((err, contents) => {
-                            if(err){
-                                console.error(err._message);
-                            }
-                            alert('The QR Code contains: ' + contents);
-                            QRScanner.hide()
-                        })
-                        QRScanner.show(function(status){
-                            console.log("???", status);
-                            document.getElementById('app').style.display="none"
-                            document.getElementsByTagName("BODY")[0].setAttribute('style','background-color: transparent');
-                            
-                        });
+                cordova.plugins.barcodeScanner.scan(
+                    function (result) {
+                        alert("We got a barcode\n" +
+                            "Result: " + result.text + "\n" +
+                            "Format: " + result.format + "\n" +
+                            "Cancelled: " + result.cancelled);
+                    },
+                    function (error) {
+                        alert("Scanning failed: " + error);
+                    },
+                    {
+                        preferFrontCamera: false, // iOS and Android
+                        showFlipCameraButton: true, // iOS and Android
+                        showTorchButton: true, // iOS and Android
+                        torchOn: false, // Android, launch with the torch switched on (if available)
+                        saveHistory: false, // Android, save scan history (default false)
+                        prompt: "Place QUANTA QRCode inside the scan area", // Android
+                        resultDisplayDuration: 500, // Android, display scanned text for X ms. 0 suppresses it entirely, default 1500
+                        formats: "QR_CODE", // default: all but PDF_417 and RSS_EXPANDED
+                        orientation: "portrait", // Android only (portrait|landscape), default unset so it rotates with the device
+                        disableAnimations: true, // iOS
+                        disableSuccessBeep: true // iOS and Android
                     }
-                })
-                
-                
+                );                                
             }
             return (
                 <div className="input-container">

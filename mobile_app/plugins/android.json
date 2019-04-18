@@ -10,10 +10,10 @@
         "cordova-plugin-compat": {
             "PACKAGE_NAME": "io.cordova.hellocordova"
         },
-        "cordova-plugin-qrscanner": {
+        "cordova-plugin-whitelist": {
             "PACKAGE_NAME": "io.cordova.hellocordova"
         },
-        "cordova-plugin-whitelist": {
+        "phonegap-plugin-barcodescanner": {
             "PACKAGE_NAME": "io.cordova.hellocordova"
         }
     },
