@@ -196,7 +196,7 @@ class Exchange extends Component {
 	}
 
 	componentDidMount() {
-        fetch(CONFIG.getEnv().ANNOUNCEMENT_JSON).then(e => e.json())
+		fetch(CONFIG.getEnv().ANNOUNCEMENT_JSON,{mode: "cors"}).then(e => e.json())
         .then(data => {
             const entries = data.entries
             if (entries && entries.length > 0) {

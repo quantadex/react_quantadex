@@ -470,7 +470,8 @@ export class ConnectDialog extends Component {
 			headers: {
 					"Content-Type": "application/json",
 					Accept: "application/json"
-			},
+            },
+            mode: "cors",
 			body: JSON.stringify(reg_json)
 		}).then(response => {
 			if (response.status == 200) {
@@ -483,6 +484,7 @@ export class ConnectDialog extends Component {
                     const text= JSON.stringify(encryption)
                     fetch(CONFIG.getEnv().API_PATH + "/send_walletinfo", {
                         method: "post",
+                        mode: "cors",
                         headers: {
                             "Content-Type": "application/json",
                             Accept: "application/json"
@@ -554,6 +556,7 @@ export class ConnectDialog extends Component {
                 self.setState({email_error: false, processing: true})
                 fetch(CONFIG.getEnv().API_PATH + "/verify_email", {
                     method: "post",
+                    mode: "cors",
                     headers: {
                             "Content-Type": "application/json",
                             Accept: "application/json"
@@ -610,6 +613,7 @@ export class ConnectDialog extends Component {
             self.setState({processing: true})
             fetch(CONFIG.getEnv().API_PATH + "/confirm_email", {
                 method: "post",
+                mode: "cors",
                 headers: {
                         "Content-Type": "application/json",
                         Accept: "application/json"

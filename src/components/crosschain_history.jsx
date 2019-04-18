@@ -38,7 +38,7 @@ class CrosschainHistory extends Component {
   loadHistory() {
     this.setState({loading: true})
     const limit = 100
-    fetch(CONFIG.getEnv().API_PATH + `/node1/history?user=${this.props.user}&offset=${this.state.page * limit}&limit=${limit}`)
+    fetch(CONFIG.getEnv().API_PATH + `/node1/history?user=${this.props.user}&offset=${this.state.page * limit}&limit=${limit}`, { mode: "cors" })
     .then(e => e.json())
     .then(data => {
       const list = this.state.data.concat(data || [])
