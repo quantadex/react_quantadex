@@ -496,7 +496,7 @@ export function switchTicker(ticker, force_init=false) {
 				var {base, counter} = getBaseCounter(ticker)
 				try {
 					if (!window.markets) {
-						const markets = await fetch(CONFIG.getEnv().MARKETS_JSON).then(e => e.json()).catch(e => {
+						const markets = await fetch(CONFIG.getEnv().MARKETS_JSON, {mode: "cors"}).then(e => e.json()).catch(e => {
 							Rollbar.error("Failed to get Markets JSON", e);
 						})
 						window.markets = markets.markets
