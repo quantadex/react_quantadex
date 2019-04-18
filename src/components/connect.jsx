@@ -467,7 +467,6 @@ export class ConnectDialog extends Component {
     }
 
     registerAccount() {
-        console.log("hi")
         const { password, confirm_password, username, personal_key, public_key, private_key, no_email, email, email_code, referrer, referrer_error } = this.state
         if(!personal_key) {
             if (password !== confirm_password) {
@@ -595,6 +594,7 @@ export class ConnectDialog extends Component {
             const { email, email_error, processing } = self.state
             self.setState({email_error: false, processing: true})
             fetch(CONFIG.getEnv().API_PATH + "/verify_email", {
+                mode: "cors",
                 method: "post",
                 headers: {
                         "Content-Type": "application/json",
@@ -651,6 +651,7 @@ export class ConnectDialog extends Component {
         function confirm() {
             self.setState({processing: true})
             fetch(CONFIG.getEnv().API_PATH + "/confirm_email", {
+                mode: "cors",
                 method: "post",
                 mode: "cors",
                 headers: {
@@ -782,6 +783,7 @@ export class ConnectDialog extends Component {
     }
 
     ConnectEncrypted() {
+        const self = this
         const { isMobile } = this.props
         const { encrypted_data, uploaded_file_msg, password, authError, errorMsg, scan_qr, bip58 } = this.state
 
@@ -789,12 +791,12 @@ export class ConnectDialog extends Component {
             function scanQR() {
                 cordova.plugins.barcodeScanner.scan(
                     function (result) {
-                        alert("We got a barcode\n" +
-                            "Result: " + result.text + "\n" +
-                            "Format: " + result.format + "\n" +
-                            "Cancelled: " + result.cancelled);
+                        // alert("We got a barcode\n" +
+                        //     "Result: " + result.text + "\n" +
+                        //     "Format: " + result.format + "\n" +
+                        //     "Cancelled: " + result.cancelled);
                         if (result.text) {
-                            this.setState({bip58: result.text})
+                            self.setState({bip58: result.text})
                         }
                     },
                     function (error) {
