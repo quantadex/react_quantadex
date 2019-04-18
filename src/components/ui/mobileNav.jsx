@@ -56,7 +56,7 @@ export default class MobileNav extends Component {
                             {
                                 window.isApp ?
                                 <React.Fragment>
-                                    <img src={`/public/images/menuicons/${tab.toLowerCase()}-${selectedTabIndex == index ? "on" : "off"}.svg`} height="32" />
+                                    <img src={devicePath(`public/images/menuicons/${tab.toLowerCase()}-${selectedTabIndex == index ? "on" : "off"}.svg`)} height="32" />
                                     <br/>
                                 </React.Fragment>
                                 : null

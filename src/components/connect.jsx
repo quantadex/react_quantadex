@@ -8,6 +8,8 @@ import QTTabBar from './ui/tabBar.jsx'
 import Loader from '../components/ui/loader.jsx'
 import Lock from './ui/account_lock.jsx'
 import CONFIG from '../config.js'
+import bs58 from 'bs58'
+import Recaptcha from 'react-google-invisible-recaptcha';
 
 const container = css`
     text-align: center;
@@ -115,7 +117,7 @@ const dialog = css`
             }
 
             .generate-key {
-                background: url('/public/images/generate.svg') no-repeat 0 50%;
+                background: url(${devicePath('public/images/generate.svg')}) no-repeat 0 50%;
                 padding-left: 18px;
             }
 
@@ -288,6 +290,8 @@ export class ConnectDialog extends Component {
             errorMsg: "",
             downloaded: false,
             uploaded_file_name: false,
+            scan_qr: true,
+            bip58: ""
         };
 
         this.handleChange = this.handleChange.bind(this)
@@ -326,11 +330,19 @@ export class ConnectDialog extends Component {
             this.setState({dialogType: nextProps.default})
         }
     }
+    static getDerivedStateFromError(error) {
+        // Update state so the next render will show the fallback UI.
+        console.log(error)
+    }
+    componentDidCatch(error, info) {
+        console.log(error, info)
+    }
 
     resetInputs(e = {}) {
         this.setState({
             ...e,
             private_key: "",
+            bip58: "",
             username: "",
             password: "",
             confirm_password: "",
@@ -371,11 +383,19 @@ export class ConnectDialog extends Component {
         return pw1.length >= 8 && pw1.match(/[A-Z]/) && pw1.match(/[0-9]/)
     }
 
-    ConnectWithBin() {
+    ConnectWithBin(type = undefined) {
         const { mobile_nav, dispatch } = this.props
-        const { password } = this.state
+        const { password, bip58 } = this.state
         try {
-            const encrypted_data = this.state.encrypted_data || JSON.parse(localStorage.encrypted_data)
+            var encrypted_data
+            if (type === "bip58") {
+                const hex = bs58.decode(bip58).toString('hex')
+                if (hex.length !== 192) throw "Invalid Key"
+                encrypted_data = {encryption_key: hex.slice(0,96), wallet_encryption_key: hex.slice(-96)}
+            } else {
+                encrypted_data = this.state.encrypted_data || JSON.parse(localStorage.encrypted_data)
+            }
+
 			const decrypted = decryptWallet(encrypted_data, password)
             const private_key = decrypted.toWif()
 
@@ -390,8 +410,14 @@ export class ConnectDialog extends Component {
             })
 
 		} catch(e) {
-			console.log(e)
-			this.setState({authError: true, errorMsg: "Incorrect Password"})
+            console.log(e)
+            let errorMsg
+            if (e == "Invalid Key") {
+                errorMsg = e
+            } else {
+                errorMsg = "Your password and key does not match"
+            }
+			this.setState({authError: true, errorMsg })
 		}
         
     }
@@ -441,14 +467,17 @@ export class ConnectDialog extends Component {
     }
 
     registerAccount() {
+        console.log("hi")
         const { password, confirm_password, username, personal_key, public_key, private_key, no_email, email, email_code, referrer, referrer_error } = this.state
         if(!personal_key) {
             if (password !== confirm_password) {
+                this.recaptcha.reset()
                 this.setState({authError: true, errorMsg: "Your password inputs are not the same"})
                 return
             } 
 
             if (!this.validatePassword(password)) {
+                this.recaptcha.reset()
                 this.setState({authError: true, errorMsg: "Password must contains at least 8 characters, 1 uppercase, and 1 number."})
                 return
             }
@@ -498,6 +527,7 @@ export class ConnectDialog extends Component {
                 }
 				return response.json()
 			} else {
+                this.recaptcha.reset()
 				return response.json().then(res => {
 					var msg;
 					if (res.error.includes("already exists")) {
@@ -547,33 +577,40 @@ export class ConnectDialog extends Component {
     VerifyEmail() {
         const self = this
         const { email, email_error, processing } = this.state
-        function verify() {
+
+        function validateEmail() {
             const isValid = email.match(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)
-            // console.log(email, isValid)
-            if (isValid) {
-                self.setState({email_error: false, processing: true})
-                fetch(CONFIG.getEnv().API_PATH + "/verify_email", {
-                    method: "post",
-                    headers: {
-                            "Content-Type": "application/json",
-                            Accept: "application/json"
-                    },
-                    body: JSON.stringify({ email: email })
-                }).then(e => e.json()).then(response => {
-                    if (response.success) {
-                        self.setState({
-                            regStep:2
-                        });
-                    } 
-                }).finally(() => {
-                    self.setState({processing: false})
-                })
-            } else {
-                self.setState({email_error: "Not a valid email address."})
-            }
             
+            if (!isValid) {
+                this.recaptcha.reset()
+                self.setState({email_error: "Not a valid email address."})
+                return false
+            } else {
+                this.recaptcha.execute()
+            }
         }
 
+        function verify() {
+            const { email, email_error, processing } = self.state
+            self.setState({email_error: false, processing: true})
+            fetch(CONFIG.getEnv().API_PATH + "/verify_email", {
+                method: "post",
+                headers: {
+                        "Content-Type": "application/json",
+                        Accept: "application/json"
+                },
+                body: JSON.stringify({ email: email })
+            }).then(e => e.json()).then(response => {
+                if (response.success) {
+                    self.setState({
+                        regStep:2
+                    });
+                } 
+            }).finally(() => {
+                self.setState({processing: false})
+            })
+        }
+        
         return (
             <React.Fragment>
                 <h3 className="text-dark qt-font-bold">1/3 - VERIFY YOUR EMAIL</h3>
@@ -591,9 +628,13 @@ export class ConnectDialog extends Component {
                 />
                 {email_error ? <span className="text-danger">{email_error}</span> : null}
                 <div className="text-center mt-5">
-                    <button onClick={verify} disabled={processing} >
+                    <button onClick={validateEmail.bind(this)} disabled={processing || !email} >
                         {processing ? <Loader /> : "VERIFY EMAIL"}
                     </button>
+                    <Recaptcha
+                        ref={ ref => this.recaptcha = ref }
+                        sitekey="6Lc4OZ4UAAAAAEfECNb09tkSL_3UBCuV_sdITK5B"
+                        onResolved={ verify } />
                 </div>
                 <div className="link qt-font-small text-center mt-4" 
                     onClick={() => this.setState({no_email: true, regStep: 3})}>
@@ -712,10 +753,14 @@ export class ConnectDialog extends Component {
                 <span className="error" hidden={!authError}>{errorMsg}</span><br/>
 
                 <div className="text-center">
-                    <button onClick={this.registerAccount.bind(this)} 
+                    <button onClick={() => this.recaptcha.execute()} 
                         disabled={!valid_key || username.length == 0 || (!personal_key && (password.length == 0 || confirm_password.length == 0)) || processing}>
                         {processing ? <Loader /> : "REGISTER ACCOUNT"}
                     </button>
+                    <Recaptcha
+                        ref={ ref => this.recaptcha = ref }
+                        sitekey="6Lc4OZ4UAAAAAEfECNb09tkSL_3UBCuV_sdITK5B"
+                        onResolved={ this.registerAccount.bind(this) } />
                 </div>
             </React.Fragment>
         )
@@ -736,7 +781,7 @@ export class ConnectDialog extends Component {
 
     ConnectEncrypted() {
         const { isMobile } = this.props
-        const { encrypted_data, uploaded_file_msg, password, authError, errorMsg } = this.state
+        const { encrypted_data, uploaded_file_msg, password, authError, errorMsg, scan_qr, bip58 } = this.state
 
         if (isMobile) {
             function scanQR() {
@@ -746,6 +791,9 @@ export class ConnectDialog extends Component {
                             "Result: " + result.text + "\n" +
                             "Format: " + result.format + "\n" +
                             "Cancelled: " + result.cancelled);
+                        if (result.text) {
+                            this.setState({bip58: result.text})
+                        }
                     },
                     function (error) {
                         alert("Scanning failed: " + error);
@@ -766,13 +814,69 @@ export class ConnectDialog extends Component {
                 );                                
             }
             return (
-                <div className="input-container">
-                    <p>
-                        On your desktop, open the email containing your wallet QR code.
-                    </p>
+                scan_qr ? 
+                    bip58 ?
+                    <div className="input-container text-center">
+                        <div onClick={() => this.setState({bip58: ""})}><img src={devicePath("public/images/back-btn-black.svg")} /></div>
+                        <p className="mb-5">
+                            Your BIP58 Key: {bip58.slice(0,6)}.....{bip58.slice(-6)}
+                        </p>
+                        <div className="text-left">
+                            <label>PASSWORD</label><br/>
+                            <input type="password" name="password" placeholder="Password" 
+                                disabled={password.length < 8}
+                                value={password} onChange={(e) => this.setState({password: e.target.value})}
+                                onKeyPress={e => {
+                                    if (e.key == "Enter" && password.length > 0) {
+                                        this.ConnectWithBin("bip58")
+                                    }
+                                }}
+                            />
+                        </div>
+                        <span className="text-danger small">{errorMsg}</span>
+                        <button className="mt-5" onClick={() => this.ConnectWithBin("bip58")}>Connect Wallet</button>
+                    </div>
+                    :
+                    <div className="input-container text-center">
+                        <p className="qt-font-small mb-5">
+                            On your desktop, open the email containing your wallet QR code.
+                        </p>
 
-                    <button onClick={scanQR}>SCAN QR CODE</button>
-                </div>
+                        <button onClick={scanQR.bind(this)}>SCAN QR CODE</button>
+                        <div className="mt-4 mb-5" onClick={() => this.resetInputs({scan_qr: !scan_qr})}>
+                            Or <span className="qt-color-theme">Copy & Paste Base58 Key</span>
+                        </div>
+                    </div>
+                :
+                    <div className="input-container text-center">
+                        <p className="qt-font-small mb-5">
+                            On your desktop, open the email containing your wallet BIP58 encrypted key.
+                        </p>
+                        <div className="text-left">
+                            <label>BIP58 ENCRYPTED KEY</label><br/>
+                            <input type="text" name="bip58" placeholder="BIP58 Encrypted Key" 
+                                value={bip58} onChange={(e) => this.setState({bip58: e.target.value})}
+                            />
+                        </div>
+                        <div className="text-left">
+                            <label>PASSWORD</label><br/>
+                            <input type="password" name="password" placeholder="Password" 
+                                value={password} onChange={(e) => this.setState({password: e.target.value})}
+                                onKeyPress={e => {
+                                    if (e.key == "Enter" && password.length >= 8 && bip58) {
+                                        this.ConnectWithBin("bip58")
+                                    }
+                                }}
+                                />
+                        </div>
+                        <span className="text-danger small">{errorMsg}</span>
+                        <button className="mt-5" 
+                            disabled={password.length < 8 || !bip58}
+                            onClick={() => this.ConnectWithBin("bip58")}>Connect Wallet</button>
+                        <div className="mt-4" onClick={() => this.resetInputs({scan_qr: !scan_qr})}>
+                            Or <span className="qt-color-theme">Scan QR Code</span>
+                        </div>
+                    </div>
             )
         }
         return (

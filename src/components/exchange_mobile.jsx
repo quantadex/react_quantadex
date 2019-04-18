@@ -63,7 +63,7 @@ const container = css`
 	.order-status-btn {
 		width: min-content;
 		min-height: 26px;
-		background: url('/public/images/order-status.svg') no-repeat 0 50%;
+		background: url(${devicePath('public/images/order-status.svg')} no-repeat 0 50%;
 		padding-left: 35px;
 	}
 
@@ -266,11 +266,11 @@ class Exchange extends Component {
 
 		switch (index) {
 			case "markets": 
-				return {header: <img src="/public/images/logo.svg" alt="QUANTADEX" />}
+				return {header: <img src={devicePath("public/images/logo.svg")} alt="QUANTADEX" />}
 			case "trade": 
 				return {header: <this.MarketsList />, 
 					left: () => this.handleSwitch("chart"),
-					left_icon: "/public/images/chart-icon.svg",
+					left_icon: devicePath("public/images/chart-icon.svg"),
 					right: publicKey ? {label: <this.OrderStatus />, action: () => this.handleSwitch("orders")} : null }
 			case "wallet": 
 				return {header: "Wallet"}

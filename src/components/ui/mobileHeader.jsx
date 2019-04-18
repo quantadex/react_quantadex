@@ -27,7 +27,7 @@ class MobileHeader extends Component {
                 <div className={container + " d-flex align-items-center border-bottom border-dark px-3"}>
                     { header.left ? 
                         <div className="left" onClick={header.left}>
-                            <img src={header.left_icon ? header.left_icon : "/public/images/back-btn.svg"} />
+                            <img src={header.left_icon ? header.left_icon : devicePath("public/images/back-btn.svg")} />
                         </div>
                         : null
                     }
@@ -42,7 +42,7 @@ class MobileHeader extends Component {
 
         return (
             <div className={container + " d-flex justify-content-between align-items-center border-bottom border-dark px-3"}>
-                <div><Link to={"/" + window.location.search}><img src="/public/images/logo.svg" alt="QUANTADEX" /></Link></div>
+                <div><Link to={"/" + window.location.search}><img src={devicePath("public/images/logo.svg")} alt="QUANTADEX" /></Link></div>
                 { publicKey ?
                     <Menu mobile_nav={mobile_nav}/>
                     :

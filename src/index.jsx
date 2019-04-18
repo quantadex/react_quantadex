@@ -192,6 +192,10 @@ injectGlobal`
 	.cursor-pointer {
 		cursor: pointer;
 	}
+
+	.grecaptcha-badge {
+		display: none;
+	}
 `
 
 const store = createStore(reducer, compose(applyMiddleware(thunk)))

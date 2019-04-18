@@ -11,7 +11,7 @@ const container = css`
     }
 
     .nav {
-        background: #222730 url("/public/images/right-arrow.svg") no-repeat calc(100% - 10px) 50%;
+        background: #222730 url(${devicePath("public/images/right-arrow.svg")}) no-repeat calc(100% - 10px) 50%;
     }
 `
 
