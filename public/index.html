@@ -15,16 +15,18 @@
 	<meta name="twitter:site" content="@@quantadex" />
 	<link rel="stylesheet" href="/public/styles/bootstrap.min.css")">
 	<script src="//rum-static.pingdom.net/pa-5c463b4e1872b500160002eb.js" async></script>
+
+	<meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-eval' 'unsafe-inline' 'unsafe-dynamic' data: filesystem: about: blob: ws: wss:; media-src *; connect-src *  data: blob: ws: wss:;"/>
+
 </head>
 <body>
 		<div id="app" />
 	
 	<script type="text/javascript">
-		window.isApp = window.location.search.includes("app=true");
-		var devicePath = function (url) {
-			return ("/" + url)
-		}
-
+	window.isApp = window.location.search.includes("app=true");
+	window.devicePath = function (url) {
+		return ("/" + url)
+	}
 		var _rollbarConfig = {
 			accessToken: "e24ccde353ca4b45850b72ac28d527f4",
 			captureUncaught: true,

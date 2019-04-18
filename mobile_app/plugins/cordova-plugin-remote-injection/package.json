@@ -1,0 +1,55 @@
+{
+  "_from": "cordova-plugin-remote-injection",
+  "_id": "cordova-plugin-remote-injection@0.5.2",
+  "_inBundle": false,
+  "_integrity": "sha1-dUw6UubbLU2r93YRm2/vxPT25eg=",
+  "_location": "/cordova-plugin-remote-injection",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "cordova-plugin-remote-injection",
+    "name": "cordova-plugin-remote-injection",
+    "escapedName": "cordova-plugin-remote-injection",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/cordova-plugin-remote-injection/-/cordova-plugin-remote-injection-0.5.2.tgz",
+  "_shasum": "754c3a52e6db2d4dabf776119b6fefc4f4f6e5e8",
+  "_spec": "cordova-plugin-remote-injection",
+  "_where": "/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/node_modules",
+  "author": {
+    "name": "Brad Reynolds"
+  },
+  "bugs": {
+    "url": "https://github.com/TruckMovers/cordova-plugin-remote-injection/issues"
+  },
+  "bundleDependencies": false,
+  "cordova": {
+    "id": "cordova-plugin-remote-injection",
+    "platforms": [
+      "android",
+      "ios"
+    ]
+  },
+  "deprecated": false,
+  "description": "Injects Cordova into a remote site.",
+  "homepage": "https://github.com/TruckMovers/cordova-plugin-remote-injection#readme",
+  "keywords": [
+    "ecosystem:cordova",
+    "cordova-android",
+    "cordova-ios"
+  ],
+  "license": "Apache-2.0",
+  "name": "cordova-plugin-remote-injection",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TruckMovers/cordova-plugin-remote-injection.git"
+  },
+  "version": "0.5.2"
+}

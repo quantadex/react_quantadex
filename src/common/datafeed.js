@@ -479,7 +479,7 @@ function getExternalPrice(ticker, resolution) {
     var url = CONFIG.getEnv().API_PATH +`/get_external_price?timeframe=${interval}&symbol=${symbol}&exchange=binance`
     // var url = new URL(CONFIG.getEnv().API_PATH +"/get_external_price")
     // url.search = new URLSearchParams({timeframe: interval, symbol: symbol, exchange: "binance"});
-    return fetch(url).then(data => data.json()).then(data => {
+    return fetch(url, { mode: "cors" }).then(data => data.json()).then(data => {
       const bars = data.map((e, index) => {
         return { time: e[0], open: e[1], high: e[2], low: e[3], close: e[4], volume: 0 }
       });

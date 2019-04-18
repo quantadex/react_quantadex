@@ -185,13 +185,20 @@ class Exchange extends Component {
 	}
 
 	componentDidMount() {
-        fetch(CONFIG.getEnv().ANNOUNCEMENT_JSON).then(e => e.json())
-        .then(data => {
-            const entries = data.entries
-            if (entries && entries.length > 0) {
-                this.setState({announcements: entries.slice(0,3)})
-            }
-        })
+		const self = this;
+		fetch(CONFIG.getEnv().ANNOUNCEMENT_JSON, {mode: "cors"}).then(e => e.json())
+		.then(data => {
+				const entries = data.entries
+				if (entries && entries.length > 0) {
+						self.setState({announcements: entries.slice(0,3)})
+				}
+		}).catch(e=>{
+			console.error("Failed " + e.name)
+		})
+	}
+
+	componentDidUpdate() {
+		this.componentDidMount()
 	}
 
 	handleSwitch(index, params = {}) {
