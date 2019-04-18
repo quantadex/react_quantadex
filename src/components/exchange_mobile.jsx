@@ -197,10 +197,6 @@ class Exchange extends Component {
 		})
 	}
 
-	componentDidUpdate() {
-		this.componentDidMount()
-	}
-
 	handleSwitch(index, params = {}) {
 		var contentIndex = index
 		var tabIndex = typeof index === "number"
