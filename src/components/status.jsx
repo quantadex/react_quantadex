@@ -6,7 +6,6 @@ import { withRouter} from "react-router-dom";
 
 const container = css`
     display: flex;
-    bottom: 0;
     width: 100%;
     white-space: nowrap;
     line-height: 25px;

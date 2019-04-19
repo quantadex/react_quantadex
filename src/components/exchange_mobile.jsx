@@ -120,6 +120,7 @@ const container = css`
 	.trade-options {
 		position: fixed;
 		bottom: 0px;
+		width: 100%;
 		text-align: center;
 		padding: 5px 10px;
 		background-color: #222730;
@@ -127,10 +128,10 @@ const container = css`
 		button {
 			display: block;
 			height: 37px;
-      width: 100%;
-      padding: 8px;
-      font-size: 14px;
-      color: #fff;
+			width: 100%;
+			padding: 8px;
+			font-size: 14px;
+			color: #fff;
 		}
 		
 		.buy-btn {
@@ -199,8 +200,20 @@ class Exchange extends Component {
 		})
 
 		document.addEventListener("deviceready", async ()=> {
-			document.addEventListener("backbutton", (e) => {
-				// console.log("back", this.props.history)
+			document.addEventListener("backbutton", () => {
+				const { selectedTabIndex, headerIndex } = this.state
+				const header = this.Header(headerIndex)
+				if (header.left && !header.left_icon) {
+					this.handleSwitch(selectedTabIndex)
+				} else if (selectedTabIndex !== 0) {
+					this.handleSwitch(0)
+				} else {
+					const c = confirm("Lock your wallet and exit the app?")
+					if (c) {
+						navigator.app.exitApp()
+					}
+				}
+
 			}, false);
 
 			try {
@@ -287,7 +300,7 @@ class Exchange extends Component {
 		const coin = currentTicker.split('/')[0].split('0X')
 		const coin_label = coin[0] + (coin[1] ? '0x' + coin[1].substr(0,4) : "")
 		return (
-			<div className="trade-options d-flex w-100">
+			<div className="trade-options d-flex">
 				<button className="buy-btn" onClick={() => this.handleSwitch(1, {trade_side: 0})}>BUY {coin_label}</button>
 				<button className="sell-btn" onClick={() => this.handleSwitch(1, {trade_side: 1})}>SELL {coin_label}</button>
 			</div>

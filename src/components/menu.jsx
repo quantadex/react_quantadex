@@ -24,6 +24,8 @@ const container = css`
 	}
 
 	&.mobile {
+		position: absolute;
+		right: 0;
 		.name {
 			max-width: 80px;
 		}
