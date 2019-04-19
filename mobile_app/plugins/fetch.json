@@ -18,7 +18,7 @@
     "phonegap-plugin-barcodescanner": {
         "source": {
             "type": "registry",
-            "id": "phonegap-plugin-barcodescanner@6.0.8"
+            "id": "cordova-plugin-keyboard"
         },
         "is_top_level": true,
         "variables": {}
@@ -27,6 +27,22 @@
         "source": {
             "type": "registry",
             "id": "cordova-plugin-remote-injection"
+        },
+        "is_top_level": true,
+        "variables": {}
+    },
+    "cordova-plugin-ionic-keyboard": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-ionic-keyboard"
+        },
+        "is_top_level": true,
+        "variables": {}
+    },
+    "cordova-plugin-nativestorage": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-nativestorage"
         },
         "is_top_level": true,
         "variables": {}

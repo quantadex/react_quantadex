@@ -13,6 +13,7 @@ import ReactGA from 'react-ga';
 import { toast } from 'react-toastify';
 import CONFIG from '../../config.js'
 import Utils from "../../common/utils.js";
+import {setItem} from "../../common/storage.js"
 
 export const INIT_DATA = 'INIT_DATA';
 export const LOGIN = 'LOGIN';
@@ -27,8 +28,7 @@ export const UPDATE_USER_ORDER = 'UPDATE_USER_ORDER';
 export const UPDATE_TRADES = 'UPDATE_TRADES'
 export const UPDATE_DIGITS = 'UPDATE_DIGITS'
 export const UPDATE_BLOCK_INFO = 'UPDATE_BLOCK_INFO';
-// export const TOGGLE_LEFT_PANEL = 'TOGGLE_LEFT_PANEL';
-// export const TOGGLE_RIGHT_PANEL = 'TOGGLE_RIGHT_PANEL';
+export const UPDATE_STORAGE = 'UPDATE_STORAGE';
 export const LOAD_FILLED_ORDERS = 'LOAD_FILLED_ORDERS';
 export const TOGGLE_CONNECT_DIALOG = 'TOGGLE_CONNECT_DIALOG';
 // export const TOGGLE_FAVORITE_LIST = 'TOGGLE_FAVORITE_LIST';
@@ -382,11 +382,11 @@ export const AccountLogin = (private_key) => {
 						private_key: private_key
 					})
 
-					localStorage.setItem("name", data[0].name)
-					localStorage.setItem("id", data[0].id)
-					localStorage.setItem("publicKey", data[0].active.key_auths[0][0])
-					localStorage.setItem("lifetime", lifetime_member)
-					localStorage.setItem("env", window.location.pathname.startsWith("/testnet") ? "testnet" : "mainnet")
+					setItem("name", data[0].name)
+					setItem("id", data[0].id)
+					setItem("publicKey", data[0].active.key_auths[0][0])
+					setItem("lifetime", lifetime_member)
+					setItem("env", window.location.pathname.startsWith("/testnet") ? "testnet" : "mainnet")
 				}).then(e => {
 					dispatch(switchTicker(getState().app.currentTicker))
 					dispatch({

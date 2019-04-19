@@ -3,7 +3,8 @@ import {
   INIT_DATA, INIT_BALANCE, SET_MARKET_QUOTE, 
   APPEND_TRADE, UPDATE_ORDER, UPDATE_OPEN_ORDERS, 
   SET_AMOUNT, UPDATE_USER_ORDER, UPDATE_TICKER, 
-  UPDATE_TRADES, UPDATE_FEE, UPDATE_DIGITS, LOAD_FILLED_ORDERS 
+  UPDATE_TRADES, UPDATE_FEE, UPDATE_DIGITS, LOAD_FILLED_ORDERS ,
+  UPDATE_STORAGE
 } from "../actions/app.jsx";
 import { UPDATE_ACCOUNT, UPDATE_BLOCK_INFO } from "../actions/app.jsx";
 import { LOGIN, TOGGLE_CONNECT_DIALOG } from "../actions/app.jsx";
@@ -11,7 +12,7 @@ import { dataSize } from "../actions/app.jsx";
 import SortedSet from 'js-sorted-set'
 import { toast } from 'react-toastify';
 import Ticker, {SymbolToken} from '../../components/ui/ticker.jsx'
-
+import {getItem, clear} from '../../common/storage.js'
 import lodash from 'lodash'
 import moment from 'moment'
 
@@ -587,6 +588,12 @@ const app = (state = initialState, action) => {
           dataSource: tradesDataSource,
           max: maxTrade
         }
+      }
+
+    case UPDATE_STORAGE:
+      const { publicKey, name, userId, lifetime } = action.data
+      return {
+        ...state, publicKey, name, userId, lifetime
       }
 
     case LOAD_FILLED_ORDERS:

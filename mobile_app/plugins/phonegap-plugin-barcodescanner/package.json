@@ -1,4 +1,10 @@
 {
+  "_args": [
+    [
+      "phonegap-plugin-barcodescanner@6.0.8",
+      "C:\\Projects\\react_quantadex\\release12\\mobile_app"
+    ]
+  ],
   "_from": "phonegap-plugin-barcodescanner@6.0.8",
   "_id": "phonegap-plugin-barcodescanner@6.0.8",
   "_inBundle": false,
@@ -16,20 +22,17 @@
     "fetchSpec": "6.0.8"
   },
   "_requiredBy": [
-    "#USER",
     "/"
   ],
   "_resolved": "https://registry.npmjs.org/phonegap-plugin-barcodescanner/-/phonegap-plugin-barcodescanner-6.0.8.tgz",
-  "_shasum": "d95c72b8aae1683f630fbc0c16dd51ede7ee44eb",
-  "_spec": "phonegap-plugin-barcodescanner@6.0.8",
-  "_where": "/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/node_modules",
+  "_spec": "6.0.8",
+  "_where": "C:\\Projects\\react_quantadex\\release12\\mobile_app",
   "author": {
     "name": "Adobe PhoneGap Team"
   },
   "bugs": {
     "url": "https://github.com/phonegap/phonegap-plugin-barcodescanner/issues"
   },
-  "bundleDependencies": false,
   "cordova": {
     "id": "phonegap-plugin-barcodescanner",
     "platforms": [
@@ -41,7 +44,6 @@
       "browser"
     ]
   },
-  "deprecated": false,
   "description": "You can use the BarcodeScanner plugin to scan different types of barcodes (using the device's camera) and get the metadata encoded in them for processing within your application.",
   "devDependencies": {
     "jasmine-node": "1.14.5",

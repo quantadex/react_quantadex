@@ -21,6 +21,8 @@ import Ticker from './ui/ticker.jsx';
 import { css } from 'emotion'
 import globalcss from './global-css.js'
 import CONFIG from '../config.js'
+import { UPDATE_STORAGE } from '../redux/actions/app.jsx'
+import { getItem, clear } from '../common/storage.js';
 
 const container = css`
 	background-color: #0A121E;
@@ -195,6 +197,35 @@ class Exchange extends Component {
 		}).catch(e=>{
 			console.error("Failed " + e.name)
 		})
+
+		document.addEventListener("deviceready", async ()=> {
+			document.addEventListener("backbutton", (e) => {
+				// console.log("back", this.props.history)
+			}, false);
+
+			try {
+				const env = await getItem("env")
+				if (env !== this.props.network) await clear()
+				const publicKey = await getItem("publicKey")
+				const name = await getItem("name")
+				const userId = await getItem("id")
+				const lifetime = await getItem("lifetime")
+				self.props.dispatch({
+					type: UPDATE_STORAGE,
+					data: {
+						publicKey: publicKey || "", 
+						name, 
+						userId, 
+						lifetime: lifetime === "true"
+					}
+				})
+			} catch(e) {
+				console.log(e)
+			}
+
+		}, false);
+
+		
 	}
 
 	handleSwitch(index, params = {}) {
@@ -338,11 +369,13 @@ class Exchange extends Component {
 			)
 		case "connect": 
 			return (
-				<ConnectDialog default="connect" network={network} dispatch={dispatch} isMobile={true} mobile_nav={() => this.handleSwitch(selectedTabIndex)} />
+				<ConnectDialog default="connect" network={network} dispatch={dispatch} isMobile={true} 
+					mobile_nav={() => this.handleSwitch(window.isApp && selectedTabIndex === 3 ? 2 : selectedTabIndex)} />
 			)
 		case "create": 
 			return (
-				<ConnectDialog default="create" network={network} dispatch={dispatch} isMobile={true} mobile_nav={() => this.handleSwitch(selectedTabIndex)} />
+				<ConnectDialog default="create" network={network} dispatch={dispatch} isMobile={true} 
+					mobile_nav={() => this.handleSwitch(selectedTabIndex)} />
 			)
 		case "message": 
 			return (
