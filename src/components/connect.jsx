@@ -798,10 +798,11 @@ export class ConnectDialog extends Component {
     ConnectEncrypted() {
         const self = this
         const { isMobile, network } = this.props
-        const { encrypted_data, uploaded_file_msg, password, authError, errorMsg, scan_qr, bip58, storeName, storeEncrypted } = this.state
+        const { encrypted_data, uploaded_file_msg, password, authError, errorMsg, scan_qr, bip58, storeName, storeEncrypted, processing } = this.state
 
         if (window.isApp) {
             function scanQR() {
+                self.setState({processing: true})
                 cordova.plugins.barcodeScanner.scan(
                     function (result) {
                         // alert("We got a barcode\n" +
@@ -809,11 +810,12 @@ export class ConnectDialog extends Component {
                         //     "Format: " + result.format + "\n" +
                         //     "Cancelled: " + result.cancelled);
                         if (result.text) {
-                            self.setState({bip58: result.text})
+                            self.setState({bip58: result.text, processing: false})
                         }
                     },
                     function (error) {
                         alert("Scanning failed: " + error);
+                        self.setState({processing: false})
                     },
                     {
                         preferFrontCamera: false, // iOS and Android
@@ -893,7 +895,7 @@ export class ConnectDialog extends Component {
                             On your desktop, open the email containing your wallet QR code.
                         </p>
 
-                        <button onClick={scanQR.bind(this)}>SCAN QR CODE</button>
+                        <button disabled={processing} onClick={scanQR.bind(this)}>{processing ? <Loader /> : "SCAN QR CODE"}</button>
                         <div className="mt-4 mb-5" onClick={() => this.resetInputs({scan_qr: !scan_qr})}>
                             Or <span className="qt-color-theme">Copy & Paste Base58 Key</span>
                         </div>
