@@ -9,6 +9,7 @@ import TxDialog from './ui/transaction_dialog.jsx'
 import {LockIcon} from './ui/account_lock.jsx'
 import Utils from '../common/utils'
 import {SymbolToken} from './ui/ticker.jsx'
+import {setItem} from '../common/storage.js'
 
 const container = css`
   color: #eee;
@@ -79,7 +80,7 @@ class Referral extends Component {
   upgradeAccount() {
     const self = this;
     this.props.dispatch(accountUpgrade()).then(e => {
-      localStorage.setItem("lifetime", "true")
+      setItem("lifetime", "true")
       toast.success(`Successfully upgrade account.`, {
         autoClose: 2000,
         position: toast.POSITION.TOP_CENTER,

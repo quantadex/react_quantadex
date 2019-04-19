@@ -10,6 +10,7 @@ import Lock from './ui/account_lock.jsx'
 import CONFIG from '../config.js'
 import bs58 from 'bs58'
 import Recaptcha from 'react-google-invisible-recaptcha';
+import {getItem, setItem, removeItem, clear } from "../common/storage.js";
 
 const container = css`
     text-align: center;
@@ -310,6 +311,9 @@ export class ConnectDialog extends Component {
 
     componentDidMount() {
         this.generateKey()
+        this.loadStore().then(() => {            
+        })
+
         const search = window.location.search.slice(1).split("=")
         const referrer = search.indexOf("referrer") !== -1 && search[search.indexOf("referrer") + 1]
         if (!referrer) return
@@ -385,8 +389,8 @@ export class ConnectDialog extends Component {
 
     ConnectWithBin(type = undefined) {
         const { mobile_nav, dispatch } = this.props
-        const { password, bip58 } = this.state
-        console.log(password, bip58, type)
+        const { password, bip58, storeEncrypted } = this.state
+        
         try {
             var encrypted_data
             if (type === "bip58") {
@@ -396,14 +400,14 @@ export class ConnectDialog extends Component {
             } else if (type === "qr") {
                 encrypted_data = JSON.parse(atob(bip58))
             } else {
-                encrypted_data = this.state.encrypted_data || JSON.parse(localStorage.encrypted_data)
+                encrypted_data = this.state.encrypted_data || JSON.parse(storeEncrypted)
             }
 
 			const decrypted = decryptWallet(encrypted_data, password)
             const private_key = decrypted.toWif()
 
             dispatch(AccountLogin(private_key)).then(() => {
-                localStorage.setItem("encrypted_data", JSON.stringify(encrypted_data))
+                setItem("encrypted_data", JSON.stringify(encrypted_data))
                 if (mobile_nav) {
                     mobile_nav()
                 }
@@ -432,7 +436,7 @@ export class ConnectDialog extends Component {
             const pKey = PrivateKey.fromWif(private_key);
 
             dispatch(AccountLogin(private_key)).then(() => {
-                localStorage.removeItem("encrypted_data")
+                removeItem("encrypted_data")
                 if (mobile_nav) {
                     mobile_nav()
                 }
@@ -785,13 +789,20 @@ export class ConnectDialog extends Component {
         }
     }
 
+    async loadStore() {
+        const storeName = await getItem("name")
+        const storeEncrypted = await getItem("encrypted_data")
+        this.setState({storeName, storeEncrypted})
+    }
+
     ConnectEncrypted() {
         const self = this
-        const { isMobile } = this.props
-        const { encrypted_data, uploaded_file_msg, password, authError, errorMsg, scan_qr, bip58 } = this.state
+        const { isMobile, network } = this.props
+        const { encrypted_data, uploaded_file_msg, password, authError, errorMsg, scan_qr, bip58, storeName, storeEncrypted, processing } = this.state
 
-        if (isMobile) {
+        if (window.isApp) {
             function scanQR() {
+                self.setState({processing: true})
                 cordova.plugins.barcodeScanner.scan(
                     function (result) {
                         // alert("We got a barcode\n" +
@@ -799,11 +810,12 @@ export class ConnectDialog extends Component {
                         //     "Format: " + result.format + "\n" +
                         //     "Cancelled: " + result.cancelled);
                         if (result.text) {
-                            self.setState({bip58: result.text})
+                            self.setState({bip58: result.text, processing: false})
                         }
                     },
                     function (error) {
                         alert("Scanning failed: " + error);
+                        self.setState({processing: false})
                     },
                     {
                         preferFrontCamera: false, // iOS and Android
@@ -821,6 +833,37 @@ export class ConnectDialog extends Component {
                 );                                
             }
             return (
+                storeEncrypted ?
+                <div className="input-container text-center">
+                    <div className="text-secondary text-center mb-2">
+                        Continue as <b>{storeName}</b> or &nbsp;
+                        <span className="qt-color-theme"
+                            onClick={() => {
+                                clear()
+                                window.location.assign("/" + network + "/?app=true")
+                            }}
+                        >
+                            Log Out
+                        </span>
+                    </div>
+                    <div className="text-left">
+                        <label>PASSWORD</label><br/>
+                        <input type="password" name="password" placeholder="Password" 
+                            value={password} onChange={(e) => this.setState({password: e.target.value})}
+                            onKeyPress={e => {
+                                if (e.key == "Enter" && password.length >= 8) {
+                                    this.ConnectWithBin()
+                                }
+                            }}
+                            />
+                    </div>
+                    <span className="text-danger small">{errorMsg}</span>
+                    <button className="mt-5" 
+                        disabled={password.length < 8}
+                        onClick={() => this.ConnectWithBin()}>Connect Wallet</button>
+                </div>
+                    
+                : 
                 scan_qr ? 
                     bip58 ?
                     <div className="input-container">
@@ -852,7 +895,7 @@ export class ConnectDialog extends Component {
                             On your desktop, open the email containing your wallet QR code.
                         </p>
 
-                        <button onClick={scanQR.bind(this)}>SCAN QR CODE</button>
+                        <button disabled={processing} onClick={scanQR.bind(this)}>{processing ? <Loader /> : "SCAN QR CODE"}</button>
                         <div className="mt-4 mb-5" onClick={() => this.resetInputs({scan_qr: !scan_qr})}>
                             Or <span className="qt-color-theme">Copy & Paste Base58 Key</span>
                         </div>
@@ -889,11 +932,12 @@ export class ConnectDialog extends Component {
                     </div>
             )
         }
+
         return (
             <div className="input-container">
-                {!encrypted_data && localStorage.encrypted_data ?
+                {!encrypted_data && storeEncrypted ?
                 <div className="text-secondary text-center mb-2">
-                    Continue as <span className="qt-color-theme">{localStorage.name}</span> or&nbsp;<label className="cursor-pointer" htmlFor="file"><u>browse your files.</u></label>
+                    Continue as <span className="qt-color-theme">{storeName}</span> or&nbsp;<label className="cursor-pointer" htmlFor="file"><u>browse your files.</u></label>
                     <input className="d-none" type="file" name="file" id="file" accept=".json" onChange={(e) => this.uploadFile(e.target.files[0])}/>
                 </div>
                 : 
@@ -924,7 +968,7 @@ export class ConnectDialog extends Component {
                 <span className="error" hidden={!authError}>{errorMsg}</span><br/>
                 <div className="text-center">
                     <button onClick={this.ConnectWithBin.bind(this)} 
-                        disabled={password.length < 8 || !(encrypted_data || localStorage.encrypted_data)}>
+                        disabled={password.length < 8 || !(encrypted_data || storeEncrypted)}>
                         Connect Wallet
                     </button>
                 </div>

@@ -21,6 +21,14 @@ import ReactGA from 'react-ga';
  
 ReactGA.initialize('UA-114919036-3');
 
+window.addEventListener('keyboardDidShow', function () {
+	document.getElementById('app').classList.add("keyboard-show")
+});
+
+window.addEventListener('keyboardDidHide', function () {
+	document.getElementById('app').classList.remove("keyboard-show")
+});
+
 // , applyMiddleware(logger)
 
 injectGlobal`
@@ -191,6 +199,16 @@ injectGlobal`
 
 	.cursor-pointer {
 		cursor: pointer;
+	}
+
+	.keyboard-show {
+		.exchange-bottom {
+			display: none !important;
+		}
+
+		.mobile-content {
+			margin-bottom: 0;
+		}
 	}
 
 	.grecaptcha-badge {

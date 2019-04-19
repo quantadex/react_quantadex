@@ -3,7 +3,7 @@ import { Redirect, withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { TOGGLE_CONNECT_DIALOG } from '../../redux/actions/app.jsx'
 import { css } from 'emotion'
-
+import {clear} from '../../common/storage.js'
 import { Link } from 'react-router-dom'
 
 const container = css`
@@ -202,7 +202,7 @@ HamburgerMenu.defaultProps = {
       iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
       text:"Logout",
       onClick: () => {
-        localStorage.clear()
+        clear()
         window.location.assign(window.location.pathname.startsWith("/testnet") ? "/testnet" : "/mainnet")
       }
     }],

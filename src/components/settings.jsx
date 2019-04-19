@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { css } from 'emotion'
 import { connect } from 'react-redux'
 import { LOGIN } from "../redux/actions/app.jsx";
+import {clear} from '../common/storage.js'
 
 const container = css`
     .menu-item {
@@ -18,7 +19,7 @@ const container = css`
 class Settings extends Component {
     
     render() {
-        const { mobile_nav, publicKey, private_key, name, dispatch } = this.props
+        const { mobile_nav, publicKey, private_key, name, dispatch, network } = this.props
         const tabs = [{
             title: "Create Wallet",
             nav: true,
@@ -41,8 +42,8 @@ class Settings extends Component {
             title: "Logout",
             hide: !private_key && !publicKey,
             action: () => {
-                localStorage.clear()
-                window.location.assign(window.isApp ? "index.html" : (window.location.pathname.startsWith("/testnet") ? "/testnet" : "/mainnet"))
+                clear()
+                window.location.assign("/" + network + "/?app=true")
             }
         },{
             title: <a href="https://quantadex.zendesk.com/hc/en-us" target="_blank">Customer Support</a>,

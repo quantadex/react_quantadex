@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.quantadex.stageapp" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="io.cordova.hellocordova" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <feature name="Whitelist">
         <param name="android-package" value="org.apache.cordova.whitelist.WhitelistPlugin" />
         <param name="onload" value="true" />
@@ -7,18 +7,28 @@
     <feature name="BarcodeScanner">
         <param name="android-package" value="com.phonegap.plugins.barcodescanner.BarcodeScanner" />
     </feature>
+    <feature name="NativeStorage">
+        <param name="android-package" value="NativeStorage" />
+    </feature>
+    <feature name="SplashScreen">
+        <param name="android-package" value="org.apache.cordova.splashscreen.SplashScreen" />
+        <param name="onload" value="true" />
+    </feature>
     <feature name="RemoteInjection">
         <param name="android-package" value="com.truckmovers.cordova.RemoteInjectionPlugin" />
         <param name="onload" value="true" />
     </feature>
-    <name>QUANTA(stage)</name>
+    <feature name="Keyboard">
+        <param name="android-package" onload="true" value="io.ionic.keyboard.IonicKeyboard" />
+    </feature>
+    <name>QDex</name>
     <description>
         QDex Exchange
     </description>
     <author email="dev@cordova.apache.org" href="http://cordova.io">
         Apache Cordova Team
     </author>
-    <content src="https://trade-stage.quantadex.com/testnet/?app=true" />
+    <content src="http://localhost:3000/testnet/?app=true" />
     <access allows-arbitrary-loads-for-media="true" allows-arbitrary-loads-in-web-content="true" allows-local-networking="true" origin="*" />
     <allow-navigation href="*" />
     <allow-intent href="http://*/*" />
@@ -29,5 +39,17 @@
     <icon density="xhdpi" src="res/drawable-xhdpi/ic_launcher.png" />
     <icon density="xxhdpi" src="res/drawable-xxhdpi/ic_launcher.png" />
     <icon density="xxxhdpi" src="res/drawable-xxxhdpi/ic_launcher.png" />
+    <splash density="land-ldpi" src="res/screen/android/drawable-land-ldpi-screen.png" />
+    <splash density="land-mdpi" src="res/screen/android/drawable-land-mdpi-screen.png" />
+    <splash density="land-hdpi" src="res/screen/android/drawable-land-hdpi-screen.png" />
+    <splash density="land-xhdpi" src="res/screen/android/drawable-land-xhdpi-screen.png" />
+    <splash density="land-xxhdpi" src="res/screen/android/drawable-land-xxhdpi-screen.png" />
+    <splash density="land-xxxhdpi" src="res/screen/android/drawable-land-xxxhdpi-screen.png" />
+    <splash density="port-ldpi" src="res/screen/android/drawable-port-ldpi-screen.png" />
+    <splash density="port-mdpi" src="res/screen/android/drawable-port-mdpi-screen.png" />
+    <splash density="port-hdpi" src="res/screen/android/drawable-port-hdpi-screen.png" />
+    <splash density="port-xhdpi" src="res/screen/android/drawable-port-xhdpi-screen.png" />
+    <splash density="port-xxhdpi" src="res/screen/android/drawable-port-xxhdpi-screen.png" />
+    <splash density="port-xxxhdpi" src="res/screen/android/drawable-port-xxxhdpi-screen.png" />
     <preference name="loglevel" value="DEBUG" />
 </widget>
