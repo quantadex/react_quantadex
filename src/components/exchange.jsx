@@ -11,7 +11,7 @@ class Exchange extends Component {
 		const { match, history, location, dispatch } = this.props
 		if (!match.params.net || (match.params.net !== "mainnet" && match.params.net !== "testnet")) {
 			const default_ticker = 'ETH_BTC';
-			history.push("/testnet/exchange/" + default_ticker + location.search)
+			history.push("/mainnet/exchange/" + default_ticker + location.search)
 		} else if (!match.params.ticker) {
 			const default_ticker = match.params.net == "mainnet" ? 'ETH_BTC' : "ETH_USD"
 			history.push("/" + match.params.net + "/exchange/" + default_ticker + location.search)
