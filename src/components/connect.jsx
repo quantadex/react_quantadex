@@ -386,12 +386,15 @@ export class ConnectDialog extends Component {
     ConnectWithBin(type = undefined) {
         const { mobile_nav, dispatch } = this.props
         const { password, bip58 } = this.state
+        console.log(password, bip58, type)
         try {
             var encrypted_data
             if (type === "bip58") {
                 const hex = bs58.decode(bip58).toString('hex')
                 if (hex.length !== 192) throw "Invalid Key"
                 encrypted_data = {encryption_key: hex.slice(0,96), wallet_encryption_key: hex.slice(-96)}
+            } else if (type === "qr") {
+                encrypted_data = JSON.parse(atob(bip58))
             } else {
                 encrypted_data = this.state.encrypted_data || JSON.parse(localStorage.encrypted_data)
             }
@@ -820,25 +823,28 @@ export class ConnectDialog extends Component {
             return (
                 scan_qr ? 
                     bip58 ?
-                    <div className="input-container text-center">
-                        <div onClick={() => this.setState({bip58: ""})}><img src={devicePath("public/images/back-btn-black.svg")} /></div>
-                        <p className="mb-5">
-                            Your BIP58 Key: {bip58.slice(0,6)}.....{bip58.slice(-6)}
+                    <div className="input-container">
+                        <div className="d-inline-block" onClick={() => this.setState({bip58: ""})}>
+                            <img src={devicePath("public/images/back-btn-black.svg")} />
+                        </div>
+                        <p className="mb-5 mt-4">
+                            Key from QR Code: {bip58.slice(0,6)}.....{bip58.slice(-6)}
                         </p>
                         <div className="text-left">
                             <label>PASSWORD</label><br/>
                             <input type="password" name="password" placeholder="Password" 
-                                disabled={password.length < 8}
                                 value={password} onChange={(e) => this.setState({password: e.target.value})}
                                 onKeyPress={e => {
                                     if (e.key == "Enter" && password.length > 0) {
-                                        this.ConnectWithBin("bip58")
+                                        this.ConnectWithBin("qr")
                                     }
                                 }}
                             />
                         </div>
                         <span className="text-danger small">{errorMsg}</span>
-                        <button className="mt-5" onClick={() => this.ConnectWithBin("bip58")}>Connect Wallet</button>
+                        <button className="mt-5" 
+                            disabled={password.length < 8}
+                            onClick={() => this.ConnectWithBin("qr")}>Connect Wallet</button>
                     </div>
                     :
                     <div className="input-container text-center">

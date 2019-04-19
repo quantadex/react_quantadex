@@ -56,8 +56,8 @@ a:hover {
 }
 
 .chart-page .chart-container {
-  background-color: #121517 !important;
-  border-color: #121517 !important;
+  background-color: #0A121E !important;
+  border-color: #0A121E !important;
 }
 
 .header-chart-panel {
@@ -65,7 +65,7 @@ a:hover {
 }
 
 .tv-side-toolbar {
-  background-color: #121517 !important;
+  background-color: #0A121E !important;
   border-color: #121b21 !important;
   color: #999 !important;
 }
@@ -97,7 +97,7 @@ a:hover {
 }
 
 .chart-controls-bar {
-  background: #121517 !important;
+  background: #0A121E !important;
 }
 
 input.symbol-edit,
@@ -1104,7 +1104,7 @@ to {
 #library-container .save-load-buttons .active,
 #library-container .symbol-edit-widget .button.active,
 .feature-no-touch .chart-controls-bar-buttons a:not(.disabled):hover {
-  background: #121517 !important;
+  background: #0A121E !important;
 }
 
 /* layout */
@@ -1163,7 +1163,7 @@ to {
 }
 
 .header-chart-panel-sizer {
-    background-color: #121517;
+    background-color: #0A121E;
 }
 
 .pane-legend-line span {

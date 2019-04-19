@@ -150,7 +150,7 @@ const container = css`
     margin: 0;
     
     .sticky, thead th {
-      background: #121517;
+      background: #0A121E;
     }
 
     .order-list {

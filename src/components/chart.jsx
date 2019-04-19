@@ -70,7 +70,7 @@ class Chart extends Component {
 
     const upColor = "#50b3b7"
     const downColor = "#ff3282"
-    const background_color = this.props.mobile ? "#121517" : "#23282c"
+    const background_color = this.props.mobile ? "#0A121E" : "#23282c"
 
     // TradingView.onready(function() {
       var widget = (window.chartWidget = new TradingView.widget({

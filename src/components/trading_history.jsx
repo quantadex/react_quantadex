@@ -29,7 +29,7 @@ const container = css`
 
 	&.mobile {
 		thead th {
-			background: #121517;
+			background: #0A121E;
 		}
 
 		.perc-bar.left {

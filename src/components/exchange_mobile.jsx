@@ -23,7 +23,7 @@ import globalcss from './global-css.js'
 import CONFIG from '../config.js'
 
 const container = css`
-	background-color: #121517;
+	background-color: #0A121E;
 	height: 100vh;
 	width: 100%;
 	
@@ -35,7 +35,7 @@ const container = css`
 	.exchange-bottom {
 		position: fixed;
 		bottom: 0;
-		background-color: #121517;
+		background-color: #0A121E;
 		width: 100%;
 		z-index: 99;
 	}
@@ -81,7 +81,7 @@ const container = css`
 		height: 0px;
 		width: 100%;
 		overflow: scroll;
-		background-color: #121517;
+		background-color: #0A121E;
 		transition: height 0.3s;
 		z-index: 10;
 	}
@@ -110,7 +110,7 @@ const container = css`
 			position: -webkit-sticky;
 			position: sticky;
 			top: 0;
-			background: #121517;
+			background: #0A121E;
 			z-index: 1;
 		}
 	}
