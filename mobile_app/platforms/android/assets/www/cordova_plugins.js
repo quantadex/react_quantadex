@@ -33,6 +33,14 @@ module.exports = [
         "id": "cordova-plugin-nativestorage.NativeStorageError",
         "file": "plugins/cordova-plugin-nativestorage/www/NativeStorageError.js",
         "pluginId": "cordova-plugin-nativestorage"
+    },
+    {
+        "id": "cordova-plugin-splashscreen.SplashScreen",
+        "file": "plugins/cordova-plugin-splashscreen/www/splashscreen.js",
+        "pluginId": "cordova-plugin-splashscreen",
+        "clobbers": [
+            "navigator.splashscreen"
+        ]
     }
 ];
 module.exports.metadata = 
@@ -43,7 +51,8 @@ module.exports.metadata =
     "phonegap-plugin-barcodescanner": "6.0.8",
     "cordova-plugin-remote-injection": "0.5.2",
     "cordova-plugin-ionic-keyboard": "2.1.3",
-    "cordova-plugin-nativestorage": "2.3.2"
+    "cordova-plugin-nativestorage": "2.3.2",
+    "cordova-plugin-splashscreen": "5.0.2"
 };
 // BOTTOM OF METADATA
 });
