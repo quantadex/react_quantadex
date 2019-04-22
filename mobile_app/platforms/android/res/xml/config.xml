@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="io.cordova.hellocordova" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <feature name="Whitelist">
-        <param name="android-package" value="org.apache.cordova.whitelist.WhitelistPlugin" />
-        <param name="onload" value="true" />
+<widget id="com.quantadex.stageapp" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <feature name="Keyboard">
+        <param name="android-package" onload="true" value="io.ionic.keyboard.IonicKeyboard" />
     </feature>
-    <feature name="BarcodeScanner">
-        <param name="android-package" value="com.phonegap.plugins.barcodescanner.BarcodeScanner" />
+    <feature name="RemoteInjection">
+        <param name="android-package" value="com.truckmovers.cordova.RemoteInjectionPlugin" />
+        <param name="onload" value="true" />
     </feature>
     <feature name="NativeStorage">
         <param name="android-package" value="NativeStorage" />
@@ -14,21 +14,21 @@
         <param name="android-package" value="org.apache.cordova.splashscreen.SplashScreen" />
         <param name="onload" value="true" />
     </feature>
-    <feature name="RemoteInjection">
-        <param name="android-package" value="com.truckmovers.cordova.RemoteInjectionPlugin" />
+    <feature name="Whitelist">
+        <param name="android-package" value="org.apache.cordova.whitelist.WhitelistPlugin" />
         <param name="onload" value="true" />
     </feature>
-    <feature name="Keyboard">
-        <param name="android-package" onload="true" value="io.ionic.keyboard.IonicKeyboard" />
+    <feature name="BarcodeScanner">
+        <param name="android-package" value="com.phonegap.plugins.barcodescanner.BarcodeScanner" />
     </feature>
-    <name>QDex</name>
+    <name>QUANTA(stage)</name>
     <description>
         QDex Exchange
     </description>
     <author email="dev@cordova.apache.org" href="http://cordova.io">
         Apache Cordova Team
     </author>
-    <content src="http://localhost:3000/testnet/?app=true" />
+    <content src="https://trade-stage.quantadex.com/mainnet/?app=true" />
     <access allows-arbitrary-loads-for-media="true" allows-arbitrary-loads-in-web-content="true" allows-local-networking="true" origin="*" />
     <allow-navigation href="*" />
     <allow-intent href="http://*/*" />

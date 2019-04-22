@@ -8,25 +8,25 @@
     },
     "installed_plugins": {
         "cordova-plugin-compat": {
-            "PACKAGE_NAME": "io.cordova.hellocordova"
-        },
-        "cordova-plugin-whitelist": {
-            "PACKAGE_NAME": "io.cordova.hellocordova"
-        },
-        "phonegap-plugin-barcodescanner": {
-            "PACKAGE_NAME": "io.cordova.hellocordova"
-        },
-        "cordova-plugin-remote-injection": {
-            "PACKAGE_NAME": "io.cordova.hellocordova"
+            "PACKAGE_NAME": "com.quantadex.stageapp"
         },
         "cordova-plugin-ionic-keyboard": {
-            "PACKAGE_NAME": "io.cordova.hellocordova"
+            "PACKAGE_NAME": "com.quantadex.stageapp"
         },
         "cordova-plugin-nativestorage": {
-            "PACKAGE_NAME": "io.cordova.hellocordova"
+            "PACKAGE_NAME": "com.quantadex.stageapp"
+        },
+        "cordova-plugin-remote-injection": {
+            "PACKAGE_NAME": "com.quantadex.stageapp"
         },
         "cordova-plugin-splashscreen": {
-            "PACKAGE_NAME": "io.cordova.hellocordova"
+            "PACKAGE_NAME": "com.quantadex.stageapp"
+        },
+        "cordova-plugin-whitelist": {
+            "PACKAGE_NAME": "com.quantadex.stageapp"
+        },
+        "phonegap-plugin-barcodescanner": {
+            "PACKAGE_NAME": "com.quantadex.stageapp"
         }
     },
     "dependent_plugins": {}
