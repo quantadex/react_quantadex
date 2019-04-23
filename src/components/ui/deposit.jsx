@@ -155,7 +155,7 @@ class QTDeposit extends React.Component {
   }
 
   componentDidMount() {
-    fetch(CONFIG.getEnv().API_PATH + "/node1/address/" + (this.props.isETH ? "eth" : "btc") + "/" + this.props.name, { mode: "cors" }).then(e => e.json())
+    fetch(CONFIG.getEnv().API_PATH + "/node1/address/" + (this.props.isETH ? "eth" : this.state.asset.toLowerCase()) + "/" + this.props.name, { mode: "cors" }).then(e => e.json())
     .then(e => {
       this.setState({init: true, deposit_address: e && (e[e.length-1] && e[e.length-1].Address) || undefined})
     })
@@ -169,7 +169,7 @@ class QTDeposit extends React.Component {
 
   generateAddress() {
     this.setState({generating: true})
-    fetch(CONFIG.getEnv().API_PATH + "/node1/address/" + (this.props.isETH ? "eth" : "btc") + "/" + this.props.name, {
+    fetch(CONFIG.getEnv().API_PATH + "/node1/address/" + (this.props.isETH ? "eth" : this.state.asset.toLowerCase()) + "/" + this.props.name, {
       method: "post",
       mode: "cors",
 			headers: {
