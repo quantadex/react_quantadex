@@ -66,7 +66,7 @@ const container = css`
 	.order-status-btn {
 		width: min-content;
 		min-height: 26px;
-		background: url(${devicePath('public/images/order-status.svg')} no-repeat 0 50%;
+		background: url(${devicePath("public/images/order-status.svg")}) no-repeat 0 50%;
 		padding-left: 35px;
 	}
 

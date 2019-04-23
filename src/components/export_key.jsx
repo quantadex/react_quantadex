@@ -7,8 +7,10 @@ import { PrivateKey, PublicKey, decryptWallet } from "@quantadex/bitsharesjs";
 import bs58 from 'bs58'
 
 const container = css`
+    font-size: 15px;
     input {
         color: #333;
+        background: #fff;
         border: 1px solid #999;
         text-align: left;
         padding: 20px;
@@ -26,7 +28,7 @@ const container = css`
     }
 
     button {
-        width: 180px;
+        display: block;
         height: 42px;
         background-color: #66d7d7;
         padding: 10px 20px;
@@ -37,6 +39,12 @@ const container = css`
     }
     button:disabled {
         background-color: #999;
+    }
+    .white-btn {
+        background: #eee;
+        color: #333;
+        height: auto;
+        padding: 6px 20px;
     }
     textarea {
         width: 100%;
@@ -68,14 +76,11 @@ class ExportKey extends Component {
         this.setState({encrypted_data: JSON.parse(encrypted_data)})
     }
 
-    toByteArray(hexString) {
-        var result = [];
-        while (hexString.length >= 2) {
-          result.push(parseInt(hexString.substring(0, 2), 16));
-          hexString = hexString.substring(2, hexString.length);
-        }
-        return result;
-      }
+    copyText(id) {
+        var copyText = document.getElementById(id);
+        copyText.select();
+        document.execCommand("copy");
+    }
 
     getKeys() {
         const { encrypted_data, password } = this.state
@@ -97,11 +102,19 @@ class ExportKey extends Component {
     render() {
         const { password, errorMsg, private_key, bip58 } = this.state
         return (
-            <div className={container + " mt-5"}>
+            <div className={container + " mt-5 px-3"}>
                 { private_key && bip58 ?
                     <div>
-                        <textarea value={private_key} readOnly />
-                        <textarea value={bip58} readOnly />
+                        <label>PRIVATE KEY</label>
+                        <textarea id="private-key" name="privateKey" 
+                            onFocus={(e) => e.target.select()}
+                            value={private_key} readOnly />
+                        <button className="white-btn" onClick={() => this.copyText("private-key")}>Copy</button>
+                        <label className="mt-5">BIP58 KEY</label>
+                        <textarea id="bip58" name="bip58" 
+                            onFocus={(e) => e.target.select()} 
+                            value={bip58} readOnly />
+                        <button className="white-btn" onClick={() => this.copyText("bip58")}>Copy</button>
                     </div>
                     :
                     <div className="text-left">
@@ -115,7 +128,7 @@ class ExportKey extends Component {
                             }}
                             />
                         <span className="text-danger small">{errorMsg}</span>
-                        <button className="mt-5" 
+                        <button className="mt-5 w-100" 
                             disabled={password.length < 8}
                             onClick={() => this.getKeys()}>CONTINUE</button>
                     </div>
