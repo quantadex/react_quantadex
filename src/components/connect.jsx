@@ -617,7 +617,7 @@ export class ConnectDialog extends Component {
                         "Content-Type": "application/json",
                         Accept: "application/json"
                 },
-                body: JSON.stringify({ email: email })
+                body: JSON.stringify({ email: email, recaptcha: this.recaptcha.getResponse() })
             }).then(e => e.json()).then(response => {
                 if (response.success) {
                     self.setState({
@@ -652,7 +652,7 @@ export class ConnectDialog extends Component {
                     <Recaptcha
                         ref={ ref => this.recaptcha = ref }
                         sitekey="6Lc4OZ4UAAAAAEfECNb09tkSL_3UBCuV_sdITK5B"
-                        onResolved={ verify } />
+                        onResolved={ verify.bind(this) } />
                 </div>
                 {window.isApp ? null :
                     <div className="link qt-font-small text-center mt-4" 
