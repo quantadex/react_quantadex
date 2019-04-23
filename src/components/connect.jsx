@@ -644,10 +644,12 @@ export class ConnectDialog extends Component {
                         sitekey="6Lc4OZ4UAAAAAEfECNb09tkSL_3UBCuV_sdITK5B"
                         onResolved={ verify } />
                 </div>
-                <div className="link qt-font-small text-center mt-4" 
-                    onClick={() => this.setState({no_email: true, regStep: 3})}>
-                    <u>Skip. Download locally</u>
-                </div>
+                {window.isApp ? null :
+                    <div className="link qt-font-small text-center mt-4" 
+                        onClick={() => this.setState({no_email: true, regStep: 3})}>
+                        <u>Skip. Download locally</u>
+                    </div>
+                }
             </React.Fragment>
         )
     }
