@@ -24,6 +24,7 @@ import CONFIG from '../config.js'
 import { UPDATE_STORAGE, LOGIN, switchTicker } from '../redux/actions/app.jsx'
 import { getItem, clear } from '../common/storage.js';
 import ExportKey from './export_key.jsx'
+import AppDownload from './app_download.jsx'
 
 const container = css`
 	background-color: #0A121E;
@@ -180,6 +181,7 @@ class Exchange extends Component {
 			dialog: undefined,
 			showBenchmark: true,
 			announcements: false,
+			app_download: !window.isApp && navigator.userAgent.toLowerCase().indexOf("android") > -1 && false
 		}
 
 		this.MarketsList = this.MarketsList.bind(this)
@@ -425,12 +427,16 @@ class Exchange extends Component {
 	}
 
 	render() {
-		const { showMarkets, selectedTabIndex, contentIndex, headerIndex } = this.state
+		const { app_download, showMarkets, selectedTabIndex, contentIndex, headerIndex } = this.state
 		const tabs = {	names: ["Markets", "Trade", "Wallet", "Settings"] }
 		const web_tabs = { names: ["Chart", "Trade", "Orders", "Wallet"] }
 
 		return (
 		<div className={container + " d-flex flex-column" + (window.isApp ? " app" : " web")}>
+			{app_download ?
+				<AppDownload />
+			: null
+			}
 			<MobileHeader header={this.Header(headerIndex)} mobile_nav={this.handleSwitch.bind(this)} />
 			
 			<div id="content" className="mobile-content">
