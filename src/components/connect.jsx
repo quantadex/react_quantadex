@@ -43,6 +43,9 @@ const container = css`
     }
     &.link.mobile {
         background: none;
+        font-size: 12px;
+        padding: 0;
+        margin: 0;
     }
 
     &.mobile  {
@@ -536,7 +539,7 @@ export class ConnectDialog extends Component {
                 }
                 
                 if (window.isApp) {
-                    this.setState(encrypted_data)
+                    this.setState({encrypted_data})
                     this.ConnectWithBin(undefined, false)
                 }
 
@@ -694,7 +697,7 @@ export class ConnectDialog extends Component {
                 </p>
 
                 <label>VERIFICATION CODE</label><br/>
-                <input type="text" name="email_code" spellCheck="false"
+                <input type="text" name="email_code" spellCheck="false" placeholder="Code from email..."
                     value={email_code} onChange={(e) => this.setState({email_code: e.target.value})}
                 />
 
