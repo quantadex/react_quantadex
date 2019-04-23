@@ -9,6 +9,7 @@ const SETTINGS = {
 		EXPLORER_URL: "http://explorer.quantadex.com/testnet",
 		ETHERSCAN_URL: "https://ropsten.etherscan.io",
 		BLOCKCYPHER_URL: "https://live.blockcypher.com/btc-testnet",
+		BITCOIN_URL: "https://explorer.bitcoin.com/tbch",
 		CROSSCHAIN_COINS: ["BTC", "ETH", "LTC", "BCH"]
 	},
 	MAINNET: {

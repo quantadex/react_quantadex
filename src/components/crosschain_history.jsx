@@ -120,7 +120,8 @@ class CrosschainHistory extends Component {
 }
 
 const mapStateToProps = (state) => ({
-  isMobile: state.app.isMobile
+  isMobile: state.app.isMobile,
+  network: state.app.network
 });
 
 export default connect(mapStateToProps)(CrosschainHistory)
