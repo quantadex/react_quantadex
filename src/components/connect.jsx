@@ -476,7 +476,7 @@ export class ConnectDialog extends Component {
     }
 
     registerAccount() {
-        const { password, confirm_password, username, personal_key, public_key, private_key, no_email, email, email_code, referrer, referrer_error } = this.state
+        const { password, confirm_password, username, personal_key, public_key, generated_private_key, no_email, email, email_code, referrer, referrer_error } = this.state
         if(!personal_key) {
             if (password !== confirm_password) {
                 this.recaptcha.reset()
@@ -494,7 +494,7 @@ export class ConnectDialog extends Component {
         this.setState({processing: true})
 
         if (!no_email) {
-            const encryption = encryptWallet(PrivateKey.fromWif(private_key), password)
+            const encryption = encryptWallet(PrivateKey.fromWif(generated_private_key), password)
             const encrypted_data= JSON.stringify(encryption)
 
             const reg_json = {
@@ -521,7 +521,8 @@ export class ConnectDialog extends Component {
                 if (response.status == 200) {
                     this.setState({
                         regStep: 4,
-                        authError: false
+                        authError: false,
+                        private_key: generated_private_key
                     });
 
                     if (window.isApp) {
@@ -744,7 +745,7 @@ export class ConnectDialog extends Component {
 
     generateKey() {
         const keys = WalletApi.generate_key()
-        this.setState({ public_key: keys.publicKey, private_key: keys.privateKey, valid_key: true })
+        this.setState({ public_key: keys.publicKey, generated_private_key: keys.privateKey, valid_key: true })
     }
 
     Register() {
