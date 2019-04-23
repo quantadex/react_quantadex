@@ -71,7 +71,7 @@ class Header extends Component {
 				<div className="d-flex justify-content-between align-items-center">
 					<div className="w-100">
 						<Link to={"/" + network + "/exchange/" + (currentTicker ? currentTicker.replace("/", "_") : "")} className="header-logo">
-							<img src={network == "mainnet" ? devicePath("public/images/logo-light.svg") : devicePath("public/images/qdex-fantasy-light.svg")} width="220" />
+							<img src={network == "mainnet" ? devicePath("public/images/logo.svg") : devicePath("public/images/qdex-fantasy-light.svg")} width="220" />
 						</Link>
 						
 					</div>
