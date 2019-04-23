@@ -845,11 +845,14 @@ export class ConnectDialog extends Component {
                 storeEncrypted ?
                 <div className="input-container text-center">
                     <div className="text-secondary text-center mb-2">
-                        Continue as <b>{storeName}</b> or &nbsp;
+                        Continue as <b>{storeName}</b> or&nbsp;
                         <span className="qt-color-theme"
                             onClick={() => {
-                                clear()
-                                window.location.assign("/" + network + "/?app=true")
+                                const c = confirm("This will remove your credentials from current device. Make sure you have backup of you Private Key before continue!")
+                                if (c) {
+                                    clear()
+                                    window.location.assign("/" + network + "/?app=true")
+                                }
                             }}
                         >
                             Log Out
