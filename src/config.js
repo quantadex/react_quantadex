@@ -9,7 +9,7 @@ const SETTINGS = {
 		EXPLORER_URL: "http://explorer.quantadex.com/testnet",
 		ETHERSCAN_URL: "https://ropsten.etherscan.io",
 		BLOCKCYPHER_URL: "https://live.blockcypher.com/btc-testnet",
-		CROSSCHAIN_COINS: ["BTC", "ETH"]
+		CROSSCHAIN_COINS: ["BTC", "ETH", "LTC", "BCH"]
 	},
 	MAINNET: {
 		WEBSOCKET_PATH: "wss://mainnet-api.quantachain.io",
@@ -21,7 +21,8 @@ const SETTINGS = {
 		EXPLORER_URL: "http://explorer.quantadex.com/mainnet",
 		ETHERSCAN_URL: "https://etherscan.io",
 		BLOCKCYPHER_URL: "https://live.blockcypher.com/btc",
-		CROSSCHAIN_COINS: ["BTC", "ETH"]
+		BITCOIN_URL: "https://explorer.bitcoin.com/bch",
+		CROSSCHAIN_COINS: ["BTC", "ETH", "LTC", "BCH"]
 	}
 };
 
