@@ -45,12 +45,20 @@
                 "parents": {
                     "/manifest/application": [
                         {
-                            "xml": "<activity android:clearTaskOnLaunch=\"true\" android:configChanges=\"orientation|keyboardHidden|screenSize\" android:exported=\"false\" android:name=\"com.google.zxing.client.android.CaptureActivity\" android:theme=\"@android:style/Theme.NoTitleBar.Fullscreen\" android:windowSoftInputMode=\"stateAlwaysHidden\" />",
+                            "xml": "<activity android:label=\"Share\" android:name=\"com.google.zxing.client.android.encode.EncodeActivity\" />",
                             "count": 1
                         },
                         {
-                            "xml": "<activity android:label=\"Share\" android:name=\"com.google.zxing.client.android.encode.EncodeActivity\" />",
-                            "count": 1
+                            "xml": "<application android:allowBackup=\"true\" />",
+                            "count": 1,
+                            "mode": "merge",
+                            "id": "config.xml",
+                            "oldAttrib": {
+                                "android:hardwareAccelerated": "true",
+                                "android:icon": "@mipmap/icon",
+                                "android:label": "@string/app_name",
+                                "android:supportsRtl": "true"
+                            }
                         }
                     ],
                     "/manifest": [
