@@ -479,13 +479,13 @@ export class ConnectDialog extends Component {
         const { password, confirm_password, username, personal_key, public_key, generated_private_key, no_email, email, email_code, referrer, referrer_error } = this.state
         if(!personal_key) {
             if (password !== confirm_password) {
-                this.recaptcha.reset()
+                //this.recaptcha.reset()
                 this.setState({authError: true, errorMsg: "Your password inputs are not the same"})
                 return
             } 
 
             if (!this.validatePassword(password)) {
-                this.recaptcha.reset()
+                //this.recaptcha.reset()
                 this.setState({authError: true, errorMsg: "Password must contains at least 8 characters, 1 uppercase, and 1 number."})
                 return
             }
@@ -532,7 +532,7 @@ export class ConnectDialog extends Component {
 
                     return response.json()
                 } else {
-                    this.recaptcha.reset()
+                    //this.recaptcha.reset()
                     return response.json().then(res => {
                         var msg;
                         if (res.error.includes("already exists")) {
@@ -578,7 +578,7 @@ export class ConnectDialog extends Component {
     
                     return response.json()
                 } else {
-                    this.recaptcha.reset()
+                    //this.recaptcha.reset()
                     return response.json().then(res => {
                         var msg;
                         if (res.error.includes("already exists")) {
@@ -808,14 +808,10 @@ export class ConnectDialog extends Component {
                 <span className="error" hidden={!authError}>{errorMsg}</span><br/>
 
                 <div className="text-center">
-                    <button onClick={() => this.recaptcha.execute()} 
+                    <button onClick={this.registerAccount.bind(this)} 
                         disabled={!valid_key || username.length == 0 || (!personal_key && (password.length == 0 || confirm_password.length == 0)) || processing}>
                         {processing ? <Loader /> : "REGISTER ACCOUNT"}
                     </button>
-                    <Recaptcha
-                        ref={ ref => this.recaptcha = ref }
-                        sitekey="6Lc4OZ4UAAAAAEfECNb09tkSL_3UBCuV_sdITK5B"
-                        onResolved={ this.registerAccount.bind(this) } />
                 </div>
             </React.Fragment>
         )

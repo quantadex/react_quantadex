@@ -151,7 +151,9 @@ class QTWithdraw extends React.Component {
   }
 
   validateAddress(address) {
-    let coin = this.state.asset == "BTC" ? "BTC" : "ETH"
+    const is_token = this.state.asset.split("0X").length > 1;
+
+    let coin = is_token ? "ETH" : this.state.asset;
     let valid = WAValidator.validate(address, coin, this.props.network == "testnet" ? "testnet" : "prod")
 
     if (!valid) {
