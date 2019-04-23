@@ -200,7 +200,7 @@ class Exchange extends Component {
 		}).catch(e=>{
 			console.error("Failed " + e.name)
 		})
-
+		
 		document.addEventListener("deviceready", async ()=> {
 			document.addEventListener("backbutton", () => {
 				const { selectedTabIndex, headerIndex } = this.state
@@ -217,7 +217,7 @@ class Exchange extends Component {
 				}
 
 			}, false);
-
+			
 			try {
 				const env = await getItem("env")
 				if (env !== this.props.network) await clear()
@@ -225,6 +225,7 @@ class Exchange extends Component {
 				const name = await getItem("name")
 				const userId = await getItem("id")
 				const lifetime = await getItem("lifetime")
+				
 				dispatch({
 					type: UPDATE_STORAGE,
 					data: {
@@ -234,6 +235,7 @@ class Exchange extends Component {
 						lifetime: lifetime === "true"
 					}
 				})
+				
 				getItem("private_key").then(private_key => {
 					dispatch({
 						type: LOGIN,

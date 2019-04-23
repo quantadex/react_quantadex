@@ -41,7 +41,7 @@ class Settings extends Component {
         },{
             title: "Export Private Key",
             nav: true,
-            hide: true, //!private_key && true,
+            hide: !private_key && true,
             action: () => mobile_nav("export_key")
         },{
             title: "Logout",
