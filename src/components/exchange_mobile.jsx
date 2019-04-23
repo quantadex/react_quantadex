@@ -181,7 +181,7 @@ class Exchange extends Component {
 			dialog: undefined,
 			showBenchmark: true,
 			announcements: false,
-			app_download: !window.isApp && navigator.userAgent.toLowerCase().indexOf("android") > -1 && true
+			app_download: !window.isApp && navigator.userAgent.toLowerCase().indexOf("android") > -1 && false
 		}
 
 		this.MarketsList = this.MarketsList.bind(this)

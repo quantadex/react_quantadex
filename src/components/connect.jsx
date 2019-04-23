@@ -404,7 +404,7 @@ export class ConnectDialog extends Component {
             } else {
                 encrypted_data = this.state.encrypted_data || JSON.parse(storeEncrypted)
             }
-
+            
 			const decrypted = decryptWallet(encrypted_data, password)
             const private_key = decrypted.toWif()
 
@@ -490,81 +490,113 @@ export class ConnectDialog extends Component {
                 return
             }
         }
-
-        const reg_json = {
-            name: username.toLowerCase(),
-			public_key: public_key,
-        }
-
-        if (referrer && !referrer_error) {
-            reg_json.referrer= referrer
-        }
         
         this.setState({processing: true})
 
-		fetch(CONFIG.getEnv().API_PATH + "/register_account", {
-			method: "post",
-			headers: {
-					"Content-Type": "application/json",
-					Accept: "application/json"
-            },
-            mode: "cors",
-			body: JSON.stringify(reg_json)
-		}).then(response => {
-			if (response.status == 200) {
-                const encryption = encryptWallet(PrivateKey.fromWif(private_key), password)
-                const encrypted_data= JSON.stringify(encryption)
+        if (!no_email) {
+            const encryption = encryptWallet(PrivateKey.fromWif(private_key), password)
+            const encrypted_data= JSON.stringify(encryption)
 
-                this.setState({
-                    regStep: 4,
-                    authError: false
-                });
-				
-                if (!no_email) {
-                    fetch(CONFIG.getEnv().API_PATH + "/send_walletinfo", {
-                        method: "post",
-                        mode: "cors",
-                        headers: {
-                            "Content-Type": "application/json",
-                            Accept: "application/json"
-                        },
-                        body: JSON.stringify({
-                            email: email,
-                            confirm: email_code,
-                            public_key: public_key,
-                            account: username,
-                            json: window.btoa(encrypted_data)
-                        })
-                    })
-                }
-                
-                if (window.isApp) {
-                    this.setState({encrypted_data})
-                    this.ConnectWithBin(undefined, false)
-                }
+            const reg_json = {
+                email: email,
+                confirm: email_code,
+                public_key: public_key,
+                account: username.toLowerCase(),
+                json: window.btoa(encrypted_data),
+            }
+    
+            if (referrer && !referrer_error) {
+                reg_json.referrer= referrer
+            }
 
-				return response.json()
-			} else {
-                this.recaptcha.reset()
-				return response.json().then(res => {
-					var msg;
-					if (res.error.includes("already exists")) {
-						msg = "Username already exist"
-					} else if (res.error.includes("is_valid_name")) {
-						msg = "Name must start with a letter and only contains alpha numeric, dash, and dot"
-					} else {
-						msg = "Server error. Please try again."
-					}
-					this.setState({
-						authError: true,
-						errorMsg: msg
-					});
-				});
-			}
-		})
-		.finally(() => {
-			this.setState({processing: false})
-		})
+            fetch(CONFIG.getEnv().API_PATH + "/send_walletinfo", {
+                method: "post",
+                mode: "cors",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json"
+                },
+                body: JSON.stringify(reg_json)
+            }).then(response => {
+                if (response.status == 200) {
+                    this.setState({
+                        regStep: 4,
+                        authError: false
+                    });
+
+                    if (window.isApp) {
+                        this.setState({encrypted_data: JSON.parse(encrypted_data)})
+                        this.ConnectWithBin(undefined, false)
+                    }
+
+                    return response.json()
+                } else {
+                    this.recaptcha.reset()
+                    return response.json().then(res => {
+                        var msg;
+                        if (res.error.includes("already exists")) {
+                            msg = "Username already exist"
+                        } else if (res.error.includes("is_valid_name")) {
+                            msg = "Name must start with a letter and only contains alpha numeric, dash, and dot"
+                        } else {
+                            msg = "Server error. Please try again."
+                        }
+                        this.setState({
+                            authError: true,
+                            errorMsg: msg
+                        });
+                    });
+                }
+            }).finally(() => {
+                this.setState({processing: false})
+            })
+        } else {
+            const reg_json = {
+                name: username.toLowerCase(),
+                public_key: public_key,
+            }
+    
+            if (referrer && !referrer_error) {
+                reg_json.referrer= referrer
+            }
+
+            fetch(CONFIG.getEnv().API_PATH + "/register_account", {
+                method: "post",
+                headers: {
+                        "Content-Type": "application/json",
+                        Accept: "application/json"
+                },
+                mode: "cors",
+                body: JSON.stringify(reg_json)
+            }).then(response => {
+                if (response.status == 200) {
+                    this.setState({
+                        regStep: 4,
+                        authError: false
+                    });
+    
+                    return response.json()
+                } else {
+                    this.recaptcha.reset()
+                    return response.json().then(res => {
+                        var msg;
+                        if (res.error.includes("already exists")) {
+                            msg = "Username already exist"
+                        } else if (res.error.includes("is_valid_name")) {
+                            msg = "Name must start with a letter and only contains alpha numeric, dash, and dot"
+                        } else {
+                            msg = "Server error. Please try again."
+                        }
+                        this.setState({
+                            authError: true,
+                            errorMsg: msg
+                        });
+                    });
+                }
+            }).finally(() => {
+                this.setState({processing: false})
+            })
+        }
     }
 
     downloadKey() {
@@ -858,7 +890,7 @@ export class ConnectDialog extends Component {
                                 }
                             }}
                         >
-                            Log Out
+                            Logout
                         </span>
                     </div>
                     <div className="text-left">
