@@ -214,6 +214,10 @@ injectGlobal`
 	.grecaptcha-badge {
 		display: none;
 	}
+
+	.__react_component_tooltip {
+		white-space: normal !important;
+	}
 `
 
 const store = createStore(reducer, compose(applyMiddleware(thunk)))

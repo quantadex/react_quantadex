@@ -387,6 +387,9 @@ export const AccountLogin = (private_key) => {
 					setItem("publicKey", data[0].active.key_auths[0][0])
 					setItem("lifetime", lifetime_member)
 					setItem("env", window.location.pathname.startsWith("/testnet") ? "testnet" : "mainnet")
+					if (window.isApp) {
+						setItem("private_key", private_key)
+					}
 				}).then(e => {
 					dispatch(switchTicker(getState().app.currentTicker))
 					dispatch({

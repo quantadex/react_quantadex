@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
-import lodash from 'lodash';
 import { css } from 'emotion'
 import QTTabBar from './ui/tabBar.jsx'
 import {SymbolToken} from './ui/ticker.jsx'
-import {switchTicker} from "../redux/actions/app.jsx";
 import SearchBox from "./ui/searchBox.jsx";
 import { withRouter} from "react-router-dom";
+import ReactTooltip from 'react-tooltip'
 
 const container = css`
 	padding: 20px;
@@ -55,7 +54,7 @@ const container = css`
 		}
 		table tr {
 			border-bottom: 1px solid #333;
-			line-height: 30px;
+			line-height: 40px;
 		}
 	}
 `;
@@ -126,12 +125,14 @@ class Dashboard extends Component {
 								<td>Pairs</td>
 								<td className="text-right">Price</td>
 								<td className="text-right">
-								<img src={devicePath("public/images/question.png")} data-tip="The market depth for this token on the QUANTA Network" /> Depth</td>
+									<img data-tip="The market depth for this<br/> token on the QUANTA Network"
+										src={devicePath("public/images/question.png")} /> Depth
+								</td>
 							</tr>
 						</thead>
 						<tbody>
 							{
-								markets[subtabs.names[this.state.selectedCoin]] && markets[subtabs.names[this.state.selectedCoin]].filter(market => market.name.toLowerCase().includes(this.state.filter)).map((market, index) => {
+								markets[subtabs.names[this.state.selectedCoin]] && markets[subtabs.names[this.state.selectedCoin]].filter(market => market.name.toLowerCase().includes(this.state.filter.toLowerCase())).map((market, index) => {
 									let pair = market.name.split('/')
 									let usd_price = pair[1] === "ETH" ? window.binance_price["ETHUSDT"] 
 													: (pair[1] === "BTC" ? window.binance_price["BTCUSDT"] 
@@ -148,6 +149,7 @@ class Dashboard extends Component {
 						</tbody>
 					</table>
 				</section>
+				<ReactTooltip clickable={true} data-place="left" multiline={true}/>
 			</div>
 		);
 	}

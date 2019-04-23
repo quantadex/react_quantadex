@@ -56,7 +56,7 @@ export const SymbolToken = ({ name, showIcon = true, withLink= true }) => {
 		{showIcon && (CONFIG.getEnv().CROSSCHAIN_COINS.includes(name) || name.split("0X").length == 2) ? 
 			<span className="position-relative crosschain-icon">
 				<img src={devicePath("public/images/crosschain-coin.svg")} data-tip="Secured & managed by QUANTA crosschain technology." data-place="right" />
-				<ReactTooltip multiline={true}/>
+				<ReactTooltip clickable={true} multiline={true}/>
 			</span>
 			: null
 		}</span>

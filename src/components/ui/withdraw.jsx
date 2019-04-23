@@ -316,7 +316,7 @@ class QTWithdraw extends React.Component {
             cancel={() => this.closeTransaction()} 
             submit={() => this.submitTransfer()} />
         }
-        <ReactTooltip multiline={true}/>
+        <ReactTooltip clickable={true} multiline={true}/>
       </div>
     );
   }

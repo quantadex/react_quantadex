@@ -1,5 +1,5 @@
 export function setItem(key, value, cb, err) {
-    if (window.isApp) {
+    if (window.NativeStorage) {
         NativeStorage.setItem(key,value, cb, err)
     } else {
         localStorage.setItem(key, value)
@@ -8,7 +8,7 @@ export function setItem(key, value, cb, err) {
 }
 
 export function getItem(key, cb, err) {
-    if (window.isApp) {
+    if (window.NativeStorage) {
         return new Promise(function(resolve, reject) {
             NativeStorage.getItem(key, (data) => resolve(data), (err) => reject(err))
         })
@@ -18,7 +18,7 @@ export function getItem(key, cb, err) {
 }
 
 export function removeItem(key, cb, err) {
-    if (window.isApp) {
+    if (window.NativeStorage) {
         NativeStorage.remove(key, cb, err)
     }
     else {
@@ -31,7 +31,7 @@ export function removeItem(key, cb, err) {
 }
 
 export function clear(cb, err) {
-    if (window.isApp) {
+    if (window.NativeStorage) {
         NativeStorage.clear(cb, err)
     }
     else {

@@ -39,12 +39,21 @@ class Settings extends Component {
             hide: !private_key && true,
             action: () => dispatch({ type: LOGIN, private_key: null })
         },{
+            title: "Export Private Key",
+            nav: true,
+            hide: true, //!private_key && true,
+            action: () => mobile_nav("export_key")
+        },{
             title: "Logout",
             hide: !private_key && !publicKey,
             action: () => {
-                clear()
-                window.location.assign("/" + network + "/?app=true")
-            }
+                const c = confirm("This will remove your credentials from current device. Make sure you have backup of you Private Key before continue!")
+                if (c) {
+                    clear()
+                    window.location.assign("/" + network + "/?app=true")
+                }
+            },
+            className: "mt-5"
         },{
             title: <a href="https://quantadex.zendesk.com/hc/en-us" target="_blank">Customer Support</a>,
             className: "mt-5"

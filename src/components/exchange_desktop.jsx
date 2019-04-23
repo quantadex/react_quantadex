@@ -11,7 +11,6 @@ import Trade from './trade.jsx';
 import Balance from './balance.jsx';
 import Connect from './connect.jsx';
 import Status from './status.jsx'
-import ToolTip from './ui/tooltip.jsx'
 import Switch from './ui/switch.jsx';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -236,9 +235,8 @@ class Exchange extends Component {
 					{this.state.chart === "tv" ?
 					<React.Fragment>
 						<span className="benchmark-box">
-							<Switch label="Benchmark Price " onToggle={this.toggleBenchmarkPrice.bind(this)}  active={this.state.showBenchmark}/>
+							<Switch label="Benchmark Price " onToggle={this.toggleBenchmarkPrice.bind(this)}  active={this.state.showBenchmark} dataTip="Enabling benchmark price aggregate prices from Binance/others<br/> to give more pricing information for you to make informed trades." />
 						</span>
-						<ToolTip style={{ float: "right", marginLeft: 13, marginTop: 10}} message="Enabling benchmark price aggregate prices from Binance/others<br/> to give more pricing information for you to make informed trades." />
 					</React.Fragment>
 					: null
 					}

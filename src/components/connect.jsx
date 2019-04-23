@@ -23,7 +23,7 @@ const container = css`
         background-color: transparent;
         border: 2px solid #66d7d7;
         padding: 10px 30px;
-        border-radius: 20px;
+        border-radius: 30px;
         margin: 10px;
         cursor: pointer;
     }
@@ -46,8 +46,7 @@ const container = css`
     }
 
     &.mobile  {
-        padding: 0;
-        margin: 0;
+        font-size: 16px;
     }
 
 `
@@ -255,7 +254,7 @@ class Connect extends Component {
                 :   type == "lock" ?
                     <Lock unlock={() => this.openDialog("connect")}/>
                     :
-                    <div className={container}>
+                    <div className={container + (isMobile ? " mobile" : "")}>
                         <p>Connect your <span className="qt-font-bold">Quanta</span> wallet to start trading in this market.</p>
                         <button onClick={() => this.openDialog("create")}>GET STARTED</button>
                         <div>
@@ -387,7 +386,7 @@ export class ConnectDialog extends Component {
         return pw1.length >= 8 && pw1.match(/[A-Z]/) && pw1.match(/[0-9]/)
     }
 
-    ConnectWithBin(type = undefined) {
+    ConnectWithBin(type = undefined, nav = true) {
         const { mobile_nav, dispatch } = this.props
         const { password, bip58, storeEncrypted } = this.state
         
@@ -408,7 +407,7 @@ export class ConnectDialog extends Component {
 
             dispatch(AccountLogin(private_key)).then(() => {
                 setItem("encrypted_data", JSON.stringify(encrypted_data))
-                if (mobile_nav) {
+                if (nav && mobile_nav) {
                     mobile_nav()
                 }
             })
@@ -510,13 +509,15 @@ export class ConnectDialog extends Component {
 			body: JSON.stringify(reg_json)
 		}).then(response => {
 			if (response.status == 200) {
-				this.setState({
+                const encryption = encryptWallet(PrivateKey.fromWif(private_key), password)
+                const encrypted_data= JSON.stringify(encryption)
+
+                this.setState({
                     regStep: 4,
-					authError: false
+                    authError: false
                 });
+				
                 if (!no_email) {
-                    const encryption = encryptWallet(PrivateKey.fromWif(private_key), password)
-                    const text= JSON.stringify(encryption)
                     fetch(CONFIG.getEnv().API_PATH + "/send_walletinfo", {
                         method: "post",
                         mode: "cors",
@@ -529,10 +530,16 @@ export class ConnectDialog extends Component {
                             confirm: email_code,
                             public_key: public_key,
                             account: username,
-                            json: window.btoa(text)
+                            json: window.btoa(encrypted_data)
                         })
                     })
                 }
+                
+                if (window.isApp) {
+                    this.setState(encrypted_data)
+                    this.ConnectWithBin(undefined, false)
+                }
+
 				return response.json()
 			} else {
                 this.recaptcha.reset()
@@ -725,7 +732,7 @@ export class ConnectDialog extends Component {
                             <label className="generate-key cursor-pointer mb-0" onClick={this.generateKey}>Generate</label>
                             { no_email ?
                                 <div className="personal-key d-flex align-items-center ml-5">
-                                    <input type="checkbox" name="personal-key" 
+                                    <input type="checkbox" id="personal-key" name="personal-key" 
                                         onChange={e => {
                                             this.setState({personal_key: e.target.checked})
                                             if (!e.target.checked && !valid_key) this.generateKey()
@@ -1099,7 +1106,7 @@ export class ConnectDialog extends Component {
     }
 
     KeyDownload() {
-        const { isMobile, network } = this.props
+        const { isMobile, network, mobile_nav } = this.props
         const { authError, errorMsg, no_email, personal_key, downloaded } = this.state
         return (
             <React.Fragment>
@@ -1123,7 +1130,10 @@ export class ConnectDialog extends Component {
                 </div>
 
                 <div className="text-center mt-5">
-                    { personal_key ? 
+                    {window.isApp ?
+                        <button className="mb-2" onClick={mobile_nav}>CONTINUE</button>
+                    :
+                    personal_key ? 
                         null
                         :
                         <button className="mb-2" onClick={this.downloadKey}>DOWNLOAD JSON</button>

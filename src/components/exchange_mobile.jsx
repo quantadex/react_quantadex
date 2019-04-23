@@ -21,8 +21,9 @@ import Ticker from './ui/ticker.jsx';
 import { css } from 'emotion'
 import globalcss from './global-css.js'
 import CONFIG from '../config.js'
-import { UPDATE_STORAGE } from '../redux/actions/app.jsx'
+import { UPDATE_STORAGE, LOGIN, switchTicker } from '../redux/actions/app.jsx'
 import { getItem, clear } from '../common/storage.js';
+import ExportKey from './export_key.jsx'
 
 const container = css`
 	background-color: #0A121E;
@@ -189,6 +190,7 @@ class Exchange extends Component {
 
 	componentDidMount() {
 		const self = this;
+		const { dispatch, currentTicker } = this.props
 		fetch(CONFIG.getEnv().ANNOUNCEMENT_JSON, {mode: "cors"}).then(e => e.json())
 		.then(data => {
 				const entries = data.entries
@@ -223,7 +225,7 @@ class Exchange extends Component {
 				const name = await getItem("name")
 				const userId = await getItem("id")
 				const lifetime = await getItem("lifetime")
-				self.props.dispatch({
+				dispatch({
 					type: UPDATE_STORAGE,
 					data: {
 						publicKey: publicKey || "", 
@@ -231,6 +233,14 @@ class Exchange extends Component {
 						userId, 
 						lifetime: lifetime === "true"
 					}
+				})
+				getItem("private_key").then(private_key => {
+					dispatch({
+						type: LOGIN,
+						private_key: private_key
+					}).then(() => {
+						dispatch(switchTicker(currentTicker))
+					})
 				})
 			} catch(e) {
 				console.log(e)
@@ -334,6 +344,8 @@ class Exchange extends Component {
 				return {header: "Sign / Verify", left: () => this.handleSwitch(selectedTabIndex)}
 			case "orders": 
 				return {header: "Orders", left: () => this.handleSwitch(selectedTabIndex)}
+			case "export_key": 
+				return {header: "Export Keys", left: () => this.handleSwitch(selectedTabIndex)}
 		}
 	}
 
@@ -362,7 +374,7 @@ class Exchange extends Component {
 				return <Fund />
 			} 
 			return (
-				<div className="d-flex h-100 mx-auto" style={{maxWidth: "225px"}}>
+				<div className="d-flex h-100 mx-auto" style={{maxWidth: "300px"}}>
 					<Connect mobile_nav={this.handleSwitch.bind(this)} />
 				</div>
 			)
@@ -402,6 +414,10 @@ class Exchange extends Component {
 				<div className="d-flex h-100 mx-auto" style={{maxWidth: "225px"}}>
 					<Connect mobile_nav={this.handleSwitch.bind(this)} />
 				</div>
+			)
+		case "export_key": 
+			return (
+				<ExportKey />
 			)
 		}
 	}
