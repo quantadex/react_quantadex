@@ -51,5 +51,9 @@
     <splash density="port-xhdpi" src="res/screen/android/drawable-port-xhdpi-screen.png" />
     <splash density="port-xxhdpi" src="res/screen/android/drawable-port-xxhdpi-screen.png" />
     <splash density="port-xxxhdpi" src="res/screen/android/drawable-port-xxxhdpi-screen.png" />
+    <edit-config file="AndroidManifest.xml" mode="merge" target="/manifest/application" xmlns:android="http://schemas.android.com/apk/res/android">
+        <application android:allowBackup="true" />
+    </edit-config>
     <preference name="loglevel" value="DEBUG" />
+    <preference name="android-targetSdkVersion" value="26" />
 </widget>
