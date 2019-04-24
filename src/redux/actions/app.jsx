@@ -464,7 +464,7 @@ export function switchTicker(ticker, force_init=false) {
 					return assets;
 				}).then((e) => {
 					action(ticker)
-    				navigator.splashscreen.hide();
+    				navigator.splashscreen && navigator.splashscreen.hide();
 				});
 			})
 			.catch(e => {
