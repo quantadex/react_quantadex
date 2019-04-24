@@ -251,8 +251,6 @@ class Exchange extends Component {
 			}
 
 		}, false);
-
-		
 	}
 
 	handleSwitch(index, params = {}) {
@@ -465,7 +463,6 @@ const mapStateToProps = (state) => ({
 		private_key: state.app.private_key,
 		publicKey: state.app.publicKey,
 		currentTicker: state.app.currentTicker,
-		inputSetTime: state.app.setTime,
 	});
 
 
