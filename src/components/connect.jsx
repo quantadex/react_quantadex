@@ -573,7 +573,8 @@ export class ConnectDialog extends Component {
                 if (response.status == 200) {
                     this.setState({
                         regStep: 4,
-                        authError: false
+                        authError: false,
+                        private_key: generated_private_key
                     });
     
                     return response.json()
