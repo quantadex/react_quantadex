@@ -8,8 +8,8 @@ const SETTINGS = {
 		CROSSCHAIN_ADDRESS: '0xBD770336fF47A3B61D4f54cc0Fb541Ea7baAE92d',
 		EXPLORER_URL: "http://explorer.quantadex.com/testnet",
 		ETHERSCAN_URL: "https://ropsten.etherscan.io",
-		BLOCKCYPHER_URL: "https://live.blockcypher.com/btc-testnet",
-		BITCOIN_URL: "https://explorer.bitcoin.com/tbch",
+		BLOCKCYPHER_URL: "https://live.blockcypher.com/",
+		BITCOIN_URL: "https://explorer.bitcoin.com/t",
 		CROSSCHAIN_COINS: ["BTC", "ETH", "LTC", "BCH"]
 	},
 	MAINNET: {
@@ -21,8 +21,8 @@ const SETTINGS = {
 		CROSSCHAIN_ADDRESS: '0xF8306d5279193146F307dc1c170EA59e7b0C370A',
 		EXPLORER_URL: "http://explorer.quantadex.com/mainnet",
 		ETHERSCAN_URL: "https://etherscan.io",
-		BLOCKCYPHER_URL: "https://live.blockcypher.com/btc",
-		BITCOIN_URL: "https://explorer.bitcoin.com/bch",
+		BLOCKCYPHER_URL: "https://live.blockcypher.com/",
+		BITCOIN_URL: "https://explorer.bitcoin.com/",
 		CROSSCHAIN_COINS: ["BTC", "ETH", "LTC", "BCH"]
 	}
 };
