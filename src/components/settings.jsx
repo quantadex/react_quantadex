@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { css } from 'emotion'
 import { connect } from 'react-redux'
 import { LOGIN } from "../redux/actions/app.jsx";
-import {clear} from '../common/storage.js'
+import {clear, removeItem} from '../common/storage.js'
 
 const container = css`
     .menu-item {
@@ -35,14 +35,18 @@ class Settings extends Component {
             nav: true,
             action: () => mobile_nav("message")
         },{
-            title: "Lock Wallet",
-            hide: !private_key && true,
-            action: () => dispatch({ type: LOGIN, private_key: null })
-        },{
             title: "Export Private Key",
             nav: true,
             hide: !private_key && true,
             action: () => mobile_nav("export_key")
+        },{
+            title: "Lock Wallet",
+            hide: !private_key && true,
+            action: () => {
+                removeItem("private_key")
+                dispatch({ type: LOGIN, private_key: null })
+            },
+            className: "mt-5"
         },{
             title: "Logout",
             hide: !private_key && !publicKey,
@@ -52,8 +56,7 @@ class Settings extends Component {
                     clear()
                     window.location.assign("/" + network + "/?app=true")
                 }
-            },
-            className: "mt-5"
+            }
         },{
             title: <a href="https://quantadex.zendesk.com/hc/en-us" target="_blank">Customer Support</a>,
             className: "mt-5"

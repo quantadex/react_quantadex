@@ -26,6 +26,29 @@ import { getItem, clear } from '../common/storage.js';
 import ExportKey from './export_key.jsx'
 import AppDownload from './app_download.jsx'
 
+function openAllLinksWithBlankTargetInSystemBrowser() {
+    if ( typeof cordova === "undefined" || !cordova.InAppBrowser ) {
+        return
+	}
+	
+    delete window.open; 
+    var windowOpen = window.open; 
+
+    var systemOpen = function(url, options) {
+        cordova.InAppBrowser.open(url,"_system",options);
+    };
+
+    window.open = function(url,target,options) {
+        if ( target == "_blank" ) systemOpen(url,options);
+        else windowOpen(url,target,options);
+	};
+	
+    $(document).on('click', 'a[target=_blank]', function(event) {
+        event.preventDefault();
+        systemOpen($(this).attr('href'));
+    });
+}
+
 const container = css`
 	background-color: #0A121E;
 	height: 100vh;
@@ -204,6 +227,7 @@ class Exchange extends Component {
 		})
 		
 		document.addEventListener("deviceready", async ()=> {
+			openAllLinksWithBlankTargetInSystemBrowser()
 			document.addEventListener("backbutton", () => {
 				const { selectedTabIndex, headerIndex } = this.state
 				const header = this.Header(headerIndex)
@@ -212,7 +236,7 @@ class Exchange extends Component {
 				} else if (selectedTabIndex !== 0) {
 					this.handleSwitch(0)
 				} else {
-					const c = confirm("Lock your wallet and exit the app?")
+					const c = confirm("Exit the app?")
 					if (c) {
 						navigator.app.exitApp()
 					}
@@ -242,9 +266,8 @@ class Exchange extends Component {
 					dispatch({
 						type: LOGIN,
 						private_key: private_key
-					}).then(() => {
-						dispatch(switchTicker(currentTicker))
 					})
+					dispatch(switchTicker(currentTicker))
 				})
 			} catch(e) {
 				console.log(e)

@@ -27,6 +27,9 @@
         },
         "phonegap-plugin-barcodescanner": {
             "PACKAGE_NAME": "com.quantadex.stageapp"
+        },
+        "cordova-plugin-inappbrowser": {
+            "PACKAGE_NAME": "com.quantadex.stageapp"
         }
     },
     "dependent_plugins": {}

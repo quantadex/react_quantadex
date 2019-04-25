@@ -415,7 +415,7 @@ class Trade extends Component {
                         <input type="number" className="trade-input qt-number-bold qt-font-small" title=""
                             name="price"
                             autoComplete="off"
-                            onFocus={(e) => e.target.select()}
+                            onFocus={(e) => !mobile && e.target.select()}
                             min="0"
                             value={Utils.maxPrecision(price, precisions[1])}
                             onChange={(e) => {
@@ -440,7 +440,7 @@ class Trade extends Component {
                           <input type="number" className="trade-input qt-number-bold qt-font-small rounded-0-left" title=""
                               name="amount"
                               autoComplete="off"
-                              onFocus={(e) => e.target.select()}
+                              onFocus={(e) => !mobile && e.target.select()}
                               min="0"
                               value={Utils.maxPrecision(qty, precisions[0])}
                               onChange={(e) => {
@@ -459,7 +459,7 @@ class Trade extends Component {
                             title=""
                             type="number"
                             autoComplete="off"
-                            onFocus={(e) => e.target.select()}
+                            onFocus={(e) => !mobile && e.target.select()}
                             className="trade-input qt-number-bold qt-font-small"
                             min="0"
                             value={Utils.maxPrecision(total, precisions[1])}

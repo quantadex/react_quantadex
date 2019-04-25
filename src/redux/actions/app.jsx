@@ -53,6 +53,7 @@ export function initBalance() {
 }
 
 function getBaseCounter(market) {
+	if (!market) return {}
 	const parts = market.split("/")
 	return {
 		base: assetsBySymbol[parts[0]],
@@ -450,14 +451,14 @@ export function switchTicker(ticker, force_init=false) {
 
 				// Apis.instance().db_api().exec("set_subscribe_callback", [onUpdate, true]);
 				initAPI = true;
-
+				navigator.splashscreen && navigator.splashscreen.hide();
+				
 				ChainStore.subscribers.clear()
 				ChainStore.init(false).then(() => {
 					ChainStore.subscribe(updateChainState.bind(this, dispatch));
 				});
 			})
 			.then((e) => {
-				navigator.splashscreen && navigator.splashscreen.hide();
 				Apis.instance().db_api().exec("list_assets", ["A", 100]).then((assets) => {
 					// console.log("assets ", assets);
 					window.assets = lodash.keyBy(assets, "id")
