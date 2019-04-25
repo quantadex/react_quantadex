@@ -97,7 +97,7 @@ const container = css`
 
 	.mobile-content {
 		height: 100%;
-		margin-bottom: 63px;
+		padding-bottom: 63px;
 		overflow-y: scroll;
 		.tabs {
 			width: 100%;
@@ -139,18 +139,18 @@ const container = css`
 		.buy-btn {
 			background-color: #50b3b7;
 			border-top-left-radius: 2px;
-      border-bottom-left-radius: 2px;
+      		border-bottom-left-radius: 2px;
 		}
 		.sell-btn {
 			background-color: #da3c76;
 			border-top-right-radius: 2px;
-      border-bottom-right-radius: 2px;
+      		border-bottom-right-radius: 2px;
 		}
 	}
 
 	&.web {
 		.mobile-content {
-			margin-bottom: 65px;
+			padding-bottom: 65px;
 		}
 
 		#market-list {
@@ -251,8 +251,6 @@ class Exchange extends Component {
 			}
 
 		}, false);
-
-		
 	}
 
 	handleSwitch(index, params = {}) {
@@ -404,7 +402,7 @@ class Exchange extends Component {
 		case "create": 
 			return (
 				<ConnectDialog default="create" network={network} dispatch={dispatch} isMobile={true} 
-					mobile_nav={() => this.handleSwitch(selectedTabIndex)} />
+					mobile_nav={() => this.handleSwitch(window.isApp && selectedTabIndex === 3 ? 2 : selectedTabIndex)} />
 			)
 		case "message": 
 			return (
@@ -465,7 +463,6 @@ const mapStateToProps = (state) => ({
 		private_key: state.app.private_key,
 		publicKey: state.app.publicKey,
 		currentTicker: state.app.currentTicker,
-		inputSetTime: state.app.setTime,
 	});
 
 

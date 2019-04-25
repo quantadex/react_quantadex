@@ -457,6 +457,7 @@ export function switchTicker(ticker, force_init=false) {
 				});
 			})
 			.then((e) => {
+				navigator.splashscreen && navigator.splashscreen.hide();
 				Apis.instance().db_api().exec("list_assets", ["A", 100]).then((assets) => {
 					// console.log("assets ", assets);
 					window.assets = lodash.keyBy(assets, "id")
@@ -464,7 +465,6 @@ export function switchTicker(ticker, force_init=false) {
 					return assets;
 				}).then((e) => {
 					action(ticker)
-    				navigator.splashscreen.hide();
 				});
 			})
 			.catch(e => {

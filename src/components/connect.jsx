@@ -332,7 +332,7 @@ export class ConnectDialog extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if (this.state.dialogType !== nextProps.default) {
+        if (this.state.dialogType !== nextProps.default && !this.props.isMobile) {
             this.setState({dialogType: nextProps.default})
         }
     }
@@ -392,7 +392,6 @@ export class ConnectDialog extends Component {
     ConnectWithBin(type = undefined, nav = true) {
         const { mobile_nav, dispatch } = this.props
         const { password, bip58, storeEncrypted } = this.state
-        
         try {
             var encrypted_data
             if (type === "bip58") {
@@ -675,7 +674,7 @@ export class ConnectDialog extends Component {
                 </p>
 
                 <label>EMAIL TO RECEIVE THE ENCRYPTED KEY</label><br/>
-                <input type="email" name="email" placeholder="Email" spellCheck="false"
+                <input type="email" name="email" placeholder="Email" autoFocus spellCheck="false"
                     value={email} onChange={(e) => this.setState({email: e.target.value})}
                 />
                 {email_error ? <span className="text-danger">{email_error}</span> : null}
@@ -731,8 +730,13 @@ export class ConnectDialog extends Component {
                 </p>
 
                 <label>VERIFICATION CODE</label><br/>
-                <input type="text" name="email_code" spellCheck="false" placeholder="Code from email..."
+                <input type="text" name="email_code" spellCheck="false" autoFocus placeholder="Code from email..."
                     value={email_code} onChange={(e) => this.setState({email_code: e.target.value})}
+                    onKeyPress={e => {
+                        if (e.key == "Enter" && !processing) {
+                            confirm()
+                        }
+                    }}
                 />
 
                 <div className="text-center mt-5">
@@ -758,7 +762,7 @@ export class ConnectDialog extends Component {
                 <div className="mb-2">
                     <label>USERNAME</label>
                     <br/>
-                    <input id="name-input" type="text" autoComplete="off" placeholder="Username" spellCheck="false" 
+                    <input id="name-input" type="text" autoComplete="off" autoFocus placeholder="Username" spellCheck="false" 
                         value={username} onChange={(e) => this.setState({username: e.target.value})}/>
                 </div>
 

@@ -22,7 +22,7 @@ class DepthChart extends Component {
         const comp = this.props.currentTicker && this.props.currentTicker.split("/") || ["",""]
         const base = comp[0].split("0X")
         const counter = comp[1].split("0X")
-        const precision = window.marketsHash[this.props.currentTicker] && window.marketsHash[this.props.currentTicker].pricePrecision || 5
+        const precision = window.marketsHash && window.marketsHash[this.props.currentTicker] && window.marketsHash[this.props.currentTicker].pricePrecision || 5
 
         bids.dataSource.map(order => {
             totalBids += parseFloat(order.amount)
