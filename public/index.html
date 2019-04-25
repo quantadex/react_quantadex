@@ -33,7 +33,7 @@
 			captureUnhandledRejections: true,
 			scrubFields: ['privateKey', 'private-key', 'bip58'],
 			payload: {
-				environment: window.location.hostname == "trade.quantadex.com" ? "production" : "staging"
+				environment: window.location.hostname == "trade.quantadex.com" || window.location.hostname == "quantadex.com" ? "production" : "staging"
 			}
 		};
 		// Rollbar Snippet
