@@ -28,6 +28,7 @@ const container = css`
 	}
 
 	&.mobile {
+		height: auto;
 		thead th {
 			background: #0A121E;
 		}
