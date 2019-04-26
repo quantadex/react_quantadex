@@ -187,14 +187,13 @@ class Chart extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    if (nextProps.showBenchmark !== this.props.showBenchmark) window.showBenchmark = nextProps.showBenchmark;
+    let nextTicker = nextProps.currentTicker + (nextProps.showBenchmark ? "@adjusted" : "")
     try {
-      if (window.chartWidget && nextProps.showBenchmark == this.props.showBenchmark) {
-        window.chartWidget.setSymbol(nextProps.currentTicker, "15")
+      if (window.chartWidget) {
+        window.chartWidget.setSymbol(nextTicker, "15")
       } else {
-        window.showBenchmark = nextProps.showBenchmark;
-        setTimeout(() => {
-          this.initChart(nextProps.currentTicker)
-        }, 0)
+        this.initChart(nextTicker)
       }
     } catch (e) {
       Rollbar.error("Failed to load chart: " + nextProps.currentTicker, e);
