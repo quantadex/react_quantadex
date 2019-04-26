@@ -188,24 +188,31 @@ class Chart extends Component {
 
   componentWillReceiveProps(nextProps) {
     try {
-      this.initChart(nextProps.currentTicker)
+      if (window.chartWidget && nextProps.showBenchmark == this.props.showBenchmark) {
+        window.chartWidget.setSymbol(nextProps.currentTicker, "15")
+      } else {
+        window.showBenchmark = nextProps.showBenchmark;
+        setTimeout(() => {
+          this.initChart(nextProps.currentTicker)
+        }, 0)
+      }
     } catch (e) {
       Rollbar.error("Failed to load chart: " + nextProps.currentTicker, e);
     }
   }
 
-  componentDidUpdate() {
-    window.chart_count = window.chart_count || 0;
-    // TODO: reload with the same resolution
-    if (this.state.init && window.showBenchmark != this.props.showBenchmark) {
-      setTimeout(() => {
-        window.showBenchmark = this.props.showBenchmark;
-        // console.log("update benchmark= ", window.showBenchmark, window.chart_count);
-        // window.chartWidget.setSymbol(this.props.currentTicker + "@adjusted" + window.chart_count, "15")
-        // window.chart_count++;
-      }, 10)
-    }
-  }
+  // componentDidUpdate() {
+  //   window.chart_count = window.chart_count || 0;
+  //   // TODO: reload with the same resolution
+  //   if (this.state.init && window.showBenchmark != this.props.showBenchmark) {
+  //     setTimeout(() => {
+  //       window.showBenchmark = this.props.showBenchmark;
+  //       // console.log("update benchmark= ", window.showBenchmark, window.chart_count);
+  //       // window.chartWidget.setSymbol(this.props.currentTicker + "@adjusted" + window.chart_count, "15")
+  //       // window.chart_count++;
+  //     }, 10)
+  //   }
+  // }
 
   render() {
     return (

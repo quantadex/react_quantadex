@@ -452,7 +452,7 @@ export function switchTicker(ticker, force_init=false) {
 				// Apis.instance().db_api().exec("set_subscribe_callback", [onUpdate, true]);
 				initAPI = true;
 				navigator.splashscreen && navigator.splashscreen.hide();
-				
+
 				ChainStore.subscribers.clear()
 				ChainStore.init(false).then(() => {
 					ChainStore.subscribe(updateChainState.bind(this, dispatch));
@@ -486,6 +486,10 @@ export function switchTicker(ticker, force_init=false) {
 		function action(ticker) {
 			var {base, counter} = getBaseCounter(ticker)
 			if (!base || !counter) return
+			dispatch({
+				type: UPDATE_TICKER,
+				data: ticker
+			})
 			if (base && counter) {
 				const tmpOrder = createLimitOrderWithPrice("1.2.0", true, window.assets, base.id, counter.id, 1, 1)
 				const tr = createLimitOrder2(tmpOrder)
