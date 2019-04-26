@@ -218,12 +218,12 @@ class Exchange extends Component {
 		const { dispatch, currentTicker } = this.props
 		fetch(CONFIG.getEnv().ANNOUNCEMENT_JSON, {mode: "cors"}).then(e => e.json())
 		.then(data => {
-				const entries = data.entries
-				if (entries && entries.length > 0) {
-						self.setState({announcements: entries.slice(0,3)})
-				}
+			const entries = data.entries
+			if (entries && entries.length > 0) {
+					self.setState({announcements: entries.slice(0,3)})
+			}
 		}).catch(e=>{
-			console.error("Failed " + e.name)
+			console.log(e)
 		})
 		
 		document.addEventListener("deviceready", async ()=> {
@@ -382,7 +382,7 @@ class Exchange extends Component {
 			case "markets": 
 			return (
 				<React.Fragment>
-					{announcements ? <Announcement announcements={announcements} className="border-bottom border-dark" /> : null}
+					{announcements ? <Announcement announcements={announcements} image={true} className="border-bottom border-dark" /> : null}
 					<Dashboard mobile={true} mobile_nav={() => this.handleSwitch("chart")} />
 				</React.Fragment>
 			)
