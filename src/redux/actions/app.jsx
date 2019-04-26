@@ -451,7 +451,6 @@ export function switchTicker(ticker, force_init=false) {
 
 				// Apis.instance().db_api().exec("set_subscribe_callback", [onUpdate, true]);
 				initAPI = true;
-				navigator.splashscreen && navigator.splashscreen.hide();
 
 				ChainStore.subscribers.clear()
 				ChainStore.init(false).then(() => {

@@ -227,6 +227,7 @@ class Exchange extends Component {
 		})
 		
 		document.addEventListener("deviceready", async ()=> {
+			navigator.splashscreen && navigator.splashscreen.hide();
 			openAllLinksWithBlankTargetInSystemBrowser()
 			document.addEventListener("backbutton", () => {
 				const { selectedTabIndex, headerIndex } = this.state
