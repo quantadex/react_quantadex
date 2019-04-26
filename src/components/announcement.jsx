@@ -20,7 +20,7 @@ const container = css`
 
 const carousel_container = css `
     .carousel-indicators {
-        bottom: -15px;
+        bottom: -20px;
     }
 `
 

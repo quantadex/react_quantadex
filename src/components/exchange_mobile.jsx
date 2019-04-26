@@ -237,10 +237,7 @@ class Exchange extends Component {
 				} else if (selectedTabIndex !== 0) {
 					this.handleSwitch(0)
 				} else {
-					const c = confirm("Exit the app?")
-					if (c) {
-						navigator.app.exitApp()
-					}
+					navigator.app.exitApp()
 				}
 
 			}, false);
@@ -382,8 +379,11 @@ class Exchange extends Component {
 			case "markets": 
 			return (
 				<React.Fragment>
-					{announcements ? <Announcement announcements={announcements} image={true} className="border-bottom border-dark" /> : null}
-					<Dashboard mobile={true} mobile_nav={() => this.handleSwitch("chart")} />
+					{/* {announcements ? <Announcement announcements={announcements} image={true} className="border-bottom border-dark" /> : null} */}
+					<Dashboard 
+						announcements = {announcements ? <Announcement announcements={announcements} image={true} className="border-bottom border-dark" /> : null}
+						mobile={true} 
+						mobile_nav={() => this.handleSwitch("chart")} />
 				</React.Fragment>
 			)
 		case "trade": 
