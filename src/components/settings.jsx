@@ -54,7 +54,8 @@ class Settings extends Component {
                 const c = confirm("This will remove your credentials from current device. Make sure you have backup of you Private Key before continue!")
                 if (c) {
                     clear()
-                    window.location.assign("/" + network + "/?app=true")
+                    window.location.assign("index.html")
+                    // window.location.assign("/" + network + "/?app=true")
                 }
             }
         },{

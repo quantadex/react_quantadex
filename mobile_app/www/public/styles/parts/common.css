@@ -1,0 +1,128 @@
+@font-face {
+  font-family: "FaktPro-SemiBold";
+  src: url("/public/styles/fonts/FaktPro-SemiBold.eot");
+  src:
+  url("/public/styles/fonts/FaktPro-SemiBold.woff") format("woff"),
+  url("/public/styles/fonts/FaktPro-SemiBold.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "Multicolore";
+  src: url("/public/styles/fonts/Multicolore.otf");
+}
+
+@font-face {
+  font-family: "AvenirLight";
+  src: url("/public/styles/fonts/avenir-medium-webfont.ttf");
+}
+
+@font-face {
+  font-family: "AvenirMedium";
+  src: url("/public/styles/fonts/avenir-medium-webfont.ttf");
+}
+
+body {
+  background-color:#2e3744;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+canvas {
+  display: block;
+  vertical-align: bottom;
+}
+/* ---- particles.js container ---- */
+
+#particles-js {
+  position: absolute;
+  left:0;
+  top:0;
+  bottom: 0;
+  right: 0;
+  background-color: #2E3744;
+}
+
+button {
+  outline: 0;
+  border: none;
+  cursor: pointer;
+}
+button:focus {outline:0;}
+
+.qt-logo-large {
+  height:34.6px;
+}
+
+.qt-logo-medium {
+  height:28.6px;
+}
+
+/** forms **/
+
+.qt-error-text {
+  font-family: FaktPro-SemiBold;
+  font-size: 13px;
+  color: #ff2171;
+  text-align: right;
+  height: 15px;
+  margin-bottom: 0;
+}
+
+/** other bg **/
+
+#static-bg {
+  z-index: -10;
+  position: absolute;
+  left:0;
+  top:0;
+  bottom: 0;
+  right: 0;
+  background-image: url("/public/images/background/about.jpg");
+  background-size: cover;
+ }
+
+#vote-bg {
+  z-index: -10;
+  position: absolute;
+  left:0;
+  top:0;
+  bottom: 0;
+  right: 0;
+  background-image: url("/public/images/background/coin_listing_bg.jpg");
+  background-size: cover;
+ }
+
+ #press-bg {
+  position: absolute;
+  left:0;
+  top:0;
+  bottom: 0;
+  right: 0;
+  background-image: url("/public/images/background/press.jpg");
+  background-size: cover;
+ }
+
+  #whitepaper-bg {
+  position: absolute;
+  left:0;
+  top:0;
+  bottom: 0;
+  right: 0;
+  background-image: url("/public/images/background/whitepaper.jpg");
+  background-size: cover;
+ }
+
+ /** follow us block */
+
+ .follow-us {
+   height: 300px;
+   position: relative;
+   border-bottom: 5px solid #34D4CF;
+ }
+
+
+
+ .container .ql-editor p {
+  margin-top: 1em;
+  margin-bottom: 1em; 
+ }

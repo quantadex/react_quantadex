@@ -88,7 +88,7 @@ class Dashboard extends Component {
 	}
 
 	render() {
-		const { markets, mobile } = this.props
+		const { markets, mobile, announcements } = this.props
 		
 		const subtabs = {
 			names: Object.keys(markets),
@@ -102,6 +102,13 @@ class Dashboard extends Component {
 					<SearchBox onChange={this.handleChange.bind(this)} placeholder="Search Pairs" 
 						style={{margin: "-7px 0 7px", border: 0, backgroundColor: "rgba(255,255,255,0.07)"}} />
 				</div>
+				{ announcements ?
+					<div className="mb-5" style={{margin: "0 -20px"}}>
+						{announcements}
+					</div>
+				: null
+				}
+				
 				{/* <section className="menu d-flex justify-content-start qt-font-extra-small qt-font-light text-center">
 					<QTTabBar
 						className="block medium fluid qt-font-regular d-flex justify-content-start"
