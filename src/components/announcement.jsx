@@ -40,7 +40,7 @@ export default class Announcement extends Component {
                                 <Carousel.Item key={index}>
                                     <div>
                                         <a href={item.link} target="_blank">
-                                            <img className="w-100" style={{opacity: 0.90}} src={item.banner + "?v1"} alt={item.title} />
+                                            <img className="w-100" style={{opacity: 0.80}} src={item.banner + "?v1"} alt={item.title} />
                                         </a>
                                     </div>
                                 </Carousel.Item>
