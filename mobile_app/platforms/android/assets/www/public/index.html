@@ -24,11 +24,9 @@
 	
 	<script type="text/javascript">
 	window.isApp = window.location.search.includes("app=true");
-	var devicePath = function (url) {
-		return window.isApp ? url : ("/" + url)
+	window.devicePath = function (url) {
+		return ("/" + url)
 	}
-	
-	
 		var _rollbarConfig = {
 			accessToken: "e24ccde353ca4b45850b72ac28d527f4",
 			captureUncaught: true,
@@ -43,9 +41,9 @@
 		// End Rollbar Snippet
 	</script>
 	
-	<script type="text/javascript" src="public/vendor/jquery-2.1.1.min.js"> </script>
-	<script type="text/javascript" src="public/vendor/charting_library/charting_library.min.js"> </script>
-	<script type="text/javascript" src="public/vendor/bootstrap.min.js"> </script>
-	<script type="text/javascript" src="public/build/bundle_trade.js"></script>
+	<script type="text/javascript" src="/public/vendor/jquery-2.1.1.min.js"> </script>
+	<script type="text/javascript" src="/public/vendor/charting_library/charting_library.min.js"> </script>
+	<script type="text/javascript" src="/public/vendor/bootstrap.min.js"> </script>
+	<script type="text/javascript" src="/public/build/bundle_trade.js"></script>
 </body>
 </html>
