@@ -402,7 +402,8 @@ function processFilledOrder(orders) {
                     position: toast.POSITION.TOP_CENTER,
                     autoClose: 2000,
                     toastId: order.id,
-                    pauseOnFocusLoss: false
+                    pauseOnFocusLoss: false,
+                    pauseOnHover: false
                   });
       }
     }

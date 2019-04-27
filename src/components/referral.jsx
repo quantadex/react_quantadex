@@ -84,13 +84,15 @@ class Referral extends Component {
       toast.success(`Successfully upgrade account.`, {
         autoClose: 2000,
         position: toast.POSITION.TOP_CENTER,
-        pauseOnFocusLoss: false
+        pauseOnFocusLoss: false,
+        pauseOnHover: false
       })
     }).catch(error => {
       toast.error(error, {
         autoClose: 2000,
         position: toast.POSITION.TOP_CENTER,
-        pauseOnFocusLoss: false
+        pauseOnFocusLoss: false,
+        pauseOnHover: false
       })
     }).finally(() => {
         self.setState({confirmDialog: false})

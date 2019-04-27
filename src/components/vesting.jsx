@@ -63,7 +63,8 @@ class Vesting extends Component {
       toast.success(`Successfully claimed ${display_amount}.`, {
         autoClose: 2000,
         position: toast.POSITION.TOP_CENTER,
-        pauseOnFocusLoss: false
+        pauseOnFocusLoss: false,
+        pauseOnHover: false
       })
       
       if (genesis) {
@@ -76,7 +77,8 @@ class Vesting extends Component {
       toast.error("Unable to claim balance. Please try again.", {
         autoClose: 2000,
         position: toast.POSITION.TOP_CENTER,
-        pauseOnFocusLoss: false
+        pauseOnFocusLoss: false,
+        pauseOnHover: false
       })
     }).finally(() => {
       claim_status[balance_id] = false
