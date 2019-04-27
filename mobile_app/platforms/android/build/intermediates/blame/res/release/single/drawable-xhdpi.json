@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/platforms/android/build/intermediates/res/merged/release/drawable-xhdpi/ic_action_previous_item.png",
+        "source": "/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/platforms/android/res/drawable-xhdpi/ic_action_previous_item.png"
+    },
+    {
+        "merged": "/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/platforms/android/build/intermediates/res/merged/release/drawable-xhdpi/ic_action_remove.png",
+        "source": "/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/platforms/android/res/drawable-xhdpi/ic_action_remove.png"
+    },
+    {
+        "merged": "/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/platforms/android/build/intermediates/res/merged/release/drawable-xhdpi/ic_action_next_item.png",
+        "source": "/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/platforms/android/res/drawable-xhdpi/ic_action_next_item.png"
+    },
+    {
+        "merged": "/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/platforms/android/build/intermediates/res/merged/release/drawable-xhdpi/launcher_icon.png",
+        "source": "/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/platforms/android/build/intermediates/exploded-aar/barcodescanner/res/drawable-xhdpi/launcher_icon.png"
+    }
+]

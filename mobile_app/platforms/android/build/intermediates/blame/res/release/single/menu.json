@@ -1,0 +1,14 @@
+[
+    {
+        "merged": "/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/platforms/android/build/intermediates/res/merged/release/menu/encode.xml",
+        "source": "/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/platforms/android/build/intermediates/exploded-aar/barcodescanner/res/menu/encode.xml"
+    },
+    {
+        "merged": "/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/platforms/android/build/intermediates/res/merged/release/menu/capture.xml",
+        "source": "/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/platforms/android/build/intermediates/exploded-aar/barcodescanner/res/menu/capture.xml"
+    },
+    {
+        "merged": "/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/platforms/android/build/intermediates/res/merged/release/menu/history.xml",
+        "source": "/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/platforms/android/build/intermediates/exploded-aar/barcodescanner/res/menu/history.xml"
+    }
+]

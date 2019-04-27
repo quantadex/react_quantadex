@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        is-multidex="false"
+        jar="/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/platforms/android/build/intermediates/exploded-aar/com.android.support/support-core-ui/26.0.0-alpha1/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="fcd01fd11233459f546c437ec927e9b61bf7caf1">
+        <dex dex="/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/platforms/android/build/intermediates/pre-dexed/debug/com.android.support-support-core-ui-26.0.0-alpha1_16810716e333eca7007a0ebc06007eb44048ab70.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/platforms/android/build/intermediates/exploded-aar/com.android.support/support-core-utils/26.0.0-alpha1/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="2e92aa0163544a804a0b34f169ca61801770839a">
+        <dex dex="/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/platforms/android/build/intermediates/pre-dexed/debug/com.android.support-support-core-utils-26.0.0-alpha1_3f5c396d245d8667f7651098adbb36cf3bb31cdc.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/platforms/android/build/intermediates/exploded-aar/org.apache.cordova/CordovaLib/6.2.3/debug/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="a9616521b2f55bd2328b719c8a626f5037e318b2">
+        <dex dex="/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/platforms/android/build/intermediates/pre-dexed/debug/CordovaLib-6.2.3-debug_d44451d777d87f6f1b0412b24470524246107a50.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/platforms/android/build/intermediates/exploded-aar/com.android.support/support-compat/26.0.0-alpha1/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="8df0e365e40beb151bc42dee20817721a6cab7b0">
+        <dex dex="/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/platforms/android/build/intermediates/pre-dexed/debug/com.android.support-support-compat-26.0.0-alpha1_ce28973bc366bb3aa0d994b01dedb540593c07e5.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/platforms/android/build/intermediates/exploded-aar/com.android.support/support-v4/26.0.0-alpha1/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="d7c42c80f6509b9ea4db28ca7859ffae08ec5741">
+        <dex dex="/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/platforms/android/build/intermediates/pre-dexed/debug/com.android.support-support-v4-26.0.0-alpha1_6e67d3723082b216a21e3e4bda4946b185ed5426.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/platforms/android/build/intermediates/exploded-aar/barcodescanner/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="bd90253b55403aaf6ed1c913904d8bc1f19e6ff4">
+        <dex dex="/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/platforms/android/build/intermediates/pre-dexed/debug/intermediates-exploded-aar-barcodescanner_14ba0e0a66c7e7c22baa60c3efcde97799240927.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/platforms/android/build/intermediates/exploded-aar/org.apache.cordova/CordovaLib/6.2.3/release/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="d3ce13de89fb0ac544513627b021a534bf910019">
+        <dex dex="/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/platforms/android/build/intermediates/pre-dexed/release/CordovaLib-6.2.3-release_340c8bee2eaf38d80f1925a8c73272c65f580342.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/platforms/android/build/intermediates/exploded-aar/com.android.support/support-media-compat/26.0.0-alpha1/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="9935891f23923f39d002087085d9696568a9f657">
+        <dex dex="/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/platforms/android/build/intermediates/pre-dexed/debug/com.android.support-support-media-compat-26.0.0-alpha1_0ca32efd5bd0856fb95d4c73efb622d80281b784.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/platforms/android/build/intermediates/exploded-aar/com.android.support/support-fragment/26.0.0-alpha1/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="18d31838aa4fcc768a8a0516e22cc13b94655d89">
+        <dex dex="/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/platforms/android/build/intermediates/pre-dexed/debug/com.android.support-support-fragment-26.0.0-alpha1_d174bc541d37742805cf77c049a47d6aa5bc6428.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/Users/quoc/Library/Android/sdk/extras/android/m2repository/com/android/support/support-annotations/26.0.0-alpha1/support-annotations-26.0.0-alpha1.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.2"
+        sha1="023ee503b631f69511e335a061ea008f8da60f40">
+        <dex dex="/Users/quoc/Projects/cryptodex/react_quantadex/mobile_app/platforms/android/build/intermediates/pre-dexed/debug/support-annotations-26.0.0-alpha1_ff761f711445187297b3fdebe9ef7a440312433a.jar" />
+    </item>
+
+</items>
