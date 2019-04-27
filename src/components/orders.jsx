@@ -211,9 +211,6 @@ const container = css`
           padding: 0 10px;
         }
       }
-      .item-details.active {
-        display: block;
-      }
     }
   }
 `;
@@ -342,7 +339,7 @@ class Orders extends Component {
                   <span className="item-price text-right">{row.price}</span>
                   <span className={"text-right item-type item-type-" + row.type}>{row.type}</span>
                 </div>
-                <div className={"item-details mt-2" + (this.state.selectedRow == row.id ? " active" : "")}>
+                <div className={"item-details justify-content-between flex-wrap mt-2" + (this.state.selectedRow == row.id ? " d-flex" : "")}>
                   <span className="item"><span className="label">AMOUNT</span> {row.amount}</span>
                   <span className="item"><span className="label">TOTAL</span> {row.total}</span>
                   <button disabled={!this.props.private_key} 
@@ -389,7 +386,7 @@ class Orders extends Component {
                   <span className="item-status text-right">{row.status}</span>
                   <span className={"text-right item-type item-type-" + row.type}>{row.type}</span>
                 </div>
-                <div className={"item-details mt-2" + (this.state.selectedRow == index ? " active" : "")}>
+                <div className={"item-details justify-content-between flex-wrap mt-2" + (this.state.selectedRow == index ? " d-flex" : "")}>
                   <span className="item"><span className="label">AMOUNT</span> {row.amount}</span>
                   <span className="item"><span className="label">TOTAL</span> {row.total}</span>
                 </div>

@@ -126,6 +126,7 @@ export const cancelTransaction = (market, order_id) => {
 		return signAndBroadcast(order, pKey)
 			.then((e) => {
 				// console.log("order result ", e);
+				dispatch(switchTicker(getState().app.currentTicker))
 			})
 	}
 }
