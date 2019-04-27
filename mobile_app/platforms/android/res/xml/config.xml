@@ -31,7 +31,7 @@
     <author email="dev@cordova.apache.org" href="http://cordova.io">
         Apache Cordova Team
     </author>
-    <content src="https://trade-stage.quantadex.com/mainnet/?app=true" />
+    <content src="index.html" />
     <access allows-arbitrary-loads-for-media="true" allows-arbitrary-loads-in-web-content="true" allows-local-networking="true" origin="*" />
     <allow-navigation href="*" />
     <allow-intent href="http://*/*" />
