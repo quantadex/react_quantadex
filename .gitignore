@@ -5,3 +5,5 @@ public/build/bundle_trade.js
 mobile_app.zip
 mobile_app/quanta.key
 mobile_app/build_sign.sh
+mobile_app/platforms
+mobile_app/www
