@@ -455,6 +455,7 @@ class Exchange extends Component {
 
 		return (
 		<div className={container + " d-flex flex-column" + (window.isApp ? " app" : " web")}>
+			<ToastContainer />
 			{app_download ?
 				<AppDownload />
 			: null
@@ -476,7 +477,6 @@ class Exchange extends Component {
 				/>
 				{window.isApp ? null : <Status mobile={true}/>}
 			</div>
-			<ToastContainer />
 		</div>
 		);
 	}
