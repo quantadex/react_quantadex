@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>QUANTADEX: Trade BTC, ETH, ERC-20 with your wallet.</title>
+	<meta property="og:image" content="https://trade.quantadex.com/public/images/og_tag_image_trade.png?v3">
+	<meta property="og:image:width" content="1024">
+	<meta property="og:image:height" content="1024">
+	<meta property="og:title" content="QUANTADEX: Trade BTC, ETH, ERC-20 with your wallet." />
+	<meta property="og:type" content="article" />
+	<meta property="twitter:image" content="https://trade.quantadex.com/public/images/og_tag_image_trade.png?v3">
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:site" content="@@quantadex" />
+	<link rel="stylesheet" href="public/styles/bootstrap.min.css")">
+		<script type="text/javascript" src="cordova.js"></script>
+
+	<meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-eval' 'unsafe-inline' data: filesystem: about: blob: ws: wss:; media-src *; connect-src *  data: blob: ws: wss:;"/>
+
+</head>
+<body>
+		<div id="app" />
+	
+	<script type="text/javascript">
+	window.isApp = window.location.search.includes("app=true") || window.location.protocol == "file:";
+	var devicePath = function (url) {
+		return window.isApp ? url : ("/" + url)
+	}
+	
+
+	</script>
+	
+	<script type="text/javascript" src="public/vendor/jquery-2.1.1.min.js"> </script>
+	<script type="text/javascript" src="public/vendor/charting_library/charting_library.min.js"> </script>
+	<script type="text/javascript" src="public/vendor/bootstrap.min.js"> </script>
+	<script type="text/javascript" src="public/build/bundle_trade.js"></script>
+</body>
+</html>
