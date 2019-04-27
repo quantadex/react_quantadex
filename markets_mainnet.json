@@ -3,6 +3,7 @@
 		"BTC": [
 			{ "name": "ETH/BTC","benchmarkSymbol": "BINANCE:ETH/BTC", "pricePrecision": 6},
 			{ "name": "LTC/BTC","benchmarkSymbol": "BINANCE:LTC/BTC", "pricePrecision": 6},
+			{ "name": "BCH/BTC","benchmarkSymbol": "BINANCE:BCHABC/BTC", "pricePrecision": 6},
 			{ "name": "QDEX/BTC", "pricePrecision": 6},
 			{ "name": "BAT0X0D8775F648430679A709E98D2B0CB6250D2887EF/BTC", "pricePrecision": 6,
 				"benchmarkSymbol": "BINANCE:BAT/BTC"},
@@ -20,6 +21,10 @@
 				"benchmarkSymbol": "BINANCE:BTC/USDT", "pricePrecision": 2},
 			{ "name": "ETH/TUSD0X0000000000085D4780B73119B644AE5ECD22B376",
 				"benchmarkSymbol": "BINANCE:ETH/USDT", "pricePrecision": 2},
+			{ "name": "BCH/TUSD0X0000000000085D4780B73119B644AE5ECD22B376",
+				"benchmarkSymbol": "BINANCE:BCHABC/USDT", "pricePrecision": 2},
+			{ "name": "LTC/TUSD0X0000000000085D4780B73119B644AE5ECD22B376",
+				"benchmarkSymbol": "BINANCE:LTC/USDT", "pricePrecision": 2},
 			{ "name": "QDEX/TUSD0X0000000000085D4780B73119B644AE5ECD22B376", "pricePrecision": 4},
 			{ "name": "BAT0X0D8775F648430679A709E98D2B0CB6250D2887EF/TUSD0X0000000000085D4780B73119B644AE5ECD22B376",
 				"benchmarkSymbol": "BINANCE:BAT/USDT", "pricePrecision": 2}
@@ -33,6 +38,7 @@
 			"BTC",
 			"ETH",
 			"LTC",
+			"BCH",
 			"BAT0X0D8775F648430679A709E98D2B0CB6250D2887EF",
 			"TUSD0X0000000000085D4780B73119B644AE5ECD22B376",
 			"DAI0X89D24A6B4CCB1B6FAA2625FE562BDD9A23260359",
