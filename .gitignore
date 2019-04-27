@@ -7,3 +7,5 @@ mobile_app/quanta.key
 mobile_app/build_sign.sh
 mobile_app/platforms
 mobile_app/www
+!mobile_app/platforms/android/AndroidManifest.xml
+!mobile_app/platforms/android/CordovaLib/src/org/apache/cordova/engine/SystemWebViewClient.java
