@@ -6,6 +6,7 @@ import {SymbolToken} from './ui/ticker.jsx'
 import SearchBox from "./ui/searchBox.jsx";
 import { withRouter} from "react-router-dom";
 import ReactTooltip from 'react-tooltip'
+import Loader from './ui/loader.jsx'
 
 const container = css`
 	padding: 20px;
@@ -94,7 +95,7 @@ class Dashboard extends Component {
 			names: Object.keys(markets),
 			selectedTabIndex: 0,
 		}
-
+		
 		return (
 			<div className={container + (mobile ? " mobile qt-font-small" : "")} onClick={e => e.stopPropagation()}>
 				<div className="d-flex justify-content-between border-bottom border-dark mb-3">
@@ -124,38 +125,41 @@ class Dashboard extends Component {
 					/>
 				</section>
 				
-				<section className="price">
-					
-					<table>
-						<thead>
-							<tr>
-								<td>Pairs</td>
-								<td className="text-right">Price</td>
-								<td className="text-right">
-									<img data-tip="The market depth for this<br/> token on the QUANTA Network"
-										src={devicePath("public/images/question.png")} /> Depth
-								</td>
-							</tr>
-						</thead>
-						<tbody>
-							{
-								markets[subtabs.names[this.state.selectedCoin]] && markets[subtabs.names[this.state.selectedCoin]].filter(market => market.name.toLowerCase().includes(this.state.filter.toLowerCase())).map((market, index) => {
-									let pair = market.name.split('/')
-									let usd_price = pair[1] === "ETH" ? window.binance_price["ETHUSDT"] 
-													: (pair[1] === "BTC" ? window.binance_price["BTCUSDT"] 
-														: pair[1].startsWith("TUSD") || pair[1] == "USD" ? 1 : 0)
-									return <tr key={index} onClick={() => this.switchMarket(market.name)}>
-										<td className="market">
-											<SymbolToken name={pair[0]} showIcon={false} withLink={false} />
-										</td>
-										<td className="text-right">{market.last == 0 ? "-" : market.last}</td>
-										<td className="text-right">{window.allMarketsByHash[market.name].depth == 0 || usd_price == 0 ? "-" : "$" + Math.round(window.allMarketsByHash[market.name].depth * parseFloat(usd_price))}</td>
-									</tr>
-								})
-							}
-						</tbody>
-					</table>
-				</section>
+				{ markets.length != 0 ?
+					<section className="price">
+						
+						<table>
+							<thead>
+								<tr>
+									<td>Pairs</td>
+									<td className="text-right">Price</td>
+									<td className="text-right">
+										<img data-tip="The market depth for this<br/> token on the QUANTA Network"
+											src={devicePath("public/images/question.png")} /> Depth
+									</td>
+								</tr>
+							</thead>
+							<tbody>
+								{
+									markets[subtabs.names[this.state.selectedCoin]] && markets[subtabs.names[this.state.selectedCoin]].filter(market => market.name.toLowerCase().includes(this.state.filter.toLowerCase())).map((market, index) => {
+										let pair = market.name.split('/')
+										let usd_price = pair[1] === "ETH" ? window.binance_price["ETHUSDT"] 
+														: (pair[1] === "BTC" ? window.binance_price["BTCUSDT"] 
+															: pair[1].startsWith("TUSD") || pair[1] == "USD" ? 1 : 0)
+										return <tr key={index} onClick={() => this.switchMarket(market.name)}>
+											<td className="market">
+												<SymbolToken name={pair[0]} showIcon={false} withLink={false} />
+											</td>
+											<td className="text-right">{market.last == 0 ? "-" : market.last}</td>
+											<td className="text-right">{window.allMarketsByHash[market.name].depth == 0 || usd_price == 0 ? "-" : "$" + Math.round(window.allMarketsByHash[market.name].depth * parseFloat(usd_price))}</td>
+										</tr>
+									})
+								}
+							</tbody>
+						</table>
+					</section>
+				: <Loader size="50px" />
+				}
 				<ReactTooltip clickable={true} data-place="left" multiline={true}/>
 			</div>
 		);
