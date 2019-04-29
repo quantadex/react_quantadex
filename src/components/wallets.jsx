@@ -128,6 +128,7 @@ class Wallets extends Component {
   }
 
   setDataSource(balance) {
+    if (!window.assets || !window.wallet_listing) return
     const dataSource = []
     const in_wallet = []
     balance.forEach(currency => {
@@ -142,7 +143,7 @@ class Wallets extends Component {
       in_wallet.push(symbol)
     });
 
-    for (let coin of window.wallet_listing) {
+    for (let coin of (window.wallet_listing || [])) {
       if (in_wallet.indexOf(coin) === -1) {
         dataSource.push({
               pairs: coin,
@@ -283,7 +284,7 @@ class Wallets extends Component {
 const mapStateToProps = (state) => ({
     isMobile: state.app.isMobile,
     balance: state.app.balance || [],
-    onOrdersFund: state.app.onOrdersFund,
+    onOrdersFund: state.app.onOrdersFund || [],
     publicKey: state.app.publicKey || "",
     private_key: state.app.private_key,
     estimated_fund: state.app.totalFundValue || 0,

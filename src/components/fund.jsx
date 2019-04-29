@@ -88,12 +88,12 @@ class Fund extends Component {
 	}
 
 	render() {
-    if (!window.markets) {
+    if (!window.markets && !window.isApp) {
 			const default_ticker = this.props.match && this.props.match.params.net == "testnet" ? "ETH/USD" : 'ETH/BTC'
 			this.props.dispatch(switchTicker(default_ticker));
     } 
     
-    if (!this.props.currentTicker) {
+    if (!this.props.currentTicker || !window.markets) {
       return <div className={container + " container-fluid" + (this.props.isMobile ? " mobile" : "")}></div>
     }
 

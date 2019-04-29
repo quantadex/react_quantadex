@@ -13,7 +13,7 @@ const SETTINGS = {
 		CROSSCHAIN_COINS: ["BTC", "ETH", "LTC", "BCH"]
 	},
 	MAINNET: {
-		WEBSOCKET_PATH: "wss://mainnet-api.quantachain.io",
+		WEBSOCKET_PATH: "wss://mainnet-api-lb.quantachain.io", //"wss://mainnet-api.quantachain.io",
 		API_PATH: "https://wya99cec1d.execute-api.us-east-1.amazonaws.com/mainnet",
 		MARKETS_JSON: "https://s3.amazonaws.com/quantachain.io/markets_mainnet.json",
 		ANNOUNCEMENT_JSON: "https://s3.amazonaws.com/quantachain.io/announcement_mainnet.json",
