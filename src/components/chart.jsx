@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { connect } from 'react-redux'
 import Datafeeds from '../common/datafeed.js';
-import { stringify } from "querystring";
 
 class Chart extends Component {
   constructor(props) {

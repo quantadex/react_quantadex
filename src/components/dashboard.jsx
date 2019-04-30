@@ -74,10 +74,11 @@ class Dashboard extends Component {
 	switchMarket(e) {
 		const { mobile_nav, closeSelf, history, match, location } = this.props
 
-		if (mobile_nav) mobile_nav()
-		if (closeSelf) closeSelf()
-
 		history.push("/" + (match.params.net || "mainnet") + "/exchange/" + e.replace("/", "_") + location.search)
+		setTimeout(() => {
+			if (mobile_nav) mobile_nav()
+			if (closeSelf) closeSelf()
+		}, 0)
 	}
 
 	handleChange(e) {
