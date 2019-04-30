@@ -164,14 +164,14 @@ export default class MarketBox extends Component {
                         <tbody>
                             {(this.state.allMarkets ? markets : markets.slice(0, 3)).map(market => {
                                 const pairs = market.pair.split("/")
-                                const base = pairs[0].split("0X")
-                                const counter = pairs[1].split("0X")
+                                // const base = pairs[0].split("0X")
+                                // const counter = pairs[1].split("0X")
                                 // const short_base = base[0] + (base[1] ? "0x" + base[1].substr(0,4) : "") 
                                 // const short_counter = counter[0] + (counter[1] ? "0x" + counter[1].substr(0,4) : "") 
                                 // const precision = window.assetsBySymbol[pairs[0]].precision
                                 return (
                                     <tr key={market.pair} className="border-bottom">
-                                        <td><a className="text-secondary" href={"/mainnet/exchange/" + market.pair.replace("/", "_")}><this.SymbolToken name={pairs[0]} withLink={false} />/<this.SymbolToken name={pairs[1]} withLink={false} /></a></td>
+                                        <td><a className="text-secondary" href={"/mainnet/exchange/" + market.pair.replace("/", "_") + location.search}><this.SymbolToken name={pairs[0]} withLink={false} />/<this.SymbolToken name={pairs[1]} withLink={false} /></a></td>
                                         <td><this.SymbolToken name={pairs[0]} /></td>
                                         {/* <td className="text-right">{this.maxPrecision(market.latest, precision)}</td> */}
                                         <td className="text-right blue">{market.latest == 0 ? "-" : Number.parseFloat(market.latest).toFixed(5) }</td>
@@ -203,7 +203,7 @@ export default class MarketBox extends Component {
                                 const pairs = market.pair.split("/")
                                 return (
                                     <tr key={market.pair} className="border-bottom">
-                                        <td><a className="text-secondary" href={"/mainnet/exchange/" + market.pair.replace("/", "_")}><this.SymbolToken name={pairs[0]} withLink={false} />/<this.SymbolToken name={pairs[1]} withLink={false} /></a></td>
+                                        <td><a className="text-secondary" href={"/mainnet/exchange/" + market.pair.replace("/", "_") + location.search}><this.SymbolToken name={pairs[0]} withLink={false} />/<this.SymbolToken name={pairs[1]} withLink={false} /></a></td>
                                         <td className="text-right blue">{market.latest == 0 ? "-" : Number.parseFloat(market.latest).toFixed(5) }</td>
                                         <td className="text-right">{market.base_volume + ' '} <this.SymbolToken name={pairs[1]} /></td>
                                     </tr>
@@ -216,7 +216,7 @@ export default class MarketBox extends Component {
                 </div>
                 <div className="d-flex justify-content-center mt-5 flex-column-reverse flex-md-row">
                     <a className="explorer-link mr-md-5 mt-4 mt-md-0" href="http://explorer.quantadex.com/">Blockchain Explorer</a>
-                    <a className="trade-link" href="/mainnet/exchange/ETH_BTC">View Exchange</a>
+                    <a className="trade-link" href={"/mainnet/exchange/ETH_BTC" + location.search}>View Exchange</a>
                 </div>
             </div>
         );
