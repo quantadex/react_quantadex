@@ -89,6 +89,7 @@ const container = css`
 
     .announce-carousel {
         width: max-content;
+        max-width: 100%;
         overflow: hidden;
 
         img {
