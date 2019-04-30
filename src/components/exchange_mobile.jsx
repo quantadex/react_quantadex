@@ -204,7 +204,8 @@ class Exchange extends Component {
 			dialog: undefined,
 			showBenchmark: true,
 			announcements: false,
-			app_download: !window.isApp && navigator.userAgent.toLowerCase().indexOf("android") > -1 && false
+			web_android: !window.isApp && navigator.userAgent.toLowerCase().indexOf("android") > -1,
+			app_download: false
 		}
 
 		this.MarketsList = this.MarketsList.bind(this)
@@ -220,7 +221,10 @@ class Exchange extends Component {
 		.then(data => {
 			const entries = data.entries
 			if (entries && entries.length > 0) {
-					self.setState({announcements: entries.slice(0,3)})
+				self.setState({announcements: entries.slice(0,3)})
+			}
+			if (data.mobile_android_banner !== undefined) {
+				self.setState({app_download: data.mobile_android_banner})
 			}
 		}).catch(e=>{
 			console.log(e)
@@ -449,14 +453,14 @@ class Exchange extends Component {
 	}
 
 	render() {
-		const { app_download, showMarkets, selectedTabIndex, contentIndex, headerIndex } = this.state
+		const { app_download, web_android, showMarkets, selectedTabIndex, contentIndex, headerIndex } = this.state
 		const tabs = {	names: ["Markets", "Trade", "Wallet", "Settings"] }
 		const web_tabs = { names: ["Chart", "Trade", "Orders", "Wallet"] }
 
 		return (
 		<div className={container + " d-flex flex-column" + (window.isApp ? " app" : " web")}>
 			<ToastContainer />
-			{app_download ?
+			{ app_download && web_android ?
 				<AppDownload />
 			: null
 			}
