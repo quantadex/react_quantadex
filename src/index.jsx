@@ -4,6 +4,7 @@ import Exchange from './components/exchange.jsx';
 import Fund from './components/fund.jsx';
 import Message from './components/message.jsx';
 import Leaderboard from './components/leaderboard_full.jsx';
+import Landing from './pages/main/landing.jsx'
 
 import { createStore, applyMiddleware, compose } from 'redux'
 import { Provider } from 'react-redux'
@@ -242,7 +243,7 @@ class Container extends React.Component {
     <Provider store={store}>
 				<Router history={history}>
         <Switch>
-					<Route exact path="/" component={Exchange} />
+					<Route exact path="/" component={Landing} />
 					<Route exact path="/:net" component={Exchange} />
 					<Route exact path="/:net/exchange" component={Exchange} />
 					<Route exact path="/:net/exchange/:ticker" component={Exchange} />
