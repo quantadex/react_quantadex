@@ -6,7 +6,8 @@ class Chart extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      init: false
+      init: false,
+      resolution: "15",
     };
   }
   componentDidMount() {
@@ -75,7 +76,7 @@ class Chart extends Component {
       var widget = (window.chartWidget = new TradingView.widget({
         fullscreen: false,
         symbol: ticker,
-        interval: "15",
+        interval: self.state.resolution,
         allow_symbol_change: false,
         // height: '50px',
         autosize: true,
@@ -166,7 +167,8 @@ class Chart extends Component {
       for (let interval of custom_intervals) {
         var button = widget.createButton()
         .on('click', (e) => {
-          widget.setSymbol(ticker, interval.resolution)
+          self.setState({resolution: interval.resolution})
+          widget.setSymbol(self.props.currentTicker, interval.resolution)
           let target = e.target.classList.contains("custom-button") ? e.target : e.target.parentNode
           let header_buttons = target.parentNode.parentNode.childNodes
           for (let i of header_buttons) {
@@ -190,7 +192,7 @@ class Chart extends Component {
     let nextTicker = nextProps.currentTicker + (nextProps.showBenchmark ? "@adjusted" : "")
     try {
       if (window.chartWidget) {
-        window.chartWidget.setSymbol(nextTicker, "15")
+        window.chartWidget.setSymbol(nextTicker, this.state.resolution)
       } else {
         this.initChart(nextTicker)
       }
