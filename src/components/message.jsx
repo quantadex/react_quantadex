@@ -3,7 +3,6 @@ import Header from './headersimple.jsx';
 import { connect } from 'react-redux'
 import { css } from 'emotion'
 import globalcss from './global-css.js'
-import MobileHeader from './ui/mobileHeader.jsx';
 import QTTabBar from './ui/tabBar.jsx'
 import { PrivateKey, PublicKey, Signature } from "@quantadex/bitsharesjs";
 
