@@ -5,6 +5,7 @@ import Fund from './components/fund.jsx';
 import Message from './components/message.jsx';
 import Leaderboard from './components/leaderboard_full.jsx';
 import Landing from './pages/main/landing.jsx'
+import ExportKey from './components/export_key.jsx'
 
 import { createStore, applyMiddleware, compose } from 'redux'
 import { Provider } from 'react-redux'
@@ -249,6 +250,7 @@ class Container extends React.Component {
 					<Route exact path="/:net/exchange/:ticker" component={Exchange} />
 					<Route exact path="/:net/wallets" component={Fund} />
 					<Route exact path="/:net/message" component={Message} />
+					<Route exact path="/:net/export_key" component={ExportKey} />
 					<Route exact path="/:net/leaderboard" component={Leaderboard} />
         </Switch>
       </Router>

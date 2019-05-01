@@ -37,7 +37,7 @@ class Settings extends Component {
         },{
             title: "Export Private Key",
             nav: true,
-            hide: !private_key && true,
+            hide: !publicKey && true,
             action: () => mobile_nav("export_key")
         },{
             title: "Lock Wallet",
@@ -76,7 +76,7 @@ class Settings extends Component {
                 
                 { publicKey ?
                     <div className="d-flex justify-content-around px-4 mb-4 text-secondary">
-                        <span>Wallet: {name}</span>
+                        <span>Owner: {name}</span>
                         <span>Status: { private_key ? "Unlock" : "Locked"}</span>
                     </div>
                     : null

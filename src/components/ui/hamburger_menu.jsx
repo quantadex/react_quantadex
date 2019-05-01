@@ -176,7 +176,13 @@ HamburgerMenu.defaultProps = {
       text:"Sign/Verify",
       url:"/" + net + "/message",
       mobile_nav: (mobile_nav) => mobile_nav("message")
-    },
+    },{
+      iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),
+      iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
+      text:"Export Private Key",
+      url:"/" + net + "/export_key",
+      mobile_nav: (mobile_nav) => mobile_nav("export_key")
+    }
     // {
     //   iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),
     //   iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
