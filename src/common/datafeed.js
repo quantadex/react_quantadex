@@ -485,10 +485,7 @@ function getExternalPrice(ticker, resolution, errorCb) {
       });
       return bars;
     }).catch(e => {
-      setTimeout(() => {
-        errorCb()
-      }, 1000)
-      throw e
+      errorCb()
     })
   }
   return Promise.resolve();
