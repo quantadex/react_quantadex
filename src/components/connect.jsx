@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { css } from 'emotion'
 import { connect } from 'react-redux'
 import { AccountLogin, GetAccount, TOGGLE_CONNECT_DIALOG } from '../redux/actions/app.jsx'
-import { PrivateKey, PublicKey, decryptWallet, encryptWallet } from "@quantadex/bitsharesjs";
+import { PrivateKey, PublicKey, decryptWallet, encryptWallet, hash } from "@quantadex/bitsharesjs";
 import WalletApi from "../common/api/WalletApi";
 import QTTabBar from './ui/tabBar.jsx'
 import Loader from '../components/ui/loader.jsx'
@@ -632,25 +632,43 @@ export class ConnectDialog extends Component {
         function validateEmail() {
             const isValid = email.match(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)
             
-            if (!isValid) {
-                this.recaptcha.reset()
-                self.setState({email_error: "Not a valid email address."})
+            if (!window.isApp) {
+                if (!isValid) {
+                    this.recaptcha.reset()
+                    self.setState({ email_error: "Not a valid email address." })
+                } else {
+                    this.recaptcha.execute()
+                }
             } else {
-                this.recaptcha.execute()
+                if (!isValid) {
+                    self.setState({ email_error: "Not a valid email address." })
+                } else {
+                    verify(true)
+                }
             }
         }
 
-        function verify() {
+        function verify(sign) {
             const { email, email_error, processing } = self.state
+            var body = null;
             self.setState({email_error: false, processing: true})
+            var sig = {}
+            if (sign) {
+                body = JSON.stringify({ email: email })
+                sig["signature"] = hash.HmacSHA256(body, k).toString('hex');
+            } else {
+                body = JSON.stringify({ email: email, recaptcha: this.recaptcha.getResponse() })
+            }
+
             fetch(CONFIG.getEnv().API_PATH + "/verify_email", {
                 mode: "cors",
                 method: "post",
                 headers: {
                         "Content-Type": "application/json",
-                        Accept: "application/json"
+                        Accept: "application/json",
+                        ...sig
                 },
-                body: JSON.stringify({ email: email, recaptcha: this.recaptcha.getResponse() })
+                body: body
             }).then(e => e.json()).then(response => {
                 if (response.success) {
                     self.setState({
@@ -682,10 +700,11 @@ export class ConnectDialog extends Component {
                     <button onClick={validateEmail.bind(this)} disabled={processing || !email} >
                         {processing ? <Loader /> : "VERIFY EMAIL"}
                     </button>
-                    <Recaptcha
+                    {!window.isApp && <Recaptcha
                         ref={ ref => this.recaptcha = ref }
                         sitekey="6Lc4OZ4UAAAAAEfECNb09tkSL_3UBCuV_sdITK5B"
                         onResolved={ verify.bind(this) } />
+                    }
                 </div>
                 {window.isApp ? null :
                     <div className="link qt-font-small text-center mt-4" 
