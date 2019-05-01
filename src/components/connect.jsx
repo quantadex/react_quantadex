@@ -259,7 +259,7 @@ class Connect extends Component {
                     :
                     <div className={container + (isMobile ? " mobile" : "")}>
                         <p>Connect your <span className="qt-font-bold">Quanta</span> wallet to start trading in this market.</p>
-                        <button onClick={() => this.openDialog("create")}>GET STARTED</button>
+                        <button onClick={() => this.openDialog("create")}>CREATE WALLET</button>
                         <div>
                             or
                             <div className="connect-link mt-3" onClick={() => this.openDialog("connect")}>Connect Wallet</div>
