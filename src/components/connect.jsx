@@ -525,7 +525,7 @@ export class ConnectDialog extends Component {
             },
             body: JSON.stringify(reg_json)
         }).then(e => e.json()).then(response => {
-            if (response.success) {
+            if (response.success || response.status == "success") {
                 this.setState({
                     regStep: 4,
                     authError: false,
@@ -536,8 +536,6 @@ export class ConnectDialog extends Component {
                     this.setState({encrypted_data: JSON.parse(encrypted_data)})
                     this.ConnectWithBin(undefined, false)
                 }
-
-                return response.json()
             } else {
                 //this.recaptcha.reset()
                 let error = response.error || response.message
@@ -612,7 +610,7 @@ export class ConnectDialog extends Component {
             var body = null;
             self.setState({email_error: false, processing: true})
             var sig = {}
-            if (sign) {
+            if (sign === true) {
                 body = JSON.stringify({ email: email })
                 sig["signature"] = hash.HmacSHA256(body, k).toString('hex');
             } else {
