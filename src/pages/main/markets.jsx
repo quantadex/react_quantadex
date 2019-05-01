@@ -71,7 +71,8 @@ const container = css`
         text-decoration: none !important;
 	}
 `
-
+var symbol_map = {}
+var binance_data = {}
 export default class MarketBox extends Component {
     constructor(props) {
         super(props);
@@ -91,9 +92,16 @@ export default class MarketBox extends Component {
         return amount
     }
 
-    getMarketsData(markets) {
+    getMarketsData(markets, get_binance=false) {
+        var binance_symbol = []
         for (const coin of Object.keys(markets.markets)) {
             for (const market of markets.markets[coin]) {
+                if (get_binance && market.benchmarkSymbol) {
+                    let symbol = market.benchmarkSymbol.split(":")[1].replace("/", "")
+                    symbol_map[market.name] = symbol
+                    binance_symbol.push(symbol.toLowerCase() + '@ticker')
+                }
+
                 var pair = market.name.split('/');
                 Apis.instance().db_api().exec("get_ticker", [assetsBySymbol[pair[1]].id, assetsBySymbol[pair[0]].id])
                 .then(data => {
@@ -103,6 +111,16 @@ export default class MarketBox extends Component {
                     this.setState({markets: list})
                 })
             }
+        }
+
+        if (get_binance) {
+            // console.log(binance_symbol, symbol_map)
+            const binance_socket = new WebSocket('wss://stream.binance.com:9443/stream?streams=' + binance_symbol.join('/'));
+            binance_socket.addEventListener('message', function (event) {
+                const data = JSON.parse(event.data).data
+                // console.log(data.P)
+                binance_data[data.s] = {last_price: data.c, change: data.P}
+            });
         }
         
     }
@@ -117,11 +135,12 @@ export default class MarketBox extends Component {
                 fetch("https://s3.amazonaws.com/quantachain.io/markets_mainnet.json").then(e => e.json())
                 .then((e) => {
                     const markets = e;
-
-                    this.getMarketsData(markets)
+                    this.getMarketsData(markets, true)
                     setInterval(() => {
                         this.getMarketsData(markets)
                     }, 3000)
+
+
                 })
             
             })
@@ -144,7 +163,6 @@ export default class MarketBox extends Component {
 
     render() {
         var markets = lodash.sortBy(this.state.markets, 'base_volume').reverse()
-
         return (
             <div className={container + " container px-3 py-5 qt-font-light"}>
                 <h2><b>Markets</b></h2>
@@ -164,20 +182,26 @@ export default class MarketBox extends Component {
                         <tbody>
                             {(this.state.allMarkets ? markets : markets.slice(0, 3)).map(market => {
                                 const pairs = market.pair.split("/")
-                                // const base = pairs[0].split("0X")
-                                // const counter = pairs[1].split("0X")
-                                // const short_base = base[0] + (base[1] ? "0x" + base[1].substr(0,4) : "") 
-                                // const short_counter = counter[0] + (counter[1] ? "0x" + counter[1].substr(0,4) : "") 
-                                // const precision = window.assetsBySymbol[pairs[0]].precision
+                                const binance_market = binance_data[symbol_map[market.pair]]
+                                const percent_change = market.latest == 0 && binance_market ? binance_market.change : market.percent_change 
                                 return (
                                     <tr key={market.pair} className="border-bottom">
                                         <td><a className="text-secondary" href={"/mainnet/exchange/" + market.pair.replace("/", "_") + location.search}><this.SymbolToken name={pairs[0]} withLink={false} />/<this.SymbolToken name={pairs[1]} withLink={false} /></a></td>
                                         <td><this.SymbolToken name={pairs[0]} /></td>
                                         {/* <td className="text-right">{this.maxPrecision(market.latest, precision)}</td> */}
-                                        <td className="text-right blue">{market.latest == 0 ? "-" : Number.parseFloat(market.latest).toFixed(5) }</td>
+                                        <td className="text-right blue">
+                                            {market.latest == 0 ? 
+                                                market.lowest_ask != 0 && market.highest_bid != 0 ?
+                                                    ((parseFloat(market.highest_bid) + parseFloat(market.lowest_ask)) / 2).toFixed(5)
+                                                    : binance_market ? 
+                                                        Number(binance_market.last_price).toFixed(5)
+                                                        : "-"
+                                            : Number.parseFloat(market.latest).toFixed(5) }
+                                        </td>
                                         <td className="text-right" 
-                                            style={{color: (market.percent_change.startsWith("-") ? "red" : "green")}}>
-                                            {(market.percent_change.startsWith("-") ? "" : "+") + market.percent_change}%
+                                            style={{color: (percent_change.startsWith("-") ? "red" : "green")}}>
+
+                                            {(percent_change.startsWith("-") ? "" : "+") + percent_change}%
                                         </td>
                                         {/* <td className="text-right">{this.maxPrecision(market.lowest_ask, precision)}</td>
                                         <td className="text-right">{this.maxPrecision(market.highest_bid, precision)}</td> */}
@@ -201,10 +225,19 @@ export default class MarketBox extends Component {
                         <tbody>
                             {(this.state.allMarkets ? markets : markets.slice(0, 3)).map(market => {
                                 const pairs = market.pair.split("/")
+                                const binance_market = binance_data[symbol_map[market.pair]]
                                 return (
                                     <tr key={market.pair} className="border-bottom">
                                         <td><a className="text-secondary" href={"/mainnet/exchange/" + market.pair.replace("/", "_") + location.search}><this.SymbolToken name={pairs[0]} withLink={false} />/<this.SymbolToken name={pairs[1]} withLink={false} /></a></td>
-                                        <td className="text-right blue">{market.latest == 0 ? "-" : Number.parseFloat(market.latest).toFixed(5) }</td>
+                                        <td className="text-right blue">
+                                            {market.latest == 0 ? 
+                                                market.lowest_ask != 0 && market.highest_bid != 0 ?
+                                                    ((parseFloat(market.highest_bid) + parseFloat(market.lowest_ask)) / 2).toFixed(5)
+                                                    : binance_market ? 
+                                                        Number(binance_market.last_price).toFixed(5)
+                                                        : "-"
+                                            : Number.parseFloat(market.latest).toFixed(5) }
+                                        </td>
                                         <td className="text-right">{market.base_volume + ' '} <this.SymbolToken name={pairs[1]} /></td>
                                     </tr>
                                 )
