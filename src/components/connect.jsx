@@ -414,6 +414,7 @@ export class ConnectDialog extends Component {
                 }
             })
             .catch(error => {
+                console.log(error)
                 this.setState({authError: true, errorMsg: error})
             })
 
@@ -523,8 +524,8 @@ export class ConnectDialog extends Component {
                 Accept: "application/json"
             },
             body: JSON.stringify(reg_json)
-        }).then(response => {
-            if (response.status == 200) {
+        }).then(e => e.json()).then(response => {
+            if (response.success) {
                 this.setState({
                     regStep: 4,
                     authError: false,
@@ -539,20 +540,18 @@ export class ConnectDialog extends Component {
                 return response.json()
             } else {
                 //this.recaptcha.reset()
-                return response.json().then(res => {
-                    let error = res.error || res.message
-                    var msg;
-                    if (error.includes("already exists")) {
-                        msg = "Username already exist"
-                    } else if (error.includes("is_valid_name")) {
-                        msg = "Name must start with a letter and only contains alpha numeric, dash, and dot"
-                    } else {
-                        msg = res.message || res.error || "Server error. Please try again."
-                    }
-                    this.setState({
-                        authError: true,
-                        errorMsg: msg
-                    });
+                let error = response.error || response.message
+                var msg;
+                if (error.includes("already exists")) {
+                    msg = "Username already exist"
+                } else if (error.includes("is_valid_name")) {
+                    msg = "Name must start with a letter and only contains alpha numeric, dash, and dot"
+                } else {
+                    msg = res.message || res.error || "Server error. Please try again."
+                }
+                this.setState({
+                    authError: true,
+                    errorMsg: msg
                 });
             }
         }).finally(() => {
