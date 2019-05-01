@@ -490,114 +490,74 @@ export class ConnectDialog extends Component {
             }
         }
         
-        this.setState({processing: true})
+        this.setState({processing: true, authError: false})
 
-        if (!no_email) {
-            const encryption = encryptWallet(PrivateKey.fromWif(generated_private_key), password)
-            const encrypted_data= JSON.stringify(encryption)
+        const encryption = encryptWallet(PrivateKey.fromWif(generated_private_key), password)
+        const encrypted_data= JSON.stringify(encryption)
+        var reg_json = {}
 
-            const reg_json = {
+        if (no_email) {
+            reg_json = {
+                name: username.toLowerCase(),
+                public_key: public_key,
+            }
+        } else {
+            reg_json = {
                 email: email,
                 confirm: email_code,
                 public_key: public_key,
                 account: username.toLowerCase(),
                 json: window.btoa(encrypted_data),
             }
-    
-            if (referrer && !referrer_error) {
-                reg_json.referrer= referrer
-            }
-
-            fetch(CONFIG.getEnv().API_PATH + "/send_walletinfo", {
-                method: "post",
-                mode: "cors",
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json"
-                },
-                body: JSON.stringify(reg_json)
-            }).then(response => {
-                if (response.status == 200) {
-                    this.setState({
-                        regStep: 4,
-                        authError: false,
-                        private_key: generated_private_key
-                    });
-
-                    if (window.isApp) {
-                        this.setState({encrypted_data: JSON.parse(encrypted_data)})
-                        this.ConnectWithBin(undefined, false)
-                    }
-
-                    return response.json()
-                } else {
-                    //this.recaptcha.reset()
-                    return response.json().then(res => {
-                        var msg;
-                        if (res.error.includes("already exists")) {
-                            msg = "Username already exist"
-                        } else if (res.error.includes("is_valid_name")) {
-                            msg = "Name must start with a letter and only contains alpha numeric, dash, and dot"
-                        } else {
-                            msg = "Server error. Please try again."
-                        }
-                        this.setState({
-                            authError: true,
-                            errorMsg: msg
-                        });
-                    });
-                }
-            }).finally(() => {
-                this.setState({processing: false})
-            })
-        } else {
-            const reg_json = {
-                name: username.toLowerCase(),
-                public_key: public_key,
-            }
-    
-            if (referrer && !referrer_error) {
-                reg_json.referrer= referrer
-            }
-
-            fetch(CONFIG.getEnv().API_PATH + "/register_account", {
-                method: "post",
-                headers: {
-                        "Content-Type": "application/json",
-                        Accept: "application/json"
-                },
-                mode: "cors",
-                body: JSON.stringify(reg_json)
-            }).then(response => {
-                if (response.status == 200) {
-                    this.setState({
-                        regStep: 4,
-                        authError: false,
-                        private_key: generated_private_key
-                    });
-    
-                    return response.json()
-                } else {
-                    //this.recaptcha.reset()
-                    return response.json().then(res => {
-                        var msg;
-                        if (res.error.includes("already exists")) {
-                            msg = "Username already exist"
-                        } else if (res.error.includes("is_valid_name")) {
-                            msg = "Name must start with a letter and only contains alpha numeric, dash, and dot"
-                        } else {
-                            msg = "Server error. Please try again."
-                        }
-                        this.setState({
-                            authError: true,
-                            errorMsg: msg
-                        });
-                    });
-                }
-            }).finally(() => {
-                this.setState({processing: false})
-            })
         }
+
+        if (referrer && !referrer_error) {
+            reg_json.referrer= referrer
+        }
+
+        fetch(CONFIG.getEnv().API_PATH + (no_email ? "/register_account" : "/send_walletinfo"), {
+            method: "post",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json"
+            },
+            body: JSON.stringify(reg_json)
+        }).then(response => {
+            if (response.status == 200) {
+                this.setState({
+                    regStep: 4,
+                    authError: false,
+                    private_key: generated_private_key
+                });
+
+                if (window.isApp) {
+                    this.setState({encrypted_data: JSON.parse(encrypted_data)})
+                    this.ConnectWithBin(undefined, false)
+                }
+
+                return response.json()
+            } else {
+                //this.recaptcha.reset()
+                return response.json().then(res => {
+                    let error = res.error || res.message
+                    var msg;
+                    if (error.includes("already exists")) {
+                        msg = "Username already exist"
+                    } else if (error.includes("is_valid_name")) {
+                        msg = "Name must start with a letter and only contains alpha numeric, dash, and dot"
+                    } else {
+                        msg = res.message || res.error || "Server error. Please try again."
+                    }
+                    this.setState({
+                        authError: true,
+                        errorMsg: msg
+                    });
+                });
+            }
+        }).finally(() => {
+            this.setState({processing: false})
+        })
     }
 
     downloadKey() {
@@ -656,7 +616,11 @@ export class ConnectDialog extends Component {
                     self.setState({
                         regStep:2
                     });
-                } 
+                } else {
+                    self.setState({
+                        email_error: response.message || response.error || "Server error. Please try again."
+                    });
+                }
             }).finally(() => {
                 self.setState({processing: false})
             })
@@ -677,7 +641,7 @@ export class ConnectDialog extends Component {
                 <input type="email" name="email" placeholder="Email" autoFocus spellCheck="false"
                     value={email} onChange={(e) => this.setState({email: e.target.value})}
                 />
-                {email_error ? <span className="text-danger">{email_error}</span> : null}
+                {email_error ? <span className="text-danger small">{email_error}</span> : null}
                 <div className="text-center mt-5">
                     <button onClick={validateEmail.bind(this)} disabled={processing || !email} >
                         {processing ? <Loader /> : "VERIFY EMAIL"}
@@ -699,9 +663,9 @@ export class ConnectDialog extends Component {
 
     ConfirmEmail() {
         const self = this
-        const { email, email_code, processing } = this.state
+        const { email, email_code, email_code_error, processing } = this.state
         function confirm() {
-            self.setState({processing: true})
+            self.setState({processing: true, email_code_error: false})
             fetch(CONFIG.getEnv().API_PATH + "/confirm_email", {
                 mode: "cors",
                 method: "post",
@@ -716,7 +680,11 @@ export class ConnectDialog extends Component {
                     self.setState({
                         regStep:3
                     });
-                } 
+                } else {
+                    self.setState({
+                        email_code_error: response.message || response.error || "Server error. Please try again."
+                    });
+                }
             }).finally(() => {
                 self.setState({processing: false})
             })
@@ -738,6 +706,7 @@ export class ConnectDialog extends Component {
                         }
                     }}
                 />
+                {email_code_error ? <span className="text-danger small">{email_code_error}</span> : null}
 
                 <div className="text-center mt-5">
                     <button onClick={confirm} disabled={processing} >
@@ -789,7 +758,7 @@ export class ConnectDialog extends Component {
                             const valid_key = PublicKey.fromPublicKeyString(e.target.value)
                             this.setState({public_key: e.target.value, valid_key: valid_key && true})
                         }}/>
-                    {!valid_key ? <span className="text-danger">Invalid Key</span> : null}
+                    {!valid_key ? <span className="text-danger small">Invalid Key</span> : null}
                 </div>
                 {!personal_key ?
                     <React.Fragment>
