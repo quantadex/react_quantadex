@@ -20,7 +20,7 @@ import createHashHistory from 'history/createHashHistory'
 import createBrowserHistory from 'history/createBrowserHistory'
 import ReactGA from 'react-ga';
  
-ReactGA.initialize('UA-114919036-3');
+ReactGA.initialize(window.isApp ? 'UA-114919036-4': 'UA-114919036-3');
 
 window.addEventListener('keyboardDidShow', function () {
 	document.getElementById('app').classList.add("keyboard-show")
