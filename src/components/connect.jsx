@@ -525,7 +525,7 @@ export class ConnectDialog extends Component {
             },
             body: JSON.stringify(reg_json)
         }).then(e => e.json()).then(response => {
-            if (response.success) {
+            if (response.success || response.status == "success") {
                 this.setState({
                     regStep: 4,
                     authError: false,
