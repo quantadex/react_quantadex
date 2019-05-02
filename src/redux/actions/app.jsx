@@ -1,22 +1,19 @@
 import lodash from 'lodash';
-import API from "../../api.jsx"
-import SortedSet from 'js-sorted-set'
-import QuantaClient from "@quantadex/quanta_js"
 import ApplicationApi from "../../common/api/ApplicationApi";
 import WalletApi from "../../common/api/WalletApi";
 import { Apis } from "@quantadex/bitsharesjs-ws";
-import { Price, Asset, FillOrder, LimitOrderCreate, LimitOrder } from "../../common/MarketClasses";
-import { PrivateKey, PublicKey, Aes, key, ChainStore } from "@quantadex/bitsharesjs";
+import { FillOrder, LimitOrder } from "../../common/MarketClasses";
+import { PrivateKey, ChainStore } from "@quantadex/bitsharesjs";
 import { createLimitOrderWithPrice, createLimitOrder2, cancelOrder, signAndBroadcast } from "../../common/Transactions";
 import { aggregateOrderBook, convertHistoryToOrderedSet } from "../../common/PriceData";
 import ReactGA from 'react-ga';
-import { toast } from 'react-toastify';
 import CONFIG from '../../config.js'
 import Utils from "../../common/utils.js";
 import {setItem} from "../../common/storage.js"
 
 export const INIT_DATA = 'INIT_DATA';
 export const LOGIN = 'LOGIN';
+export const LOGOUT = 'LOGOUT';
 export const UPDATE_ACCOUNT = 'UPDATE_ACCOUNT';
 export const UPDATE_FEE = 'UPDATE_FEE';
 export const SET_MARKET_QUOTE = 'SET_MARKET_QUOTE';

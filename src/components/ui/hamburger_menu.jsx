@@ -1,7 +1,7 @@
 import React, {PropTypes} from 'react';
 import { Redirect, withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
-import { TOGGLE_CONNECT_DIALOG } from '../../redux/actions/app.jsx'
+import { TOGGLE_CONNECT_DIALOG, LOGOUT } from '../../redux/actions/app.jsx'
 import { css } from 'emotion'
 import {clear} from '../../common/storage.js'
 import { Link } from 'react-router-dom'
@@ -115,7 +115,7 @@ export class HamburgerMenu extends React.Component {
                       if ((isMobile && item.mobile_nav) || item.onClick) {
                         if ( this.props.private_key && item.text == "Unlock" ) return
                         return (
-                          <a key={index} onClick={isMobile && item.mobile_nav ? () => item.mobile_nav(mobile_nav) : item.text == "Unlock" ? () => item.onClick(this.props.dispatch) : item.onClick}
+                          <a key={index} onClick={isMobile && item.mobile_nav ? () => item.mobile_nav(mobile_nav) : () => item.onClick(this.props.dispatch)}
                              className="d-flex menu-row qt-cursor-pointer"
                              onMouseOver={this.handleHover.bind(this,item.iconPathActive)}
                              onMouseLeave={this.handleHover.bind(this,item.iconPath)}>
@@ -207,9 +207,11 @@ HamburgerMenu.defaultProps = {
       iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),
       iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
       text:"Logout",
-      onClick: () => {
+      onClick: (dispatch) => {
         clear()
-        window.location.assign(window.location.pathname.startsWith("/testnet") ? "/testnet" : "/mainnet")
+        dispatch({
+          type: LOGOUT
+        })
       }
     }],
     backgroundColor:"#323b40"

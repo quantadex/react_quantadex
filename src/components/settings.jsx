@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { css } from 'emotion'
 import { connect } from 'react-redux'
-import { LOGIN } from "../redux/actions/app.jsx";
+import { LOGIN, LOGOUT } from "../redux/actions/app.jsx";
 import {clear, removeItem} from '../common/storage.js'
 
 const container = css`
@@ -54,8 +54,7 @@ class Settings extends Component {
                 const c = confirm("This will remove your credentials from current device. Make sure you have backup of you Private Key before continue!")
                 if (c) {
                     clear()
-                    window.location.assign("index.html")
-                    // window.location.assign("/" + network + "/?app=true")
+                    dispatch({ type: LOGOUT })
                 }
             }
         },{

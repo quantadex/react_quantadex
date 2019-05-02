@@ -441,7 +441,7 @@ class Exchange extends Component {
 				return <Orders mobile={true}/>
 			} 
 			return (
-				<div className="d-flex h-100 mx-auto" style={{maxWidth: "225px"}}>
+				<div className="d-flex h-100 mx-auto" style={{maxWidth: "300px"}}>
 					<Connect mobile_nav={this.handleSwitch.bind(this)} />
 				</div>
 			)

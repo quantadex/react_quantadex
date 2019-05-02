@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { css } from 'emotion'
 import { connect } from 'react-redux'
-import { AccountLogin, GetAccount, TOGGLE_CONNECT_DIALOG } from '../redux/actions/app.jsx'
+import { AccountLogin, GetAccount, TOGGLE_CONNECT_DIALOG, LOGOUT } from '../redux/actions/app.jsx'
 import { PrivateKey, PublicKey, decryptWallet, encryptWallet, hash } from "@quantadex/bitsharesjs";
 import WalletApi from "../common/api/WalletApi";
 import QTTabBar from './ui/tabBar.jsx'
@@ -828,7 +828,7 @@ export class ConnectDialog extends Component {
 
     ConnectEncrypted() {
         const self = this
-        const { isMobile, network } = this.props
+        const { isMobile, network, dispatch } = this.props
         const { encrypted_data, uploaded_file_msg, password, authError, errorMsg, scan_qr, bip58, storeName, storeEncrypted, processing } = this.state
 
         if (window.isApp) {
@@ -873,7 +873,10 @@ export class ConnectDialog extends Component {
                                 const c = confirm("This will remove your credentials from current device. Make sure you have backup of you Private Key before continue!")
                                 if (c) {
                                     clear()
-                                    window.location.assign("index.html")
+                                    this.setState({storeEncrypted: null, storeName: null})
+                                    dispatch({
+                                        type: LOGOUT
+                                    })
                                 }
                             }}
                         >

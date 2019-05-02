@@ -7,7 +7,7 @@ import {
   UPDATE_STORAGE
 } from "../actions/app.jsx";
 import { UPDATE_ACCOUNT, UPDATE_BLOCK_INFO } from "../actions/app.jsx";
-import { LOGIN, TOGGLE_CONNECT_DIALOG } from "../actions/app.jsx";
+import { LOGIN, LOGOUT, TOGGLE_CONNECT_DIALOG } from "../actions/app.jsx";
 import { dataSize } from "../actions/app.jsx";
 import SortedSet from 'js-sorted-set'
 import { toast } from 'react-toastify';
@@ -637,6 +637,17 @@ const app = (state = initialState, action) => {
         ...state,
         private_key: action.private_key
       }
+
+    case LOGOUT: 
+      return {
+        ...state,
+        private_key: null,
+        userId: null,
+        name: null,
+        publicKey: null,
+        lifetime: false
+      }
+    
     case UPDATE_ACCOUNT: 
       return {
         ...state,
