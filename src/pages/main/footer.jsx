@@ -36,7 +36,7 @@ export default class Footer extends Component {
                             <div className="footer-link-group">
                                 <span className="footer-header">COMMUNITY</span>
                                 <div className="group">
-                                    <a href="https://www.facebook.com/quantadex/">Facebook</a>
+                                    <a href="https://www.facebook.com/quantadexchange/">Facebook</a>
                                     <a href="https://twitter.com/quantadex">Twitter</a>
                                     <a href="https://t.me/quantadex">Telegram</a>
                                 </div>
