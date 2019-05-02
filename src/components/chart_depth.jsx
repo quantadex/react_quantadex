@@ -165,6 +165,7 @@ class DepthChart extends Component {
     }
 
     componentWillReceiveProps(nextProp) {
+        if (this.props.bids == nextProp.bids && this.props.asks == nextProp.asks) return
         setTimeout(() => {
             if (nextProp.currentTicker != this.state.currentTicker) {
                 this.setState({currentTicker: nextProp.currentTicker})
