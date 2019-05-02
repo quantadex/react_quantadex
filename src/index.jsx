@@ -22,6 +22,7 @@ import createBrowserHistory from 'history/createBrowserHistory'
 import ReactGA from 'react-ga';
  
 ReactGA.initialize(window.isApp ? 'UA-114919036-4': 'UA-114919036-3');
+ReactGA.set({ checkProtocolTask: null })
 
 window.addEventListener('keyboardDidShow', function () {
 	document.getElementById('app').classList.add("keyboard-show")
