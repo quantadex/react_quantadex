@@ -81,7 +81,15 @@ const container = css`
   }
 
   .input-container {
-    margin: 15px 0;
+    display: flex;
+    align-items: center;
+    margin: 6px 0;
+
+    label {
+      flex: 1 1 60px;
+      margin: 0;
+    }
+
     input {
       border-radius: 2px;
       padding: 0 40px 0 10px;
@@ -94,6 +102,18 @@ const container = css`
     input:invalid {
       box-shadow: none;
     }
+    
+    .percent-container, input {
+      flex: 1 1 calc(100% - 60px);
+    }
+
+    .amount-select {
+      line-height: 17px; 
+      width: 23%;
+      border: 1px solid rgba(255,255,255,0.27);
+      border-radius: 2px;
+    }
+
     span {
       position: absolute;
       right: 10px;
@@ -429,31 +449,34 @@ class Trade extends Component {
                         <SmallToken name={tradingPair[1]} />
                     </div>
                     <div className="input-container">
-                        <label>AMOUNT</label>
-                        <div className="d-flex">
-                          <QTDropdown
-                            items={dropdown_items.items}
-                            value={dropdown_items.value}
-                            className="down bordered dark qt-font-base qt-font-bold"
-                            reverse={true}
-                            width="58"
-                            height="32"
-                            onChange={(e) => balance && this.setPercentAmount(e, tradingPair[trade_side == 0 ? 1 : 0])}/>
-                          <input type="number" className="trade-input qt-number-bold qt-font-small rounded-0-left" title=""
-                              name="amount"
-                              autoComplete="off"
-                              onFocus={(e) => !mobile && e.target.select()}
-                              min="0"
-                              value={Utils.maxPrecision(qty, precisions[0])}
-                              onChange={(e) => {
-                                let value = Utils.maxPrecision(e.target.value, precisions[0])
-                                this.setState({
-                                qty: value,
-                                total: value * price
-                              })}} />
-                          <SmallToken name={tradingPair[0]} />
+                      <label>AMOUNT</label>
+                        <input type="number" className="trade-input qt-number-bold qt-font-small rounded-0-left" title=""
+                            name="amount"
+                            autoComplete="off"
+                            onFocus={(e) => !mobile && e.target.select()}
+                            min="0"
+                            value={Utils.maxPrecision(qty, precisions[0])}
+                            onChange={(e) => {
+                              let value = Utils.maxPrecision(e.target.value, precisions[0])
+                              this.setState({
+                              qty: value,
+                              total: value * price
+                            })}} />
+                        <SmallToken name={tradingPair[0]} />
+                    </div>
+                    <div className="input-container">
+                        <label className="invisible">Percent</label>
+                        <div className="percent-container d-flex justify-content-between text-center">
+                          {dropdown_items.items.map(item => {
+                            return (
+                              <div key={item} className="amount-select cursor-pointer"
+                                onClick={() => balance && this.setPercentAmount(item, tradingPair[trade_side == 0 ? 1 : 0])}
+                              >
+                                {item}
+                              </div>
+                            )
+                          })}
                         </div>
-                        
                     </div>
                     <div className="input-container">
                         <label>TOTAL</label>
