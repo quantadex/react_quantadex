@@ -252,6 +252,7 @@ class Container extends React.Component {
 					<Route exact path="/:net/message" component={Message} />
 					<Route exact path="/:net/export_key" component={ExportKey} />
 					<Route exact path="/:net/leaderboard" component={Leaderboard} />
+					<Route component={window.isApp ? Exchange : Landing}/>
         </Switch>
       </Router>
     </Provider>);
