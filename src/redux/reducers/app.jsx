@@ -12,7 +12,6 @@ import { dataSize } from "../actions/app.jsx";
 import SortedSet from 'js-sorted-set'
 import { toast } from 'react-toastify';
 import Ticker, {SymbolToken} from '../../components/ui/ticker.jsx'
-import {getItem, clear} from '../../common/storage.js'
 import lodash from 'lodash'
 import moment from 'moment'
 

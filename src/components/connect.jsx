@@ -821,9 +821,13 @@ export class ConnectDialog extends Component {
     }
 
     async loadStore() {
-        const storeName = await getItem("name")
-        const storeEncrypted = await getItem("encrypted_data")
-        this.setState({storeName, storeEncrypted})
+        try {
+            const storeName = await getItem("name")
+            const storeEncrypted = await getItem("encrypted_data")
+            this.setState({storeName, storeEncrypted})
+        } catch(e) {
+            console.log(e)
+        }
     }
 
     ConnectEncrypted() {

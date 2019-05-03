@@ -93,7 +93,7 @@ class Fund extends Component {
 			this.props.dispatch(switchTicker(default_ticker));
     } 
     
-    if (!this.props.currentTicker || !window.markets) {
+    if (!this.props.currentTicker && !window.markets) {
       return <div className={container + " container-fluid" + (this.props.isMobile ? " mobile" : "")}></div>
     }
 

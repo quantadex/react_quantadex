@@ -112,8 +112,12 @@ class ExportKey extends Component {
     }
 
     async loadStore() {
-        const encrypted_data = await getItem("encrypted_data")
-        this.setState({encrypted_data: JSON.parse(encrypted_data)})
+        try {
+            const encrypted_data = await getItem("encrypted_data")
+            this.setState({encrypted_data: JSON.parse(encrypted_data)})
+        } catch(e) {
+            console.log(e)
+        }
     }
 
     copyText(id) {
