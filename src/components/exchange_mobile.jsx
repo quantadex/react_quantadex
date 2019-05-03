@@ -180,9 +180,17 @@ const container = css`
 			top: 91px;
 		}
 
+		#market-list.with-banner {
+			top: 149px;
+		}
+
 		#market-list.active {
 			height: calc(100% - 91px);
 			padding-bottom: 70px;
+		}
+
+		#market-list.active.with-banner {
+			height: calc(100% - 149px);
 		}
 
 		.trade-options {
@@ -467,7 +475,7 @@ class Exchange extends Component {
 			<MobileHeader header={this.Header(headerIndex)} mobile_nav={this.handleSwitch.bind(this)} />
 			
 			<div id="content" className="mobile-content">
-				<div id="market-list" className={showMarkets ? "active" : ""}>
+				<div id="market-list" className={(showMarkets ? "active" : "") + (app_download && web_android ? " with-banner" : "")}>
 					<Dashboard mobile={true} mobile_nav={() => this.setState({showMarkets: false})} />
 				</div>
 				{this.Content(contentIndex)}
