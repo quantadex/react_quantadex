@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { css } from 'emotion'
 import { connect } from 'react-redux'
-import { AccountLogin, GetAccount, TOGGLE_CONNECT_DIALOG, LOGOUT } from '../redux/actions/app.jsx'
+import { AccountLogin, ConnectAccount, GetAccount, TOGGLE_CONNECT_DIALOG, LOGOUT } from '../redux/actions/app.jsx'
 import { PrivateKey, PublicKey, decryptWallet, encryptWallet, hash } from "@quantadex/bitsharesjs";
 import WalletApi from "../common/api/WalletApi";
 import QTTabBar from './ui/tabBar.jsx'
@@ -147,6 +147,11 @@ const dialog = css`
             }
             button:disabled {
                 background-color: #999;
+            }
+
+            select {
+                border: 1px solid #ccc;
+                border-radius: 3px;
             }
         }
     }
@@ -306,6 +311,7 @@ export class ConnectDialog extends Component {
         this.KeyDownload = this.KeyDownload.bind(this)
         this.ConnectEncrypted = this.ConnectEncrypted.bind(this)
         this.ConnectPrivateKey = this.ConnectPrivateKey.bind(this)
+        this.AccountSelect = this.AccountSelect.bind(this)
         this.EncryptKey = this.EncryptKey.bind(this)
         this.downloadKey = this.downloadKey.bind(this)
         this.generateKey = this.generateKey.bind(this)
@@ -407,9 +413,12 @@ export class ConnectDialog extends Component {
 			const decrypted = decryptWallet(encrypted_data, password)
             const private_key = decrypted.toWif()
 
-            dispatch(AccountLogin(private_key)).then(() => {
+            dispatch(AccountLogin(private_key)).then((e) => {
                 setItem("encrypted_data", JSON.stringify(encrypted_data))
-                if (nav && mobile_nav) {
+
+                if(Array.isArray(e)) {
+                    this.setState({account_select: true, accounts_list: e, private_key})
+                } else if (nav && mobile_nav) {
                     mobile_nav()
                 }
             })
@@ -437,9 +446,12 @@ export class ConnectDialog extends Component {
         try {
             const pKey = PrivateKey.fromWif(private_key);
 
-            dispatch(AccountLogin(private_key)).then(() => {
+            dispatch(AccountLogin(private_key)).then((e) => {
                 removeItem("encrypted_data")
-                if (mobile_nav) {
+
+                if(Array.isArray(e)) {
+                    this.setState({account_select: true, accounts_list: e})
+                } else if (mobile_nav) {
                     mobile_nav()
                 }
             })
@@ -545,7 +557,7 @@ export class ConnectDialog extends Component {
                 } else if (error.includes("is_valid_name")) {
                     msg = "Name must start with a letter and only contains alpha numeric, dash, and dot"
                 } else {
-                    msg = res.message || res.error || "Server error. Please try again."
+                    msg = error || "Server error. Please try again."
                 }
                 this.setState({
                     authError: true,
@@ -761,7 +773,7 @@ export class ConnectDialog extends Component {
                                     <input type="checkbox" id="personal-key" name="personal-key" 
                                         onChange={e => {
                                             this.setState({personal_key: e.target.checked})
-                                            if (!e.target.checked && !valid_key) this.generateKey()
+                                            if (!e.target.checked) this.generateKey()
                                         }}/>
                                     <label className="mb-0 ml-2" htmlFor="personal-key">Use my own public key</label>
                                 </div>
@@ -823,8 +835,9 @@ export class ConnectDialog extends Component {
     async loadStore() {
         try {
             const storeName = await getItem("name")
+            const storeId = await getItem("id")
             const storeEncrypted = await getItem("encrypted_data")
-            this.setState({storeName, storeEncrypted})
+            this.setState({storeName, storeEncrypted, storeId})
         } catch(e) {
             console.log(e)
         }
@@ -1084,10 +1097,39 @@ export class ConnectDialog extends Component {
         )
     }
 
+    AccountSelect() {
+        const { dispatch, mobile_nav } = this.props
+        const { accounts_list, private_key, storeId } = this.state
+        return (
+            <div className="input-container">
+                <h4>Select the account you want to use:</h4>
+                <div className="d-flex mt-3">
+                    <select id="mult-acc-select" className="w-100 mr-3" defaultValue={storeId}>
+                        {accounts_list.map(account => {
+                            return <option key={account.id} value={account.id}>{account.name}</option>
+                        })}
+                    </select>
+                    <button
+                        onClick={() => {
+                            const account = document.getElementById('mult-acc-select').value
+                            dispatch(ConnectAccount(account, private_key)).then(() => {
+                                if (mobile_nav) {
+                                    mobile_nav()
+                                }
+                            })
+                        }}
+                    >
+                        Continue
+                    </button>
+                </div>
+            </div>
+        )
+    }
+
     
     KeyConnect() {
         const { isMobile, network } = this.props
-        const { selectedTabIndex, encryptStep } = this.state
+        const { selectedTabIndex, encryptStep, account_select } = this.state
         const tabs = {
             names: ["Encrypted Key", "Private Key"],
             selectedTabIndex: selectedTabIndex,
@@ -1099,17 +1141,22 @@ export class ConnectDialog extends Component {
                     <h4>CONNECT {network == "testnet" ? "TESTNET" : ""} WALLET</h4>
                     <div className={"link text-nowrap" + (isMobile ? "" : " mr-5")} onClick={() => this.resetInputs({dialogType: "create"})}>Don’t have an account?</div>
                 </div>
+                {!account_select && 
                 <QTTabBar
                     className="underline small static set-width qt-font-bold d-flex justify-content-left"
                     width={120}
                     gutter={10}
                     tabs={tabs}
                     switchTab={this.handleSwitch.bind(this)}
-                />
+                />}
                 
-                {selectedTabIndex == 0 ? 
-                    (encryptStep == 0 ? <this.ConnectEncrypted /> : <this.EncryptKey />)
-                    : <this.ConnectPrivateKey />}
+                { account_select ?
+                    <this.AccountSelect /> 
+                    :
+                    selectedTabIndex == 0 ? 
+                        (encryptStep == 0 ? <this.ConnectEncrypted /> : <this.EncryptKey />)
+                        : <this.ConnectPrivateKey />
+                }
             </div>
         )
     }

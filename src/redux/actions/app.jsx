@@ -366,49 +366,69 @@ export const AccountLogin = (private_key) => {
 				throw "No account for public key: " + publicKey
 			}
 
-			return Apis.instance()
-				.db_api()
-				.exec("get_objects", [[vec_account_id[0][0]]])
-				.then((data) => {
-					// console.log("get account ", data);
-					let lifetime_member = data[0].membership_expiration_date === "1969-12-31T23:59:59"
-					dispatch({
-						type: UPDATE_ACCOUNT,
-						data: {...data[0], lifetime: lifetime_member}
-					})
-					dispatch({
-						type: LOGIN,
-						private_key: private_key
-					})
+			const dedup_ids = []
+			for (let id of vec_account_id[0]) {
+				if (!dedup_ids.includes(id)) dedup_ids.push(id)
+			}
 
-					setItem("name", data[0].name)
-					setItem("id", data[0].id)
-					setItem("publicKey", data[0].active.key_auths[0][0])
-					setItem("lifetime", lifetime_member)
-					setItem("env", window.location.pathname.startsWith("/testnet") ? "testnet" : "mainnet")
-					if (window.isApp) {
-						setItem("private_key", private_key)
-					}
-				}).then(e => {
-					dispatch(switchTicker(getState().app.currentTicker))
-					dispatch({
-						type: TOGGLE_CONNECT_DIALOG,
-						data: false
-					})
-					return true
-				}).catch(error => {
-					if (error.message.includes("Bad Cast")) {
-						throw "No account for public key: " + publicKey
-					} else {
-						throw "Server error. Please try again."
-					}
+			if (dedup_ids.length == 1) {
+				dispatch(ConnectAccount(dedup_ids[0], private_key))
+			} else {
+				return Apis.instance().db_api().exec("get_accounts", [dedup_ids]).then(e => {
+					return e
 				})
+			}
+			
 			
 		}).catch(error => {
+			console.log(error)
 			if (typeof error == "string") {
 				throw error
 			} else {
 				Rollbar.error("Failed to Login", error);
+				throw "Server error. Please try again."
+			}
+		})
+	}
+}
+
+export const ConnectAccount = (account_id, private_key) => {
+	return (dispatch, getState) => {
+		return Apis.instance()
+		.db_api()
+		.exec("get_objects", [[account_id]])
+		.then((data) => {
+			// console.log("get account ", data);
+			let lifetime_member = data[0].membership_expiration_date === "1969-12-31T23:59:59"
+			dispatch({
+				type: UPDATE_ACCOUNT,
+				data: {...data[0], lifetime: lifetime_member}
+			})
+			dispatch({
+				type: LOGIN,
+				private_key: private_key
+			})
+
+			setItem("name", data[0].name)
+			setItem("id", data[0].id)
+			setItem("publicKey", data[0].active.key_auths[0][0])
+			setItem("lifetime", lifetime_member)
+			setItem("env", window.location.pathname.startsWith("/testnet") ? "testnet" : "mainnet")
+			if (window.isApp) {
+				setItem("private_key", private_key)
+			}
+		}).then(e => {
+			dispatch(switchTicker(getState().app.currentTicker))
+			dispatch({
+				type: TOGGLE_CONNECT_DIALOG,
+				data: false
+			})
+			return true
+		}).catch(error => {
+			console.log(error)
+			if (error.message.includes("Bad Cast")) {
+				throw "No account for public key: " + publicKey
+			} else {
 				throw "Server error. Please try again."
 			}
 		})
