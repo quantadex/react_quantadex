@@ -33,6 +33,19 @@ const container = css `
     .active #switch {
         left: 11px;
     }
+
+    &.dark {
+        #container {
+            border: 1px solid #333;
+        }
+        #switch {
+            background-color: #333;
+        }
+        .active#container {
+            background-color: transparent;
+            border-color: #333;
+        }
+    }
 `
 
 export default class Switch extends Component {
