@@ -60,8 +60,8 @@ export default class Chart extends Component {
     render() {
         return (
             <div className={this.props.className}>
-            <div id="chart_container" style={this.props.style || {}} />
-          </div>
+                <div id="chart_container" style={this.props.style || {}} />
+            </div>
         );
       }
 }

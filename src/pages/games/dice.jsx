@@ -111,6 +111,30 @@ const container = css `
             background: #f5f5f5;
         }
     }
+
+    .roll-history {
+        .win {
+            color: #66d7d7;
+        }
+
+        .loss {
+            color: #da3c76;
+        }
+
+        .last {
+            color: #fff;
+            padding: 0px 8px;
+            border-radius: 25px;
+        }
+
+        .last.win {
+            background: #66d7d7;
+        }
+
+        .last.loss {
+            background: #da3c76;
+        }
+    }
 `
 
 export default class DiceGame extends Component {
@@ -123,6 +147,7 @@ export default class DiceGame extends Component {
             stop_profit: false,
             fund: 100000000,
             roll: 50,
+            roll_history: Array(100),
             game_num: 0,
             win_num: 0,
             lose_num: 0,
@@ -137,6 +162,9 @@ export default class DiceGame extends Component {
             multiplier_display: "1.980",
             chance: 49.99,
             chance_display: "49.99",
+            limit_auto_roll: false,
+            auto_roll_limit: 1,
+            auto_roll_num: 0,
             stop_loss_amount: 1,
             stop_loss_amount_display: "0.00000001",
             stop_profit_amount: 1,
@@ -155,7 +183,8 @@ export default class DiceGame extends Component {
         const auto_rolling = setInterval(() => {
             this.rollDice()
         }, 700)
-        this.setState({auto_rolling, net_gain: 0, unmod_amount: amount_display })
+        this.setState({auto_rolling, net_gain: 0, unmod_amount: amount_display, 
+            auto_roll_num: 0, game_num: 0, win_num:0, lose_num: 0, roll_history: Array(100) })
     }
 
     stopAutoRoll() {
@@ -166,14 +195,21 @@ export default class DiceGame extends Component {
     }
 
     rollDice() {
-        const { win_value, game_num, amount, fund } = this.state
+        const { win_value, game_num, amount, fund, roll_history, 
+            auto_rolling, auto_roll_num, limit_auto_roll, auto_roll_limit } = this.state
+
+        if (auto_rolling && limit_auto_roll && auto_roll_num == auto_roll_limit) {
+            this.stopAutoRoll()
+            return this.setState({message: "Auto roll limit reached"})
+        }
         if (amount > fund) {
             this.stopAutoRoll()
             return this.setState({message: "Insufficient Fund"})
         }
 
-        const roll = Math.random() < 0.5 ? Math.random() * 100 : Math.abs(Math.random() - 0.9999) * 100
-        this.setState({fund: fund - amount, roll, game_num: game_num + 1, message: false})
+        const roll = (Math.random() < 0.5 ? Math.random() * 100 : Math.abs(Math.random() - 0.999999) * 100).toFixed(2)
+        this.setState({fund: fund - amount, roll, roll_history: [...roll_history, [roll, roll > win_value ? 1 : 0 ]].slice(-100), 
+            game_num: game_num + 1, message: false, auto_roll_num: auto_roll_num + 1})
         setTimeout(() => {
             roll > win_value ? this.onWin() : this.onLose()
         }, 0)
@@ -192,7 +228,7 @@ export default class DiceGame extends Component {
 
         if (auto) {
             if (modify_win) {
-                this.setInputs("amount", (amount + (amount * (modify_win_amount/100)))/Math.pow(10, 8))
+                this.setInputs("amount", Math.max((amount + (amount * (modify_win_amount/100)))/Math.pow(10, 8), 0.00000001))
             } else {
                 this.setInputs("amount", unmod_amount)
             }
@@ -215,7 +251,7 @@ export default class DiceGame extends Component {
 
         if (auto) {
             if (modify_loss) {
-                this.setInputs("amount", (amount + (amount * (modify_loss_amount/100)))/Math.pow(10, 8))
+                this.setInputs("amount", Math.max((amount + (amount * (modify_loss_amount/100)))/Math.pow(10, 8), 0.00000001))
             } else {
                 this.setInputs("amount", unmod_amount)
             }
@@ -270,16 +306,18 @@ export default class DiceGame extends Component {
     }
 
     render() {
-        const { auto, auto_rolling, fund, roll, game_num, win_num, lose_num, message, net_gain, gain_history,
+        const { auto, auto_rolling, fund, roll, roll_history, game_num, win_num, lose_num, 
+            message, net_gain, gain_history, limit_auto_roll, auto_roll_limit,
             win_value, amount, multiplier, chance,
             win_value_display, amount_display, multiplier_display, chance_display,
-            stop_loss_amount_display, stop_profit_amount_display,
+            stop_loss, stop_profit, stop_loss_amount_display, stop_profit_amount_display,
             modify_loss, modify_loss_amount, modify_win, modify_win_amount } = this.state
+        const roll_history_length = 20
 
         return (
             <div className={container}>
                 <div className="slider-container position-relative">
-                    <div className={"roll-indicator" + (roll > win_value ? " win" : "")} style={{left: roll.toFixed(2) + "%"}}>{roll.toFixed(2)}</div>
+                    <div className={"roll-indicator" + (roll > win_value ? " win" : "")} style={{left: roll + "%"}}>{roll}</div>
                     <ReactSlider className="horizontal-slider" 
                         value={win_value}
                         min={2} 
@@ -291,8 +329,20 @@ export default class DiceGame extends Component {
                         <div><span>{win_value > 2 ? win_value_display : 2.00}</span></div>
                     </ReactSlider>
                 </div>
+                <div className="d-flex float-right roll-history">
+                    {roll_history.slice(-1 * roll_history_length).map((value, index) => {
+                        return (
+                            value && 
+                            <div key={index} 
+                                className={"ml-4" + (value[1] ? " win" : " loss") + (index == roll_history_length - 1 ? " last" : "")} 
+                                style={{opacity: 1/roll_history_length*(index+1)}}>
+                                {Utils.maxPrecision(value[0],2)}
+                            </div>
+                        )
+                    })}
+                </div>
                 <button className="btn btn-secondary mt-3" onClick={() => auto_rolling ? this.stopAutoRoll() : auto ? this.autoRoll() : this.rollDice()}>
-                    { auto ? auto_rolling ? "Stop" : "Auto Roll" : "Roll"}
+                    { auto ? auto_rolling ? "Stop" : "Auto Roll" + (limit_auto_roll? " x " + auto_roll_limit : "") : "Roll"}
                 </button>
 
                 <div className="d-flex">
@@ -355,11 +405,25 @@ export default class DiceGame extends Component {
                     { auto ?
                         <div>
                             <div className="input-container">
+                                <input type="checkbox" id="stop-num" name="stop-num" disabled={auto_rolling && true}
+                                    onChange={e => this.setState({limit_auto_roll: e.target.checked})}/>
+                                <label htmlFor="stop-loss"># of Rolls</label>
+                                <input type="number" step="1" min="1" value={auto_roll_limit} 
+                                    disabled={(auto_rolling || !limit_auto_roll) && true}
+                                    onChange={(e) => this.setState({auto_roll_limit: e.target.value})}
+                                    onBlur={(e) => {
+                                        let value = parseInt(e.target.value) || 0
+                                        value = value < 1 ? 1 : value
+                                        this.setState({auto_roll_limit: value.toFixed(0)})
+                                    }}
+                                />
+                            </div>
+                            <div className="input-container">
                                 <input type="checkbox" id="stop-loss" name="stop-loss" disabled={auto_rolling && true}
                                     onChange={e => this.setState({stop_loss: e.target.checked})}/>
                                 <label htmlFor="stop-loss">Stop Loss</label>
                                 <input type="number" step="0.00000001" min="0.00000001" value={stop_loss_amount_display} 
-                                    disabled={auto_rolling && true}
+                                    disabled={auto_rolling && true || !stop_loss}
                                     onChange={(e) => this.setState({stop_loss_amount_display: e.target.value})}
                                     onBlur={(e) => this.setInputs("stop_loss_amount", e.target.value)}
                                     onKeyPress={e => {
@@ -373,7 +437,7 @@ export default class DiceGame extends Component {
                                     onChange={e => this.setState({stop_profit: e.target.checked})}/>
                                 <label htmlFor="stop-profit">Stop Profit</label>
                                 <input type="number" step="0.00000001" min="0.00000001" value={stop_profit_amount_display} 
-                                    disabled={auto_rolling && true}
+                                    disabled={auto_rolling && true || !stop_profit}
                                     onChange={(e) => this.setState({stop_profit_amount_display: e.target.value})}
                                     onBlur={(e) => this.setInputs("stop_profit_amount", e.target.value)}
                                     onKeyPress={e => {
@@ -430,7 +494,8 @@ export default class DiceGame extends Component {
                     Profit: {(net_gain/Math.pow(10, 8)).toFixed(8)}<br/>
                     Games: {game_num}<br/>
                     Win: {win_num}<br/>
-                    Lose: {lose_num}
+                    Lose: {lose_num}<br/>
+                    Luck: {game_num && ((roll_history.reduce((partial_sum, a) => partial_sum + (a ? a[1] : 0), 0)/Math.min(game_num, roll_history.length))*100/parseFloat(chance)*100).toFixed(0)}%
                 </div>
                 <button className="btn" onClick={() => this.setState({fund: fund + 100000000})}>Add BTC</button>
             </div>
