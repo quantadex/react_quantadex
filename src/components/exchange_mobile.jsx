@@ -277,11 +277,10 @@ class Exchange extends Component {
 						type: LOGIN,
 						private_key: private_key
 					})
-					dispatch(switchTicker(currentTicker || "ETH/BTC"))
+					if (currentTicker) dispatch(switchTicker(currentTicker))
 				})
 			} catch(e) {
 				console.log(e)
-				dispatch(switchTicker(currentTicker || "ETH/BTC"))
 			}
 
 		}, false);

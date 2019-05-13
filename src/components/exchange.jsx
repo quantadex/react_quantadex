@@ -17,8 +17,7 @@ class Exchange extends Component {
 			history.push("/" + match.params.net + "/exchange/" + default_ticker + location.search)
 		} else {
 			const ticker = match.params.ticker.replace("_", "/");
-			if (!window.isApp) dispatch(switchTicker(ticker));
-			// dispatch(switchTicker(ticker));
+			dispatch(switchTicker(ticker));
 		}
 	}
 	
