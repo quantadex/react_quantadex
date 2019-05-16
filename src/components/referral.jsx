@@ -157,7 +157,7 @@ class Referral extends Component {
                             </tr>
                         )
                     })}
-                    {window.wallet_listing.map(coin => {
+                    {(window.wallet_listing || []).map(coin => {
                         if (earned_coin.indexOf(coin) === -1) {
                             return (
                                 <tr key={coin}>
@@ -187,7 +187,7 @@ const mapStateToProps = (state) => ({
     isMobile: state.app.isMobile,
     lifetime: state.app.lifetime,
     name: state.app.name,
-    referral_paid: state.app.referral_paid,
+    referral_paid: state.app.referral_paid || [],
     qdex_amount: state.app.balance || []
 });
 
