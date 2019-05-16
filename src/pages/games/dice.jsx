@@ -207,7 +207,7 @@ export default class DiceGame extends Component {
             return this.setState({message: "Insufficient Fund"})
         }
 
-        const roll = (Math.random() < 0.5 ? Math.random() * 100 : Math.abs(Math.random() - 0.999999) * 100).toFixed(2)
+        const roll = (Math.random() < 0.5 ? Math.random() * 100 : Math.abs(parseFloat(Math.random().toFixed(6)) - 0.999999) * 100).toFixed(2)
         this.setState({fund: fund - amount, roll, roll_history: [...roll_history, [roll, roll > win_value ? 1 : 0 ]].slice(-100), 
             game_num: game_num + 1, message: false, auto_roll_num: auto_roll_num + 1})
         setTimeout(() => {
@@ -495,6 +495,7 @@ export default class DiceGame extends Component {
                     Games: {game_num}<br/>
                     Win: {win_num}<br/>
                     Lose: {lose_num}<br/>
+                    Win rate: {game_num && (win_num/game_num*100).toFixed(2) || 0}%<br/>
                     Luck: {game_num && ((roll_history.reduce((partial_sum, a) => partial_sum + (a ? a[1] : 0), 0)/Math.min(game_num, roll_history.length))*100/parseFloat(chance)*100).toFixed(0)}%
                 </div>
                 <button className="btn" onClick={() => this.setState({fund: fund + 100000000})}>Add BTC</button>

@@ -484,6 +484,10 @@ export function switchTicker(ticker, force_init=false) {
 				}).then((e) => {
 					action(ticker)
 				});
+
+				Apis.instance().db_api().exec("get_global_properties", []).then(e => {
+					window.maker_rebate_percent_of_fee = e.parameters.extensions.maker_rebate_percent_of_fee
+				})
 			})
 			.catch(e => {
 				// Rollbar.error("Failed to initialize Apis socket", e);

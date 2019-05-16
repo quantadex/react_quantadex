@@ -423,6 +423,8 @@ class Trade extends Component {
             item.amount = balance[currency].balance ? balance[currency].balance : 0
             pairBalance.push(item)
         })
+        const taker_fee = (window.assetsBySymbol && window.assetsBySymbol[tradingPair[trade_side]].options.market_fee_percent/100) || 0
+        const maker_fee = (window.maker_rebate_percent_of_fee && taker_fee - (taker_fee * (window.maker_rebate_percent_of_fee/10000))) || 0
         
         return (
             <div className={container + " container-fluid" + (mobile ? " mobile" : "")}>
@@ -439,9 +441,9 @@ class Trade extends Component {
                             autoComplete="off"
                             onFocus={(e) => !mobile && e.target.select()}
                             min="0"
-                            value={Utils.maxPrecision(price, precisions[1])}
+                            value={price}
                             onChange={(e) => {
-                              let value = Utils.maxPrecision(e.target.value, precisions[1])
+                              let value = e.target.value
                               this.setState({
                               price: value,
                               total: qty * value
@@ -487,7 +489,7 @@ class Trade extends Component {
                             onFocus={(e) => !mobile && e.target.select()}
                             className="trade-input qt-number-bold qt-font-small"
                             min="0"
-                            value={Utils.maxPrecision(total, precisions[1])}
+                            value={total < 1/Math.pow(10, precisions[1]) ? 0 : Utils.maxPrecision(total, precisions[1])}
                             onChange={(e) => {
                               let value = Utils.maxPrecision(e.target.value, precisions[1])
                               this.setState({
@@ -497,6 +499,10 @@ class Trade extends Component {
                             />
                         <SmallToken name={tradingPair[1]} />
                     </div>
+                    {total < 1/Math.pow(10, precisions[1]) && !(price <= 0 || qty <= 0) ? 
+                      <div className="text-danger text-right">* total must be more than {1/Math.pow(10, precisions[1])}</div> 
+                      : null
+                    }
 
                     <div className="fees-container">
                         Estimate Fees
@@ -504,18 +510,18 @@ class Trade extends Component {
                             <tbody>
                                 <tr>
                                     <td>Maker</td>
-                                    <td className="text-left text-muted pl-3">{window.assetsBySymbol && (window.assetsBySymbol[tradingPair[trade_side]].options.market_fee_percent)/100}%</td>
+                                    <td className="text-left text-muted pl-3">{maker_fee}%</td>
                                     <td className="text-right pr-2">{window.assetsBySymbol 
                                         && window.assetsBySymbol[tradingPair[trade_side]].options.market_fee_percent != 0 
-                                        && ((((qty * Math.pow(10, 6)) * (price * Math.pow(10, 6))) / Math.pow(10, 12))*((window.assetsBySymbol[tradingPair[trade_side]].options.market_fee_percent)/10000)).toLocaleString(navigator.language, {maximumFractionDigits: 6}) || 0}</td>
+                                        && ((trade_side == 0 ? qty : total)*maker_fee/100).toLocaleString(navigator.language, {maximumFractionDigits: precisions[trade_side]}) || 0}</td>
                                     <td className="text-muted"><SmallToken name={tradingPair[trade_side]} /></td>
                                 </tr>
                                 <tr>
                                     <td>Taker</td>
-                                    <td className="text-left text-muted pl-3">{window.assetsBySymbol && window.assetsBySymbol[tradingPair[trade_side]].options.market_fee_percent}%</td>
+                                    <td className="text-left text-muted pl-3">{taker_fee}%</td>
                                     <td className="text-right pr-2">{window.assetsBySymbol 
                                         && window.assetsBySymbol[tradingPair[trade_side]].options.market_fee_percent != 0 
-                                        && ((((qty * Math.pow(10, 6)) * (price * Math.pow(10, 6))) / Math.pow(10, 12))*((window.assetsBySymbol[tradingPair[trade_side]].options.market_fee_percent)/10000).toLocaleString(navigator.language, {maximumFractionDigits: 6})) || 0}</td>
+                                        && ((trade_side == 0 ? qty : total)*taker_fee/100).toLocaleString(navigator.language, {maximumFractionDigits: precisions[trade_side]}) || 0}</td>
                                     <td className="text-muted"><SmallToken name={tradingPair[trade_side]} /></td>
                                 </tr>
                                 <tr>
@@ -531,7 +537,7 @@ class Trade extends Component {
                       <div>
                         {trade_side == 1 ?
                           <button id="sell-action" className="sell-btn" 
-                            disabled={price <= 0 || qty <= 0 || processing}
+                            disabled={price <= 0 || qty <= 0 || total < 1/Math.pow(10, precisions[1]) || processing}
                             onClick={this.handleSell.bind(this)}>
                             {processing ? <Loader /> : 
                               <span>
@@ -541,7 +547,7 @@ class Trade extends Component {
                           </button>
                           :
                           <button id="buy-action" className="buy-btn" 
-                            disabled={price <= 0 || qty <= 0 || processing}
+                            disabled={price <= 0 || qty <= 0 || total < 1/Math.pow(10, precisions[1]) || processing}
                             onClick={this.handleBuy.bind(this)}>
                             {processing ? <Loader /> : 
                               <span>
