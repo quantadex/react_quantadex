@@ -8,6 +8,7 @@ import QTDeposit from './ui/deposit.jsx'
 import QTWithdraw from './ui/withdraw.jsx'
 import SearchBox from "./ui/searchBox.jsx"
 import Switch from "./ui/switch.jsx"
+import { switchTicker } from '../redux/actions/app.jsx'
 import ReactGA from 'react-ga';
 
 const container = css`
@@ -115,7 +116,9 @@ class Wallets extends Component {
   }
 
   componentDidMount() {
-    this.setDataSource(this.props.balance)
+    const { currentTicker, balance, dispatch } = this.props
+    if (currentTicker) dispatch(switchTicker(currentTicker))
+    this.setDataSource(balance)
   }
 
 	componentWillReceiveProps(nextProps) {
@@ -289,7 +292,8 @@ const mapStateToProps = (state) => ({
     private_key: state.app.private_key,
     estimated_fund: state.app.totalFundValue || 0,
     usd_value: state.app.usd_value,
-		name: state.app.name
+    name: state.app.name,
+    currentTicker: state.app.currentTicker,
 	});
 
 

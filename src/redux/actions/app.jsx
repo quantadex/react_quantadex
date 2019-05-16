@@ -506,7 +506,6 @@ export function switchTicker(ticker, force_init=false) {
 
 		function action(ticker) {
 			var {base, counter} = getBaseCounter(ticker)
-			if (!base || !counter) return
 			dispatch({
 				type: UPDATE_TICKER,
 				data: ticker

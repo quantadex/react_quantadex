@@ -487,7 +487,7 @@ const app = (state = initialState, action) => {
       })
 
       if (lastTradePrice === undefined) {
-        lastTradePrice = window.allMarketsByHash[action.data.ticker].last
+        lastTradePrice = window.allMarketsByHash[action.data.ticker] ? window.allMarketsByHash[action.data.ticker].last : "-"
       }
       
       var spread = undefined
