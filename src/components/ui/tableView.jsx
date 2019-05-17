@@ -3,6 +3,7 @@ import { css } from 'emotion'
 import globalcss from '../global-css.js'
 import CONFIG from '../../config.js';
 
+import { Link } from 'react-router-dom'
 import QTButton from './button.jsx'
 import {SymbolToken} from './ticker.jsx'
 
@@ -26,6 +27,42 @@ const container = css`
     border-radius: 2px;
     background-color: rgba(52, 62, 68, 0.4);
   }
+
+  .trade-btn {
+    position: relative;
+  }
+
+  .markets-list {
+    position: absolute;
+    display: none;
+    background: #22282C;
+    padding: 0 10px;
+    width: 80px;
+    z-index: 1;
+    border: 1px solid #1cdad8;
+
+    a {
+      color: #fff;
+      display: block;
+      line-height: 30px;
+      border-bottom: 1px solid #444;
+      width: 100%;
+    }
+
+    a:last-child {
+      border: 0;
+    }
+
+    a:hover {
+      color: #1cdad8;
+    }
+  }
+
+  .trade-btn:hover .markets-list {
+    display: block;
+  }
+
+  
 `
 
 export default class QTTableView extends React.Component {
@@ -47,11 +84,7 @@ export default class QTTableView extends React.Component {
   }
 
   handleClick(index) {
-    if (this.state.selectedIndex == index) {
-      this.setState({selectedIndex: null})
-    } else {
-      this.setState({selectedIndex: index})
-    }
+    this.setState({selectedIndex: index})
   }
 
   sortArr(e) {
@@ -96,17 +129,26 @@ export default class QTTableView extends React.Component {
     }
   }
 
+  symbol(market) {
+    const pairs = market.split('/')
+    return pairs[0].split('0X')[0] + "/" + pairs[1].split('0X')[0]
+  }
+
 
   render() {
-    if (this.state.sort !== null) {
-      if (this.state.reverse) {
-        this.props.dataSource.sort((a,b) => {
-          return a[this.state.sort].localeCompare(b[this.state.sort])
+    const { sort, reverse, columns, selectedIndex, appendedUI } = this.state
+    const { dataSource, mobile, unlocked, network } = this.props
+    const default_markets = window.markets ? Object.keys(window.markets) : []
+    const markets = window.marketsHash ? Object.keys(window.marketsHash) : []
+
+    if (sort !== null) {
+      if (reverse) {
+        dataSource.sort((a,b) => {
+          return a[sort].localeCompare(b[sort])
         })
       } else {
-        this.props.dataSource.sort((a,b) => {
-
-          return b[this.state.sort].localeCompare(a[this.state.sort])
+        dataSource.sort((a,b) => {
+          return b[sort].localeCompare(a[sort])
         })
       }
     }
@@ -116,7 +158,7 @@ export default class QTTableView extends React.Component {
       <div className={container + " container-fluid"}>
         <div className="row justify-content-between align-items-center">
           {
-              this.state.columns.map((col, index) => {
+              columns.map((col, index) => {
                 if (col.type == "buttons") {
                   const new_css = css`width:${col.buttons.length * 96 - 16}px`
                   return (
@@ -137,12 +179,12 @@ export default class QTTableView extends React.Component {
           }
         </div>
         {
-          this.props.dataSource.map((e,index) => {
+          dataSource.map((e,index) => {
             return (
               <div key={index}>
-                <div id={index} className={"row justify-content-between align-items-center table-body-row" + (this.state.selectedIndex == index ? " active" : "")}  onClick={() => this.handleClick(index)}>
+                <div id={index} className={"row justify-content-between align-items-center table-body-row" + (selectedIndex == index ? " active" : "")}  onClick={() => this.handleClick(index)}>
                   {
-                    this.state.columns.map((col, i) => {
+                    columns.map((col, i) => {
                       if (col.type == "buttons") {
 
                         const new_css = css`
@@ -154,19 +196,48 @@ export default class QTTableView extends React.Component {
                           <div key={index + '-' + i} className={new_css+" d-flex  action-btn " + (e.pairs == ERC20Label ? "justify-content-end" : "justify-content-between")}>
                             {
                               col.buttons.map((btn) => {
-                                if((e.pairs !== ERC20Label && !CONFIG.getEnv().CROSSCHAIN_COINS.includes(e.pairs) && e.pairs.split("0X").length !== 2) && btn.label == "DEPOSIT" || e.pairs == ERC20Label && btn.label == "WITHDRAW") { 
+                                if((e.pairs !== ERC20Label && !CONFIG.getEnv().CROSSCHAIN_COINS.includes(e.pairs) && e.pairs.split("0X").length !== 2) && btn.label == "DEPOSIT" || e.pairs == ERC20Label && btn.label == "WITHDRAW" || e.pairs == ERC20Label && btn.label == "TRADE") { 
                                   return null
-                                 }
+                                }
+                                if(e.pairs !== ERC20Label && btn.label == "TRADE") {
+                                  const pair_markets = markets.filter(market => market.includes(e.pairs))
+                                  for (let coin of default_markets) {
+                                    const token = coin == "TUSD" ? "TUSD0X0000000000085D4780B73119B644AE5ECD22B376" : coin
+                                    if (e.pairs !== token && !(pair_markets.includes(e.pairs+ "/" + token) || pair_markets.includes(token + "/" + e.pairs))) {
+                                      pair_markets.push(e.pairs+ "/" + token)
+                                    }
+                                  }
+                                  return (
+                                    <div className="trade-btn" key={btn.label}>
+                                      <QTButton
+                                        className={btn.color + " qt-font-base qt-font-semibold"}
+                                        borderWidth="1"
+                                        width="80"
+                                        height="20"
+                                        label={btn.label}
+                                        color={btn.color}/>
+                                        <div className="markets-list text-center">
+                                          {pair_markets.map(market => {
+                                            return (
+                                              <Link key={market} to={`/${network}/exchange/${market.replace("/", "_")}`}
+                                                onClick={btn.mobile_nav ? () => btn.mobile_nav() : null}
+                                              >{this.symbol(market)}</Link>
+                                            )
+                                          })}
+                                        </div>
+                                      </div>
+                                  )
+                                }
                                 return (
                                   <QTButton
                                     key={btn.label}
-                                    disabled={btn.disabled()}
+                                    disabled={!unlocked}
                                     onClick={() => this.toggleModal(index,btn.handleClick(e.pairs != ERC20Label ? e.pairs : "ERC20", this.toggleModal.bind(this, index, btn.handleClick(e.pairs != ERC20Label ? e.pairs : "ERC20"))))}
                                     className={btn.color + " qt-font-base qt-font-semibold"}
                                     borderWidth="1"
                                     width="80"
                                     height="20"
-                                    label={(e.pairs !== ERC20Label && !CONFIG.getEnv().CROSSCHAIN_COINS.includes(e.pairs) && e.pairs.split("0X").length !== 2) ? "TRANSFER" : btn.label}
+                                    label={!unlocked ? "LOCKED" : (e.pairs !== ERC20Label && !CONFIG.getEnv().CROSSCHAIN_COINS.includes(e.pairs) && e.pairs.split("0X").length !== 2) ? "TRANSFER" : btn.label}
                                     color={btn.color}/>
                                 )
                               })
@@ -176,7 +247,7 @@ export default class QTTableView extends React.Component {
                       } else if (col.type == "string") {
                         const new_css = css`width:${col.width}px;text-align:left;`
                         return (
-                          <span key={index + '-' + i} className={new_css + " qt-font-extra-small text-nowrap " + (this.props.mobile ? col.key : "")}>{e[col.key]}</span>
+                          <span key={index + '-' + i} className={new_css + " qt-font-extra-small text-nowrap " + (mobile ? col.key : "")}>{e[col.key]}</span>
                         )
                       } else if (col.type == "coloredString") {
                         const color = col.colors[e[col.key]]
@@ -191,12 +262,12 @@ export default class QTTableView extends React.Component {
                         }
                         const new_css = css`width:${col.width}px;text-align:right;`
                         return (
-                          <span key={index + '-' + i} className={new_css + " qt-font-extra-small " + (this.props.mobile ? col.key : "")}>{e[col.key].toLocaleString(navigator.language, {maximumFractionDigits: 8})}</span>
+                          <span key={index + '-' + i} className={new_css + " qt-font-extra-small " + (mobile ? col.key : "")}>{e[col.key].toLocaleString(navigator.language, {maximumFractionDigits: 8})}</span>
                         )
                       } else if (col.type == "symbol") {
                         const new_css = css`width:${col.width}px;text-align:left;`
                         return (
-                          <span key={index + '-' + i} className={new_css + " qt-font-extra-small text-nowrap " + (this.props.mobile ? col.key : "")}>
+                          <span key={index + '-' + i} className={new_css + " qt-font-extra-small text-nowrap " + (mobile ? col.key : "")}>
                               <SymbolToken name={e[col.key]} />
                           </span>
                         )
@@ -205,8 +276,8 @@ export default class QTTableView extends React.Component {
                   }
                 </div>
                 {
-                  this.state.appendedUI.index == index && this.props.unlocked
-                  ? this.state.appendedUI.block
+                  appendedUI.index == index && unlocked
+                  ? appendedUI.block
                   : ""
                 }
               </div>

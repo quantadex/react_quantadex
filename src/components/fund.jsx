@@ -81,28 +81,44 @@ class Fund extends Component {
     this.state = {
       selectedTabIndex: 0,
     }
+
+    this.eventUpdate = this.eventUpdate.bind(this)
   }
+
+  componentDidMount() {
+    if (!window.markets && !window.isApp) {
+			const default_ticker = this.props.match && this.props.match.params.net == "testnet" ? "ETH/USD" : 'ETH/BTC'
+			this.props.dispatch(switchTicker(default_ticker));
+    } 
+    
+		document.addEventListener('mouseenter', this.eventUpdate, false)
+	}
+
+	componentWillUnmount() {
+		document.removeEventListener('mouseenter', this.eventUpdate, false)
+	}
+	
+	eventUpdate() {
+		const { currentTicker, dispatch } = this.props
+		if (currentTicker) dispatch(switchTicker(currentTicker))
+	}
 
   handleSwitch(index) {
 		this.setState({selectedTabIndex: index})
 	}
 
 	render() {
-    if (!window.markets && !window.isApp) {
-			const default_ticker = this.props.match && this.props.match.params.net == "testnet" ? "ETH/USD" : 'ETH/BTC'
-			this.props.dispatch(switchTicker(default_ticker));
-    } 
-    
-    if (!this.props.currentTicker && !window.markets) {
-      return <div className={container + " container-fluid" + (this.props.isMobile ? " mobile" : "")}></div>
+    const { isMobile, currentTicker, name, mobile_nav } = this.props
+
+    if (!currentTicker && !window.markets) {
+      return <div className={container + " container-fluid" + (isMobile ? " mobile" : "")}></div>
     }
 
     const tabs = {
 			names: ['Wallets', 'Vesting', 'Crosschain History', "Referral"],
 			selectedTabIndex: 0,
     }
-    const content = [<Wallets />, <Vesting />, <CrosschainHistory user={this.props.name} />, <Referral />]
-    const {isMobile} = this.props
+    const content = [<Wallets mobile_nav={mobile_nav} />, <Vesting />, <CrosschainHistory user={name} />, <Referral />]
 		return (
 		<div className={container + " container-fluid" + (isMobile ? " mobile" : "")}>
       {isMobile ? 

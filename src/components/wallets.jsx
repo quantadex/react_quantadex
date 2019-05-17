@@ -220,6 +220,7 @@ class Wallets extends Component {
   }
 
   render() {
+    const { network, private_key, publicKey, name, isMobile, mobile_nav } = this.props
     const columns = [{
         title: "PAIRS",
         key: "pairs",
@@ -246,8 +247,7 @@ class Wallets extends Component {
           color:"theme unite",
           handleClick: (asset, close) => {
 						return <QTWithdraw asset={asset} handleClick={close} />
-          },
-          disabled: () => {return !this.props.private_key}
+          }
         }, {
           label: "DEPOSIT",
           color:"theme unite",
@@ -256,17 +256,20 @@ class Wallets extends Component {
               category: 'DEPOSIT_EXPAND',
               action: asset
             });
-            return <QTDeposit asset={asset} handleClick={close} quantaAddress={this.props.name} 
+            return <QTDeposit asset={asset} handleClick={close} quantaAddress={name} 
             isETH={(["ETH", "ERC20"].includes(asset) || asset.split("0X").length == 2)} />
-          },
-          disabled: () => {return !this.props.private_key}
+          }
+        }, {
+          label: "TRADE",
+          color:"theme unite",
+          mobile_nav: mobile_nav
         }],
         type: "buttons"
     }]
     
     return (
-      <div className={container + " content" + (this.props.isMobile ? " mobile" : "")}>
-        { this.props.publicKey ? <this.PublicAddress /> : null }
+      <div className={container + " content" + (isMobile ? " mobile" : "")}>
+        { publicKey ? <this.PublicAddress /> : null }
           
           
           <div className='filter-container d-flex flex-wrap mt-5 align-items-center'>
@@ -277,7 +280,10 @@ class Wallets extends Component {
 
           <div className="table-row">
           <QTTableView dataSource={this.state.dataSource.filter(data => data.pairs.toLowerCase().includes(this.state.filter.toLowerCase()) && 
-              (!this.state.hideZero || data.balance > 0))} columns={columns} mobile={this.props.isMobile} unlocked={this.props.private_key && true}/>
+              (!this.state.hideZero || data.balance > 0))} 
+              network={network}
+              columns={columns} mobile={isMobile} 
+              unlocked={private_key && true}/>
           </div>
       </div>
     );
@@ -294,6 +300,7 @@ const mapStateToProps = (state) => ({
     usd_value: state.app.usd_value,
     name: state.app.name,
     currentTicker: state.app.currentTicker,
+    network: state.app.network,
 	});
 
 
