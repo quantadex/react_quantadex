@@ -197,6 +197,12 @@ const container = css`
 			bottom: 65px;
 		}
 	}
+
+	.websocket-status {
+		background: #dc3545;
+		position: fixed;
+    	width: 100%;
+	}
 `;
 
 class Exchange extends Component {
@@ -224,7 +230,7 @@ class Exchange extends Component {
 
 	componentDidMount() {
 		const self = this;
-		const { dispatch, currentTicker } = this.props
+		const { dispatch } = this.props
 		fetch(CONFIG.getEnv().ANNOUNCEMENT_JSON, {mode: "cors"}).then(e => e.json())
 		.then(data => {
 			const entries = data.entries
@@ -273,6 +279,7 @@ class Exchange extends Component {
 				})
 				
 				getItem("private_key").then(private_key => {
+					const { currentTicker } = this.props
 					dispatch({
 						type: LOGIN,
 						private_key: private_key
@@ -284,6 +291,16 @@ class Exchange extends Component {
 			}
 
 		}, false);
+
+		document.addEventListener("resume", () => {
+			const { currentTicker } = this.props
+			if (currentTicker) dispatch(switchTicker(currentTicker))
+		}, false);
+
+		!window.isApp && window.addEventListener("focus", () => {
+			const { currentTicker } = this.props
+			if (currentTicker) dispatch(switchTicker(currentTicker))
+		});
 	}
 
 	handleSwitch(index, params = {}) {
@@ -409,7 +426,7 @@ class Exchange extends Component {
 			)
 		case "wallet": 
 			if (publicKey) {
-				return <Fund />
+				return <Fund  mobile_nav={() => this.handleSwitch(1)}/>
 			} 
 			return (
 				<div className="d-flex h-100 mx-auto" style={{maxWidth: "300px"}}>
@@ -462,6 +479,7 @@ class Exchange extends Component {
 
 	render() {
 		const { app_download, web_android, showMarkets, selectedTabIndex, contentIndex, headerIndex } = this.state
+		const { websocket_status } = this.props
 		const tabs = {	names: ["Markets", "Trade", "Wallet", "Settings"] }
 		const web_tabs = { names: ["Chart", "Trade", "Orders", "Wallet"] }
 
@@ -475,6 +493,10 @@ class Exchange extends Component {
 			<MobileHeader header={this.Header(headerIndex)} mobile_nav={this.handleSwitch.bind(this)} />
 			
 			<div id="content" className="mobile-content">
+				{ !websocket_status ?
+					<div className="websocket-status text-center py-2">Reconnecting...</div>
+					:null
+				}
 				<div id="market-list" className={(showMarkets ? "active" : "") + (app_download && web_android ? " with-banner" : "")}>
 					<Dashboard mobile={true} mobile_nav={() => this.setState({showMarkets: false})} />
 				</div>
@@ -499,6 +521,7 @@ const mapStateToProps = (state) => ({
 		private_key: state.app.private_key,
 		publicKey: state.app.publicKey,
 		currentTicker: state.app.currentTicker,
+		websocket_status: state.app.websocket_status,
 	});
 
 

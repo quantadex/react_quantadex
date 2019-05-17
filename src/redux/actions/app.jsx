@@ -31,6 +31,7 @@ export const TOGGLE_CONNECT_DIALOG = 'TOGGLE_CONNECT_DIALOG';
 // export const TOGGLE_FAVORITE_LIST = 'TOGGLE_FAVORITE_LIST';
 export const INIT_BALANCE = 'INIT_BALANCE'
 export const UPDATE_OPEN_ORDERS = 'UPDATE_OPEN_ORDERS'
+export const WEBSOCKET_STATUS = 'WEBSOCKET_STATUS'
 
 export const toggleFavoriteList = pair => ({
 	type: TOGGLE_FAVORITE_LIST,
@@ -215,7 +216,6 @@ export const accountUpgrade = () => {
 }
 
 var initAPI = false;
-var initUser = false;
 
 export var dataSize = 100;
 
@@ -443,11 +443,19 @@ binance_socket.addEventListener('message', function (event) {
 });
 
 var market_depth_time
+var reconnect_timeout
 
 function reconnect(instance, dispatch, ticker) {
-	setTimeout(() => {
+	dispatch({
+		type: WEBSOCKET_STATUS,
+		data: 0
+	})
+
+	if (reconnect_timeout) return
+	reconnect_timeout = setTimeout(() => {
 		instance.close()
 		dispatch(switchTicker(ticker, true))
+		reconnect_timeout = null
 	}, 1000)
 }
 export function switchTicker(ticker, force_init=false) {
@@ -476,6 +484,10 @@ export function switchTicker(ticker, force_init=false) {
 				});
 			})
 			.then((e) => {
+				dispatch({
+					type: WEBSOCKET_STATUS,
+					data: 1
+				})
 				Apis.instance().db_api().exec("list_assets", ["A", 100]).then((assets) => {
 					// console.log("assets ", assets);
 					window.assets = lodash.keyBy(assets, "id")

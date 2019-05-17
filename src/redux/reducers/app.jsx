@@ -4,7 +4,7 @@ import {
   APPEND_TRADE, UPDATE_ORDER, UPDATE_OPEN_ORDERS, 
   SET_AMOUNT, UPDATE_USER_ORDER, UPDATE_TICKER, 
   UPDATE_TRADES, UPDATE_FEE, UPDATE_DIGITS, LOAD_FILLED_ORDERS ,
-  UPDATE_STORAGE
+  UPDATE_STORAGE, WEBSOCKET_STATUS
 } from "../actions/app.jsx";
 import { UPDATE_ACCOUNT, UPDATE_BLOCK_INFO } from "../actions/app.jsx";
 import { LOGIN, LOGOUT, TOGGLE_CONNECT_DIALOG } from "../actions/app.jsx";
@@ -21,6 +21,7 @@ if (localStorage.env !== network) localStorage.clear()
 let initialState = {
   network: network,
   isMobile: window.isApp || screen.width < 992 || window.location.search.includes("app=true"), 
+  websocket_status: 1,
   private_key: null,
   publicKey: localStorage.publicKey || "",
   name: localStorage.name,
@@ -792,33 +793,6 @@ const app = (state = initialState, action) => {
         console.log("error",e)
       }
 
-      //
-      // const rec = action.data;
-      // if (rec.is_bid) {
-      //   if (parseFloat(rec.amount) == 0.0 ) {
-      //     delete bidByPrice[rec.price];
-      //   } else {
-      //     bidByPrice[rec.price] = rec;
-      //   }
-      // } else {
-      //   if (parseFloat(rec.amount) == 0.0 ) {
-      //     delete askByPrice[rec.price];
-      //   } else {
-      //     askByPrice[rec.price] = rec;
-      //   }
-      // }
-      //
-      // const finalBids = lodash.orderBy(lodash.values(bidByPrice), "price", ['desc'])
-      // const finalAsks = lodash.orderBy(lodash.values(askByPrice), "price")
-
-      // console.log(rec, finalBids, finalAsks)
-      // return {
-      //   ...state,
-      //   tradeBook: {
-      //     bids: action.data.bids,
-      //     asks: action.data.asks
-      //   }
-      // }
     case TOGGLE_CONNECT_DIALOG:
       return {
         ...state,
@@ -827,38 +801,11 @@ const app = (state = initialState, action) => {
           connectDialog: action.data,
         }
     }
-    // case TOGGLE_LEFT_PANEL:
-    //   return {
-    //     ...state,
-    //     ui: {
-    //       ...state.ui,
-    //       leftOpen: !state.ui.leftOpen,
-    //     }
-    //   }
-
-    // case TOGGLE_RIGHT_PANEL:
-    //   return {
-    //     ...state,
-    //     ui: {
-    //       ...state.ui,
-    //       rightOpen: !state.ui.rightOpen
-    //     }
-    //   }
-    // case TOGGLE_FAVORITE_LIST:
-    //   return {
-    //     ...state,
-    //     dashboard: {
-    //       ...state.dashboard,
-    //       dataSource: state.dashboard.dataSource.map((item) => {
-    //         if (item.pair == action.pair) {
-    //           item.favoriteList = !item.favoriteList
-    //         }
-
-    //         return item
-
-    //       })
-    //     }
-    //   }
+    case WEBSOCKET_STATUS:
+      return {
+        ...state,
+        websocket_status: action.data
+    }
     default:
       return state
   }

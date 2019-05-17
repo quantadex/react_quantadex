@@ -12,6 +12,7 @@ import Balance from './balance.jsx';
 import Connect from './connect.jsx';
 import Status from './status.jsx'
 import Switch from './ui/switch.jsx';
+import { switchTicker } from '../redux/actions/app.jsx'
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { connect } from 'react-redux'
@@ -179,7 +180,11 @@ const container = css`
 		scrollbar-color: rgba(255,255,255,0.1) transparent;
 	}
 
-	
+	.websocket-status {
+		background: #dc3545;
+		position: fixed;
+    	width: 100%;
+	}
 `;
 
 class Exchange extends Component {
@@ -192,6 +197,9 @@ class Exchange extends Component {
 			showBenchmark: true,
 			announcements: false
 		}
+
+		this.eventUpdate = this.eventUpdate.bind(this)
+		this.Switchchart = this.Switchchart.bind(this)
 	}
 
 	componentDidMount() {
@@ -201,8 +209,19 @@ class Exchange extends Component {
             if (entries && entries.length > 0) {
                 this.setState({announcements: entries.slice(0,3)})
             }
-        })
-    }
+		})
+
+		document.addEventListener('mouseenter', this.eventUpdate, false)
+	}
+
+	componentWillUnmount() {
+		document.removeEventListener('mouseenter', this.eventUpdate, false)
+	}
+	
+	eventUpdate() {
+		const { currentTicker, dispatch } = this.props
+		if (currentTicker) dispatch(switchTicker(currentTicker))
+	}
 
 	resizeDepthChart() {
 		setTimeout(() =>{
@@ -226,37 +245,44 @@ class Exchange extends Component {
 		this.setState({ showBenchmark: !this.state.showBenchmark })
 	}
 
+	Switchchart() {
+		return(
+			<div className="switch-chart d-flex">
+				<button className={this.state.chart === "tv" ? "active": ""} onClick={() => this.toggleChart("tv")}>Price Chart</button>
+				<button className={this.state.chart === "depth" ? "active": ""} onClick={() => this.toggleChart("depth")}>Depth Chart</button>
+				{this.state.chart === "tv" ?
+				<React.Fragment>
+					<span className="benchmark-box">
+						<Switch label="Benchmark Price " onToggle={this.toggleBenchmarkPrice.bind(this)}  active={this.state.showBenchmark} dataTip="Enabling benchmark price aggregate prices from Binance/others<br/> to give more pricing information for you to make informed trades." />
+					</span>
+				</React.Fragment>
+				: null
+				}
+				
+			</div>
+		)
+	}
+
 	render() {
-		const Switchchart = () => {
-			return(
-				<div className="switch-chart d-flex">
-					<button className={this.state.chart === "tv" ? "active": ""} onClick={() => this.toggleChart("tv")}>Price Chart</button>
-					<button className={this.state.chart === "depth" ? "active": ""} onClick={() => this.toggleChart("depth")}>Depth Chart</button>
-					{this.state.chart === "tv" ?
-					<React.Fragment>
-						<span className="benchmark-box">
-							<Switch label="Benchmark Price " onToggle={this.toggleBenchmarkPrice.bind(this)}  active={this.state.showBenchmark} dataTip="Enabling benchmark price aggregate prices from Binance/others<br/> to give more pricing information for you to make informed trades." />
-						</span>
-					</React.Fragment>
-					: null
-					}
-					
-				</div>
-			)
-		}
-		const {announcements} = this.state
+		const { announcements } = this.state
+		const { websocket_status, publicKey } = this.props
 		return (
-			<div className={container + (announcements ? " has-announcement" : "") + (this.props.publicKey ? " has-user" : "")}>
+			<div className={container + (announcements ? " has-announcement" : "") + (publicKey ? " has-user" : "")}>
 				<div className="d-flex">
 					<Header />
-					{this.props.publicKey ? <Menu /> : <Connect type="link" />}
+					{publicKey ? <Menu /> : <Connect type="link" />}
+				
+					{ !websocket_status ?
+						<div className="websocket-status text-center py-2 px-5">Reconnecting...</div>
+						:null
+					}
 				</div>
 				{announcements ? <Announcement announcements={announcements}/> : null}
 				<div className="content d-flex">
 					<section className="compartment left-cols">
 						<Trade />
 						<hr/>
-						{this.props.publicKey ? <Balance /> : <Connect/>}
+						{publicKey ? <Balance /> : <Connect/>}
 					</section>
 					<section className="compartment left-cols">
 						<OrderBook />
@@ -271,7 +297,7 @@ class Exchange extends Component {
 									</div>
 								</div>
 							<section className="compartment" style={this.state.toggle_trade ? {width: "calc(100% - 270px)"} : {width: "100%"}}>
-								<Switchchart />
+								<this.Switchchart />
 								<Chart chartTools={true} showBenchmark={this.state.showBenchmark} className={this.state.chart === "tv" ? "d-block": "d-none" } />
 								<DepthChart className={this.state.chart === "depth" ? "d-block": "d-none"} />
 							</section>
@@ -281,7 +307,7 @@ class Exchange extends Component {
 							</section>
 						</div>
 						
-						{this.props.publicKey ? 
+						{publicKey ? 
 							<section className="compartment">
 								<Orders />
 							</section>
@@ -304,7 +330,8 @@ const mapStateToProps = (state) => ({
 		publicKey: state.app.publicKey,
 		leftOpen: state.app.ui.leftOpen,
 		rightOpen: state.app.ui.rightOpen,
-		currentTicker: state.app.currentTicker
+		currentTicker: state.app.currentTicker,
+		websocket_status: state.app.websocket_status,
 	});
 
 
