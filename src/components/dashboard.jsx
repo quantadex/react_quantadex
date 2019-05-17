@@ -89,6 +89,14 @@ class Dashboard extends Component {
 		this.setState({selectedCoin: index})
 	}
 
+	shortName(market) {
+		const pairs = market.split('/')
+		const base = pairs[0].split('0X')
+		const counter = pairs[1].split('0X')
+		
+		return `${base[0]}${base[1] ? "0X" + base[1].substr(0,4) : ""}/${counter[0]}${counter[1] ? "0X" + counter[1].substr(0,4) : ""}`
+	}
+
 	render() {
 		const { markets, mobile, announcements } = this.props
 		
@@ -142,7 +150,7 @@ class Dashboard extends Component {
 							</thead>
 							<tbody>
 								{
-									markets[subtabs.names[this.state.selectedCoin]] && markets[subtabs.names[this.state.selectedCoin]].filter(market => market.name.toLowerCase().includes(this.state.filter.toLowerCase())).map((market, index) => {
+									markets[subtabs.names[this.state.selectedCoin]] && markets[subtabs.names[this.state.selectedCoin]].filter(market => this.shortName(market.name).toLowerCase().includes(this.state.filter.toLowerCase())).map((market, index) => {
 										let pair = market.name.split('/')
 										let usd_price = pair[1] === "ETH" ? window.binance_price["ETHUSDT"] 
 														: (pair[1] === "BTC" ? window.binance_price["BTCUSDT"] 

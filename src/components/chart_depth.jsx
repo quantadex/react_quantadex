@@ -10,6 +10,8 @@ class DepthChart extends Component {
         this.state = {
             currentTicker: this.props.currentTicker
         }
+
+        this.timeout
     }
 
     update(bids, asks, ticker, init = false) {
@@ -159,14 +161,14 @@ class DepthChart extends Component {
             }],
         })
         
-        setTimeout(() => {
+        this.timeout = setTimeout(() => {
             this.update(this.props.bids, this.props.asks, this.props.currentTicker, true)
         }, 1000)
     }
 
     componentWillReceiveProps(nextProp) {
         if (this.props.bids == nextProp.bids && this.props.asks == nextProp.asks) return
-        setTimeout(() => {
+        this.timeout = setTimeout(() => {
             if (nextProp.currentTicker != this.state.currentTicker) {
                 this.setState({currentTicker: nextProp.currentTicker})
                 this.update(nextProp.bids, nextProp.asks, nextProp.currentTicker, true)
@@ -174,6 +176,10 @@ class DepthChart extends Component {
                 this.update(nextProp.bids, nextProp.asks, nextProp.currentTicker)
             }
         }, 1000)
+    }
+
+    componentWillUnmount() {
+        if (this.timeout) clearTimeout(this.timeout)
     }
 
     handleScroll = lodash.throttle((delta) => {
