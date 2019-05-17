@@ -7,6 +7,7 @@ import globalcss from './global-css.js'
 import QTDeposit from './ui/deposit.jsx'
 import QTWithdraw from './ui/withdraw.jsx'
 import SearchBox from "./ui/searchBox.jsx"
+import Loader from "./ui/loader.jsx"
 import Switch from "./ui/switch.jsx"
 import { switchTicker } from '../redux/actions/app.jsx'
 import ReactGA from 'react-ga';
@@ -219,8 +220,14 @@ class Wallets extends Component {
     )
   }
 
+  shortName(coin) {
+    const pair = coin.split('0X')
+		return pair[0] + (pair[1] ? "0X" + pair[1].substr(0,4) : "")
+	}
+
   render() {
     const { network, private_key, publicKey, name, isMobile, mobile_nav } = this.props
+    const { dataSource, hideZero, filter } = this.state
     const columns = [{
         title: "PAIRS",
         key: "pairs",
@@ -274,17 +281,21 @@ class Wallets extends Component {
           
           <div className='filter-container d-flex flex-wrap mt-5 align-items-center'>
           <SearchBox placeholder="Search Coin" onChange={this.handleChange.bind(this)} style={{marginRight: "20px"}}/>
-          <Switch label="Hide Zero Balances" active={this.state.hideZero} onToggle={this.hideZeroBalance.bind(this)} />
+          <Switch label="Hide Zero Balances" active={hideZero} onToggle={this.hideZeroBalance.bind(this)} />
           <this.Changelly />
           </div>
 
-          <div className="table-row">
-          <QTTableView dataSource={this.state.dataSource.filter(data => data.pairs.toLowerCase().includes(this.state.filter.toLowerCase()) && 
-              (!this.state.hideZero || data.balance > 0))} 
-              network={network}
-              columns={columns} mobile={isMobile} 
-              unlocked={private_key && true}/>
-          </div>
+          {dataSource.length == 0 ?
+            <Loader size={50} />
+            :
+            <div className="table-row">
+              <QTTableView dataSource={dataSource.filter(data => this.shortName(data.pairs).toLowerCase().includes(filter.toLowerCase()) && 
+                  (!hideZero || data.balance > 0))} 
+                  network={network}
+                  columns={columns} mobile={isMobile} 
+                  unlocked={private_key && true}/>
+            </div>
+          }
       </div>
     );
 	}
