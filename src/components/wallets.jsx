@@ -44,6 +44,7 @@ const container = css`
   
 
   &.mobile {
+    margin-bottom: 30vh !important;
     .public-address-container {
       margin: 0;
       padding: 10px 0;
