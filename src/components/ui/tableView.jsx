@@ -2,7 +2,7 @@ import React, {PropTypes} from 'react';
 import { css } from 'emotion'
 import globalcss from '../global-css.js'
 import CONFIG from '../../config.js';
-
+import { TOGGLE_CONNECT_DIALOG } from '../../redux/actions/app.jsx'
 import { Link } from 'react-router-dom'
 import QTButton from './button.jsx'
 import {SymbolToken} from './ticker.jsx'
@@ -134,10 +134,21 @@ export default class QTTableView extends React.Component {
     return pairs[0].split('0X')[0] + "/" + pairs[1].split('0X')[0]
   }
 
+  openConnect() {
+    const { mobile_nav, dispatch } = this.props
+        if (mobile_nav) {
+            mobile_nav("connect")
+        } else {
+            dispatch({
+                type: TOGGLE_CONNECT_DIALOG,
+                data: "connect"
+            })
+        }
+  }
 
   render() {
     const { sort, reverse, columns, selectedIndex, appendedUI } = this.state
-    const { dataSource, mobile, unlocked, network } = this.props
+    const { dataSource, mobile, unlocked, network, mobile_nav } = this.props
     const default_markets = window.markets ? Object.keys(window.markets) : []
     const markets = window.marketsHash ? Object.keys(window.marketsHash) : []
 
@@ -220,7 +231,7 @@ export default class QTTableView extends React.Component {
                                           {pair_markets.map(market => {
                                             return (
                                               <Link key={market} to={`/${network}/exchange/${market.replace("/", "_")}`}
-                                                onClick={btn.mobile_nav ? () => btn.mobile_nav() : null}
+                                                onClick={mobile_nav ? () => mobile_nav(1) : null}
                                               >{this.symbol(market)}</Link>
                                             )
                                           })}
@@ -231,13 +242,15 @@ export default class QTTableView extends React.Component {
                                 return (
                                   <QTButton
                                     key={btn.label}
-                                    disabled={!unlocked}
-                                    onClick={() => this.toggleModal(index,btn.handleClick(e.pairs != ERC20Label ? e.pairs : "ERC20", this.toggleModal.bind(this, index, btn.handleClick(e.pairs != ERC20Label ? e.pairs : "ERC20"))))}
-                                    className={btn.color + " qt-font-base qt-font-semibold"}
+                                    onClick={unlocked ? 
+                                      () => this.toggleModal(index,btn.handleClick(e.pairs != ERC20Label ? e.pairs : "ERC20", this.toggleModal.bind(this, index, btn.handleClick(e.pairs != ERC20Label ? e.pairs : "ERC20"))))
+                                      : this.openConnect.bind(this)
+                                    }
+                                    className={btn.color + " qt-font-base qt-font-semibold" + (unlocked ? "" : " locked")}
                                     borderWidth="1"
                                     width="80"
                                     height="20"
-                                    label={!unlocked ? "LOCKED" : (e.pairs !== ERC20Label && !CONFIG.getEnv().CROSSCHAIN_COINS.includes(e.pairs) && e.pairs.split("0X").length !== 2) ? "TRANSFER" : btn.label}
+                                    label={(e.pairs !== ERC20Label && !CONFIG.getEnv().CROSSCHAIN_COINS.includes(e.pairs) && e.pairs.split("0X").length !== 2) ? "TRANSFER" : btn.label}
                                     color={btn.color}/>
                                 )
                               })

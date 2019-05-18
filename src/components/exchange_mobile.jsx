@@ -426,7 +426,7 @@ class Exchange extends Component {
 			)
 		case "wallet": 
 			if (publicKey) {
-				return <Fund  mobile_nav={() => this.handleSwitch(1)}/>
+				return <Fund  mobile_nav={this.handleSwitch.bind(this)}/>
 			} 
 			return (
 				<div className="d-flex h-100 mx-auto" style={{maxWidth: "300px"}}>

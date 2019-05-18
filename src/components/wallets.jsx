@@ -227,7 +227,7 @@ class Wallets extends Component {
 	}
 
   render() {
-    const { network, private_key, publicKey, name, isMobile, mobile_nav } = this.props
+    const { network, private_key, publicKey, name, isMobile, mobile_nav, dispatch } = this.props
     const { dataSource, hideZero, filter } = this.state
     const columns = [{
         title: "PAIRS",
@@ -269,8 +269,7 @@ class Wallets extends Component {
           }
         }, {
           label: "TRADE",
-          color:"theme unite",
-          mobile_nav: mobile_nav
+          color:"theme unite"
         }],
         type: "buttons"
     }]
@@ -293,6 +292,8 @@ class Wallets extends Component {
               <QTTableView dataSource={dataSource.filter(data => this.shortName(data.pairs).toLowerCase().includes(filter.toLowerCase()) && 
                   (!hideZero || data.balance > 0))} 
                   network={network}
+                  dispatch={dispatch}
+                  mobile_nav={mobile_nav}
                   columns={columns} mobile={isMobile} 
                   unlocked={private_key && true}/>
             </div>
