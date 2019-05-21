@@ -11,7 +11,7 @@ import QTTableViewSimple from './ui/tableViewSimple.jsx'
 import Loader from './ui/loader.jsx'
 import Switch from "./ui/switch.jsx"
 
-import {cancelTransaction, loadOrderHistory} from "../redux/actions/app.jsx";
+import { cancelTransaction, loadOrderHistory, TOGGLE_CONNECT_DIALOG, updateUserData } from "../redux/actions/app.jsx";
 import ReactGA from 'react-ga';
 import lodash from 'lodash';
 
@@ -121,29 +121,6 @@ const container = css`
     font-size: 16px;
     color: #777;
   }
-  
-  .loader {
-    display: none;
-    border: 2px solid rgba(255,255,255,0.5);
-    border-radius: 50%;
-    border-top: 2px solid #fff;
-    width: 15px;
-    height: 15px;
-    float: right;
-    margin-right: 28px;
-    -webkit-animation: spin 2s linear infinite;
-    animation: spin 2s linear infinite;
-  }
-  
-  @-webkit-keyframes spin {
-      0% { -webkit-transform: rotate(0deg); }
-      100% { -webkit-transform: rotate(360deg); }
-  }
-      
-  @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-  }
 
   &.mobile {
     padding: 15px;
@@ -222,10 +199,10 @@ class Orders extends Component {
       selectedTabIndex: 0,
       hideMarkets: false,
       isFocused: false,
-      cancelling: [],
+      cancelling: {},
       selectedRow: null,
       loading: false,
-      page: 1
+      page: 1,
     };
 
     this.OpenOrders = this.OpenOrders.bind(this)
@@ -234,6 +211,7 @@ class Orders extends Component {
 
   handleSwitch(index) {
     this.setState({selectedTabIndex: index})
+    this.props.dispatch(updateUserData())
     document.getElementById("scroll-order-list").scrollTop = 0
   }
 
@@ -256,28 +234,34 @@ class Orders extends Component {
 
   handleCancel(market, order) {
     const toastId = toast("CANCELING...", { autoClose: false, position: toast.POSITION.TOP_CENTER });
-    if (!this.props.mobile) {
-      var id = order.replace(/\./g, '-')
-      document.querySelectorAll('#cancel-' + id + ' button')[0].style.display = 'none';
-      document.querySelectorAll('#cancel-' + id + ' .loader')[0].style.display = 'block';
-    }
+    const self = this
+    this.setState((state) => {
+      let cancelling = state.cancelling
+      cancelling[order] = true
+      return {cancelling}
+    })
 
     ReactGA.event({
       category: 'CANCEL',
       action: market
     });
-    this.props.dispatch(cancelTransaction(market, order))
+    this.props.dispatch(cancelTransaction(order))
     .then((e) => {
-      if (!this.props.mobile) {
-        document.querySelectorAll('#cancel-' + id + ' .loader')[0].style.display = 'none';
-      }
+      setTimeout(() => {
+        self.setState((state) => {
+          let cancelling = state.cancelling
+          delete cancelling[order]
+          return {cancelling}
+        })
+      }, 5000)
       
       this.notify_success(toastId)
     }).catch((e) => {
-      if (!this.props.mobile) {
-        document.querySelectorAll('#cancel-' + id + ' button')[0].style.display = 'inherit';
-        document.querySelectorAll('#cancel-' + id + ' .loader')[0].style.display = 'none';
-      }
+      this.setState((state) => {
+        let cancelling = state.cancelling
+        delete cancelling[order]
+        return {cancelling}
+      })
       this.notify_failed(toastId)
     })
   }
@@ -313,15 +297,30 @@ class Orders extends Component {
     }
   }, 200)
 
+  openConnect() {
+    const { mobile_nav, dispatch } = this.props
+        if (mobile_nav) {
+            mobile_nav("connect")
+        } else {
+            dispatch({
+                type: TOGGLE_CONNECT_DIALOG,
+                data: "connect"
+            })
+        }
+  }
+
   OpenOrders() {
-    if (this.props.openOrders.dataSource.length == 0) {
+    const { openOrders, currentTicker, mobile, private_key } = this.props
+    const { cancelling } = this.state
+
+    if (openOrders.dataSource.length == 0) {
       return <div className="empty-list">You have no active orders</div>
     }
 
-    const dataSource = this.props.openOrders.dataSource.filter(row => !this.state.hideMarkets || row.assets === this.props.currentTicker)
+    const dataSource = openOrders.dataSource.filter(row => !this.state.hideMarkets || row.assets === currentTicker)
     dataSource.sort((a,b) => (a.id > b.id) ? -1 : ((b.id > a.id) ? 1 : 0))
 
-    if (this.props.mobile) {
+    if (mobile) {
       return (
         <div>
           <div className="list-row sticky">
@@ -342,8 +341,14 @@ class Orders extends Component {
                 <div className={"item-details justify-content-between flex-wrap mt-2" + (this.state.selectedRow == row.id ? " d-flex" : "")}>
                   <span className="item"><span className="label">AMOUNT</span> {row.amount}</span>
                   <span className="item"><span className="label">TOTAL</span> {row.total}</span>
-                  <button disabled={!this.props.private_key} 
-                    onClick={() => this.handleCancel(row.assets, row.id)}>{!this.props.private_key ? "LOCK" : "CANCEL"}</button>
+                  {
+                    cancelling[row.id] ?
+                    <Loader size={15} />
+                    :
+                    <button onClick={() => !private_key ? this.openConnect() : this.handleCancel(row.assets, row.id)}>
+                      CANCEL
+                    </button>
+                  }
                 </div>
               </div>
             )
@@ -353,8 +358,11 @@ class Orders extends Component {
     } else {
       return (
         <QTTableViewSimple dataSource={dataSource} 
-        columns={this.props.openOrders.columns}
-        disabled={!this.props.private_key} cancelOrder={this.handleCancel.bind(this)} />
+        columns={openOrders.columns}
+        disabled={!private_key} 
+        openConnect={this.openConnect.bind(this)}
+        cancelling={cancelling}
+        cancelOrder={this.handleCancel.bind(this)} />
       )
     }
   }

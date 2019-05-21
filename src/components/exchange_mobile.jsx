@@ -21,7 +21,7 @@ import Ticker from './ui/ticker.jsx';
 import { css } from 'emotion'
 import globalcss from './global-css.js'
 import CONFIG from '../config.js'
-import { UPDATE_STORAGE, LOGIN, switchTicker } from '../redux/actions/app.jsx'
+import { UPDATE_STORAGE, LOGIN, switchTicker, updateUserData } from '../redux/actions/app.jsx'
 import { getItem, clear } from '../common/storage.js';
 import ExportKey from './export_key.jsx'
 import AppDownload from './app_download.jsx'
@@ -201,7 +201,8 @@ const container = css`
 	.websocket-status {
 		background: #dc3545;
 		position: fixed;
-    	width: 100%;
+		width: 100%;
+		z-index: 10;
 	}
 `;
 
@@ -274,17 +275,21 @@ class Exchange extends Component {
 						publicKey: publicKey || "", 
 						name, 
 						userId, 
-						lifetime: lifetime === "true"
+						lifetime: lifetime === true || lifetime === "true"
 					}
 				})
 				
+				if (publicKey && userId) {
+					setTimeout(() => {
+						dispatch(updateUserData())
+					}, 0)
+				}
+
 				getItem("private_key").then(private_key => {
-					const { currentTicker } = this.props
 					dispatch({
 						type: LOGIN,
 						private_key: private_key
 					})
-					if (currentTicker) dispatch(switchTicker(currentTicker))
 				})
 			} catch(e) {
 				console.log(e)
@@ -295,11 +300,13 @@ class Exchange extends Component {
 		document.addEventListener("resume", () => {
 			const { currentTicker } = this.props
 			if (currentTicker) dispatch(switchTicker(currentTicker))
+			dispatch(updateUserData())
 		}, false);
 
 		!window.isApp && window.addEventListener("focus", () => {
 			const { currentTicker } = this.props
 			if (currentTicker) dispatch(switchTicker(currentTicker))
+			dispatch(updateUserData())
 		});
 	}
 
@@ -422,11 +429,12 @@ class Exchange extends Component {
 					<Trade mobile={true} mobile_nav={() => this.handleSwitch("connect")} trade_side={params.trade_side || 0}/>
 					<OrderBook mobile={true} mirror={true}/>
 					<TradingHistory mobile={true}/>
+					<ToastContainer />
 				</React.Fragment>
 			)
 		case "wallet": 
 			if (publicKey) {
-				return <Fund  mobile_nav={this.handleSwitch.bind(this)}/>
+				return <Fund mobile_nav={this.handleSwitch.bind(this)}/>
 			} 
 			return (
 				<div className="d-flex h-100 mx-auto" style={{maxWidth: "300px"}}>
@@ -463,7 +471,12 @@ class Exchange extends Component {
 			)
 		case "orders": 
 			if (publicKey) {
-				return <Orders mobile={true}/>
+				return (
+					<React.Fragment>
+						<ToastContainer />
+						<Orders mobile={true} mobile_nav={this.handleSwitch.bind(this)} />
+					</React.Fragment>
+				)
 			} 
 			return (
 				<div className="d-flex h-100 mx-auto" style={{maxWidth: "300px"}}>
@@ -485,7 +498,6 @@ class Exchange extends Component {
 
 		return (
 		<div className={container + " d-flex flex-column" + (window.isApp ? " app" : " web")}>
-			<ToastContainer />
 			{ app_download && web_android ?
 				<AppDownload />
 			: null

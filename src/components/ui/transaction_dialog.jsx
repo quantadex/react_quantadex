@@ -74,25 +74,28 @@ export default class TxDialog extends Component {
                     <h3 className="text-center">Confirm Transaction</h3>
                     <table className="data w-100 mt-5">
                         <tbody>
-                            { data.type &&
+                            { data.type ?
                                 <tr>
                                     <td>Operation Type</td>
                                     <td className="text-right text-secondary">{data.type}</td>
                                 </tr>
+                                : null
                             }
-                            { data.destination &&
+                            { data.destination ?
                                 <tr>
                                     <td>Destination Account</td>
                                     <td className="text-right text-secondary">{data.destination}</td>
                                 </tr>
+                                : null
                             }
-                            { data.amount &&
+                            { data.amount ?
                                 <tr>
                                     <td>Amount</td>
                                     <td className="text-right text-secondary">{data.amount.amount} <SymbolToken name={data.amount.asset} showIcon={false}/></td>
                                 </tr>
+                                : null
                             }
-                            { data.memo &&
+                            { data.memo ?
                                 <React.Fragment>
                                     <tr>
                                         <td colSpan={2}>{data.memo.type}</td>
@@ -101,12 +104,14 @@ export default class TxDialog extends Component {
                                         <td colSpan={2} className="text-secondary pl-3">{data.memo.memo}</td>
                                     </tr>
                                 </React.Fragment>
+                                : null
                             }
-                            { data.fee &&
+                            { data.fee ?
                                 <tr>
                                     <td>Platform Fee</td>
                                     <td className="text-right text-secondary">{data.fee.amount} {data.fee.asset}</td>
                                 </tr>
+                                : null
                             }
                         </tbody>
                     </table>

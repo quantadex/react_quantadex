@@ -12,6 +12,7 @@ import Utils from "../../common/utils.js";
 import {setItem} from "../../common/storage.js"
 
 export const INIT_DATA = 'INIT_DATA';
+export const USER_DATA = 'USER_DATA';
 export const LOGIN = 'LOGIN';
 export const LOGOUT = 'LOGOUT';
 export const UPDATE_ACCOUNT = 'UPDATE_ACCOUNT';
@@ -28,7 +29,6 @@ export const UPDATE_BLOCK_INFO = 'UPDATE_BLOCK_INFO';
 export const UPDATE_STORAGE = 'UPDATE_STORAGE';
 export const LOAD_FILLED_ORDERS = 'LOAD_FILLED_ORDERS';
 export const TOGGLE_CONNECT_DIALOG = 'TOGGLE_CONNECT_DIALOG';
-// export const TOGGLE_FAVORITE_LIST = 'TOGGLE_FAVORITE_LIST';
 export const INIT_BALANCE = 'INIT_BALANCE'
 export const UPDATE_OPEN_ORDERS = 'UPDATE_OPEN_ORDERS'
 export const WEBSOCKET_STATUS = 'WEBSOCKET_STATUS'
@@ -68,18 +68,15 @@ export function GetAccount(id) {
 export function buyTransaction(market, price, amount) {
 	return (dispatch, getState) => {
 		var {base, counter} = getBaseCounter(market)
+
 		var user_id = getState().app.userId;
-
 		const pKey = PrivateKey.fromWif(getState().app.private_key);
-		// console.log(pKey, assets[base.id], "price=",price, "amount=", amount, user_id);
-
 		const order = createLimitOrderWithPrice(user_id, true, window.assets, base.id, counter.id, price, amount)
-
-		// console.log("order prepare", order);
 		const tr = createLimitOrder2(order)
+
 		return signAndBroadcast(tr, pKey)
 			.then((e) => {
-				// console.log("order result ", e);
+				dispatch(updateUserData())
 				return e[0]
 			}).catch((e) => {
 				throw e
@@ -90,18 +87,15 @@ export function buyTransaction(market, price, amount) {
 export function sellTransaction(market, price, amount) {
 	return (dispatch, getState) => {
 		var { base, counter } = getBaseCounter(market)
+
 		var user_id = getState().app.userId;
-
 		const pKey = PrivateKey.fromWif(getState().app.private_key);
-		// console.log(pKey, assets[base.id], "price=", price, "amount=", amount, user_id);
-
 		const order = createLimitOrderWithPrice(user_id, false, window.assets, base.id, counter.id, price, amount)
-		
-		// console.log("order prepare", order);
 		const tr = createLimitOrder2(order)
+
 		return signAndBroadcast(tr, pKey)
 			.then((e) => {
-				// console.log("order result ", e);
+				dispatch(updateUserData())
 				return e[0]
 			}).catch((e) => {
 				throw e
@@ -110,21 +104,15 @@ export function sellTransaction(market, price, amount) {
 
 }
 
-export const cancelTransaction = (market, order_id) => {
+export const cancelTransaction = (order_id) => {
 	return (dispatch, getState) => {
-		var { base, counter } = getBaseCounter(market)
 		var user_id = getState().app.userId;
-	
 		const pKey = PrivateKey.fromWif(getState().app.private_key);
-		// console.log(pKey, assets[base.id], user_id);
-	
 		const order = cancelOrder(user_id, order_id)
-	
-		// console.log("cancel order", order);
+		
 		return signAndBroadcast(order, pKey)
 			.then((e) => {
-				// console.log("order result ", e);
-				dispatch(switchTicker(getState().app.currentTicker))
+				dispatch(updateUserData())
 			})
 	}
 }
@@ -140,10 +128,9 @@ export const transferFund = (data) => {
 			broadcast: true,
 			encrypt_memo: false,
 		}).then((tr) => {
-			// console.log(tr);
-			return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key))
-		}).then(e => {
-			dispatch(switchTicker(getState().app.currentTicker))
+			return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key)).then(() => {
+					dispatch(updateUserData())
+				})
 		}).catch(e => {
 			throw e
 		})
@@ -158,9 +145,9 @@ export const withdrawVesting = (data) => {
 			amount: data.amount,
 			asset: data.asset
 		}).then((tr) => {
-			return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key))
-		}).then(e => {
-			dispatch(switchTicker(getState().app.currentTicker))
+			return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key)).then(() => {
+				dispatch(updateUserData())
+			})
 		}).catch(e => {
 			throw e
 		})
@@ -176,9 +163,9 @@ export const withdrawGenesis = (data) => {
 			amount: data.amount,
 			asset: data.asset
 		}).then((tr) => {
-			return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key))
-		}).then(e => {
-			dispatch(switchTicker(getState().app.currentTicker))
+			return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key)).then(() => {
+				dispatch(updateUserData())
+			})
 		}).catch(e => {
 			throw e
 		})
@@ -190,20 +177,19 @@ export const accountUpgrade = () => {
 		return ApplicationApi.account_upgrade({ 
 			account: getState().app.userId
 		}).then((tr) => {
-			return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key))
-		})
-		.then(e => {
-			let data = {
-				id: getState().app.userId,
-				name: getState().app.name,
-				publicKey: getState().app.publicKey,
-				lifetime: true
-			}
-			dispatch({
-				type: UPDATE_ACCOUNT,
-				data: data
+			return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key)).then(() => {
+				let data = {
+					id: getState().app.userId,
+					name: getState().app.name,
+					publicKey: getState().app.publicKey,
+					lifetime: true
+				}
+				dispatch({
+					type: UPDATE_ACCOUNT,
+					data: data
+				})
+				dispatch(updateUserData())
 			})
-			dispatch(switchTicker(getState().app.currentTicker))
 		}).catch(error => {
 			console.log(error)
 			if (error.message.includes("Insufficient Balance")) {
@@ -418,7 +404,7 @@ export const ConnectAccount = (account_id, private_key) => {
 				setItem("private_key", private_key)
 			}
 		}).then(e => {
-			dispatch(switchTicker(getState().app.currentTicker))
+			dispatch(updateUserData())
 			dispatch({
 				type: TOGGLE_CONNECT_DIALOG,
 				data: false
@@ -458,6 +444,7 @@ function reconnect(instance, dispatch, ticker) {
 		reconnect_timeout = null
 	}, 1000)
 }
+
 export function switchTicker(ticker, force_init=false) {
 	// send GA
 	ReactGA.set({ page: "exchange/" + ticker });
@@ -465,12 +452,6 @@ export function switchTicker(ticker, force_init=false) {
 	// console.log("Switch ticker ", ticker);
 
 	return function (dispatch,getState) {
-		var publicKey = null
-		if (getState().app.private_key !== null) {
-			const pKey = PrivateKey.fromWif(getState().app.private_key);
-			publicKey = pKey.toPublicKey().toString()
-		}
-
 		if (initAPI == false || force_init) {
 			Apis.instance(CONFIG.getEnv().WEBSOCKET_PATH, true, 5000, { enableOrders: true }).init_promise.then((res) => {
 				// console.log("connected to:", publicKey);
@@ -623,18 +604,6 @@ export function switchTicker(ticker, force_init=false) {
 					//console.log("converted ", trade_history);
 					return trade_history
 				})
-
-				var my_trades = []
-
-				if (getState().app.publicKey && getState().app.userId) {
-					const userId = getState().app.userId
-					my_trades = fetch(CONFIG.getEnv().API_PATH + `/account?filter_field=operation_type&filter_value=2,4&size=${dataSize}&account_id=${userId}`, { mode: "cors" }).then(e => e.json())
-					.then((filled) => {
-						const my_history = processOrderHistory(filled, userId)
-						// console.log(my_history)
-						return my_history
-					})
-				}
 	
 				// selling counter
 				const orderBook = Apis.instance().db_api().exec("get_order_book", [counter.id, base.id, 50]).then((ob) => {
@@ -642,56 +611,15 @@ export function switchTicker(ticker, force_init=false) {
 					return aggregateOrderBook(ob.bids, ob.asks, window.assets[base.id].precision)
 				})
 
-				var account_data = [[],[]]
-				var genesis_balance = []
-				
-				if (getState().app.publicKey && getState().app.userId) {
-					account_data = Apis.instance()
-					.db_api()
-					.exec("get_full_accounts", [[getState().app.userId], true])
-					.then(results => {
-						var orders = [];
-						results[0][1].limit_orders.forEach((ordered) => {
-							// search both market pairs to see what makes sense
-							// as the trading pair
-							let baseId = validMarketPair(ordered.sell_price.base.asset_id, ordered.sell_price.quote.asset_id)[0]
-							var order = new LimitOrder(
-								ordered,
-								window.assets,
-								baseId
-							);
-							
-							// console.log("ordered", order);
-							orders.push(order)
-						})
-						return [results, orders]
-					}).then(e => {
-						let statistic_id = e[0][0][1].statistics.id
-						return Apis.instance().db_api().exec("get_objects", [[statistic_id]]).then(statistics=>{
-							return [...e, statistics[0].extensions.referral_fee_paid]
-						})
-					})
-
-					const shortAddress = WalletApi.getShortAddress(getState().app.publicKey)
-					genesis_balance = Apis.instance().db_api().exec("get_balance_objects", [[shortAddress]]).then(e=>{
-						// console.log("balance obj????", e);
-						return e
-					})
-				}
 				// console.log("Get all the data! for ", ticker);
-				return Promise.all([orderBook, trades, account_data, my_trades, genesis_balance])
+				return Promise.all([orderBook, trades])
 					.then((data) => {
 						dispatch({
 							type: INIT_DATA,
 							data: {
+								ticker: ticker,
 								orderBook: data[0],
 								trades: data[1],
-								filledOrders: data[3],
-								openOrders: data[2][1],
-								ticker: ticker,
-								accountData: data[2][0],
-								referral_fee: data[2][2],
-								genesis_balance: data[4],
 							}
 						})
 						if (first) {
@@ -726,5 +654,75 @@ export function switchTicker(ticker, force_init=false) {
 			fetchData(ticker, true)
 		}
 	}
+}
 
+export function updateUserData() {
+	return function (dispatch, getState) {
+		if (!Apis.instance().db_api() || getState().app.markets.length == 0) {
+			setTimeout(() => {
+				dispatch(updateUserData())
+			}, 500)
+			return
+		}
+
+		const publicKey = getState().app.publicKey
+		const userId = getState().app.userId
+		var account_data = [[],[]]
+		var my_trades = []
+		var genesis_balance = []
+		
+		my_trades = fetch(CONFIG.getEnv().API_PATH + `/account?filter_field=operation_type&filter_value=2,4&size=${dataSize}&account_id=${userId}`, { mode: "cors" }).then(e => e.json())
+		.then((filled) => {
+			const my_history = processOrderHistory(filled, userId)
+			// console.log(my_history)
+			return my_history
+		})
+
+		
+		account_data = Apis.instance()
+		.db_api()
+		.exec("get_full_accounts", [[userId], true])
+		.then(results => {
+			var orders = [];
+			results[0][1].limit_orders.forEach((ordered) => {
+				// search both market pairs to see what makes sense
+				// as the trading pair
+				let baseId = validMarketPair(ordered.sell_price.base.asset_id, ordered.sell_price.quote.asset_id)[0]
+				var order = new LimitOrder(
+					ordered,
+					window.assets,
+					baseId
+				);
+				
+				// console.log("ordered", order);
+				orders.push(order)
+			})
+			return [results, orders]
+		}).then(e => {
+			let statistic_id = e[0][0][1].statistics.id
+			return Apis.instance().db_api().exec("get_objects", [[statistic_id]]).then(statistics=>{
+				return [...e, statistics[0].extensions.referral_fee_paid]
+			})
+		})
+
+		const shortAddress = WalletApi.getShortAddress(publicKey)
+		genesis_balance = Apis.instance().db_api().exec("get_balance_objects", [[shortAddress]]).then(e=>{
+			// console.log("balance obj????", e);
+			return e
+		})
+
+		return Promise.all([account_data, my_trades, genesis_balance])
+			.then((data) => {
+				dispatch({
+					type: USER_DATA,
+					data: {
+						filledOrders: data[1],
+						openOrders: data[0][1],
+						accountData: data[0][0],
+						referral_fee: data[0][2],
+						genesis_balance: data[2],
+					}
+				})
+			})	
+	}
 }

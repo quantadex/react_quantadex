@@ -1,6 +1,6 @@
 import React from 'react';
 import { 
-  INIT_DATA, INIT_BALANCE, SET_MARKET_QUOTE, 
+  INIT_DATA, USER_DATA, INIT_BALANCE, SET_MARKET_QUOTE, 
   APPEND_TRADE, UPDATE_ORDER, UPDATE_OPEN_ORDERS, 
   SET_AMOUNT, UPDATE_USER_ORDER, UPDATE_TICKER, 
   UPDATE_TRADES, UPDATE_FEE, UPDATE_DIGITS, LOAD_FILLED_ORDERS ,
@@ -498,6 +498,36 @@ const app = (state = initialState, action) => {
         spreadDollar = Math.abs(parseFloat(asksSortedSet.beginIterator().value().price) - parseFloat(bidsSortedSet.beginIterator().value().price)).toFixed(7)
       }
 
+      return {
+        ...state,
+        currentTicker: action.data.ticker,
+        mostRecentTrade: {
+          ticker: action.data.ticker,
+          price: lastTradePrice
+        },
+        orderBook: {
+          ...state.orderBook,
+          spread: spread,
+          spreadDollar: spreadDollar,
+          asks: {
+            ...state.orderBook.asks,
+            dataSource:asksSortedSet,
+            max: maxAsk
+          },
+          bids: {
+            ...state.orderBook.bids,
+            dataSource:bidsSortedSet,
+            max: maxBid
+          }
+        },
+        trades: {
+          ...state.trades,
+          dataSource: tradesDataSource,
+          max: maxTrade
+        }
+      }
+
+    case USER_DATA:
       const onOrdersFund = {}
       currentOrders = []
       const limitOrdersDataSource = action.data.openOrders.map((order) => {
@@ -550,17 +580,12 @@ const app = (state = initialState, action) => {
 
       return {
         ...state,
-        currentTicker: action.data.ticker,
         balance: balances,
         vesting: vesting,
         genesis: genesis,
         referral_paid: referral_paid,
         onOrdersFund: onOrdersFund,
         totalFundValue: total_fund_value,
-        mostRecentTrade: {
-          ticker: action.data.ticker,
-          price: lastTradePrice
-        },
         openOrders: {
           ...state.openOrders,
           dataSource: limitOrdersDataSource
@@ -568,26 +593,6 @@ const app = (state = initialState, action) => {
         filledOrders: {
           ...state.filledOrders,
           dataSource: filledOrdersDataSource
-        },
-        orderBook: {
-          ...state.orderBook,
-          spread: spread,
-          spreadDollar: spreadDollar,
-          asks: {
-            ...state.orderBook.asks,
-            dataSource:asksSortedSet,
-            max: maxAsk
-          },
-          bids: {
-            ...state.orderBook.bids,
-            dataSource:bidsSortedSet,
-            max: maxBid
-          }
-        },
-        trades: {
-          ...state.trades,
-          dataSource: tradesDataSource,
-          max: maxTrade
         }
       }
 

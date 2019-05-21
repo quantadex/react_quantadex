@@ -5,10 +5,8 @@ import { css } from 'emotion'
 import globalcss from './global-css.js'
 
 import QTTabBar from './ui/tabBar.jsx'
-import MobileHeader from './ui/mobileHeader.jsx';
-import MobileNav from './ui/mobileNav.jsx';
 import { ToastContainer } from 'react-toastify';
-import {switchTicker} from "../redux/actions/app.jsx";
+import {switchTicker, updateUserData} from "../redux/actions/app.jsx";
 import 'react-toastify/dist/ReactToastify.css';
 import Wallets from './wallets.jsx'
 import CrosschainHistory from './crosschain_history.jsx'
@@ -100,7 +98,8 @@ class Fund extends Component {
 	
 	eventUpdate() {
 		const { currentTicker, dispatch } = this.props
-		if (currentTicker) dispatch(switchTicker(currentTicker))
+    if (currentTicker) dispatch(switchTicker(currentTicker))
+		dispatch(updateUserData())
 	}
 
   handleSwitch(index) {

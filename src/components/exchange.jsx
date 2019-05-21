@@ -3,12 +3,12 @@ import React, { Component } from 'react';
 import ExchangeDesktop from './exchange_desktop.jsx'
 import ExchangeMobile from './exchange_mobile.jsx'
 
-import {switchTicker} from "../redux/actions/app.jsx";
+import { switchTicker, updateUserData } from "../redux/actions/app.jsx";
 import { connect } from 'react-redux'
 
 class Exchange extends Component {
 	componentDidMount() {
-		const { match, history, location, dispatch } = this.props
+		const { match, history, location, dispatch, publicKey, userId } = this.props
 		if (!match.params.net || (match.params.net !== "mainnet" && match.params.net !== "testnet")) {
 			const default_ticker = 'ETH_BTC';
 			history.push("/mainnet/exchange/" + default_ticker + location.search)
@@ -18,6 +18,10 @@ class Exchange extends Component {
 		} else {
 			const ticker = match.params.ticker.replace("_", "/");
 			dispatch(switchTicker(ticker));
+		}
+
+		if (publicKey && userId) {
+			dispatch(updateUserData())
 		}
 	}
 	
@@ -40,6 +44,8 @@ class Exchange extends Component {
 const mapStateToProps = (state) => ({
 		isMobile: state.app.isMobile,
 		private_key: state.app.private_key,
+		publicKey: state.app.publicKey,
+		userId: state.app.userId,
 		currentTicker: state.app.currentTicker,
 	});
 
