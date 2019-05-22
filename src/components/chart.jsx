@@ -11,13 +11,18 @@ class Chart extends Component {
     };
   }
   componentDidMount() {
-    if (this.props.currentTicker != null) {
+    const { mobile, currentTicker } = this.props
+    if (mobile && currentTicker != null) {
       try {
         this.initChart()
       } catch (e) {
-        Rollbar.error("Failed to load chart: " + this.props.currentTicker, e);
+        Rollbar.error("Failed to load chart: " + currentTicker, e);
       }
     }
+  }
+
+  componentWillUnmount() {
+    window.chartWidget = undefined
   }
 
   initChart(ticker = this.props.currentTicker) {
