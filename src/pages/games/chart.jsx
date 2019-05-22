@@ -6,7 +6,7 @@ export default class Chart extends Component {
         const options = {
             series: [{
                 data: data,
-                color: '#03a7a8'
+                color: '#fff'
             }]
         }
         
@@ -17,7 +17,7 @@ export default class Chart extends Component {
         window.depthChartWidget = Highchart.chart("chart_container", {
             chart: {
                 type: 'line',
-                backgroundColor: "#fff"
+                backgroundColor: "transparent"
             },
             title: {
                 text: "",
@@ -25,13 +25,31 @@ export default class Chart extends Component {
                     color: '#999'
                 }
             },
+            credits: {
+                enabled: false
+            },
             legend: {
                 enabled: false
             },
             yAxis: {
                 title: {
-                    text: 'BTC'
-                }
+                    text: ''
+                },
+                labels: {
+                    format: '{value:.2f}',
+                    style: {
+                        color: '#fff'
+                    }
+                },
+                gridLineColor: 'transparent'
+            },
+            xAxis: {
+                labels: {
+                    style: {
+                        color: '#fff'
+                    }
+                },
+                gridLineColor: '#fff'
             },
             plotOptions: {
                 series: {
@@ -43,8 +61,8 @@ export default class Chart extends Component {
             series: [{
                 name: 'BTC',
                 data: [],
-                color: '#03a7a8',
-                negativeFillColor: '#da3c76'
+                color: '#fff',
+                negativeFillColor: '#fff'
             }],
         })
         
