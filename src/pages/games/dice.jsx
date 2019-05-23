@@ -4,7 +4,7 @@ import ReactSlider from 'react-slider';
 import Utils from '../../common/utils.js'
 import DiceInput from './input.jsx'
 import Stats from './stats.jsx'
-import Chat from './chat.jsx'
+// import Chat from './chat.jsx'
 
 const container = css `
     min-height: 100vh;
