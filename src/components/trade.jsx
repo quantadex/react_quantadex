@@ -332,9 +332,7 @@ class Trade extends Component {
         });
 
         this.setState({ processing: true })
-        let price_adj = Utils.maxPrecision(price, window.assetsBySymbol[currentTicker.split('/')[1]].precision)
-        let amount = Utils.maxPrecision(qty, window.assetsBySymbol[currentTicker.split('/')[0]].precision)
-        dispatch(buyTransaction(currentTicker, price_adj, amount))
+        dispatch(buyTransaction(currentTicker, price, qty))
             .then((e) => {
                 const msg = this.toastMsg("BUY " + label, true, e)
                 this.notify_success(toastId, msg)
@@ -359,9 +357,7 @@ class Trade extends Component {
         });
 
         this.setState({ processing: true })
-        let price_adj = Utils.maxPrecision(price, window.assetsBySymbol[currentTicker.split('/')[1]].precision)
-        let amount = Utils.maxPrecision(qty, window.assetsBySymbol[currentTicker.split('/')[0]].precision)
-        dispatch(sellTransaction(currentTicker, price_adj, amount))
+        dispatch(sellTransaction(currentTicker, price, qty))
             .then((e) => {
                 const msg = this.toastMsg("SELL " + label, true, e)
                 this.notify_success(toastId, msg)
@@ -489,7 +485,7 @@ class Trade extends Component {
                             onFocus={(e) => !mobile && e.target.select()}
                             className="trade-input qt-number-bold qt-font-small"
                             min="0"
-                            value={total < 1/Math.pow(10, precisions[1]) ? 0 : Utils.maxPrecision(total, precisions[1])}
+                            value={total < 1/Math.pow(10, precisions[1]) ? total : Utils.maxPrecision(total, precisions[1])}
                             onChange={(e) => {
                               let value = Utils.maxPrecision(e.target.value, precisions[1])
                               this.setState({

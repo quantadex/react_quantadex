@@ -379,8 +379,10 @@ function processFilledOrder(orders) {
       tickerPair = [order.assets[order.sell_price.base.asset_id].symbol, order.assets[order.sell_price.quote.asset_id].symbol]
       ticker = order.isBid() ? tickerPair.reverse() : tickerPair
       order.time = new Date(order.order.time + 'z')
-      amount = order.isBid() ? order.sell_price.quote.getAmount({ real: true }) : order.sell_price.base.getAmount({ real: true });
-      total = ((order.getPrice() * Math.pow(10, 6)) * (amount * Math.pow(10, 6)))/Math.pow(10, 12)
+      amount = order.isBid() ? order.sell_price.quote.getAmount({ real: true }) 
+                            : order.sell_price.base.getAmount({ real: true })
+      total = order.isBid() ?  order.sell_price.base.getAmount({ real: true }) 
+                            : order.sell_price.quote.getAmount({ real: true })
       order.isBid = order.isBid()
     } else {
       tickerPair = [order.assets[order.fill_price.base.asset_id].symbol, order.assets[order.fill_price.quote.asset_id].symbol]
@@ -536,10 +538,12 @@ const app = (state = initialState, action) => {
         
         const amount = order.isBid() ?
           (order.amountToReceive()).getAmount({ real: true }) :
-          (order.amountForSale()).getAmount({ real: true });
+          (order.amountForSale()).getAmount({ real: true })
         
-        const total = ((order.getPrice() * Math.pow(10, 6)) * (amount * Math.pow(10, 6)))/Math.pow(10, 12)
-
+        const total = order.isBid() ?
+          (order.amountForSale()).getAmount({ real: true }) :
+          (order.amountToReceive()).getAmount({ real: true })
+        
         let onOrderFeeAsset = order.order.deferred_paid_fee.asset_id
         let onOrderFeeValue = order.fee / Math.pow(10, window.assets[onOrderFeeAsset].precision)
         let onOrderAsset = order.sell_price.base.asset_id
