@@ -13,6 +13,8 @@ import { updateUserData } from '../redux/actions/app.jsx'
 import ReactGA from 'react-ga';
 
 const container = css`
+  padding-bottom: 30vh !important;
+
   .public-address-container {
     background-color: #2a3135;
     border-radius: 2px;
@@ -42,9 +44,7 @@ const container = css`
     }
   }
   
-
   &.mobile {
-    margin-bottom: 30vh !important;
     .public-address-container {
       margin: 0;
       padding: 10px 0;
@@ -109,6 +109,7 @@ class Wallets extends Component {
     super(props)
     this.state = {
       dataSource: [],
+      unlisted: [],
       filter: "",
       hideZero: false,
       confirmDialog: false,
@@ -136,6 +137,8 @@ class Wallets extends Component {
     if (!window.assets || !window.wallet_listing) return
     const dataSource = []
     const in_wallet = []
+    const unlisted = []
+
     balance.forEach(currency => {
       let symbol = window.assets[currency.asset].symbol
       const data = {
@@ -144,18 +147,22 @@ class Wallets extends Component {
         on_orders: this.props.onOrdersFund[currency.asset] || 0,
         usd_value: currency.usd > 0 ? currency.usd.toLocaleString(navigator.language, {maximumFractionDigits: 2, minimumFractionDigits: 2}) : "N/A"
       }
-      dataSource.push(data)
-      in_wallet.push(symbol)
+      if (window.wallet_listing.includes(symbol) || symbol == "QDEX") {
+        dataSource.push(data)
+        in_wallet.push(symbol)
+      } else {
+        unlisted.push(data)
+      }
     });
 
     for (let coin of (window.wallet_listing || [])) {
       if (in_wallet.indexOf(coin) === -1) {
         dataSource.push({
-              pairs: coin,
-              balance: 0,
-              on_orders: 0,
-              usd_value: "N/A"
-            })
+          pairs: coin,
+          balance: 0,
+          on_orders: 0,
+          usd_value: "N/A"
+        })
       }
     }
 
@@ -166,9 +173,7 @@ class Wallets extends Component {
       usd_value: 0
     })
 
-    this.setState({
-      dataSource: dataSource
-    })
+    this.setState({dataSource, unlisted})
   }
   
   handleChange(e) {
@@ -228,7 +233,7 @@ class Wallets extends Component {
 
   render() {
     const { network, private_key, publicKey, name, isMobile, mobile_nav, dispatch } = this.props
-    const { dataSource, hideZero, filter } = this.state
+    const { dataSource, hideZero, filter, unlisted } = this.state
     const columns = [{
         title: "PAIRS",
         key: "pairs",
@@ -297,6 +302,20 @@ class Wallets extends Component {
                   columns={columns} mobile={isMobile} 
                   unlocked={private_key && true}/>
             </div>
+          }
+
+          {unlisted.length > 0 ?
+            <div className="table-row">
+              <h5>Unlisted Coins</h5>
+              <QTTableView dataSource={unlisted.filter(data => this.shortName(data.pairs).toLowerCase().includes(filter.toLowerCase()) && 
+                  (!hideZero || data.balance > 0))} 
+                  network={network}
+                  dispatch={dispatch}
+                  mobile_nav={mobile_nav}
+                  columns={columns} mobile={isMobile} 
+                  unlocked={private_key && true}/>
+            </div>
+            : null
           }
       </div>
     );
