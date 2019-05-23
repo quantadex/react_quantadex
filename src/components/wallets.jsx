@@ -155,14 +155,19 @@ class Wallets extends Component {
       }
     });
 
-    for (let coin of (window.wallet_listing || [])) {
+    for (let coin of (Object.keys(window.assetsBySymbol) || [])) {
       if (in_wallet.indexOf(coin) === -1) {
-        dataSource.push({
+        let data = {
           pairs: coin,
           balance: 0,
           on_orders: 0,
           usd_value: "N/A"
-        })
+        }
+        if (window.wallet_listing.includes(coin)) {
+          dataSource.push(data)
+        } else {
+          unlisted.push(data)
+        }
       }
     }
 
