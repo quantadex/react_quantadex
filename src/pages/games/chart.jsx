@@ -2,8 +2,11 @@ import React, { Component } from "react";
 import Highchart from 'highcharts'
 
 export default class Chart extends Component {
-    update(data) {
+    update(data, height) {
         const options = {
+            chart: {
+                height: height
+            },
             series: [{
                 data: data,
                 color: '#fff'
@@ -17,13 +20,19 @@ export default class Chart extends Component {
         window.depthChartWidget = Highchart.chart("chart_container", {
             chart: {
                 type: 'line',
-                backgroundColor: "transparent"
+                backgroundColor: "transparent",
+                animation: {
+                    duration: 100
+                }
             },
             title: {
                 text: "",
                 style: {
                     color: '#999'
                 }
+            },
+            tooltip: {
+                enabled: false,
             },
             credits: {
                 enabled: false
@@ -44,10 +53,15 @@ export default class Chart extends Component {
                 gridLineColor: 'transparent'
             },
             xAxis: {
-                labels: {
+                title: {
+                    text: 'Rolls',
                     style: {
                         color: '#fff'
                     }
+                },
+                tickWidth: 0,
+                labels: {
+                    enabled: false
                 },
                 gridLineColor: '#fff'
             },
@@ -72,7 +86,9 @@ export default class Chart extends Component {
     }
 
     componentWillReceiveProps(nextProp) {
-        this.update(nextProp.data)
+        if (nextProp.data !== this.props.data || nextProp.style.height !== this.props.style.height) {
+            this.update(nextProp.data, nextProp.style.height)
+        }
     }
 
     render() {

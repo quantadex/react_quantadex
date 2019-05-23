@@ -9,9 +9,14 @@ const container = css `
     width: 300px;
     overflow: hidden
     color: #fff;
+    cursor: default;
 
     h5 {
         background: #57bc90;
+    }
+
+    .history-container {
+        height: 25px;
     }
 
     .history {
@@ -23,32 +28,62 @@ const container = css `
         line-height: 24px;
     }
 
+    .history.new {
+        animation: 0.2s ease-in-out popIn;
+    }
+
     .history.gold {
         border: 0;
         box-shadow: 0 0 4px;
     }
+
+    @keyframes popIn {
+        0% {
+            transform: scale(0.5);
+        }
+        100% {
+            transform: scale(1);
+        }
+      }
 `
 
 export default class Stats extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            update: false
+        }
+    }
+
+    componentDidUpdate(nextProps) {
+        if (nextProps.roll_history[5] !== this.props.roll_history[5]) {
+            this.setState({update: false}, () => this.setState({update: true}))
+        }
+    }
+
     render() {
-        const { gain_history, profit, wins, lose, bets, luck, roll_history } = this.props
+        const { update } = this.state
+        const { gain_history, profit, wins, lose, bets, luck, roll_history, wagered, chart_height } = this.props
         
         return (
-            <div className={container}>
+            <div className={container + " qt-font-extra-small"}>
                 <h5 className="text-center py-3">LIVE STATS</h5>
-                <div className="px-5">Profit<br/>{profit}</div>
-                <Chart data={gain_history} />
+                <div className="d-flex">
+                    <div className="px-5 w-50">Wagered<br/>{wagered}</div>
+                    <div className="px-5 w-50">Profit<br/>{profit}</div>
+                </div>
+                <Chart data={gain_history} style={{height: chart_height}} />
                 <div className="d-flex flex-wrap px-5">
                     <div className="w-50">Wins <span className="float-right pr-4">{wins}</span></div>
                     <div className="w-50">Losses <span className="float-right">{lose}</span></div>
                     <div className="w-50">Bets <span className="float-right pr-4">{bets}</span></div>
                     <div className="w-50">Luck <span className="float-right">{luck}%</span></div>
                 </div>
-                <div className="d-flex justify-content-around my-4">
+                <div className="d-flex justify-content-around my-4 history-container">
                     {roll_history.map((roll, index) => {
                         return (
                             roll ?
-                                <span key={index} className={"history" + (roll[1] ? " gold" : " loss")}>{Math.round(roll[0])}</span>
+                                <span key={index+roll[0]} className={"history" + (roll[1] ? " gold" : " loss") + (index == 5 && update ? " new" : "")}>{Math.round(roll[0])}</span>
                                 : null
                         )
                         

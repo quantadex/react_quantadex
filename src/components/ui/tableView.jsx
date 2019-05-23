@@ -37,7 +37,7 @@ const container = css`
     display: none;
     background: #22282C;
     padding: 0 10px;
-    width: 80px;
+    min-width: 80px;
     z-index: 1;
     border: 1px solid #1cdad8;
 

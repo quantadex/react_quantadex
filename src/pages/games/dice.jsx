@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import { css } from 'emotion';
 import ReactSlider from 'react-slider';
 import Utils from '../../common/utils.js'
-import Switch from '../../components/ui/switch.jsx'
 import DiceInput from './input.jsx'
 import Stats from './stats.jsx'
+import Chat from './chat.jsx'
 
 const container = css `
     min-height: 100vh;
@@ -31,7 +31,7 @@ const container = css `
 
     .handle span {
         position: absolute;
-        left: -15px;
+        left: -18px;
         width: 40px;
         background: #D8D8D8;
         color: #999;
@@ -134,11 +134,21 @@ const container = css `
         background: #ddd;
     }
 
-    .gold, .gold:active {
+    .gold {
         background-image: rgb(211,174,13) !important;
-        background-image: linear-gradient(108deg, rgba(211,174,13,1) 44%, rgba(255,237,71,1) 55%, rgba(211,174,13,1)) !important;
+        background-image: linear-gradient(108deg, rgba(211,174,13,1) 45%, rgba(255,237,71,1) 55%, rgba(211,174,13,1) 90%) !important;
         color: #8f7709;
         text-shadow: 1px 1px rgba(255,237,71,1);
+        background-position-x: 0px;
+        transition: background-position-x 0.1s;
+    }
+
+    .btn.gold:hover {
+        background-position-x: -60px;
+    }
+
+    .gold:active {
+        background-position-x: -50px !important;
     }
 
     .btn {
@@ -147,7 +157,7 @@ const container = css `
         min-width: 170px;
         font-size: 18px;
         padding: 10px;
-        box-shadow: 0 2px 5px;
+        box-shadow: 0 2px 3px;
     }
 
     .btn:active {
@@ -167,6 +177,7 @@ export default class DiceGame extends Component {
             game_num: 0,
             win_num: 0,
             lose_num: 0,
+            wagered: 0,
             net_gain: 0,
             gain_history: [],
             win_value: 50,
@@ -211,7 +222,7 @@ export default class DiceGame extends Component {
 
     rollDice() {
         const { win_value, game_num, amount, fund, roll_history, 
-            auto_rolling, auto_roll_num, auto_roll_limit } = this.state
+            auto_rolling, auto_roll_num, auto_roll_limit, wagered } = this.state
 
         if (auto_rolling && auto_roll_limit > 0 && auto_roll_num == auto_roll_limit) {
             this.stopAutoRoll()
@@ -224,7 +235,7 @@ export default class DiceGame extends Component {
 
         const roll = (Math.random() < 0.5 ? Math.random() * 100 : Math.abs(parseFloat(Math.random().toFixed(6)) - 0.999999) * 100).toFixed(2)
         this.setState({fund: fund - amount, roll, roll_history: [...roll_history, [roll, roll > win_value ? 1 : 0 ]].slice(-100), 
-            game_num: game_num + 1, message: false, auto_roll_num: auto_roll_num + 1})
+            game_num: game_num + 1, message: false, auto_roll_num: auto_roll_num + 1, wagered: wagered + amount})
         setTimeout(() => {
             roll > win_value ? this.onWin() : this.onLose()
         }, 0)
@@ -321,8 +332,8 @@ export default class DiceGame extends Component {
     }
 
     render() {
-        const { auto, auto_rolling, fund, roll, roll_history, game_num, win_num, lose_num, 
-            message, net_gain, gain_history, auto_roll_limit,
+        const { auto, auto_rolling, fund, roll, roll_history, game_num, win_num, lose_num, wagered,
+            message, net_gain, gain_history, auto_roll_limit, 
             win_value, amount, multiplier, chance,
             win_value_display, amount_display, multiplier_display, chance_display,
             stop_loss_amount_display, stop_profit_amount_display,
@@ -335,7 +346,10 @@ export default class DiceGame extends Component {
                     <div className="inputs-container qt-font-normal">
                         <div className="d-flex justify-content-around text-center text-secondary">
                             <div className={"cursor-pointer w-100 py-3" + (auto ?  " auto-inactive" : "")}
-                                onClick={() => this.setState({auto: false})}>MANUAL BETTING</div>
+                                onClick={() => {
+                                    if (auto_rolling) this.stopAutoRoll()
+                                    this.setState({auto: false})
+                                }}>MANUAL BETTING</div>
                             <div className={"cursor-pointer w-100 py-3" + (auto ?  "" : " auto-inactive")}
                                 onClick={() => this.setState({auto: true})}>AUTOMATED BETTING</div>
                         </div>
@@ -353,7 +367,7 @@ export default class DiceGame extends Component {
                                 />
                                 {auto ?
                                     <DiceInput 
-                                        label="# of Rolls"
+                                        label="Number of Rolls"
                                         type="number"
                                         step="1"
                                         min="0"
@@ -486,24 +500,30 @@ export default class DiceGame extends Component {
                         wins={win_num} lose={lose_num}
                         bets={game_num} luck={game_num && ((roll_history.reduce((partial_sum, a) => partial_sum + (a ? a[1] : 0), 0)/Math.min(game_num, roll_history.length))*100/parseFloat(chance)*100).toFixed(0)}
                         roll_history={roll_history.slice(-6)}
+                        wagered={(wagered/Math.pow(10, 8)).toFixed(8)}
+                        chart_height={auto ? 310 : 140}
                     />
                 </div>
 
                 {message && <span className="text-danger">{message}</span>}
 
                 <div className="slider-container position-relative mt-5 mx-auto px-4">
-                    <div className={"roll-indicator" + (roll > win_value ? " win" : "")} style={{left: roll + "%"}}>{roll}</div>
-                    <ReactSlider className="horizontal-slider" 
-                        value={win_value}
-                        min={2} 
-                        max={99} 
-                        onChange={(e) => this.setInputs("win_value", e)}
-                        withBars
-                        disabled={auto_rolling && true}
-                    >
-                        <div><span>| | |</span></div>
-                    </ReactSlider>
+                    <div className="position-relative">
+                        <div className={"roll-indicator" + (roll > win_value ? " win" : "")} style={{left: roll + "%"}}>{roll}</div>
+                        <ReactSlider className="horizontal-slider" 
+                            value={win_value}
+                            min={2} 
+                            max={99} 
+                            onChange={(e) => this.setInputs("win_value", e)}
+                            withBars
+                            disabled={auto_rolling && true}
+                        >
+                            <div><span>| | |</span></div>
+                        </ReactSlider>
+                    </div>
                 </div>
+
+                {/* <Chat /> */}
 
 
 
