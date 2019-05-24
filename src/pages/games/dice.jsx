@@ -2,14 +2,14 @@ import React, { Component } from 'react';
 import { css } from 'emotion';
 import ReactSlider from 'react-slider';
 import Utils from '../../common/utils.js'
+import Header from './header.jsx'
 import DiceInput from './input.jsx'
 import Stats from './stats.jsx'
-// import Chat from './chat.jsx'
+import Chat from './chat.jsx'
 
 const container = css `
     min-height: 100vh;
-    padding: 0 20px;
-    background: #1C655D;
+    background: #125750;
     color: #333;
 
     .horizontal-slider {
@@ -124,6 +124,7 @@ const container = css `
         width: 600px;
         border-radius: 5px;
         overflow: hidden;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.5);
     }
 
     .auto-inactive {
@@ -143,15 +144,15 @@ const container = css `
         transition: background-position-x 0.1s;
     }
 
-    .btn.gold:hover {
+    .roll-btn.gold:hover {
         background-position-x: -60px;
     }
 
-    .gold:active {
+    .roll-btn.gold:active {
         background-position-x: -50px !important;
     }
 
-    .btn {
+    .roll-btn {
         text-transform: uppercase;
         width: 300px;
         min-width: 170px;
@@ -160,7 +161,7 @@ const container = css `
         box-shadow: 0 2px 3px;
     }
 
-    .btn:active {
+    .roll-btn:active {
         box-shadow: 0 2px 2px;
     }
 `
@@ -179,7 +180,7 @@ export default class DiceGame extends Component {
             lose_num: 0,
             wagered: 0,
             net_gain: 0,
-            gain_history: [],
+            gain_history: [1],
             win_value: 50,
             win_value_display: "50.00",
             amount: 1,
@@ -338,208 +339,211 @@ export default class DiceGame extends Component {
             win_value_display, amount_display, multiplier_display, chance_display,
             stop_loss_amount_display, stop_profit_amount_display,
             modify_loss, modify_loss_amount, modify_win, modify_win_amount } = this.state
-        const roll_history_length = 20
 
         return (
-            <div className={container}>
-                <div className="d-flex justify-content-center pt-5">
-                    <div className="inputs-container qt-font-normal">
-                        <div className="d-flex justify-content-around text-center text-secondary">
-                            <div className={"cursor-pointer w-100 py-3" + (auto ?  " auto-inactive" : "")}
-                                onClick={() => {
-                                    if (auto_rolling) this.stopAutoRoll()
-                                    this.setState({auto: false})
-                                }}>MANUAL BETTING</div>
-                            <div className={"cursor-pointer w-100 py-3" + (auto ?  "" : " auto-inactive")}
-                                onClick={() => this.setState({auto: true})}>AUTOMATED BETTING</div>
-                        </div>
-                        <div className="py-4 px-5">
-                            <div className="d-flex">
-                                <DiceInput 
-                                    label="Bet Amount"
-                                    type="number"
-                                    step="0.00000001"
-                                    min="0.00000001"
-                                    value={amount_display}
-                                    disabled={auto_rolling && true}
-                                    onChange={(e) => this.setState({amount_display: e.target.value})}
-                                    onBlur={(e) => this.setInputs("amount", e.target.value)}
-                                />
-                                {auto ?
-                                    <DiceInput 
-                                        label="Number of Rolls"
-                                        type="number"
-                                        step="1"
-                                        min="0"
-                                        value={auto_roll_limit} 
-                                        disabled={(auto_rolling) && true}
-                                        onChange={(e) => this.setState({auto_roll_limit: e.target.value})}
-                                        onBlur={(e) => {
-                                            let value = parseInt(e.target.value) || 0
-                                            value = value < 0 ? 0 : value
-                                            this.setState({auto_roll_limit: value.toFixed(0)})
-                                        }}
-                                    />
-                                    :
-                                    <DiceInput 
-                                        label="PROFIT ON WIN"
-                                        type="number"
-                                        disabled={true}
-                                        value={(((amount * multiplier) - amount) / Math.pow(10, 8)).toFixed(8)}
-                                    />
+            <div className={container + " d-flexflex-column"}>
+                <Header fund={(fund/ Math.pow(10, 8)).toFixed(8)} />
+                <div className="d-flex">
+                    <Chat />
+                    <div className="w-100">
+                        <div className="d-flex justify-content-center pt-5">
+                            <div className="inputs-container qt-font-normal">
+                                <div className="d-flex justify-content-around text-center text-secondary">
+                                    <div className={"cursor-pointer w-100 py-3" + (auto ?  " auto-inactive" : "")}
+                                        onClick={() => {
+                                            if (auto_rolling) this.stopAutoRoll()
+                                            this.setState({auto: false})
+                                        }}>MANUAL BETTING</div>
+                                    <div className={"cursor-pointer w-100 py-3" + (auto ?  "" : " auto-inactive")}
+                                        onClick={() => this.setState({auto: true})}>AUTOMATED BETTING</div>
+                                </div>
+                                <div className="py-4 px-5">
+                                    <div className="d-flex">
+                                        <DiceInput 
+                                            label="Bet Amount"
+                                            type="number"
+                                            step="0.00000001"
+                                            min="0.00000001"
+                                            value={amount_display}
+                                            disabled={auto_rolling && true}
+                                            onChange={(e) => this.setState({amount_display: e.target.value})}
+                                            onBlur={(e) => this.setInputs("amount", e.target.value)}
+                                        />
+                                        {auto ?
+                                            <DiceInput 
+                                                label="Number of Rolls"
+                                                type="number"
+                                                step="1"
+                                                min="0"
+                                                value={auto_roll_limit} 
+                                                disabled={(auto_rolling) && true}
+                                                onChange={(e) => this.setState({auto_roll_limit: e.target.value})}
+                                                onBlur={(e) => {
+                                                    let value = parseInt(e.target.value) || 0
+                                                    value = value < 0 ? 0 : value
+                                                    this.setState({auto_roll_limit: value.toFixed(0)})
+                                                }}
+                                            />
+                                            :
+                                            <DiceInput 
+                                                label="PROFIT ON WIN"
+                                                type="number"
+                                                disabled={true}
+                                                value={(((amount * multiplier) - amount) / Math.pow(10, 8)).toFixed(8)}
+                                            />
+                                        }
+                                        
+                                    </div>
+                                    <div className="d-flex">
+                                        <DiceInput 
+                                            label="Roll Over"
+                                            type="number"
+                                            step="1"
+                                            min="1"
+                                            value={win_value_display} 
+                                            disabled={auto_rolling && true}
+                                            onChange={(e) => this.setState({win_value_display: Utils.maxPrecision(e.target.value, 3)})}
+                                            onBlur={(e) => this.setInputs("win_value", e.target.value)}
+                                        />
+                                        <DiceInput 
+                                            label="Payout"
+                                            type="number"
+                                            step="1"
+                                            min="1"
+                                            value={multiplier_display}
+                                            disabled={auto_rolling && true}
+                                            onChange={(e) => this.setState({multiplier_display: Utils.maxPrecision(e.target.value, 4)})}
+                                            onBlur={(e) => this.setInputs("multiplier", e.target.value)}
+                                        />
+                                        <DiceInput 
+                                            label="Win Chance"
+                                            type="number"
+                                            step="1"
+                                            min="1"
+                                            value={chance_display} 
+                                            disabled={auto_rolling && true}
+                                            onChange={(e) => this.setState({chance_display: Utils.maxPrecision(e.target.value, 3)})}
+                                            onBlur={(e) => this.setInputs("chance", e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+
+                                { auto ?
+                                    <div className="py-4 px-5">
+                                        <div className="d-flex">
+                                            <DiceInput 
+                                                label="On Loss"
+                                                type="number" 
+                                                step="1" 
+                                                value={modify_loss_amount} 
+                                                disabled={(auto_rolling || !modify_loss) && true}
+                                                onChange={(e) => this.setState({modify_loss_amount: e.target.value})}
+                                                onBlur={(e) => {
+                                                    let value = parseFloat(e.target.value) || 0
+                                                    value = value > 100 ? 100 : value < -100 ? -100 : value
+                                                    this.setState({modify_loss_amount: value.toFixed(2)})
+                                                }}
+                                            >
+                                                <div className={"toggle qt-font-extra-small" + (modify_loss? "" : " active")} onClick={() => !auto_rolling && this.setState({modify_loss: false})}>Reset</div>
+                                                <div className={"toggle qt-font-extra-small" + (modify_loss? " active" : "")} onClick={() => !auto_rolling && this.setState({modify_loss: true})}>Modify by:</div>
+                                            </DiceInput>
+
+                                            <DiceInput 
+                                                label="On Win"
+                                                type="number" 
+                                                step="1" 
+                                                value={modify_win_amount} 
+                                                disabled={(auto_rolling || !modify_win) && true}
+                                                onChange={(e) => this.setState({modify_win_amount: e.target.value})}
+                                                onBlur={(e) => {
+                                                    let value = parseFloat(e.target.value) || 0
+                                                    value = value > 100 ? 100 : value < -100 ? -100 : value
+                                                    this.setState({modify_win_amount: value.toFixed(2)})
+                                                }}
+                                            >
+                                                <div className={"toggle qt-font-extra-small" + (modify_win? "" : " active")} onClick={() => !auto_rolling && this.setState({modify_win: false})}>Reset</div>
+                                                <div className={"toggle qt-font-extra-small" + (modify_win? " active" : "")} onClick={() => !auto_rolling && this.setState({modify_win: true})}>Modify by:</div>
+                                            </DiceInput>
+                                        </div>
+                                        
+                                        <div className="d-flex">
+                                            <DiceInput 
+                                                label="Stop Profit"
+                                                type="number" 
+                                                step="0.00000000" 
+                                                min="0.00000000" 
+                                                value={stop_profit_amount_display} 
+                                                disabled={auto_rolling && true}
+                                                onChange={(e) => this.setState({stop_profit_amount_display: e.target.value})}
+                                                onBlur={(e) => this.setInputs("stop_profit_amount", e.target.value)}
+                                            />
+                                            <DiceInput 
+                                                label="Stop Loss"
+                                                type="number" 
+                                                step="0.00000000" 
+                                                min="0.00000000" 
+                                                value={stop_loss_amount_display} 
+                                                disabled={auto_rolling && true}
+                                                onChange={(e) => this.setState({stop_loss_amount_display: e.target.value})}
+                                                onBlur={(e) => this.setInputs("stop_loss_amount", e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                    :null
                                 }
-                                
+                                <div className="text-center mt-4">
+                                    <button className="roll-btn gold mx-auto" onClick={() => auto_rolling ? this.stopAutoRoll() : auto ? this.autoRoll() : this.rollDice()}>
+                                        { auto ? auto_rolling ? "Stop" : "Auto Roll" + (auto_roll_limit > 0 ? " x " + auto_roll_limit : "") : "Roll Dice"}
+                                    </button>
+                                </div>
+
                             </div>
-                            <div className="d-flex">
-                                <DiceInput 
-                                    label="Multiplier"
-                                    type="number"
-                                    step="1"
-                                    min="1"
-                                    value={multiplier_display}
+
+                            <Stats gain_history={gain_history}
+                                profit={(net_gain/Math.pow(10, 8)).toFixed(8)}
+                                wins={win_num} lose={lose_num}
+                                bets={game_num} luck={game_num && ((roll_history.reduce((partial_sum, a) => partial_sum + (a ? a[1] : 0), 0)/Math.min(game_num, roll_history.length))*100/parseFloat(chance)*100).toFixed(0)}
+                                roll_history={roll_history.slice(-6)}
+                                wagered={(wagered/Math.pow(10, 8)).toFixed(8)}
+                                chart_height={auto ? 310 : 140}
+                            />
+                        </div>
+
+
+                        <div className="slider-container position-relative mt-5 mx-auto px-4">
+                            <div className="position-relative">
+                                <div className={"roll-indicator" + (roll > win_value ? " win" : "")} style={{left: roll + "%"}}>{roll}</div>
+                                <ReactSlider className="horizontal-slider" 
+                                    value={win_value}
+                                    min={2} 
+                                    max={99} 
+                                    onChange={(e) => this.setInputs("win_value", e)}
+                                    withBars
                                     disabled={auto_rolling && true}
-                                    onChange={(e) => this.setState({multiplier_display: Utils.maxPrecision(e.target.value, 4)})}
-                                    onBlur={(e) => this.setInputs("multiplier", e.target.value)}
-                                />
-                                <DiceInput 
-                                    label="Roll Over"
-                                    type="number"
-                                    step="1"
-                                    min="1"
-                                    value={win_value_display} 
-                                    disabled={auto_rolling && true}
-                                    onChange={(e) => this.setState({win_value_display: Utils.maxPrecision(e.target.value, 3)})}
-                                    onBlur={(e) => this.setInputs("win_value", e.target.value)}
-                                />
-                                <DiceInput 
-                                    label="Win Chance"
-                                    type="number"
-                                    step="1"
-                                    min="1"
-                                    value={chance_display} 
-                                    disabled={auto_rolling && true}
-                                    onChange={(e) => this.setState({chance_display: Utils.maxPrecision(e.target.value, 3)})}
-                                    onBlur={(e) => this.setInputs("chance", e.target.value)}
-                                />
+                                >
+                                    <div><span>| | |</span></div>
+                                </ReactSlider>
                             </div>
                         </div>
 
-                        { auto ?
-                            <div className="py-4 px-5">
-                                <div className="d-flex">
-                                    <DiceInput 
-                                        label="On Loss"
-                                        type="number" 
-                                        step="1" 
-                                        value={modify_loss_amount} 
-                                        disabled={(auto_rolling || !modify_loss) && true}
-                                        onChange={(e) => this.setState({modify_loss_amount: e.target.value})}
-                                        onBlur={(e) => {
-                                            let value = parseFloat(e.target.value) || 0
-                                            value = value > 100 ? 100 : value < -100 ? -100 : value
-                                            this.setState({modify_loss_amount: value.toFixed(2)})
-                                        }}
-                                    >
-                                        <div className={"toggle qt-font-extra-small" + (modify_loss? "" : " active")} onClick={() => !auto_rolling && this.setState({modify_loss: false})}>Reset</div>
-                                        <div className={"toggle qt-font-extra-small" + (modify_loss? " active" : "")} onClick={() => !auto_rolling && this.setState({modify_loss: true})}>Modify by:</div>
-                                    </DiceInput>
+                        {message && <span className="text-danger">{message}</span>}
 
-                                    <DiceInput 
-                                        label="On Win"
-                                        type="number" 
-                                        step="1" 
-                                        value={modify_win_amount} 
-                                        disabled={(auto_rolling || !modify_win) && true}
-                                        onChange={(e) => this.setState({modify_win_amount: e.target.value})}
-                                        onBlur={(e) => {
-                                            let value = parseFloat(e.target.value) || 0
-                                            value = value > 100 ? 100 : value < -100 ? -100 : value
-                                            this.setState({modify_win_amount: value.toFixed(2)})
-                                        }}
-                                    >
-                                        <div className={"toggle qt-font-extra-small" + (modify_win? "" : " active")} onClick={() => !auto_rolling && this.setState({modify_win: false})}>Reset</div>
-                                        <div className={"toggle qt-font-extra-small" + (modify_win? " active" : "")} onClick={() => !auto_rolling && this.setState({modify_win: true})}>Modify by:</div>
-                                    </DiceInput>
-                                </div>
-                                
-                                <div className="d-flex">
-                                    <DiceInput 
-                                        label="Stop Profit"
-                                        type="number" 
-                                        step="0.00000000" 
-                                        min="0.00000000" 
-                                        value={stop_profit_amount_display} 
-                                        disabled={auto_rolling && true}
-                                        onChange={(e) => this.setState({stop_profit_amount_display: e.target.value})}
-                                        onBlur={(e) => this.setInputs("stop_profit_amount", e.target.value)}
-                                    />
-                                    <DiceInput 
-                                        label="Stop Loss"
-                                        type="number" 
-                                        step="0.00000000" 
-                                        min="0.00000000" 
-                                        value={stop_loss_amount_display} 
-                                        disabled={auto_rolling && true}
-                                        onChange={(e) => this.setState({stop_loss_amount_display: e.target.value})}
-                                        onBlur={(e) => this.setInputs("stop_loss_amount", e.target.value)}
-                                    />
-                                </div>
-                            </div>
-                            :null
-                        }
-                        <div className="text-center mt-4">
-                            <button className="btn gold mx-auto" onClick={() => auto_rolling ? this.stopAutoRoll() : auto ? this.autoRoll() : this.rollDice()}>
-                                { auto ? auto_rolling ? "Stop" : "Auto Roll" + (auto_roll_limit > 0 ? " x " + auto_roll_limit : "") : "Roll Dice"}
-                            </button>
-                        </div>
 
-                    </div>
-
-                    <Stats gain_history={gain_history}
-                        profit={(net_gain/Math.pow(10, 8)).toFixed(8)}
-                        wins={win_num} lose={lose_num}
-                        bets={game_num} luck={game_num && ((roll_history.reduce((partial_sum, a) => partial_sum + (a ? a[1] : 0), 0)/Math.min(game_num, roll_history.length))*100/parseFloat(chance)*100).toFixed(0)}
-                        roll_history={roll_history.slice(-6)}
-                        wagered={(wagered/Math.pow(10, 8)).toFixed(8)}
-                        chart_height={auto ? 310 : 140}
-                    />
-                </div>
-
-                {message && <span className="text-danger">{message}</span>}
-
-                <div className="slider-container position-relative mt-5 mx-auto px-4">
-                    <div className="position-relative">
-                        <div className={"roll-indicator" + (roll > win_value ? " win" : "")} style={{left: roll + "%"}}>{roll}</div>
-                        <ReactSlider className="horizontal-slider" 
-                            value={win_value}
-                            min={2} 
-                            max={99} 
-                            onChange={(e) => this.setInputs("win_value", e)}
-                            withBars
-                            disabled={auto_rolling && true}
-                        >
-                            <div><span>| | |</span></div>
-                        </ReactSlider>
+                        {/* <div className="mt-5">
+                            Fund: {fund}<br/>
+                            Amount: {amount}<br/>
+                            Real amount: {amount_display}<br/>
+                            Profit on win: {(((amount * multiplier) - amount) / Math.pow(10, 8)).toFixed(8)} BTC<br/>
+                            Profit: {(net_gain/Math.pow(10, 8)).toFixed(8)}<br/>
+                            Games: {game_num}<br/>
+                            Win: {win_num}<br/>
+                            Lose: {lose_num}<br/>
+                            Win rate: {game_num && (win_num/game_num*100).toFixed(2) || 0}%<br/>
+                            Luck: {game_num && ((roll_history.reduce((partial_sum, a) => partial_sum + (a ? a[1] : 0), 0)/Math.min(game_num, roll_history.length))*100/parseFloat(chance)*100).toFixed(0)}%
+                        </div> */}
+                        <button className="btn" onClick={() => this.setState({fund: fund + 100000000})}>Add BTC</button>
                     </div>
                 </div>
-
-                {/* <Chat /> */}
-
-
-
-                <div className="mt-5">
-                    Fund: {fund}<br/>
-                    Amount: {amount}<br/>
-                    Real amount: {amount_display}<br/>
-                    Profit on win: {(((amount * multiplier) - amount) / Math.pow(10, 8)).toFixed(8)} BTC<br/>
-                    Profit: {(net_gain/Math.pow(10, 8)).toFixed(8)}<br/>
-                    Games: {game_num}<br/>
-                    Win: {win_num}<br/>
-                    Lose: {lose_num}<br/>
-                    Win rate: {game_num && (win_num/game_num*100).toFixed(2) || 0}%<br/>
-                    Luck: {game_num && ((roll_history.reduce((partial_sum, a) => partial_sum + (a ? a[1] : 0), 0)/Math.min(game_num, roll_history.length))*100/parseFloat(chance)*100).toFixed(0)}%
-                </div>
-                <button className="btn" onClick={() => this.setState({fund: fund + 100000000})}>Add BTC</button>
             </div>
         )
     }

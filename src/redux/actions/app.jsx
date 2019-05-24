@@ -201,6 +201,40 @@ export const accountUpgrade = () => {
 	}
 }
 
+// export const rollDice = (data) => {
+// 	return (dispatch, getState) => {
+// 		return ApplicationApi.roll_dice({ 
+// 			account: getState().app.userId,
+// 			amount: 1,
+// 			asset: "1.3.0",
+// 			bet: ">50",
+// 			numbers: []
+// 		}).then((tr) => {
+// 			console.log(tr)
+// 			// return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key)).then(() => {
+// 			// 	let data = {
+// 			// 		id: getState().app.userId,
+// 			// 		name: getState().app.name,
+// 			// 		publicKey: getState().app.publicKey,
+// 			// 		lifetime: true
+// 			// 	}
+// 			// 	dispatch({
+// 			// 		type: UPDATE_ACCOUNT,
+// 			// 		data: data
+// 			// 	})
+// 			// 	dispatch(updateUserData())
+// 			// })
+// 		}).catch(error => {
+// 			console.log(error)
+// 			// if (error.message.includes("Insufficient Balance")) {
+// 			// 	throw "Insufficient Balance"
+// 			// } else {
+// 			// 	throw "Server error. Please try again"
+// 			// }
+// 		})
+// 	}
+// }
+
 var initAPI = false;
 
 export var dataSize = 100;
@@ -658,6 +692,7 @@ export function switchTicker(ticker, force_init=false) {
 
 export function updateUserData() {
 	return function (dispatch, getState) {
+		if (!(getState().app.publicKey && getState().app.userId)) return
 		if (!Apis.instance().db_api() || getState().app.markets.length == 0) {
 			setTimeout(() => {
 				dispatch(updateUserData())

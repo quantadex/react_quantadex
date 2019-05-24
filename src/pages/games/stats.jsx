@@ -6,10 +6,11 @@ const container = css `
     background: #57A38B;
     border-radius: 5px;
     margin-left: 30px;
-    width: 300px;
+    width: 240px;
     overflow: hidden
     color: #fff;
     cursor: default;
+    box-shadow: 0 2px 2px rgba(0,0,0,0.3);
 
     h5 {
         background: #57bc90;

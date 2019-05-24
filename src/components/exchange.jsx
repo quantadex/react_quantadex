@@ -19,10 +19,7 @@ class Exchange extends Component {
 			const ticker = match.params.ticker.replace("_", "/");
 			dispatch(switchTicker(ticker));
 		}
-
-		if (publicKey && userId) {
-			dispatch(updateUserData())
-		}
+		dispatch(updateUserData())
 	}
 	
 	componentDidUpdate(prevProps) {
