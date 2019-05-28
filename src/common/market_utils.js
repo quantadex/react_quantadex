@@ -1,5 +1,5 @@
 import utils from "./utils";
-import {ChainStore, ChainTypes} from "@quantadex/bitsharesjs";
+import {ChainStore, ChainTypes} from "@quantadex/bitsharesjs/es";
 let {object_type} = ChainTypes;
 let opTypes = Object.keys(object_type);
 import {Asset} from "./MarketClasses";

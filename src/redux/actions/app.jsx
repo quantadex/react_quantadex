@@ -3,7 +3,7 @@ import ApplicationApi from "../../common/api/ApplicationApi";
 import WalletApi from "../../common/api/WalletApi";
 import { Apis } from "@quantadex/bitsharesjs-ws";
 import { FillOrder, LimitOrder } from "../../common/MarketClasses";
-import { PrivateKey, ChainStore } from "@quantadex/bitsharesjs";
+import { PrivateKey, ChainStore } from "@quantadex/bitsharesjs/es";
 import { createLimitOrderWithPrice, createLimitOrder2, cancelOrder, signAndBroadcast } from "../../common/Transactions";
 import { aggregateOrderBook, convertHistoryToOrderedSet } from "../../common/PriceData";
 import ReactGA from 'react-ga';
@@ -201,29 +201,65 @@ export const accountUpgrade = () => {
 	}
 }
 
+// const promiseTimeout = function(ms, promise){
+
+// 	// Create a promise that rejects in <ms> milliseconds
+// 	let timeout = new Promise((resolve, reject) => {
+// 	  let id = setTimeout(() => {
+// 		clearTimeout(id);
+// 		reject('Timed out in '+ ms + 'ms.')
+// 	  }, ms)
+// 	})
+  
+// 	// Returns a race between our timeout and the passed in promise
+// 	return Promise.race([
+// 	  promise,
+// 	  timeout
+// 	])
+//   }
+
+  
+// function query_roll_tx(tx, delay){
+// 	var retryInterval = null;
+// 	function getDataWithDelay(tx, ms) {
+// 		return promiseTimeout(ms).then(e=> {
+// 			return fetch(CONFIG.getEnv().API_PATH + `/account?filter_field=operation_history.op_object.tx&filter_value=${tx}`, { mode: "cors" }).then(e => e.json())
+// 		})
+// 	}
+
+// 	return getDataWithDelay(tx, delay).then(res => {
+// 		if (res.length == 0) {
+// 			return getDataWithDelay(tx, delay).then(res=> {
+// 				if (res.length == 0) {
+// 					return getDataWithDelay(tx, delay).then(res=> {
+// 						return res;
+// 					})
+// 				}
+// 				return res;
+// 			})
+// 		} else {
+// 			return res;
+// 		}
+// 	})	
+// }
+
 // export const rollDice = (data) => {
 // 	return (dispatch, getState) => {
-// 		return ApplicationApi.roll_dice({ 
+// 		ApplicationApi.roll_dice({ 
 // 			account: getState().app.userId,
 // 			amount: 1,
 // 			asset: "1.3.0",
 // 			bet: ">50",
 // 			numbers: []
 // 		}).then((tr) => {
-// 			console.log(tr)
-// 			// return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key)).then(() => {
-// 			// 	let data = {
-// 			// 		id: getState().app.userId,
-// 			// 		name: getState().app.name,
-// 			// 		publicKey: getState().app.publicKey,
-// 			// 		lifetime: true
-// 			// 	}
-// 			// 	dispatch({
-// 			// 		type: UPDATE_ACCOUNT,
-// 			// 		data: data
-// 			// 	})
-// 			// 	dispatch(updateUserData())
-// 			// })
+// 			console.log(3, tr)
+// 			return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key)).then(() => {
+// 				console.log(tr.id())
+// 				console.log(CONFIG.getEnv().API_PATH + `/account?filter_field=operation_history.op_object.tx&filter_value=${tr.id()}`)
+
+
+				
+// 			})
 // 		}).catch(error => {
 // 			console.log(error)
 // 			// if (error.message.includes("Insufficient Balance")) {

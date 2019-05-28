@@ -573,6 +573,7 @@ const app = (state = initialState, action) => {
         total_fund_value += usd
         return {
           asset: balance.asset_type,
+          symbol: window.assets[balance.asset_type].symbol,
           balance: real_balance,
           usd: usd
         }

@@ -247,8 +247,8 @@ class Container extends React.Component {
 				<Router history={history}>
         <Switch>
 					<Route exact path="/" component={window.isApp ? Exchange : Landing} />
-					<Route exact path="/dice" component={DiceGame} />
 					<Route exact path="/:net" component={Exchange} />
+					<Route exact path="/:net/dice" component={DiceGame} />
 					<Route exact path="/:net/exchange" component={Exchange} />
 					<Route exact path="/:net/exchange/:ticker" component={Exchange} />
 					<Route exact path="/:net/wallets" component={Fund} />

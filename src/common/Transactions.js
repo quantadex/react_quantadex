@@ -1,4 +1,4 @@
-import { ChainStore } from "@quantadex/bitsharesjs";
+import { ChainStore } from "@quantadex/bitsharesjs/es";
 import { Apis } from "@quantadex/bitsharesjs-ws";
 import marketUtils from "./market_utils";
 import WalletApi from "./api/WalletApi";

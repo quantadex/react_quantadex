@@ -6,7 +6,7 @@ import { css } from 'emotion'
 import qbase from '@quantadex/quanta-base';
 import jsPDF from 'jspdf'
 import Banner from "./login_banner.jsx"
-import { PrivateKey, PublicKey, Aes, key, ChainStore } from "@quantadex/bitsharesjs";
+import { PrivateKey, PublicKey, Aes, key, ChainStore } from "@quantadex/bitsharesjs/es";
 import WalletApi from "../common/api/WalletApi";
 import Loader from '../components/ui/loader.jsx'
 

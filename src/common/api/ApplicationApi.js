@@ -7,7 +7,7 @@ import {
     TransactionHelper,
     FetchChain,
     ChainStore
-} from "@quantadex/bitsharesjs";
+} from "@quantadex/bitsharesjs/es";
 import counterpart from "counterpart";
 // import {Notification} from "bitshares-ui-style-guide";
 
@@ -377,6 +377,63 @@ const ApplicationApi = {
                 });
             })
             .catch(() => {});
+    },
+
+    roll_dice({
+        account,
+        amount,
+        asset,
+        bet,
+        numbers = [],
+        fee_asset_id = "1.3.0",
+    }) {
+        let unlock_promise = new Promise((resolve, reject) => resolve());
+        return Promise.all([
+            FetchChain("getAccount", account),
+            FetchChain("getAsset", asset),
+            FetchChain("getAsset", fee_asset_id),
+            unlock_promise
+        ])
+            .then(res => {
+                let [
+                    chain_account,
+                    chain_asset,
+                    chain_fee_asset
+                ] = res;
+
+                // Allow user to choose asset with which to pay fees #356
+                let fee_asset = chain_fee_asset.toJS();
+
+                // Default to CORE in case of faulty core_exchange_rate
+                if (
+                    fee_asset.options.core_exchange_rate.base.asset_id ===
+                        "1.3.0" &&
+                    fee_asset.options.core_exchange_rate.quote.asset_id ===
+                        "1.3.0"
+                ) {
+                    fee_asset_id = "1.3.0";
+                }
+
+                let tr = new TransactionBuilder();
+                let roll_dice_op = tr.get_type_operation("roll_dice", {
+                    account_id: chain_account.get("id"),
+                    fee: {
+                        amount: 0,
+                        asset_id: fee_asset_id
+                    },
+                    risk: {
+                        amount,
+                        asset_id: chain_asset.get("id")
+                    },
+                    bet,
+                    numbers
+                });
+                
+                return tr.update_head_block().then(() => {
+                    tr.add_operation(roll_dice_op);
+                    return tr;
+                });
+            })
     },
 
     issue_asset(

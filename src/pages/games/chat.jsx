@@ -207,6 +207,22 @@ export default class Chat extends Component {
         this.messagesEnd.scrollIntoView({ behavior: "smooth" });
     }
 
+    destroy () {
+        if (this.ref) {
+          this.ref.off('child_added', this.onMessage)
+        }
+    
+        const script = document.querySelector(`#${this.scriptId}`)
+    
+        if (script) {
+          script.remove()
+        }
+    }
+
+    componentWillUnmount() {
+        this.destroy()
+    }
+
     render() {
         const { message, messages } = this.state
         return (

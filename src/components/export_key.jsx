@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { css } from 'emotion'
 import { connect } from 'react-redux'
 import { getItem } from '../common/storage.js'
-import { decryptWallet } from "@quantadex/bitsharesjs";
+import { decryptWallet } from "@quantadex/bitsharesjs/es";
 import bs58 from 'bs58'
 import QRCode from 'qrcode'
 import Header from './headersimple.jsx';

@@ -6,7 +6,7 @@ import { withdrawVesting, withdrawGenesis } from '../redux/actions/app.jsx'
 import Loader from './ui/loader.jsx'
 import {LockIcon} from './ui/account_lock.jsx'
 import { toast } from 'react-toastify';
-import { PrivateKey, PublicKey, Aes, key, ChainStore } from "@quantadex/bitsharesjs";
+import { PrivateKey, PublicKey, Aes, key, ChainStore } from "@quantadex/bitsharesjs/es";
 
 function timeStringToDate(block_time) {
   if (!/Z$/.test(block_time)) {

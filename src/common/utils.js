@@ -1,7 +1,7 @@
 var numeral = require("numeral");
 let id_regex = /\b\d+\.\d+\.(\d+)\b/;
 
-import {ChainTypes} from "@quantadex/bitsharesjs";
+import {ChainTypes} from "@quantadex/bitsharesjs/es";
 var {object_type} = ChainTypes;
 
 import {getAssetNamespaces, getAssetHideNamespaces} from "./branding";
