@@ -79,6 +79,7 @@ export function buyTransaction(market, price, amount) {
 				dispatch(updateUserData())
 				return e[0]
 			}).catch((e) => {
+				if (e.message.includes("insufficient balance")) Rollbar.error("Buy Failed", e);
 				throw e
 			})
 	}
@@ -98,6 +99,7 @@ export function sellTransaction(market, price, amount) {
 				dispatch(updateUserData())
 				return e[0]
 			}).catch((e) => {
+				if (e.message.includes("insufficient balance")) Rollbar.error("Sell Failed", e);
 				throw e
 			})
 	}
@@ -553,7 +555,6 @@ export function switchTicker(ticker, force_init=false) {
 				})
 			})
 			.catch(e => {
-				// Rollbar.error("Failed to initialize Apis socket", e);
 				reconnect(Apis.instance(), dispatch, ticker)
 				return null
 			})
@@ -728,7 +729,10 @@ export function switchTicker(ticker, force_init=false) {
 
 export function updateUserData() {
 	return function (dispatch, getState) {
-		if (!(getState().app.publicKey && getState().app.userId)) return
+		const publicKey = getState().app.publicKey
+		const userId = getState().app.userId
+		
+		if (!(publicKey && userId)) return
 		if (!Apis.instance().db_api() || getState().app.markets.length == 0) {
 			setTimeout(() => {
 				dispatch(updateUserData())
@@ -736,8 +740,6 @@ export function updateUserData() {
 			return
 		}
 
-		const publicKey = getState().app.publicKey
-		const userId = getState().app.userId
 		var account_data = [[],[]]
 		var my_trades = []
 		var genesis_balance = []

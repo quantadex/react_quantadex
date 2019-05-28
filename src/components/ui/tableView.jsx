@@ -2,7 +2,7 @@ import React, {PropTypes} from 'react';
 import { css } from 'emotion'
 import globalcss from '../global-css.js'
 import CONFIG from '../../config.js';
-import { TOGGLE_CONNECT_DIALOG } from '../../redux/actions/app.jsx'
+import { TOGGLE_CONNECT_DIALOG, UPDATE_TICKER } from '../../redux/actions/app.jsx'
 import { Link } from 'react-router-dom'
 import QTButton from './button.jsx'
 import {SymbolToken} from './ticker.jsx'
@@ -148,7 +148,7 @@ export default class QTTableView extends React.Component {
 
   render() {
     const { sort, reverse, columns, selectedIndex, appendedUI } = this.state
-    const { dataSource, mobile, unlocked, network, mobile_nav } = this.props
+    const { dataSource, mobile, unlocked, network, mobile_nav, dispatch } = this.props
     const default_markets = window.markets ? Object.keys(window.markets) : []
     const markets = window.marketsHash ? Object.keys(window.marketsHash) : []
 
@@ -231,7 +231,14 @@ export default class QTTableView extends React.Component {
                                           {pair_markets.map(market => {
                                             return (
                                               <Link key={market} to={`/${network}/exchange/${market.replace("/", "_")}`}
-                                                onClick={mobile_nav ? () => mobile_nav(1) : null}
+                                                onClick={() => {
+                                                  dispatch({
+                                                    type: UPDATE_TICKER,
+                                                    data: market
+                                                  })
+                                                  if(mobile_nav) mobile_nav(1)
+                                                }
+                                                }
                                               >{this.symbol(market)}</Link>
                                             )
                                           })}

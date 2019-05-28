@@ -12,7 +12,7 @@ class Chart extends Component {
   }
   componentDidMount() {
     const { mobile, currentTicker } = this.props
-    if (mobile && currentTicker != null) {
+    if (currentTicker != null) {
       try {
         this.initChart()
       } catch (e) {

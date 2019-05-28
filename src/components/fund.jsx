@@ -84,9 +84,10 @@ class Fund extends Component {
   }
 
   componentDidMount() {
+    const { match , dispatch } = this.props
     if (!window.markets && !window.isApp) {
-			const default_ticker = this.props.match && this.props.match.params.net == "testnet" ? "ETH/USD" : 'ETH/BTC'
-			this.props.dispatch(switchTicker(default_ticker));
+			const default_ticker = match && match.params.net == "testnet" ? "ETH/USD" : 'ETH/BTC'
+			dispatch(switchTicker(default_ticker));
     } 
     
 		document.addEventListener('mouseenter', this.eventUpdate, false)
@@ -94,7 +95,12 @@ class Fund extends Component {
 
 	componentWillUnmount() {
 		document.removeEventListener('mouseenter', this.eventUpdate, false)
-	}
+  }
+  
+  componentWillReceiveProps(nextProps) {
+    const { publicKey, match, history, currentTicker } = nextProps
+    if (!publicKey) history.push('/' + (match.params.net == "testnet" ? "testnet" : "mainnet") + '/exchange/' + currentTicker.replace("/", "_"))
+  }
 	
 	eventUpdate() {
 		const { currentTicker, dispatch } = this.props

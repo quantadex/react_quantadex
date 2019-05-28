@@ -38,24 +38,28 @@ const container = css`
 `;
 
 class Header extends Component {
-  
 	render() {
+    const { network, currentTicker, name, connectDialog, dispatch } = this.props
 		return (
       <React.Fragment>
         <div className={container + " qt-font-small d-flex justify-content-between align-items-center"}>
-          <Link to={"/" + this.props.network + "/exchange/" + (this.props.currentTicker ? this.props.currentTicker.replace("/", "_") : "")} className="back-link">Back to Exchange</Link>
+          <Link to={"/" + network + "/exchange/" + (currentTicker ? currentTicker.replace("/", "_") : "")} className="back-link">Back to Exchange</Link>
 
-          <Link to={"/" + this.props.network + "/exchange/" + (this.props.currentTicker ? this.props.currentTicker.replace("/", "_") : "")} className="logo"></Link>
-          <div className="menu">
-            <span className="name mr-3">{this.props.name}</span>
-            <Connect type="lock" />
-            <HamburgerMenu />
-          </div>
+          <Link to={"/" + network + "/exchange/" + (currentTicker ? currentTicker.replace("/", "_") : "")} className="logo"></Link>
+            <div className="menu">
+              <span className="name mr-3">{name}</span>
+              <Connect type="lock" />
+              {name ?
+                <HamburgerMenu />
+                : null
+              }
+            </div>
+          
         </div>
-        { this.props.connectDialog ? 
-					<ConnectDialog default={this.props.connectDialog} 
-						network={this.props.network} 
-						dispatch={this.props.dispatch}/> 
+        { connectDialog ? 
+					<ConnectDialog default={connectDialog} 
+						network={network} 
+						dispatch={dispatch}/> 
 					: null
 				}
       </React.Fragment>
@@ -66,7 +70,6 @@ class Header extends Component {
 const mapStateToProps = (state) => ({
     private_key: state.app.private_key,
 		currentTicker: state.app.currentTicker,
-    currentPrice: state.app.currentPrice,
     name: state.app.name,
     network: state.app.network,
     connectDialog: state.app.ui.connectDialog
