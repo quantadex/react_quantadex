@@ -45,5 +45,22 @@
 			"DFS0X45ED02E374AEF2E4B34C04E86AD9D45891D10751",
 			"KEY0X4CC19356F2D37338B9802AA8E8FC58B0373296E7",
 			"ZINC0X4AAC461C86ABFA71E9D00D9A2CDE8D74E4E1AEEA"
-		]
+		],
+	"coin_info": {
+		"QDEX": {
+			"website": "https://quantadex.com"
+		},
+		"BTC": {
+			"website": "https://bitcoin.org"
+		},
+		"ETH": {
+			"website": "https://www.ethereum.org"
+		},
+		"BCH": {
+			"website": "https://www.bitcoincash.org"
+		},
+		"LTC": {
+			"website": "https://litecoin.org"
+		}		
+	}
 }
