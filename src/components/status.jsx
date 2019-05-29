@@ -102,7 +102,7 @@ class Status extends Component {
 
         return (
             <div id="quanta-status" className={container + (mobile ? " mobile" : "")}>
-                <div className="brand">QUANTA Fair Trading Protocol</div>
+                <div className="brand">AwakeX Platform</div>
                 <div className="support"><a href="https://quantadex.zendesk.com/hc/en-us" target="_blank">{mobile ? "Help" : "Customer Support"}</a></div>
                 <div className="blocknum" title="Highest Block">{blockInfo.blockNumber}</div>
                 <div className="avg-lat" title="Average Block Latency">{blockInfo.blockTime}ms</div>

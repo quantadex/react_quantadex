@@ -1247,7 +1247,7 @@ export class ConnectDialog extends Component {
                         :
                         <this.KeyConnect />
                     }
-                    <p>Your private keys are not sent to QUANTA. All transactions are signed within your browser 
+                    <p>Your private keys are not sent to AwakeX. All transactions are signed within your browser 
                         and keys are not exposed over the internet.</p>
                 </div>
             </div>
