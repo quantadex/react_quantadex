@@ -2,11 +2,11 @@ import {
     SerializerValidation,
     TransactionBuilder,
     TransactionHelper
-} from "@quantadex/bitsharesjs/es";
+} from "@quantadex/bitsharesjs";
 import ApplicationApi from "./ApplicationApi";
 
 const dictJson = require("./dictionary_en.json");
-import { ChainStore, PublicKey, PrivateKey, key, Aes } from "@quantadex/bitsharesjs/es";
+import { ChainStore, PublicKey, PrivateKey, key, Aes } from "@quantadex/bitsharesjs";
 
 const WalletApi = {
     getShortAddress(publicKey) {

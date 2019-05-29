@@ -7,7 +7,7 @@ import {
     TransactionHelper,
     FetchChain,
     ChainStore
-} from "@quantadex/bitsharesjs/es";
+} from "@quantadex/bitsharesjs";
 import counterpart from "counterpart";
 // import {Notification} from "bitshares-ui-style-guide";
 

@@ -3,7 +3,7 @@ import ApplicationApi from "../../common/api/ApplicationApi";
 import WalletApi from "../../common/api/WalletApi";
 import { Apis } from "@quantadex/bitsharesjs-ws";
 import { FillOrder, LimitOrder } from "../../common/MarketClasses";
-import { PrivateKey, ChainStore } from "@quantadex/bitsharesjs/es";
+import { PrivateKey, ChainStore } from "@quantadex/bitsharesjs";
 import { createLimitOrderWithPrice, createLimitOrder2, cancelOrder, signAndBroadcast } from "../../common/Transactions";
 import { aggregateOrderBook, convertHistoryToOrderedSet } from "../../common/PriceData";
 import ReactGA from 'react-ga';
@@ -598,6 +598,7 @@ export function switchTicker(ticker, force_init=false) {
 							return {...previous, ...ob}
 						}, {})
 						window.wallet_listing = markets.wallet_listing
+						window.coin_info = markets.coin_info
 
 						// used by datafeed
 						window.allMarkets = []

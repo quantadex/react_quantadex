@@ -6,7 +6,7 @@ class ToolTip extends Component {
 		return (
 			<div style={this.props.style}>
 				<span className="fa fa-question-circle" data-tip={this.props.message}><img src={devicePath("public/images/question.png")} /></span>
-				<ReactTooltip clickable={true} multiline={true}/>
+				<ReactTooltip clickable={true} html={true} />
 			</div>
 		);
 	}

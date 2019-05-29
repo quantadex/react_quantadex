@@ -169,7 +169,7 @@ class Dashboard extends Component {
 					</section>
 				: <Loader size="50px" />
 				}
-				<ReactTooltip clickable={true} data-place="left" multiline={true}/>
+				<ReactTooltip clickable={true} html={true} />
 			</div>
 		);
 	}
@@ -178,8 +178,7 @@ class Dashboard extends Component {
 // lodash.sortBy(this.props.markets[subtabs.names[this.state.selectedCoin]], 'base_volume')
 
 const mapStateToProps = (state) => ({
-	markets: state.app.markets,
-	favoriteList: state.app.favoriteList
+	markets: state.app.markets
 });
 
 export default connect(mapStateToProps)(withRouter (Dashboard));

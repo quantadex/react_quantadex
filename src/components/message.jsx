@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import { css } from 'emotion'
 import globalcss from './global-css.js'
 import QTTabBar from './ui/tabBar.jsx'
-import { PrivateKey, PublicKey, Signature } from "@quantadex/bitsharesjs/es";
+import { PrivateKey, PublicKey, Signature } from "@quantadex/bitsharesjs";
 
 const Buffer = require("safe-buffer").Buffer;
 

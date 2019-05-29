@@ -25,6 +25,7 @@ import { UPDATE_STORAGE, LOGIN, switchTicker, updateUserData } from '../redux/ac
 import { getItem, clear } from '../common/storage.js';
 import ExportKey from './export_key.jsx'
 import AppDownload from './app_download.jsx'
+import ReactTooltip from 'react-tooltip'
 
 function openAllLinksWithBlankTargetInSystemBrowser() {
     if ( typeof cordova === "undefined" || !cordova.InAppBrowser ) {
@@ -523,6 +524,7 @@ class Exchange extends Component {
 				/>
 				{window.isApp ? null : <Status mobile={true}/>}
 			</div>
+			<ReactTooltip clickable={true} html={true} />
 		</div>
 		);
 	}

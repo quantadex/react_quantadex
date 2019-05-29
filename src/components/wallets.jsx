@@ -311,7 +311,7 @@ class Wallets extends Component {
 
           {unlisted.length > 0 ?
             <div className="table-row">
-              <h5>Unlisted Coins</h5>
+              <h5>Unofficial Coins</h5>
               <QTTableView dataSource={unlisted.filter(data => this.shortName(data.pairs).toLowerCase().includes(filter.toLowerCase()) && 
                   (!hideZero || data.balance > 0))} 
                   network={network}

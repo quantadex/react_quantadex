@@ -61,7 +61,7 @@ export default class Switch extends Component {
                 { dataTip ?
                     <React.Fragment>
 				        <img className="ml-2" src={devicePath("public/images/question.png")} data-tip={dataTip} />
-                        <ReactTooltip clickable={true} multiline={true}/>
+                        <ReactTooltip clickable={true} html={true} />
                     </React.Fragment>
                     : null
                 }

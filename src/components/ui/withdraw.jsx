@@ -1,7 +1,7 @@
 import React, {PropTypes} from 'react';
 import { connect } from 'react-redux'
 import CONFIG from '../../config.js'
-import { TransactionBuilder } from "@quantadex/bitsharesjs/es"
+import { TransactionBuilder } from "@quantadex/bitsharesjs"
 import { GetAccount } from '../../redux/actions/app.jsx'
 import {SymbolToken} from './ticker.jsx'
 import WAValidator from 'wallet-address-validator'
@@ -318,7 +318,7 @@ class QTWithdraw extends React.Component {
             cancel={() => this.closeTransaction()} 
             submit={() => this.submitTransfer()} />
         }
-        <ReactTooltip clickable={true} multiline={true}/>
+        <ReactTooltip clickable={true} html={true} />
       </div>
     );
   }

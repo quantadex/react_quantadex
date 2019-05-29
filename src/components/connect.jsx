@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { css } from 'emotion'
 import { connect } from 'react-redux'
 import { AccountLogin, ConnectAccount, GetAccount, TOGGLE_CONNECT_DIALOG, LOGOUT } from '../redux/actions/app.jsx'
-import { PrivateKey, PublicKey, decryptWallet, encryptWallet, hash } from "@quantadex/bitsharesjs/es";
+import { PrivateKey, PublicKey, decryptWallet, encryptWallet, hash } from "@quantadex/bitsharesjs";
 import WalletApi from "../common/api/WalletApi";
 import QTTabBar from './ui/tabBar.jsx'
 import Loader from '../components/ui/loader.jsx'

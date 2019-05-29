@@ -13,6 +13,10 @@ const container = css`
     height:30px;
     border-bottom: 1px solid rgba(255,255,255,0.07);
 
+    &:hover a {
+      text-decoration: underline;
+    }
+
     &.hide {
       display:none;
     }
@@ -61,8 +65,6 @@ const container = css`
   .trade-btn:hover .markets-list {
     display: block;
   }
-
-  
 `
 
 export default class QTTableView extends React.Component {
@@ -253,7 +255,7 @@ export default class QTTableView extends React.Component {
                                       () => this.toggleModal(index,btn.handleClick(e.pairs != ERC20Label ? e.pairs : "ERC20", this.toggleModal.bind(this, index, btn.handleClick(e.pairs != ERC20Label ? e.pairs : "ERC20"))))
                                       : this.openConnect.bind(this)
                                     }
-                                    className={btn.color + " qt-font-base qt-font-semibold" + (unlocked ? "" : " locked")}
+                                    className={btn.color + " qt-font-base qt-font-semibold"}
                                     borderWidth="1"
                                     width="80"
                                     height="20"
