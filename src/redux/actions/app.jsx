@@ -79,8 +79,11 @@ export function buyTransaction(market, price, amount) {
 				dispatch(updateUserData())
 				return e[0]
 			}).catch((e) => {
-				if (e.message.includes("insufficient balance")) Rollbar.error("Buy Failed", e);
-				throw e
+				if (e.message && e.message.includes("insufficient balance")) {
+					throw e
+				} else {
+					Rollbar.error("Buy Failed", e);
+				}
 			})
 	}
 }
@@ -99,8 +102,12 @@ export function sellTransaction(market, price, amount) {
 				dispatch(updateUserData())
 				return e[0]
 			}).catch((e) => {
-				if (e.message.includes("insufficient balance")) Rollbar.error("Sell Failed", e);
-				throw e
+				if (e.message && e.message.includes("insufficient balance")) {
+					throw e
+				} else {
+					Rollbar.error("Sell Failed", e);
+				} 
+				
 			})
 	}
 
@@ -134,6 +141,7 @@ export const transferFund = (data) => {
 					dispatch(updateUserData())
 				})
 		}).catch(e => {
+			Rollbar.error("Transfer Failed", e);
 			throw e
 		})
 	}
@@ -151,6 +159,7 @@ export const withdrawVesting = (data) => {
 				dispatch(updateUserData())
 			})
 		}).catch(e => {
+			Rollbar.error("Vesting Failed", e);
 			throw e
 		})
 	}
@@ -169,6 +178,7 @@ export const withdrawGenesis = (data) => {
 				dispatch(updateUserData())
 			})
 		}).catch(e => {
+			Rollbar.error("Genesis Failed", e);
 			throw e
 		})
 	}
@@ -197,6 +207,7 @@ export const accountUpgrade = () => {
 			if (error.message.includes("Insufficient Balance")) {
 				throw "Insufficient Balance"
 			} else {
+				Rollbar.error("Upgrade Failed", error);
 				throw "Server error. Please try again"
 			}
 		})
@@ -245,33 +256,34 @@ export const accountUpgrade = () => {
 // 	})	
 // }
 
-// export const rollDice = (data) => {
-// 	return (dispatch, getState) => {
-// 		ApplicationApi.roll_dice({ 
-// 			account: getState().app.userId,
-// 			amount: 1,
-// 			asset: "1.3.0",
-// 			bet: ">50",
-// 			numbers: []
-// 		}).then((tr) => {
-// 			console.log(3, tr)
-// 			return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key)).then(() => {
-// 				console.log(tr.id())
-// 				console.log(CONFIG.getEnv().API_PATH + `/account?filter_field=operation_history.op_object.tx&filter_value=${tr.id()}`)
+export const rollDice = (data) => {
+	return (dispatch, getState) => {
+		return ApplicationApi.roll_dice({ 
+			account: getState().app.userId,
+			amount: 1,
+			asset: "1.3.0",
+			bet: ">50",
+			numbers: []
+		}).then((tr) => {
+			console.log(3, tr)
+			return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key)).then(() => {
+				// console.log(tr.id())
+				return tr.id()
+				// console.log(CONFIG.getEnv().API_PATH + `/account?filter_field=operation_history.op_object.tx&filter_value=${tr.id()}`)
 
 
 				
-// 			})
-// 		}).catch(error => {
-// 			console.log(error)
-// 			// if (error.message.includes("Insufficient Balance")) {
-// 			// 	throw "Insufficient Balance"
-// 			// } else {
-// 			// 	throw "Server error. Please try again"
-// 			// }
-// 		})
-// 	}
-// }
+			})
+		}).catch(error => {
+			console.log(error)
+			// if (error.message.includes("Insufficient Balance")) {
+			// 	throw "Insufficient Balance"
+			// } else {
+			// 	throw "Server error. Please try again"
+			// }
+		})
+	}
+}
 
 var initAPI = false;
 
@@ -443,7 +455,7 @@ export const AccountLogin = (private_key) => {
 			if (typeof error == "string") {
 				throw error
 			} else {
-				Rollbar.error("Failed to Login", error);
+				Rollbar.error("Login Failed", error);
 				throw "Server error. Please try again."
 			}
 		})
@@ -475,6 +487,16 @@ export const ConnectAccount = (account_id, private_key) => {
 			if (window.isApp) {
 				setItem("private_key", private_key)
 			}
+
+			Rollbar.configure({
+				payload: {
+				  person: {
+					id: data[0].id,
+					username: data[0].name
+				  }
+				}
+			  });
+
 		}).then(e => {
 			dispatch(updateUserData())
 			dispatch({
@@ -487,6 +509,7 @@ export const ConnectAccount = (account_id, private_key) => {
 			if (error.message.includes("Bad Cast")) {
 				throw "No account for public key: " + publicKey
 			} else {
+				Rollbar.error("Connect Failed", error);
 				throw "Server error. Please try again."
 			}
 		})
@@ -556,8 +579,18 @@ export function switchTicker(ticker, force_init=false) {
 			})
 			.catch(e => {
 				reconnect(Apis.instance(), dispatch, ticker)
+				Rollbar.error("Apis init Failed", e);
 				return null
 			})
+			
+			Rollbar.configure({
+				payload: {
+				  person: {
+					id: getState().app.userId,
+					username: getState().app.name
+				  }
+				}
+			  });
 			
 		} else {
 			try {
@@ -565,6 +598,7 @@ export function switchTicker(ticker, force_init=false) {
 			} catch(e) {
 				console.log(e)
 				reconnect(Apis.instance(), dispatch, ticker)
+				Rollbar.error("Apis init Failed", e);
 			}
 		}
 
