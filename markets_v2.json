@@ -29,5 +29,25 @@
 			"BTC",
 			"ETH",
 			"USD"
-		]
+		],
+	"coin_info": {
+		"QDEX": {
+			"website": "https://quantadex.com"
+		},
+		"QAIR": {
+			"website": "https://quantadex.com"
+		},		
+		"BTC": {
+			"website": "https://bitcoin.org"
+		},
+		"ETH": {
+			"website": "https://www.ethereum.org"
+		},
+		"BCH": {
+			"website": "https://www.bitcoincash.org"
+		},
+		"LTC": {
+			"website": "https://litecoin.org"
+		}
+	}
 }
