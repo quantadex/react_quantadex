@@ -418,7 +418,7 @@ const ApplicationApi = {
                 let roll_dice_op = tr.get_type_operation("roll_dice", {
                     account_id: chain_account.get("id"),
                     fee: {
-                        amount: 0,
+                        amount: 100,
                         asset_id: fee_asset_id
                     },
                     risk: {
