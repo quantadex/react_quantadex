@@ -52,13 +52,20 @@ export default class Stats extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            update: false
+            update: false,
+            last_roll: undefined,
         }
     }
 
-    componentDidUpdate(nextProps) {
+    componentWillReceiveProps(nextProps) {
         if (nextProps.roll_history[5] !== this.props.roll_history[5]) {
-            this.setState({update: false}, () => this.setState({update: true}))
+            this.setState({update: false})
+        }
+    }
+
+    componentDidUpdate() {
+        if (this.props.roll_history[5] !== this.state.last_roll) {
+            this.setState({update: true, last_roll: this.props.roll_history[5]})
         }
     }
 
@@ -84,7 +91,7 @@ export default class Stats extends Component {
                     {roll_history.map((roll, index) => {
                         return (
                             roll ?
-                                <span key={index+roll[0]} className={"history" + (roll[1] ? " gold" : " loss") + (index == 5 && update ? " new" : "")}>{Math.round(roll[0])}</span>
+                                <span key={String(index) + roll} className={"history" + (roll[1] ? " gold" : " loss") + (index == 5 && update ? " new" : "")}>{Math.round(roll[0])}</span>
                                 : null
                         )
                         

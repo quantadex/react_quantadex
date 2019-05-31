@@ -16,18 +16,15 @@ const container = css `
         color: #777;
     }
     input {
-        text-align: left;
         padding: 10px;
         color: #555;
-        border: 1px solid #026a5f;
-        border-radius: 3px;
         width: 100%;
         background: #fff;
         text-align: center;
     }
 
     input:disabled {
-        background: #f5f5f5;
+        background: #eee;
     }
 
     .toggle {
@@ -44,24 +41,49 @@ const container = css `
         background: #555;
         color: #fff;
     }
+
+    .input-field {
+        border: 1px solid #026a5f;
+        border-radius: 3px;
+        overflow: hidden;
+
+        .after {
+            position: absolute;
+            right: 0;
+            align-self: center;
+            background: #eee;
+            color: #999;
+            padding: 0 10px;
+            cursor: default;
+            line-height: 35px;
+        }
+    }
+
+    
 `
 
 export default class DiceInput extends Component {
     render() {
-        const { label, type, step, min, value, disabled, onChange, onBlur, children } = this.props
+        const { label, type, step, min, value, disabled, onChange, onBlur, after, children } = this.props
 
         return (
             <div className={container}>
                 <label>{label}</label>
-                <div className="d-flex justify-">
+                <div className="d-flex">
                     {children}
-                    <input type={type} step={step} min={min} value={value} 
-                        disabled={disabled}
-                        onChange={onChange}
-                        onBlur={onBlur}
-                        onKeyPress={e => {
-                            if (e.key == "Enter") onBlur(e)
-                        }} />
+                    <div className="input-field d-flex position-relative w-100">
+                        <input type={type} step={step} min={min} value={value} 
+                            disabled={disabled}
+                            onChange={onChange}
+                            onBlur={onBlur}
+                            onKeyPress={e => {
+                                if (e.key == "Enter") onBlur(e)
+                            }} />
+                        { after ?
+                            after
+                            : null
+                        }
+                    </div>
                 </div>
                 
             </div>

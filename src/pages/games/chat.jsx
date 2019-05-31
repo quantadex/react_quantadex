@@ -5,7 +5,7 @@ const container = css `
     height: calc(100vh - 80px);
     position: relative;
     background: #015249;
-    width: 400px;
+    width: 350px;
 
     .messages {
         height: calc(100% - 80px);
@@ -119,6 +119,13 @@ export default class Chat extends Component {
 		});
     }
 
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.user != this.state.user) {
+            this.setState({user: nextProps.user})
+            this.setUser(nextProps.user)
+        }
+    }
+
     onLoad() {
         this.config.user = this.config.user || 'anonymous'
         this.initFirebase()
@@ -133,7 +140,7 @@ export default class Chat extends Component {
           var app = window.firebase.initializeApp(this.config.firebase)
           this.db = app.database()
         }
-    
+        this.setState({messages: []})
         this.initRef()
     }
     
@@ -146,7 +153,7 @@ export default class Chat extends Component {
 
         this.ref = this.db.ref(`quantadice/${channel}`)
         this.ref.off('child_added', this.onMessage)
-        this.ref.limitToLast(50)
+        this.ref.limitToLast(20)
         .on('child_added', this.onMessage)
         
         setTimeout(() => {
@@ -163,14 +170,14 @@ export default class Chat extends Component {
     //     this.onLoad()
     // }
     
-    // setUser (user) {
-    //     if (user === this.config.user) {
-    //         return false
-    //     }
+    setUser (user) {
+        if (user === this.config.user) {
+            return false
+        }
 
-    //     this.config.user = user
-    //     this.onLoad()
-    // }
+        this.config.user = user
+        this.onLoad()
+    }
     
     post() {
         if (!this.ref) {
