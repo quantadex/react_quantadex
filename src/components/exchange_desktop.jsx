@@ -219,7 +219,7 @@ class Exchange extends Component {
 	}
 	
 	eventUpdate() {
-		const { currentTicker, dispatch } = this.props
+		const { dispatch } = this.props
 		dispatch(reconnectIfNeeded())
 	}
 

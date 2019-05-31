@@ -40,6 +40,7 @@ const container = css`
         padding: 0 15px 0 10px;
         margin-right: 10px;
         cursor: pointer;
+        user-select: none;
     }
     .net-options {
         display: none;

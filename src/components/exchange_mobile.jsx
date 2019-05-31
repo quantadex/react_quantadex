@@ -21,7 +21,7 @@ import Ticker from './ui/ticker.jsx';
 import { css } from 'emotion'
 import globalcss from './global-css.js'
 import CONFIG from '../config.js'
-import { UPDATE_STORAGE, LOGIN, switchTicker, updateUserData } from '../redux/actions/app.jsx'
+import { UPDATE_STORAGE, LOGIN, updateUserData, reconnectIfNeeded } from '../redux/actions/app.jsx'
 import { getItem, clear } from '../common/storage.js';
 import ExportKey from './export_key.jsx'
 import AppDownload from './app_download.jsx'
@@ -299,15 +299,11 @@ class Exchange extends Component {
 		}, false);
 
 		document.addEventListener("resume", () => {
-			const { currentTicker } = this.props
-			if (currentTicker) dispatch(switchTicker(currentTicker))
-			dispatch(updateUserData())
+			dispatch(reconnectIfNeeded())
 		}, false);
 
 		!window.isApp && window.addEventListener("focus", () => {
-			const { currentTicker } = this.props
-			if (currentTicker) dispatch(switchTicker(currentTicker))
-			dispatch(updateUserData())
+			dispatch(reconnectIfNeeded())
 		});
 	}
 
