@@ -422,7 +422,7 @@ class Trade extends Component {
         })
         const taker_fee = (window.assetsBySymbol && window.assetsBySymbol[tradingPair[trade_side]].options.market_fee_percent/100) || 0
         const maker_fee = (window.maker_rebate_percent_of_fee && taker_fee - (taker_fee * (window.maker_rebate_percent_of_fee/10000))) || 0
-        
+
         return (
             <div className={container + " container-fluid" + (mobile ? " mobile" : "")}>
                 <div className="buy-sell-toggle">
@@ -438,7 +438,7 @@ class Trade extends Component {
                             autoComplete="off"
                             onFocus={(e) => !mobile && e.target.select()}
                             min="0"
-                            value={price}
+                            value={price == "-" ? 0 : price}
                             onChange={(e) => {
                               let value = e.target.value
                               this.setState({
