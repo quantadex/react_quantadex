@@ -93,8 +93,6 @@ function calculatePrice(assets, is_buy, base, counter, price, amount) {
 		real: parseFloat(price)
 	})
 
-	console.log(priceObj);
-
 	// USD
 	const sellAmount = priceObj.quote.clone()
 	sellAmount.setAmount({ real: parseFloat(amount) });

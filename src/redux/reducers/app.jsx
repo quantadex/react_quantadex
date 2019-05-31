@@ -447,7 +447,7 @@ const app = (state = initialState, action) => {
           })
           maxAsk = Math.max(maxAsk, total)
         } catch(e) {
-          console.log(e)
+          console.log("init data exception ",e)
         }
       })
 
@@ -464,7 +464,7 @@ const app = (state = initialState, action) => {
             })
             maxBid = Math.max(maxBid, total)
           } catch(e) {
-            console.log(e)
+          console.log("init data exception ",e)
           }
       })
       
@@ -499,7 +499,6 @@ const app = (state = initialState, action) => {
         spread = Math.abs((parseFloat(asksSortedSet.beginIterator().value().price)/parseFloat(bidsSortedSet.beginIterator().value().price) - 1)*100)
         spreadDollar = Math.abs(parseFloat(asksSortedSet.beginIterator().value().price) - parseFloat(bidsSortedSet.beginIterator().value().price)).toFixed(7)
       }
-
       return {
         ...state,
         currentTicker: action.data.ticker,

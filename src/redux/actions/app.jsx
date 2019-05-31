@@ -5,11 +5,13 @@ import { Apis } from "@quantadex/bitsharesjs-ws";
 import { FillOrder, LimitOrder } from "../../common/MarketClasses";
 import { PrivateKey, ChainStore } from "@quantadex/bitsharesjs";
 import { createLimitOrderWithPrice, createLimitOrder2, cancelOrder, signAndBroadcast } from "../../common/Transactions";
-import { aggregateOrderBook, convertHistoryToOrderedSet } from "../../common/PriceData";
+import { validMarketPair, getBaseCounter, aggregateOrderBook, convertHistoryToOrderedSet } from "../../common/PriceData";
 import ReactGA from 'react-ga';
 import CONFIG from '../../config.js'
 import Utils from "../../common/utils.js";
 import {setItem} from "../../common/storage.js"
+import * as QuantaApi from './quanta-api'
+import * as OrderHistory from './order_history.jsx';
 
 export const INIT_DATA = 'INIT_DATA';
 export const USER_DATA = 'USER_DATA';
@@ -33,31 +35,6 @@ export const INIT_BALANCE = 'INIT_BALANCE'
 export const UPDATE_OPEN_ORDERS = 'UPDATE_OPEN_ORDERS'
 export const WEBSOCKET_STATUS = 'WEBSOCKET_STATUS'
 
-export const toggleFavoriteList = pair => ({
-	type: TOGGLE_FAVORITE_LIST,
-	pair
-})
-var markets = null;
-
-export function getMarketQuotes() {
-	return function(dispatch) {
-
-	} 
-}
-
-export function initBalance() {
-	return function(dispatch) {
-	}
-}
-
-function getBaseCounter(market) {
-	if (!market) return {}
-	const parts = market.split("/")
-	return {
-		base: assetsBySymbol[parts[0]],
-		counter: assetsBySymbol[parts[1]]
-	}
-}
 
 export function GetAccount(id) {
 	return Apis.instance().db_api().exec("get_accounts", [[id]]).then(e => {
@@ -210,6 +187,22 @@ export const accountUpgrade = () => {
 	}
 }
 
+export const loadOrderHistory = (page) => {
+	return (dispatch, getState) => {
+		const userId = getState().app.userId
+		return fetch(CONFIG.getEnv().API_PATH + `/account?filter_field=operation_type&filter_value=2,4&size=${dataSize}&from_=${page * dataSize}&account_id=${userId}`, { mode: "cors" })
+			.then(e => e.json())
+			.then((filled) => {
+				return OrderHistory.processOrderHistory(filled, userId)
+			}).then(my_history => {
+				dispatch({
+					type: LOAD_FILLED_ORDERS,
+					data: my_history
+				})
+			})
+	}
+}
+
 // const promiseTimeout = function(ms, promise){
 
 // 	// Create a promise that rejects in <ms> milliseconds
@@ -278,143 +271,6 @@ export const rollDice = (data) => {
 			// 	throw "Server error. Please try again"
 			// }
 		})
-	}
-}
-
-var initAPI = false;
-
-export var dataSize = 100;
-
-function getAvgtime() {
-	const avgTime = blockTimes.reduce((previous, current, idx, array) => {
-		return previous + current[1] / array.length;
-	}, 0);
-	return avgTime;
-}
-const blockTimes = [];
-var previousTime = null;
-
-function updateChainState(dispatch) {
-	const object = ChainStore.getObject("2.1.0");
-
-	if (object==null) {
-		return;
-	}
-
-	const timestamp = timeStringToDate(object.get("time"))
-	
-	if (previousTime != null) {
-		blockTimes.push([
-			object.get("head_block_number"),
-			(timestamp - previousTime) / 1000
-		]);
-	}
-
-	previousTime = timestamp;
-
-	//console.log('update', timestamp, object.get("head_block_number"), Math.round(getAvgtime()*1000))
-
-	dispatch({
-		type: UPDATE_BLOCK_INFO,
-		data: {
-			blockNumber: object.get("head_block_number"),
-			blockTime: Math.round(getAvgtime() * 1000)
-		}
-	})
-}
-
-
-function timeStringToDate(block_time) {
-	if (!/Z$/.test(block_time)) {
-		block_time += "Z";
-	}
-	return new Date(block_time);
-}
-
-
-var dynamicGlobal = null;
-
-function onUpdate(dispatch) {
-
-}
-
-function validMarketPair(a, b) {
-	const pair = [a, b]
-	const base = assets[a].symbol
-	const counter = assets[b].symbol
-	const symbolA = [base, counter]
-
-	const foundA = window.marketsHash[symbolA.join("/")]
-
-	return foundA ? pair : pair.reverse()
-}
-
-async function processOrderHistory(data, userId) {
-	const my_history = []
-	const cancels = []
-	var limitOrders = []
-	
-	data.filter((op) => op.operation_type == 2).map(item => {
-		cancels.push(item.operation_history.op_object.order)
-	})
-
-	if (cancels.length > 0) {
-		limitOrders = await fetch(CONFIG.getEnv().API_PATH + `/account?operation_type=1&account_id=${userId}&size=100&filter_field=operation_history__operation_result&filter_value=${cancels.join(',')}`, { mode: "cors" })
-			.then(e => e.json())
-			.then(e => {
-				return lodash.keyBy(e, (o) => o.operation_history.operation_result.split(',')[1].replace(/"/g, '').replace(']', ''))
-			})
-	}
-	data.forEach((filled) => {
-		if (filled.operation_type == 2 && filled.operation_history.operation_result == "[0,{}]") {
-			return
-		}
-		let baseId
-		var order
-		const type = filled.operation_type
-		let op = filled.operation_history
-		op.time = filled.block_data.block_time
-		op.block_num = filled.block_data.block_num
-
-		if (type == 2) {
-			let limitOp = limitOrders[op.op_object.order].operation_history.op_object
-			limitOp.sell_price = {base: limitOp.amount_to_sell, quote: limitOp.min_to_receive}
-			limitOp.id = op.op_object.order
-			limitOp.time = op.time
-			
-			baseId = validMarketPair(limitOp.amount_to_sell.asset_id, limitOp.min_to_receive.asset_id)[0]
-			order = new LimitOrder(
-				limitOp,
-				window.assets,
-				baseId
-			);
-		} else {
-			baseId = validMarketPair(op.op_object.fill_price.base.asset_id, op.op_object.fill_price.quote.asset_id)[0]
-			op.op = [{}, op.op_object]
-			order = new FillOrder(
-				op,
-				window.assets,
-				baseId
-			);
-		}
-		my_history.push(order)
-	})
-	return my_history
-}
-
-export const loadOrderHistory = (page) => {
-	return (dispatch, getState) => {
-		const userId = getState().app.userId
-		return fetch(CONFIG.getEnv().API_PATH + `/account?filter_field=operation_type&filter_value=2,4&size=${dataSize}&from_=${page * dataSize}&account_id=${userId}`, { mode: "cors" })
-			.then(e => e.json())
-			.then((filled) => {
-				return processOrderHistory(filled, userId)
-			}).then(my_history => {
-				dispatch({
-					type: LOAD_FILLED_ORDERS,
-					data: my_history
-				})
-			})
 	}
 }
 
@@ -519,23 +375,8 @@ binance_socket.addEventListener('message', function (event) {
 	window.binance_price[data.s] = data.c
 });
 
-var market_depth_time
-var reconnect_timeout
-
-function reconnect(instance, dispatch, ticker) {
-	dispatch({
-		type: WEBSOCKET_STATUS,
-		data: "reconnect"
-	})
-
-	if (reconnect_timeout) return
-	reconnect_timeout = setTimeout(() => {
-		instance.close()
-		dispatch(switchTicker(ticker, true))
-		reconnect_timeout = null
-	}, 1000)
-}
-
+window.initAPI = false;
+export var dataSize = 100;
 
 export function switchTicker(ticker, force_init=false) {
 	// send GA
@@ -544,242 +385,113 @@ export function switchTicker(ticker, force_init=false) {
 	// console.log("Switch ticker ", ticker);
 
 	return function (dispatch,getState) {
-		if (initAPI == false || force_init) {
+		async function update() {
+			if (window.initAPI == false || force_init) {
+				const res = await QuantaApi.ConnectAsync(dispatch)
 
+				await QuantaApi.UpdateGlobalPropertiesAsync()
+				await fetchAndSubscribeTickerAsync(ticker, dispatch)
 
-			Apis.instance(CONFIG.getEnv().WEBSOCKET_PATH, true, 5000, { enableOrders: true }).init_promise.then((res) => {
-				// console.log("connected to:", publicKey);
-
-				// Apis.instance().db_api().exec("set_subscribe_callback", [onUpdate, true]);
-				initAPI = true;
-
-				Apis.instance().setRpcConnectionStatusCallback(
-					(status) => {
-						console.log("ws status changed: ", status);
-						if (status === "reconnect")
-							ChainStore.resetCache(false);
+				// Updates user in case they are already logged in.
+				Rollbar.configure({
+					payload: {
+						person: {
+						id: getState().app.userId,
+						username: getState().app.name
+						}
 					}
-				);	
-				ChainStore.subscribers.clear()
-				ChainStore.init(false).then(() => {
-					ChainStore.subscribe(updateChainState.bind(this, dispatch));
-				});			
-
-			})
-			.then((e) => {
-				dispatch({
-					type: WEBSOCKET_STATUS,
-					data: null
-				})
-				Apis.instance().db_api().exec("list_assets", ["A", 100]).then((assets) => {
-					// console.log("assets ", assets);
-					window.assets = lodash.keyBy(assets, "id")
-					window.assetsBySymbol = lodash.keyBy(assets, "symbol")
-					return assets;
-				}).then((e) => {
-					action(ticker)
 				});
+				window.initAPI = true;
+				console.log("initialized update");
+			} else {
+				await fetchAndSubscribeTickerAsync(ticker, dispatch)
+			}
+		}
+		update().catch((e)=>{
+			Rollbar.error("update ticker exception: ", e);
+		})
+	}
+}
 
-				Apis.instance().db_api().exec("get_global_properties", []).then(e => {
-					window.maker_rebate_percent_of_fee = e.parameters.extensions.maker_rebate_percent_of_fee
-				})
-			})
-			.catch(e => {
-				console.log("Apis init Failed", e);
-				Rollbar.error("Apis init Failed", e);
-				dispatch({
-					type: WEBSOCKET_STATUS,
-					data: e
-				})
-				return null
-			})
-			
-			Rollbar.configure({
-				payload: {
-				  person: {
-					id: getState().app.userId,
-					username: getState().app.name
-				  }
+async function fetchAndSubscribeTickerAsync(ticker, dispatch) {
+	var {base, counter} = getBaseCounter(ticker)
+	if (!base || !counter) 
+		return
+
+	dispatch({ type: UPDATE_TICKER, data: ticker })
+
+	// update fees
+	const tmpOrder = createLimitOrderWithPrice("1.2.0", true, window.assets, base.id, counter.id, 1, 1)
+	const tr = createLimitOrder2(tmpOrder)
+	await tr.set_required_fees()
+	dispatch({
+		type: UPDATE_FEE,
+		data: tr.operations[0][1].fee
+	})
+	
+	var fetchTime = new Date()
+	Apis.instance().db_api().exec("subscribe_to_market", [(data) => {
+		// console.log("Got a market change ", ticker, base, counter, data);
+		const curr_ticker = getBaseCounter(ticker)
+
+		async function subscribeToTicker() {
+			if (base.id === curr_ticker.base.id && counter.id === curr_ticker.counter.id) {
+				if (new Date() - fetchTime > 50) {
+					await updateFetchDataAsync(ticker)
+					fetchTime = new Date()
+
+					if (Apis.instance().streamCb) {
+						await Apis.instance().streamCb()
+					}			
 				}
-			  });
-			
-		} else {
-			try {
-				action(ticker)
-			} catch(e) {
-				dispatch({
-					type: WEBSOCKET_STATUS,
-					data: e
-				})
-				Rollbar.error("Apis init Failed", e);
 			}
 		}
 
-		function action(ticker) {
-			var {base, counter} = getBaseCounter(ticker)
-			dispatch({
-				type: UPDATE_TICKER,
-				data: ticker
-			})
-			if (base && counter) {
-				const tmpOrder = createLimitOrderWithPrice("1.2.0", true, window.assets, base.id, counter.id, 1, 1)
-				const tr = createLimitOrder2(tmpOrder)
-				tr.set_required_fees().then(e => {
-					dispatch({
-						type: UPDATE_FEE,
-						data: tr.operations[0][1].fee
-					})
-				})
+		subscribeToTicker().then(() => {}).catch((e) => {
+			Rollbar.error("subscribe exception caught:", e);
+		})
+	}, base.id, counter.id])
+
+	async function updateFetchDataAsync(ticker, first=false) {
+		const data = await QuantaApi.fetchDataAsync(ticker, first)
+
+		window.USD_value = data.USD_value
+		dispatch({
+			type: SET_MARKET_QUOTE,
+			data: [data.marketData, data.USD_value]
+		})
+
+		dispatch({
+			type: INIT_DATA,
+			data: {
+				ticker: data.ticker,
+				orderBook: data.orderBook,
+				trades: data.trades,
 			}
+		})		
+	}
 
-			async function fetchData(ticker, first=false) {
-				var {base, counter} = getBaseCounter(ticker)
-				try {
-					if (!window.markets) {
-						const markets = await fetch(CONFIG.getEnv().MARKETS_JSON, {mode: "cors"}).then(e => e.json()).catch(e => {
-							Rollbar.error("Failed to get Markets JSON", e);
-						})
-						window.markets = markets.markets
-						window.marketsHash = Object.keys(markets.markets).reduce(function (previous, key) {
-							let ob = lodash.keyBy({...markets.markets[key]}, "name")
-							return {...previous, ...ob}
-						}, {})
-						window.wallet_listing = markets.wallet_listing
-						window.coin_info = markets.coin_info
+	await updateFetchDataAsync(ticker, true)
+}
 
-						// used by datafeed
-						window.allMarkets = []
-						for (const key in window.markets) {
-							window.allMarkets.push(...window.markets[key])
-						}
-						window.allMarketsByHash = lodash.keyBy(window.allMarkets, "name")
-						// console.log("done building markets", window.allMarketsByHash);
+export function reconnectIfNeeded() {
+	return async function (dispatch, getState) {
+		if (getState().app.websocket_status) {
+			console.log("Attempt to reconnect", getState().websocket_status);
+			const res = await QuantaApi.ConnectAsync(dispatch)
 
-					}
-
-					var marketData = {};
-					var USD_value = {}
-
-					// console.log("json ", window.markets);
-
-					for (const market in window.markets) {
-						for (const pair of window.markets[market]) {
-							let { base, counter } = getBaseCounter(pair.name);
-							if(!base || !counter) continue
-							const data = await Promise.all([Apis.instance()
-								.db_api()
-								.exec("get_ticker", [counter.id, base.id]),
-							Apis.instance()
-								.db_api()
-								.exec("get_24_volume", [counter.id, base.id])])
-
-							if (!market_depth_time || ((new Date()) - market_depth_time) > (60*5*1000)) {
-								const depth = await Apis.instance().db_api().exec("get_order_book", [counter.id, base.id, 50])
-								let asks_depth = depth.asks.reduce((total, next) => {
-									return total + parseFloat(next.base)
-								}, 0)
-								let bids_depth = depth.bids.reduce((total, next) => {
-									return total + parseFloat(next.base)
-								}, 0)
-								
-								window.allMarketsByHash[pair.name].depth = asks_depth + bids_depth
-							}
-							
-							if (!marketData[market]) {
-								marketData[market] = []
-							}
-							let latest = data[0].latest === "0" ? data[0].highest_bid === "0" || data[0].highest_ask === "0" ? "-" : (parseFloat(data[0].highest_bid) + parseFloat(data[0].lowest_ask))/2 : data[0].latest
-							latest = Utils.maxPrecision(latest, window.allMarketsByHash[pair.name].pricePrecision)
-							window.allMarketsByHash[pair.name].last = latest
-							marketData[market].push({
-								name: pair.name,
-								last: latest,
-								base_volume: data[1].base_volume,
-								quote_volume: data[1].quote_volume
-							})
-							if (counter.symbol == 'USD') {
-								USD_value[base.id] = data[0].latest
-								USD_value[counter.id] = 1
-							}
-						}
-					}
-					market_depth_time = new Date()
-
-					window.USD_value = USD_value
-					dispatch({
-						type: SET_MARKET_QUOTE,
-						data: [marketData, USD_value]
-					})
-
-				} catch(e) {
-					console.log(e)
-					reconnect(Apis.instance(), dispatch, ticker)
-					return
-				}					
-				
-				const trades = Apis.instance().history_api().exec("get_fill_order_history", [base.id, counter.id, 100]).then((filled) => {
-					// console.log("history filled ", filled);
-					const trade_history = convertHistoryToOrderedSet(filled, base.id)
-					//console.log("converted ", trade_history);
-					return trade_history
-				})
-	
-				// selling counter
-				const orderBook = Apis.instance().db_api().exec("get_order_book", [counter.id, base.id, 50]).then((ob) => {
-					// console.log("ob  ", ob);
-					return aggregateOrderBook(ob.bids, ob.asks, window.assets[base.id].precision)
-				})
-
-				// console.log("Get all the data! for ", ticker);
-				return Promise.all([orderBook, trades])
-					.then((data) => {
-						dispatch({
-							type: INIT_DATA,
-							data: {
-								ticker: ticker,
-								orderBook: data[0],
-								trades: data[1],
-							}
-						})
-						if (first) {
-							const ask_section = document.getElementById("ask-section")
-							if (ask_section) ask_section.scrollTop = ask_section.scrollHeight;
-						}
-						
-					})					
-			}
-			var fetchTime = new Date()
-			Apis.instance().db_api().exec("subscribe_to_market", [(data) => {
-				// console.log("Got a market change ", ticker, base, counter, data);
-				const curr_ticker = getBaseCounter(getState().app.currentTicker)
-
-				if (base.id === curr_ticker.base.id && counter.id === curr_ticker.counter.id) {
-					try {
-						if (new Date() - fetchTime > 50) {
-							fetchData(ticker)
-							fetchTime = new Date()
-						}
-						
-						if (Apis.instance().streamCb) {
-							Apis.instance().streamCb()
-						}
-					} catch (e) {
-						console.log(e)
-						reconnect(Apis.instance(), dispatch, ticker)
-					}
-				}
-			}, base.id, counter.id])
-
-			fetchData(ticker, true)
+			dispatch(switchTicker(getState().app.currentTicker))
+			dispatch(updateUserData())
 		}
 	}
 }
 
 export function updateUserData() {
-	return function (dispatch, getState) {
+	return async function (dispatch, getState) {
 		const publicKey = getState().app.publicKey
 		const userId = getState().app.userId
-		
+		console.log("updateUserData", userId);	
+
 		if (!(publicKey && userId)) return
 		if (!Apis.instance().db_api() || getState().app.markets.length == 0) {
 			setTimeout(() => {
@@ -787,20 +499,15 @@ export function updateUserData() {
 			}, 500)
 			return
 		}
-
-		var account_data = [[],[]]
-		var my_trades = []
-		var genesis_balance = []
 		
-		my_trades = fetch(CONFIG.getEnv().API_PATH + `/account?filter_field=operation_type&filter_value=2,4&size=${dataSize}&account_id=${userId}`, { mode: "cors" }).then(e => e.json())
+		const my_trades_promise = fetch(CONFIG.getEnv().API_PATH + `/account?filter_field=operation_type&filter_value=2,4&size=${dataSize}&account_id=${userId}`, { mode: "cors" }).then(e => e.json())
 		.then((filled) => {
-			const my_history = processOrderHistory(filled, userId)
+			const my_history = OrderHistory.processOrderHistory(filled, userId)
 			// console.log(my_history)
 			return my_history
 		})
-
 		
-		account_data = Apis.instance()
+		const account_data_promise = Apis.instance()
 		.db_api()
 		.exec("get_full_accounts", [[userId], true])
 		.then(results => {
@@ -827,12 +534,12 @@ export function updateUserData() {
 		})
 
 		const shortAddress = WalletApi.getShortAddress(publicKey)
-		genesis_balance = Apis.instance().db_api().exec("get_balance_objects", [[shortAddress]]).then(e=>{
+		const genesis_balance_promise = Apis.instance().db_api().exec("get_balance_objects", [[shortAddress]]).then(e=>{
 			// console.log("balance obj????", e);
 			return e
 		})
 
-		return Promise.all([account_data, my_trades, genesis_balance])
+		return Promise.all([account_data_promise, my_trades_promise, genesis_balance_promise])
 			.then((data) => {
 				dispatch({
 					type: USER_DATA,
@@ -844,6 +551,8 @@ export function updateUserData() {
 						genesis_balance: data[2],
 					}
 				})
-			})	
+			}).catch(e=> {
+				Rollbar.error("Problems with updateUserData ", e)
+			})
 	}
 }
