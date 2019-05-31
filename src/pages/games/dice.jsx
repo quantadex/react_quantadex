@@ -255,7 +255,9 @@ class DiceGame extends Component {
     }
 
     changeSliderSide() {
-        const { roll_over } = this.state
+        const { roll_over, win_value } = this.state
+
+        this.setInputs("win_value", 100 - win_value)
 
         const bar = document.getElementsByClassName("bar")
         bar[roll_over ? 0 : 1].classList.remove("gold")
@@ -325,17 +327,17 @@ class DiceGame extends Component {
 
         if (private_key) {
             dispatch(rollDice(amount, asset, (roll_over ? ">" : "<") + win_value.toFixed(0))).then(tx => {
-                console.log("tx", tx)
                 this.getRollResult(tx, 1)
             })
             return
         }
 
         const roll = (Math.random() < 0.5 ? Math.random() * 100 : Math.abs(parseFloat(Math.random().toFixed(6)) - 0.999999) * 100).toFixed(0)
-        this.setState({fund: fund - amount, roll, roll_history: [...roll_history, [roll, roll > win_value ? 1 : 0 ]].slice(-100), 
+        const win = (roll_over && roll >= win_value) || (!roll_over && roll <= win_value)
+        this.setState({fund: fund - amount, roll, roll_history: [...roll_history, [roll, win ? 1 : 0 ]].slice(-100), 
             game_num: game_num + 1, message: false, auto_roll_num: auto_roll_num + 1, wagered: wagered + amount})
         setTimeout(() => {
-            roll > win_value ? this.onWin(amount * multiplier) : this.onLose(-1*amount)
+            win ? this.onWin(amount * multiplier - amount) : this.onLose(-1*amount)
         }, 0)
 
         setTimeout(() => {
@@ -389,16 +391,18 @@ class DiceGame extends Component {
     }
 
     setAsset(asset) {
+        this.stopAutoRoll()
         const precision = window.assets[asset].precision
         const zero = (0).toFixed(precision)
         const precision_min = (1/Math.pow(10, precision)).toFixed(precision)
         this.setState({asset, precision, precision_min, amount: 1,
             amount_display: precision_min, stop_loss_amount_display: zero, stop_profit_amount_display: zero})
+        localStorage.setItem("dice_asset", asset)
     }
 
     setInputs(type, val) {
         const self = this
-        const { precision, roll_over } = this.state
+        const { precision, roll_over, precision_min } = this.state
         const value = parseFloat(val) || 0
         let win_value, chance, multiplier
 
@@ -414,7 +418,7 @@ class DiceGame extends Component {
 
         switch(type) {
             case "amount":
-                return setAmount(type, value)
+                return setAmount(type, Math.max(value, precision_min))
             case "win_value":
                 win_value = value < 1 ? 1 : Math.min(value, 99)
                 chance = roll_over ? 100 - win_value : win_value
@@ -476,13 +480,13 @@ class DiceGame extends Component {
                                             onBlur={(e) => this.setInputs("amount", e.target.value)}
                                             after={
                                                 <div className="after d-flex">
-                                                    <div className="mx-1" onClick={() => {
+                                                    <div className="mx-1 cursor-pointer" onClick={() => {
                                                         this.setInputs("amount", (amount/2/Math.pow(10, precision)))
                                                     }}>&frac12;</div>
-                                                    <div className="mx-1" onClick={() => {
+                                                    <div className="mx-1 cursor-pointer" onClick={() => {
                                                         this.setInputs("amount", (amount*2/Math.pow(10, precision)))
                                                     }}>2x</div>
-                                                    <div className="mx-1" onClick={() => {
+                                                    <div className="mx-1 cursor-pointer" onClick={() => {
                                                         if(balance[asset]) this.setInputs("amount", balance[asset].balance)
                                                     }}>MAX</div>
                                                 </div>
@@ -534,9 +538,8 @@ class DiceGame extends Component {
                                             onChange={(e) => this.setState({win_value_display: Utils.maxPrecision(e.target.value, 3)})}
                                             onBlur={(e) => this.setInputs("win_value", e.target.value)}
                                             after={
-                                                <div className="after" onClick={() => {
+                                                <div className="after cursor-pointer" onClick={() => {
                                                     this.setState({roll_over: !roll_over}, () => this.changeSliderSide())
-                                                    this.setInputs("win_value", 100 - win_value)
                                                 }}>
                                                     {"<>"}
                                                 </div>
@@ -678,7 +681,7 @@ class DiceGame extends Component {
 
                         <div className="slider-container position-relative mx-auto px-4">
                             <div className="position-relative">
-                                <div className={"roll-indicator" + (roll >= win_value ? " win" : "") + (show_roll ? " show" : "")} style={{left: roll + "%"}}>{roll}</div>
+                                <div className={"roll-indicator" + ((roll_over && roll >= win_value) || (!roll_over && roll <= win_value)  ? " win" : "") + (show_roll ? " show" : "")} style={{left: roll + "%"}}>{roll}</div>
                                 <ReactSlider className="horizontal-slider" 
                                     value={win_value}
                                     min={1} 

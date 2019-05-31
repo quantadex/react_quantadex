@@ -27,6 +27,9 @@ const container = css `
         background: #eee;
     }
 
+    input::-moz-selection { background: #ccc; }
+    input::selection { background: #ccc; }
+
     .toggle {
         align-self: center;
         background: #ccc;
@@ -74,6 +77,7 @@ export default class DiceInput extends Component {
                     <div className="input-field d-flex position-relative w-100">
                         <input type={type} step={step} min={min} value={value} 
                             disabled={disabled}
+                            onFocus={(e) => e.target.select()}
                             onChange={onChange}
                             onBlur={onBlur}
                             onKeyPress={e => {

@@ -203,7 +203,7 @@ export const loadOrderHistory = (page) => {
 	}
 }
 
-export const rollDice = (data) => {
+export const rollDice = (amount, asset, bet) => {
 	const now = new Date()
 	return (dispatch, getState) => {
 		return ApplicationApi.roll_dice({ 
@@ -457,7 +457,7 @@ export function updateUserData() {
 	return async function (dispatch, getState) {
 		const publicKey = getState().app.publicKey
 		const userId = getState().app.userId
-		console.log("updateUserData", userId);	
+		// console.log("updateUserData", userId);	
 
 		if (!(publicKey && userId)) return
 		if (!Apis.instance().db_api() || getState().app.markets.length == 0) {

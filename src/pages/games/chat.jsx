@@ -126,12 +126,12 @@ export default class Chat extends Component {
         }
     }
 
-    onLoad() {
+    onLoad(initRef = true) {
         this.config.user = this.config.user || 'anonymous'
-        this.initFirebase()
+        this.initFirebase(initRef)
     }
 
-    initFirebase() {
+    initFirebase(initRef) {
         if (!window.firebase) {
           return false
         }
@@ -140,8 +140,11 @@ export default class Chat extends Component {
           var app = window.firebase.initializeApp(this.config.firebase)
           this.db = app.database()
         }
-        this.setState({messages: []})
-        this.initRef()
+        
+        if (initRef) {
+            this.setState({messages: []})
+            this.initRef()
+        }
     }
     
     initRef() {
@@ -158,7 +161,7 @@ export default class Chat extends Component {
         
         setTimeout(() => {
             this.scrollToBottom()
-        }, 500)
+        }, 1000)
     }
     
     // setChannel (channel) {
@@ -176,7 +179,7 @@ export default class Chat extends Component {
         }
 
         this.config.user = user
-        this.onLoad()
+        this.onLoad(false)
     }
     
     post() {

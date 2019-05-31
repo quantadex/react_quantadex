@@ -58,8 +58,9 @@ class Header extends Component {
     componentWillReceiveProps(nextProps) {
         const { balance } = nextProps
         if (!this.state.selected_asset && Object.keys(balance).length > 0) {
-            this.setState({selected_asset: Object.keys(balance)[0]})
-            this.props.setAsset(Object.keys(balance)[0])
+            const default_asset = localStorage.getItem("dice_asset") || Object.keys(balance)[0]
+            this.setState({selected_asset: default_asset})
+            this.props.setAsset(default_asset)
         }
     }
 
