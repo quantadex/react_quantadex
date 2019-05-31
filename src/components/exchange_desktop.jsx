@@ -12,7 +12,7 @@ import Balance from './balance.jsx';
 import Connect from './connect.jsx';
 import Status from './status.jsx'
 import Switch from './ui/switch.jsx';
-import { switchTicker, updateUserData } from '../redux/actions/app.jsx'
+import { switchTicker, reconnectIfNeeded } from '../redux/actions/app.jsx'
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { connect } from 'react-redux'
@@ -220,8 +220,7 @@ class Exchange extends Component {
 	
 	eventUpdate() {
 		const { currentTicker, dispatch } = this.props
-		if (currentTicker) dispatch(switchTicker(currentTicker))
-		dispatch(updateUserData())
+		dispatch(reconnectIfNeeded())
 	}
 
 	resizeDepthChart() {
@@ -273,8 +272,8 @@ class Exchange extends Component {
 					<Header />
 					{publicKey ? <Menu /> : <Connect type="link" />}
 				
-					{ !websocket_status ?
-						<div className="websocket-status text-center py-2 px-5">Reconnecting...</div>
+					{ websocket_status ?
+						<div className="websocket-status text-center py-2 px-5">Connection Issue: {websocket_status}</div>
 						:null
 					}
 				</div>

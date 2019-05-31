@@ -21,7 +21,7 @@ if (localStorage.env !== network) localStorage.clear()
 let initialState = {
   network: network,
   isMobile: window.isApp || screen.width < 992 || window.location.search.includes("app=true"), 
-  websocket_status: 1,
+  websocket_status: null,
   private_key: null,
   publicKey: localStorage.publicKey || "",
   name: localStorage.name,
@@ -447,7 +447,7 @@ const app = (state = initialState, action) => {
           })
           maxAsk = Math.max(maxAsk, total)
         } catch(e) {
-          console.log(e)
+          console.log("init data exception ",e)
         }
       })
 
@@ -464,7 +464,7 @@ const app = (state = initialState, action) => {
             })
             maxBid = Math.max(maxBid, total)
           } catch(e) {
-            console.log(e)
+          console.log("init data exception ",e)
           }
       })
       
@@ -499,7 +499,6 @@ const app = (state = initialState, action) => {
         spread = Math.abs((parseFloat(asksSortedSet.beginIterator().value().price)/parseFloat(bidsSortedSet.beginIterator().value().price) - 1)*100)
         spreadDollar = Math.abs(parseFloat(asksSortedSet.beginIterator().value().price) - parseFloat(bidsSortedSet.beginIterator().value().price)).toFixed(7)
       }
-
       return {
         ...state,
         currentTicker: action.data.ticker,

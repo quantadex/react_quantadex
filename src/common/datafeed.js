@@ -979,7 +979,7 @@ Datafeeds.DataPulseUpdater.prototype.subscribeDataListener = function(
   let ticker = parts.length > 1 ? parts[0] : symbolInfo.ticker;
   let lastBar = null;
 
-  Apis.instance().streamCb = () => {
+  Apis.instance().streamCb = async () => {
     let resolutionSec = getResolutionInSec(resolution)
     const { base, counter } = getBaseCounter(ticker);
     const endDate = new Date()

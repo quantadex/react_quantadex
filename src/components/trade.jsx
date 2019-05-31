@@ -314,7 +314,7 @@ class Trade extends Component {
         const msg = (<div>
             <span>{label}</span><br />
             <span>{success ? "Order ID: " + e.trx.operation_results[0][1] :
-                "Failed order: " + (e.message.includes("insufficient balance") ? "Insufficient Balance" : "Unable to place order")}</span>
+                "Failed order: " + (e.message.includes("insufficient balance") ? "Insufficient Balance" : "Unable to place order: " + e.message)}</span>
         </div>)
         return msg
     }
@@ -338,7 +338,8 @@ class Trade extends Component {
                 this.notify_success(toastId, msg)
             }).catch((e) => {
                 const msg = this.toastMsg("BUY " + label, false, e)
-                this.notify_failed(toastId, msg)
+                this.notify_failed(toastId, msg)                
+                // log here
             }).finally(() => {
                 this.setState({ processing: false })
             })

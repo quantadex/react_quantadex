@@ -2,6 +2,27 @@ import utils from "./utils";
 import { LimitOrder, FillOrder } from "./MarketClasses";
 import Immutable from "immutable";
 
+export function getBaseCounter(market) {
+	if (!market) return {}
+	const parts = market.split("/")
+	return {
+		base: assetsBySymbol[parts[0]],
+		counter: assetsBySymbol[parts[1]]
+	}
+}
+
+export function validMarketPair(a, b) {
+	const pair = [a, b]
+	const base = assets[a].symbol
+	const counter = assets[b].symbol
+	const symbolA = [base, counter]
+
+	const foundA = window.marketsHash[symbolA.join("/")]
+
+	return foundA ? pair : pair.reverse()
+}
+
+
 export function calculateStartDate(endDate, interval, ticks) {
 	return new Date(endDate.getTime() - (interval * ticks))
 }

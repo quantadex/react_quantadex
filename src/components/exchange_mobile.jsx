@@ -506,8 +506,8 @@ class Exchange extends Component {
 			<MobileHeader header={this.Header(headerIndex)} mobile_nav={this.handleSwitch.bind(this)} />
 			
 			<div id="content" className="mobile-content">
-				{ !websocket_status ?
-					<div className="websocket-status text-center py-2">Reconnecting...</div>
+				{ websocket_status ?
+						<div className="websocket-status text-center py-2">Connection Issue: {websocket_status}</div>
 					:null
 				}
 				<div id="market-list" className={(showMarkets ? "active" : "") + (app_download && web_android ? " with-banner" : "")}>
