@@ -129,14 +129,14 @@ export default class NavHeader extends Component {
                     <a className="d-none d-sm-block" href="/">Main</a>
                     <a className="d-none d-sm-block" href="http://legacy.quantadex.com/fairprotocol">Technology</a>
                     <a className="d-none d-sm-block" href="http://medium.com/@quantadex" target="_blank">Blog</a>
-                    <a className="d-none d-sm-block launch-btn" href={"https://quantadex.com/mainnet/exchange/ETH_BTC" + location.search}>Launch</a>
+                    <a className="d-none d-sm-block launch-btn" href={"/mainnet/exchange/ETH_BTC" + location.search}>Launch</a>
                     <div className="hamburger-menu">
                         <img className="d-block d-sm-none" src="/public/images/hamb.svg" />
                         <div className="menu-items py-3 text-left">
                             <a href="/">Main</a>
                             <a href="/fairprotocol">Technology</a>
                             <a href="/blog">Blog</a>
-                            <a href={"https://quantadex.com/mainnet/exchange/ETH_BTC" + location.search}>Launch</a>
+                            <a href={"/mainnet/exchange/ETH_BTC" + location.search}>Launch</a>
                         </div>
                     </div>
                 </div>
