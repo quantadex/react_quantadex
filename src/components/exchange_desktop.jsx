@@ -273,8 +273,8 @@ class Exchange extends Component {
 					<Header />
 					{publicKey ? <Menu /> : <Connect type="link" />}
 				
-					{ !websocket_status ?
-						<div className="websocket-status text-center py-2 px-5">Reconnecting...</div>
+					{ websocket_status ?
+						<div className="websocket-status text-center py-2 px-5">Connection Issue: {websocket_status}</div>
 						:null
 					}
 				</div>

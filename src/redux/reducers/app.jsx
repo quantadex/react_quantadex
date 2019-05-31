@@ -21,7 +21,7 @@ if (localStorage.env !== network) localStorage.clear()
 let initialState = {
   network: network,
   isMobile: window.isApp || screen.width < 992 || window.location.search.includes("app=true"), 
-  websocket_status: 1,
+  websocket_status: null,
   private_key: null,
   publicKey: localStorage.publicKey || "",
   name: localStorage.name,

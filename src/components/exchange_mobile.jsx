@@ -506,7 +506,7 @@ class Exchange extends Component {
 			<MobileHeader header={this.Header(headerIndex)} mobile_nav={this.handleSwitch.bind(this)} />
 			
 			<div id="content" className="mobile-content">
-				{ !websocket_status ?
+				{ websocket_status ?
 					<div className="websocket-status text-center py-2">Reconnecting...</div>
 					:null
 				}

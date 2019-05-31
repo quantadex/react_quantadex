@@ -79,11 +79,8 @@ export function buyTransaction(market, price, amount) {
 				dispatch(updateUserData())
 				return e[0]
 			}).catch((e) => {
-				if (e.message && e.message.includes("insufficient balance")) {
-					throw e
-				} else {
-					Rollbar.error("Buy Failed", e);
-				}
+				Rollbar.error("Buy Failed", e);
+				throw e
 			})
 	}
 }
@@ -102,12 +99,8 @@ export function sellTransaction(market, price, amount) {
 				dispatch(updateUserData())
 				return e[0]
 			}).catch((e) => {
-				if (e.message && e.message.includes("insufficient balance")) {
-					throw e
-				} else {
-					Rollbar.error("Sell Failed", e);
-				} 
-				
+				Rollbar.error("Sell Failed", e);
+				throw e
 			})
 	}
 
@@ -122,6 +115,9 @@ export const cancelTransaction = (order_id) => {
 		return signAndBroadcast(order, pKey)
 			.then((e) => {
 				dispatch(updateUserData())
+			}).catch((e) => {
+				Rollbar.error("Cancel Failed", e);
+				throw e
 			})
 	}
 }
@@ -529,7 +525,7 @@ var reconnect_timeout
 function reconnect(instance, dispatch, ticker) {
 	dispatch({
 		type: WEBSOCKET_STATUS,
-		data: 0
+		data: "reconnect"
 	})
 
 	if (reconnect_timeout) return
@@ -540,6 +536,7 @@ function reconnect(instance, dispatch, ticker) {
 	}, 1000)
 }
 
+
 export function switchTicker(ticker, force_init=false) {
 	// send GA
 	ReactGA.set({ page: "exchange/" + ticker });
@@ -548,21 +545,31 @@ export function switchTicker(ticker, force_init=false) {
 
 	return function (dispatch,getState) {
 		if (initAPI == false || force_init) {
+
+
 			Apis.instance(CONFIG.getEnv().WEBSOCKET_PATH, true, 5000, { enableOrders: true }).init_promise.then((res) => {
 				// console.log("connected to:", publicKey);
 
 				// Apis.instance().db_api().exec("set_subscribe_callback", [onUpdate, true]);
 				initAPI = true;
 
+				Apis.instance().setRpcConnectionStatusCallback(
+					(status) => {
+						console.log("ws status changed: ", status);
+						if (status === "reconnect")
+							ChainStore.resetCache(false);
+					}
+				);	
 				ChainStore.subscribers.clear()
 				ChainStore.init(false).then(() => {
 					ChainStore.subscribe(updateChainState.bind(this, dispatch));
-				});
+				});			
+
 			})
 			.then((e) => {
 				dispatch({
 					type: WEBSOCKET_STATUS,
-					data: 1
+					data: null
 				})
 				Apis.instance().db_api().exec("list_assets", ["A", 100]).then((assets) => {
 					// console.log("assets ", assets);
@@ -578,8 +585,12 @@ export function switchTicker(ticker, force_init=false) {
 				})
 			})
 			.catch(e => {
-				reconnect(Apis.instance(), dispatch, ticker)
+				console.log("Apis init Failed", e);
 				Rollbar.error("Apis init Failed", e);
+				dispatch({
+					type: WEBSOCKET_STATUS,
+					data: e
+				})
 				return null
 			})
 			
@@ -596,8 +607,10 @@ export function switchTicker(ticker, force_init=false) {
 			try {
 				action(ticker)
 			} catch(e) {
-				console.log(e)
-				reconnect(Apis.instance(), dispatch, ticker)
+				dispatch({
+					type: WEBSOCKET_STATUS,
+					data: e
+				})
 				Rollbar.error("Apis init Failed", e);
 			}
 		}
