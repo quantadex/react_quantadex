@@ -214,73 +214,41 @@ export const accountUpgrade = () => {
 	}
 }
 
-// const promiseTimeout = function(ms, promise){
 
-// 	// Create a promise that rejects in <ms> milliseconds
-// 	let timeout = new Promise((resolve, reject) => {
-// 	  let id = setTimeout(() => {
-// 		clearTimeout(id);
-// 		reject('Timed out in '+ ms + 'ms.')
-// 	  }, ms)
-// 	})
-  
-// 	// Returns a race between our timeout and the passed in promise
-// 	return Promise.race([
-// 	  promise,
-// 	  timeout
-// 	])
-//   }
-
-  
-// function query_roll_tx(tx, delay){
-// 	var retryInterval = null;
-// 	function getDataWithDelay(tx, ms) {
-// 		return promiseTimeout(ms).then(e=> {
-// 			return fetch(CONFIG.getEnv().API_PATH + `/account?filter_field=operation_history.op_object.tx&filter_value=${tx}`, { mode: "cors" }).then(e => e.json())
-// 		})
-// 	}
-
-// 	return getDataWithDelay(tx, delay).then(res => {
-// 		if (res.length == 0) {
-// 			return getDataWithDelay(tx, delay).then(res=> {
-// 				if (res.length == 0) {
-// 					return getDataWithDelay(tx, delay).then(res=> {
-// 						return res;
-// 					})
-// 				}
-// 				return res;
-// 			})
-// 		} else {
-// 			return res;
-// 		}
-// 	})	
-// }
-
-export const rollDice = (data) => {
+export const rollDice = (amount, asset, bet) => {
+	const now = new Date()
 	return (dispatch, getState) => {
 		return ApplicationApi.roll_dice({ 
 			account: getState().app.userId,
-			amount: 1,
-			asset: "1.3.0",
-			bet: ">50",
+			amount,
+			asset,
+			bet,
 			numbers: []
 		}).then((tr) => {
-			console.log(3, tr)
-			return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key)).then(() => {
-				// console.log(tr.id())
-				return tr.id()
-				// console.log(CONFIG.getEnv().API_PATH + `/account?filter_field=operation_history.op_object.tx&filter_value=${tr.id()}`)
+			// console.log(3, tr)
+			const pKey = PrivateKey.fromWif(getState().app.private_key)
+			tr.add_signer(pKey, pKey.toPublicKey().toPublicKeyString());
+			//console.log("serialized transaction:", tr.serialize().operations);
+			console.log('before broadcast', new Date() - now)
+			return tr.broadcast()
+				.then((res) => {
+					console.log("Call order update success!");
+					console.log("sent", new Date() - now)
+					return tr.id()
+					// return res;
+				})
+
+			// return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key)).then(() => {
+			// 	console.log("sent", new Date() - now)
+			// 	// console.log(tr.id())
+			// 	return tr.id()
+			// 	// console.log(CONFIG.getEnv().API_PATH + `/account?filter_field=operation_history.op_object.tx&filter_value=${tr.id()}`)
 
 
 				
-			})
+			// })
 		}).catch(error => {
 			console.log(error)
-			// if (error.message.includes("Insufficient Balance")) {
-			// 	throw "Insufficient Balance"
-			// } else {
-			// 	throw "Server error. Please try again"
-			// }
 		})
 	}
 }
