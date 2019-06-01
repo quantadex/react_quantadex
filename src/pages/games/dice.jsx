@@ -178,6 +178,14 @@ const container = css `
 
         .container {
             background: #57A38B;
+
+            button {
+                background: rgb(230,213,69);
+            }
+
+            button:disabled {
+                background: #999;
+            }
         }
     }
 `
@@ -396,7 +404,8 @@ class DiceGame extends Component {
         const zero = (0).toFixed(precision)
         const precision_min = (1/Math.pow(10, precision)).toFixed(precision)
         this.setState({asset, precision, precision_min, amount: 1,
-            amount_display: precision_min, stop_loss_amount_display: zero, stop_profit_amount_display: zero})
+            amount_display: precision_min, stop_loss_amount_display: zero, stop_profit_amount_display: zero,
+            wagered: 0, net_gain: 0})
         localStorage.setItem("dice_asset", asset)
     }
 
@@ -452,7 +461,7 @@ class DiceGame extends Component {
         const asset_symbol = window.assets && window.assets[asset] ? window.assets[asset].symbol : ""
         return (
             <div className={container + " d-flex flex-column"}>
-                <Header setAsset={this.setAsset.bind(this)}/>
+                <Header setAsset={this.setAsset.bind(this)} demo_fund={fund}/>
                 <div className="d-flex">
                     <Chat user={name} />
                     <div className="mx-auto">

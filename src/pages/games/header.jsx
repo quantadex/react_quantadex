@@ -65,14 +65,14 @@ class Header extends Component {
     }
 
     render() {
-        const { name, balance, network, dispatch, connectDialog, setAsset } = this.props
+        const { name, balance, network, dispatch, connectDialog, setAsset, demo_fund } = this.props
         const { selected_asset } = this.state
         return (
             <div className={container + " d-flex justify-content-between align-items-center px-5"}>
                 <img src="/public/images/dice/logo.svg" alt="QUANTA DICE" />
                 <div className="user-data d-flex qt-font-normal align-items-center">
                     <div className="avail-fund text-right">
-                        {selected_asset ? balance[selected_asset].balance + " " + balance[selected_asset].symbol.split('0X')[0] : 0}
+                        {selected_asset ? balance[selected_asset].balance + " " + balance[selected_asset].symbol.split('0X')[0] : (demo_fund/Math.pow(10, 8)).toFixed(8) + " BTC"}
                         <div className="assets-list">
                             {Object.keys(balance).map(coin => {
                                 return (
