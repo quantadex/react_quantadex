@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import { css } from 'emotion';
 import Connect, { ConnectDialog } from '../../components/connect.jsx';
-import lodash from 'lodash';
 
 const container = css `
     height: 80px;
@@ -76,13 +75,13 @@ class Header extends Component {
                         <div className="assets-list">
                             {Object.keys(balance).map(coin => {
                                 return (
-                                    <div key={balance[coin].symbol} className="asset my-2 px-3 py-2 cursor-pointer"
+                                    <div key={coin} className="asset my-2 px-3 py-2 cursor-pointer"
                                         onClick={() => {
-                                            this.setState({selected_asset: balance[coin].asset})
-                                            setAsset(balance[coin].asset)
+                                            this.setState({selected_asset: coin})
+                                            setAsset(coin)
                                         }}
                                     >
-                                        {balance[coin].balance + " " + balance[coin].symbol.split('0X')[0]}
+                                        {balance[coin].balance + " " + coin.split('0X')[0]}
                                     </div>
                                 )
                             })}
@@ -108,7 +107,7 @@ const mapStateToProps = (state) => ({
     private_key: state.app.private_key,
     publicKey: state.app.publicKey,
     name: state.app.name,
-    balance: state.app.balance ? lodash.keyBy(state.app.balance, "asset") : {},
+    balance: state.app.balance || {},
     network: state.app.network,
     connectDialog: state.app.ui.connectDialog
 });

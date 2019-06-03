@@ -139,8 +139,8 @@ class Wallets extends Component {
     const in_wallet = []
     const unlisted = []
 
-    balance.forEach(currency => {
-      let symbol = window.assets[currency.asset].symbol
+    Object.keys(balance).forEach(symbol => {
+      let currency = balance[symbol]
       const data = {
         pairs: symbol,
         balance: currency.balance,
@@ -329,7 +329,7 @@ class Wallets extends Component {
 
 const mapStateToProps = (state) => ({
     isMobile: state.app.isMobile,
-    balance: state.app.balance || [],
+    balance: state.app.balance || {},
     onOrdersFund: state.app.onOrdersFund || [],
     publicKey: state.app.publicKey || "",
     private_key: state.app.private_key,

@@ -106,26 +106,25 @@ class Referral extends Component {
   }
 
   render() {
+    const { balance, isMobile, lifetime, name, private_key, referral_paid } = this.props
     const earned_coin = []
-    const qdex_amount = this.props.qdex_amount && this.props.qdex_amount.find(obj => {
-                          return obj.asset === "1.3.0"
-                        })
+    const qdex_amount = balance["QDEX"]
     const fund = qdex_amount ? qdex_amount.balance : 0
     return (
-      <div className={container + " content" + (this.props.isMobile ? " mobile px-4" : "")}>
+      <div className={container + " content" + (isMobile ? " mobile px-4" : "")}>
         <div className="referral my-5 text-center">
             <h2>Earn 40% of the commission that you refer to QUANTA</h2>
             <p>Paid in trading asset (BTC, ETH, TUSD, QDEX, etc)</p>
-            { this.props.lifetime ?
+            { lifetime ?
                 <div className="d-flex justify-content-center mt-5">
                     <input id="referral-url" className="mr-4"
-                        type="text" readOnly value={"https://trade.quantadex.com/?referrer=" + this.props.name} />
+                        type="text" readOnly value={"https://trade.quantadex.com/?referrer=" + name} />
                     <button className="copy-btn cursor-pointer" onClick={this.copyText}>Copy</button>
                 </div>
 
-                : <button className="mt-5 px-5" disabled={!this.props.private_key}
+                : <button className="mt-5 px-5" disabled={!private_key}
                     onClick={() => this.setState({confirmDialog: true})}>
-                    {this.props.private_key ? "" : <LockIcon /> }
+                    {private_key ? "" : <LockIcon /> }
                     JOIN REFERAL PROGRAM
                   </button>
             }
@@ -143,7 +142,7 @@ class Referral extends Component {
                     </tr>
                 </thead>
                 <tbody>
-                    {this.props.referral_paid.map(paid => {
+                    {referral_paid.map(paid => {
                         const coin = window.assets[paid.asset_id]
                         const real_amount = Utils.maxPrecision(paid.amount / Math.pow(10, coin.precision), coin.precision)
                         const usd_value = window.USD_value[paid.asset_id] ? Utils.maxPrecision(parseFloat(real_amount) * window.USD_value[paid.asset_id], 2) : "-"
@@ -188,7 +187,7 @@ const mapStateToProps = (state) => ({
     lifetime: state.app.lifetime,
     name: state.app.name,
     referral_paid: state.app.referral_paid || [],
-    qdex_amount: state.app.balance || []
+    balance: state.app.balance || {}
 });
 
 

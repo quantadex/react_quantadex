@@ -11,7 +11,6 @@ import DiceInput from './input.jsx'
 import Stats from './stats.jsx'
 import Chat from './chat.jsx'
 import CONFIG from '../../config.js'
-import lodash from 'lodash';
 
 const container = css `
     min-height: 100vh;
@@ -180,7 +179,7 @@ const container = css `
             background: #57A38B;
 
             button {
-                background: rgb(230,213,69);
+                background: #b09520;
             }
 
             button:disabled {
@@ -400,7 +399,7 @@ class DiceGame extends Component {
 
     setAsset(asset) {
         this.stopAutoRoll()
-        const precision = window.assets[asset].precision
+        const precision = window.assetsBySymbol[asset].precision
         const zero = (0).toFixed(precision)
         const precision_min = (1/Math.pow(10, precision)).toFixed(precision)
         this.setState({asset, precision, precision_min, amount: 1,
@@ -731,7 +730,7 @@ class DiceGame extends Component {
 const mapStateToProps = (state) => ({
         private_key: state.app.private_key,
         name: state.app.name,
-        balance: state.app.balance ? lodash.keyBy(state.app.balance, "asset") : {}
+        balance: state.app.balance || {}
 	});
 
 export default connect(mapStateToProps)(DiceGame);

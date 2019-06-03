@@ -584,7 +584,7 @@ const app = (state = initialState, action) => {
 
       return {
         ...state,
-        balance: balances,
+        balance: lodash.keyBy(balances, "symbol"),
         vesting: vesting,
         genesis: genesis,
         referral_paid: referral_paid,

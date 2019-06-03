@@ -377,8 +377,7 @@ class Trade extends Component {
     setPercentAmount(perc, symbol) {
       const { balance } = this.props
       const { trade_side, price} = this.state
-      const coin = window.assetsBySymbol[symbol].id
-      const amount = balance[coin] ? balance[coin].balance * (parseInt(perc)/100) : 0
+      const amount = balance[symbol] ? balance[symbol].balance * (parseInt(perc)/100) : 0
 
       let qty, total
       if (trade_side == 0) {
@@ -408,16 +407,16 @@ class Trade extends Component {
         const counter = window.assetsBySymbol && window.assetsBySymbol[tradingPair[1]]
         const precisions = [base ? base.precision : 5, counter ? counter.precision : 5] || [0,0]
         var pairBalance = []
-        Object.keys(balance).forEach((currency) => {
-            if (!window.assets[balance[currency].asset]) {
+        Object.keys(balance).forEach((symbol) => {
+            if (!window.assetsBySymbol[symbol]) {
               return
             }
             var item = {}
-            item.currency = window.assets[balance[currency].asset].symbol
+            item.currency = symbol
             if (!tradingPair.includes(item.currency)) {
                 return
             }
-            item.amount = balance[currency].balance ? balance[currency].balance : 0
+            item.amount = balance[symbol].balance ? balance[symbol].balance : 0
             pairBalance.push(item)
         })
         const taker_fee = (window.assetsBySymbol && window.assetsBySymbol[tradingPair[trade_side]].options.market_fee_percent/100) || 0
@@ -572,8 +571,8 @@ class Trade extends Component {
 
                     { mobile && publicKey ?
                       <div className="d-flex justify-content-around flex-wrap qt-font-light qt-font-small text-secondary">
-                        <span className="mx-2">{base.symbol.split("0X")[0]} Balance: {balance[base.id] ? balance[base.id].balance : 0}</span>
-                        <span className="mx-2">{counter.symbol.split("0X")[0]} Balance: {balance[counter.id] ? balance[counter.id].balance : 0}</span>
+                        <span className="mx-2">{base.symbol.split("0X")[0]} Balance: {balance[base.symbol] ? balance[base.symbol].balance : 0}</span>
+                        <span className="mx-2">{counter.symbol.split("0X")[0]} Balance: {balance[counter.symbol] ? balance[counter.symbol].balance : 0}</span>
                       </div>
                       : null
                     }
@@ -592,7 +591,7 @@ const mapStateToProps = (state) => ({
     asks: state.app.tradeBook.asks,
     currentTicker: state.app.currentTicker,
     currentPrice: state.app.mostRecentTrade,
-    balance: state.app.balance && lodash.keyBy(state.app.balance, "asset"),
+    balance: state.app.balance || {},
     inputBuy: state.app.inputBuy,
     inputBuyAmount: state.app.inputBuyAmount,
     inputSetTime: state.app.setTime,
