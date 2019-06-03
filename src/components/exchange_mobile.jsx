@@ -1,131 +1,209 @@
 import React, { Component } from 'react';
-import Header from './header.jsx';
 import Chart from './chart.jsx';
 import DepthChart from './chart_depth.jsx';
 import TradingHistory from './trading_history.jsx';
 import OrderBook from './order_book.jsx';
 import Dashboard from './dashboard.jsx';
 import MobileHeader from './ui/mobileHeader.jsx';
+import Announcement from './announcement.jsx'
 import Orders from './orders.jsx';
 import Trade from './trade.jsx';
-import Leaderboard from './leaderboard.jsx'
+import Connect, { ConnectDialog } from './connect.jsx'
+import Message from './message.jsx'
+import Fund from './fund.jsx'
+import Settings from './settings.jsx'
+import MobileNav from './ui/mobileNav.jsx';
 import Status from './status.jsx'
-import FirstTime from './first_time.jsx'
-import QTTableView from './ui/tableView.jsx'
-import Order from './order.jsx';
-import Markets from './markets.jsx';
-import OpenOrders from './open_orders.jsx';
-import MobileNav from './ui/mobileNav.jsx'
-
-import {switchTicker, initBalance, getMarketQuotes} from "../redux/actions/app.jsx";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { connect } from 'react-redux'
-
+import Ticker from './ui/ticker.jsx';
 import { css } from 'emotion'
 import globalcss from './global-css.js'
+import CONFIG from '../config.js'
+import { UPDATE_STORAGE, LOGIN, updateUserData, reconnectIfNeeded } from '../redux/actions/app.jsx'
+import { getItem, clear } from '../common/storage.js';
+import ExportKey from './export_key.jsx'
+import AppDownload from './app_download.jsx'
+import ReactTooltip from 'react-tooltip'
 
-import { Link } from 'react-router-dom'
-
-import QTTableViewSimple from './ui/tableViewSimple.jsx'
-
-const container = css`
-	background-color:${globalcss.COLOR_BACKGROUND};
-	position: relative;
-	height: 100vh;
-	width: 100%;
-
-	.exchange-left {
-		width:281px;
-		padding:22px 20px;
-	}
-
-	.exchange-middle {
-		padding: 21px 19px;
-		flex-grow:1;
-		background-color:rgba(17,20,22,1);
-		padding-bottom: 0;
-	}
-
-	.exchange-right {
-		width:300px;
-		background-color: rgba(0,0,0,0.26)
-	}
-
-	.exchange-bottom {
-		position: absolute;
-		width: 100%;
-		bottom: 0;
-		background-color: #23282c;
-		z-index: 99;
+function openAllLinksWithBlankTargetInSystemBrowser() {
+    if ( typeof cordova === "undefined" || !cordova.InAppBrowser ) {
+        return
 	}
 	
+    delete window.open; 
+    var windowOpen = window.open; 
+
+    var systemOpen = function(url, options) {
+        cordova.InAppBrowser.open(url,"_system",options);
+    };
+
+    window.open = function(url,target,options) {
+        if ( target == "_blank" ) systemOpen(url,options);
+        else windowOpen(url,target,options);
+	};
+	
+    $(document).on('click', 'a[target=_blank]', function(event) {
+        event.preventDefault();
+        systemOpen($(this).attr('href'));
+    });
+}
+
+const container = css`
+	background-color: #0A121E;
+	height: 100vh;
+	width: 100%;
+	
 	#tv_chart_container, #depth_chart_container {
-		height: calc(100vh - 180px);
+		height: calc(100vh - 350px);
 		min-height: 370px !important;
 	}
 
+	.exchange-bottom {
+		position: fixed;
+		bottom: 0;
+		background-color: #0A121E;
+		width: 100%;
+		z-index: 99;
+	}
+
 	.switch-chart {
-		position: absolute;
-		flex-flow: column;
-		right: 20px;
-		margin-top: 10px;
+		white-space: nowrap;
 		z-index: 1;
 
 		button {
-			margin-bottom: 10px;
+			width: 50%;
+			background: transparent;
 			padding: 5px 10px;
 			font-size: 12px;
-			border-radius: 20px;
 			font-weight: bold;
-			background: #111;
 			color: #ddd;
-			border: 2px solid #333;
+			border-bottom: 1px solid #333;
 			cursor: pointer;
 		}
 		button.active {
-			color: #50b3b7;
-			border-color: #50b3b7;
+			color: #fff;
+			border-bottom: 2px solid #fff;
 		}
 	}
 
-	.exchange-dashboard {
-		border-bottom: solid 1px #121517;
-	}
-
-	.no-scroll-bar {
-		position: relative;
-		overflow: hidden;
-	}
-	.no-scroll-bar > div {
-		height: 100%;
-		box-sizing: content-box;
-		position: absolute;
-		left: 0;
-		right: 0;
-		overflow-y: scroll;
+	.order-status-btn {
+		width: min-content;
+		min-height: 26px;
+		background: url(${devicePath("public/images/order-status.svg")}) no-repeat 0 50%;
+		padding-left: 35px;
 	}
 
 	#market-dropdown {
+		width: max-content;
+		white-space: nowrap;
 		padding-right: 15px;
-		background: url('../public/images/menu-arrow-down.svg') no-repeat 100% 50%;
+		background: url(${devicePath("public/images/menu-arrow-down.svg")}) no-repeat 100% 50%;
 		cursor: pointer;
 	}
 
 	#market-list {
-		position: absolute;
+		position: fixed;
+		top: 60px;
+		height: 0px;
 		width: 100%;
-		height: 0;
-		overflow: hidden;
-		background-color: #222
+		overflow: scroll;
+		background-color: #0A121E;
 		transition: height 0.3s;
 		z-index: 10;
 	}
 
 	#market-list.active {
-		height: calc(100% - 182px);
+		height: calc(100% - 60px);
+		padding-bottom: 65px;
 	}
 
-	.content {
-		height: calc(100% - 182px);
+	.mobile-content {
+		height: 100%;
+		padding-bottom: 63px;
+		overflow-y: scroll;
+		.tabs {
+			width: 100%;
+			font-size: 12px;
+		}
+	
+		.tab-row {
+			background-color: transparent;
+			margin: 0;
+			height: auto;
+			border: none;
+			font-size: 12px;
+			white-space: nowrap;
+			position: -webkit-sticky;
+			position: sticky;
+			top: 0;
+			background: #0A121E;
+			z-index: 1;
+		}
+	}
+
+	.trade-options {
+		position: fixed;
+		bottom: 0px;
+		width: 100%;
+		text-align: center;
+		padding: 5px 10px;
+		background-color: #222730;
+		
+		button {
+			display: block;
+			height: 37px;
+			width: 100%;
+			padding: 8px;
+			font-size: 14px;
+			color: #fff;
+		}
+		
+		.buy-btn {
+			background-color: #50b3b7;
+			border-top-left-radius: 2px;
+      		border-bottom-left-radius: 2px;
+		}
+		.sell-btn {
+			background-color: #da3c76;
+			border-top-right-radius: 2px;
+      		border-bottom-right-radius: 2px;
+		}
+	}
+
+	&.web {
+		.mobile-content {
+			padding-bottom: 65px;
+		}
+
+		#market-list {
+			top: 91px;
+		}
+
+		#market-list.with-banner {
+			top: 149px;
+		}
+
+		#market-list.active {
+			height: calc(100% - 91px);
+			padding-bottom: 70px;
+		}
+
+		#market-list.active.with-banner {
+			height: calc(100% - 149px);
+		}
+
+		.trade-options {
+			bottom: 65px;
+		}
+	}
+
+	.websocket-status {
+		background: #dc3545;
+		position: fixed;
+		width: 100%;
+		z-index: 10;
 	}
 `;
 
@@ -133,99 +211,327 @@ class Exchange extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			selectedTabIndex: 2,
-			chart: "tv"
-		};
-	  }
+			selectedTabIndex: 0,
+			headerIndex: window.isApp ? "markets" : "chart",
+			contentIndex: window.isApp ? "markets" : "chart",
+			params: {},
+			showMarkets: false,
+			chart: "tv",
+			dialog: undefined,
+			showBenchmark: true,
+			announcements: false,
+			web_android: !window.isApp && navigator.userAgent.toLowerCase().indexOf("android") > -1,
+			app_download: false
+		}
 
-	componentWillReceiveProps(nextProps) {
-		if (nextProps.inputSetTime != undefined && nextProps.inputSetTime != this.state.inputSetTime) {
-			this.setState({
-				inputSetTime: nextProps.inputSetTime,
-				selectedTabIndex: 0
-			  })
+		this.MarketsList = this.MarketsList.bind(this)
+		this.Switchchart = this.Switchchart.bind(this)
+		this.ChartContent = this.ChartContent.bind(this)
+		this.TradeButtons = this.TradeButtons.bind(this)
+	}
+
+	componentDidMount() {
+		const self = this;
+		const { dispatch } = this.props
+		fetch(CONFIG.getEnv().ANNOUNCEMENT_JSON, {mode: "cors"}).then(e => e.json())
+		.then(data => {
+			const entries = data.entries
+			if (entries && entries.length > 0) {
+				self.setState({announcements: entries.slice(0,3)})
+			}
+			if (data.mobile_android_banner !== undefined) {
+				self.setState({app_download: data.mobile_android_banner})
+			}
+		}).catch(e=>{
+			console.log(e)
+		})
+		
+		document.addEventListener("deviceready", async ()=> {
+			navigator.splashscreen && navigator.splashscreen.hide();
+			openAllLinksWithBlankTargetInSystemBrowser()
+			document.addEventListener("backbutton", () => {
+				const { selectedTabIndex, headerIndex } = this.state
+				const header = this.Header(headerIndex)
+				if (header.left && !header.left_icon) {
+					this.handleSwitch(selectedTabIndex)
+				} else if (selectedTabIndex !== 0) {
+					this.handleSwitch(0)
+				} else {
+					navigator.app.exitApp()
+				}
+
+			}, false);
+			
+			try {
+				const env = await getItem("env")
+				if (env !== this.props.network) await clear()
+				const publicKey = await getItem("publicKey")
+				const name = await getItem("name")
+				const userId = await getItem("id")
+				const lifetime = await getItem("lifetime")
+				
+				dispatch({
+					type: UPDATE_STORAGE,
+					data: {
+						publicKey: publicKey || "", 
+						name, 
+						userId, 
+						lifetime: lifetime === true || lifetime === "true"
+					}
+				})
+				
+				if (publicKey && userId) {
+					setTimeout(() => {
+						dispatch(updateUserData())
+					}, 0)
+				}
+
+				getItem("private_key").then(private_key => {
+					dispatch({
+						type: LOGIN,
+						private_key: private_key
+					})
+				})
+			} catch(e) {
+				console.log(e)
+			}
+
+		}, false);
+
+		document.addEventListener("resume", () => {
+			dispatch(reconnectIfNeeded())
+		}, false);
+
+		!window.isApp && window.addEventListener("focus", () => {
+			dispatch(reconnectIfNeeded())
+		});
+	}
+
+	handleSwitch(index, params = {}) {
+		var contentIndex = index
+		var tabIndex = typeof index === "number"
+		if (tabIndex) {
+			contentIndex = window.isApp ? ["markets", "trade", "wallet", "settings"][index] : ["chart", "trade", "orders", "wallet"][index]
+		}
+
+		var data = {contentIndex: contentIndex, headerIndex: contentIndex, showMarkets: false, params}
+		if (tabIndex) {
+			data.selectedTabIndex = index
+		}
+		this.setState(data)
+		document.getElementById("content").scrollTo({top: 0})
+	}
+
+	Switchchart() {
+		const { chart } = this.state
+		return(
+			<div className="switch-chart d-flex align-items-center">
+				<button className={chart === "tv" ? "active": ""} onClick={() => this.setState({ chart: "tv" })}>Price Chart</button>
+				<button className={chart === "depth" ? "active": ""} onClick={() => this.setState({ chart: "depth" })}>Depth Chart</button>
+				{!window.isApp ? <this.MarketsList /> : null}
+			</div>
+		)
+	}
+
+	ChartContent() {
+		const { showBenchmark, chart } = this.state
+		return (
+			<div>
+				<this.Switchchart />
+				<Chart chartTools={false} mobile={true} showBenchmark={showBenchmark} className={chart === "tv" ? "d-block": "d-none"} />
+				<DepthChart mobile={true} className={chart === "depth" ? "d-block": "d-none"} />
+			</div>
+		)
+	}
+
+	MarketsList() {
+		return (
+			<div id="market-dropdown" className={"mx-3" + (window.isApp ? "" : " qt-font-small")} onClick={() => this.setState({showMarkets: !this.state.showMarkets})}>
+				<Ticker ticker={this.props.currentTicker} />
+			</div>
+		)
+	}
+
+	OrderStatus() {
+		return (
+			<div className="order-status-btn">
+				Order Status
+			</div>
+		)
+	}
+
+	TradeButtons() {
+		const { currentTicker } = this.props
+		if (!currentTicker) return null
+		const coin = currentTicker.split('/')[0].split('0X')
+		const coin_label = coin[0] + (coin[1] ? '0x' + coin[1].substr(0,4) : "")
+		return (
+			<div className="trade-options d-flex">
+				<button className="buy-btn" onClick={() => this.handleSwitch(1, {trade_side: 0})}>BUY {coin_label}</button>
+				<button className="sell-btn" onClick={() => this.handleSwitch(1, {trade_side: 1})}>SELL {coin_label}</button>
+			</div>
+		)
+	}
+
+	Header(index) {
+		const { publicKey } = this.props
+		const { selectedTabIndex } = this.state
+
+		switch (index) {
+			case "markets": 
+				return {header: <img src={devicePath("public/images/logo.svg")} alt="QUANTADEX" />}
+			case "trade": 
+				return {header: <this.MarketsList />, 
+					left: () => this.handleSwitch("chart"),
+					left_icon: devicePath("public/images/chart-icon.svg"),
+					right: publicKey ? {label: <this.OrderStatus />, action: () => this.handleSwitch("orders")} : null }
+			case "wallet": 
+				return {header: "Wallet"}
+			case "settings": 
+				return {header: "Settings"}
+
+			case "chart": 
+				return {header: <this.MarketsList />, left: () => this.handleSwitch(selectedTabIndex)}
+			case "connect": 
+				return {header: "Connect", left: () => this.handleSwitch(selectedTabIndex)}
+			case "create": 
+				return {header: "Connect", left: () => this.handleSwitch(selectedTabIndex)}
+			case "message": 
+				return {header: "Sign / Verify", left: () => this.handleSwitch(selectedTabIndex)}
+			case "orders": 
+				return {header: "Orders", left: () => this.handleSwitch(selectedTabIndex)}
+			case "export_key": 
+				return {header: "Export Keys", left: () => this.handleSwitch(selectedTabIndex)}
 		}
 	}
 
-	toggleChart(chart) {
-		this.setState({ chart: chart })
-	}
+	Content(index) {
+		const { network, dispatch, publicKey } = this.props
+		const { announcements, params, selectedTabIndex } = this.state
+		switch (index) {
+			case "markets": 
+			return (
+				<React.Fragment>
+					{/* {announcements ? <Announcement announcements={announcements} image={true} className="border-bottom border-dark" /> : null} */}
+					<Dashboard 
+						announcements = {announcements ? <Announcement announcements={announcements} image={true} className="border-bottom border-dark" /> : null}
+						mobile={true} 
+						mobile_nav={() => this.handleSwitch("chart")} />
+				</React.Fragment>
+			)
+		case "trade": 
+			return (
+				<React.Fragment>
+					{!window.isApp ? <div className="mt-3"><this.MarketsList /></div> : null}
+					<Trade mobile={true} mobile_nav={() => this.handleSwitch("connect")} trade_side={params.trade_side || 0}/>
+					<OrderBook mobile={true} mirror={true}/>
+					<TradingHistory mobile={true}/>
+					<ToastContainer />
+				</React.Fragment>
+			)
+		case "wallet": 
+			if (publicKey) {
+				return <Fund mobile_nav={this.handleSwitch.bind(this)}/>
+			} 
+			return (
+				<div className="d-flex h-100 mx-auto" style={{maxWidth: "300px"}}>
+					<Connect mobile_nav={this.handleSwitch.bind(this)} />
+				</div>
+			)
+			
+		case "settings": 
+			return (
+				<Settings mobile_nav={this.handleSwitch.bind(this)} />
+			)
 
-	handleSwitch(index) {
-		this.setState({selectedTabIndex: index})
-		this.toggleMarketsList(null, true)
-	}
-
-	toggleMarketsList(e, force = false) {
-		const list = document.getElementById("market-list")
-		if (force) {
-			list.classList.remove("active")
-			return
-		}
-
-		if (list.classList.contains("active")) {
-			list.classList.remove("active")
-		} else {
-			list.classList.add("active")
+		case "chart": 
+			return(
+				<div style={{paddingBottom: window.isApp ? "0px" : "50px"}}>
+					<this.ChartContent />
+					<OrderBook mobile={true} mirror={true}/>
+					<this.TradeButtons />
+				</div>
+			)
+		case "connect": 
+			return (
+				<ConnectDialog default="connect" network={network} dispatch={dispatch} isMobile={true} 
+					mobile_nav={() => this.handleSwitch(window.isApp && selectedTabIndex === 3 ? 2 : selectedTabIndex)} />
+			)
+		case "create": 
+			return (
+				<ConnectDialog default="create" network={network} dispatch={dispatch} isMobile={true} 
+					mobile_nav={() => this.handleSwitch(window.isApp && selectedTabIndex === 3 ? 2 : selectedTabIndex)} />
+			)
+		case "message": 
+			return (
+				<Message />
+			)
+		case "orders": 
+			if (publicKey) {
+				return (
+					<React.Fragment>
+						<ToastContainer />
+						<Orders mobile={true} mobile_nav={this.handleSwitch.bind(this)} />
+					</React.Fragment>
+				)
+			} 
+			return (
+				<div className="d-flex h-100 mx-auto" style={{maxWidth: "300px"}}>
+					<Connect mobile_nav={this.handleSwitch.bind(this)} />
+				</div>
+			)
+		case "export_key": 
+			return (
+				<ExportKey />
+			)
 		}
 	}
 
 	render() {
-		const tabs = {	names: ["Trade", "Orders", "Chart", "Book", "History"],
-						selectedTabIndex: 2 }
+		const { app_download, web_android, showMarkets, selectedTabIndex, contentIndex, headerIndex } = this.state
+		const { websocket_status } = this.props
+		const tabs = {	names: ["Markets", "Trade", "Wallet", "Settings"] }
+		const web_tabs = { names: ["Chart", "Trade", "Orders", "Wallet"] }
 
-		const ChartContent = () => {
-			return (
-				<div>
-					<Switchchart />
-					<Chart chartTools={false}  className={this.state.chart === "tv" ? "d-block": "d-none"} />
-					<DepthChart  className={this.state.chart === "depth" ? "d-block": "d-none"} />
-				</div>
-			)
-		}
-		const content = [<Trade mobile={true} />, <Orders mobile={true}/>, <ChartContent />,
-						 <OrderBook mobile={true}/>, <TradingHistory mobile={true}/>]
-		const Switchchart = () => {
-			return(
-				<div className="switch-chart d-flex">
-					<button className={this.state.chart === "tv" ? "active": ""} onClick={() => this.toggleChart("tv")}>TradingView</button>
-					<button className={this.state.chart === "depth" ? "active": ""} onClick={() => this.toggleChart("depth")}>Depth</button>
-				</div>
-			)
-		}
 		return (
-		<div className={container}>
-			<MobileHeader />
-			<div className="d-flex qt-font-normal qt-font-bold p-4 justify-content-between border-bottom border-dark">
-				<div id="market-dropdown" onClick={this.toggleMarketsList}>MARKETS</div>
-				<div>{this.props.currentTicker}</div>
-			</div>
-			<div id="market-list">
-				<Dashboard mobile={true}/>
-			</div>
+		<div className={container + " d-flex flex-column" + (window.isApp ? " app" : " web")}>
+			{ app_download && web_android ?
+				<AppDownload />
+			: null
+			}
+			<MobileHeader header={this.Header(headerIndex)} mobile_nav={this.handleSwitch.bind(this)} />
 			
-
-			<div className="content">
-				{content[this.state.selectedTabIndex]}
+			<div id="content" className="mobile-content">
+				{ websocket_status ?
+						<div className="websocket-status text-center py-2">Connection Issue: {websocket_status}</div>
+					:null
+				}
+				<div id="market-list" className={(showMarkets ? "active" : "") + (app_download && web_android ? " with-banner" : "")}>
+					<Dashboard mobile={true} mobile_nav={() => this.setState({showMarkets: false})} />
+				</div>
+				{this.Content(contentIndex)}
 			</div>
-
 			<div className="exchange-bottom">
-				<MobileNav tabs={tabs} selectedTabIndex={this.state.selectedTabIndex} switchTab={this.handleSwitch.bind(this)} />
-				<Status mobile={true} />
+				<MobileNav 
+					hide={window.isApp && contentIndex === "chart"}
+					tabs={window.isApp ? tabs : web_tabs} 
+					selectedTabIndex={selectedTabIndex} 
+					switchTab={this.handleSwitch.bind(this)} 
+				/>
+				{window.isApp ? null : <Status mobile={true}/>}
 			</div>
-
-			{ localStorage.getItem("firstTimeComplete") ? null : <FirstTime mobile={true}/> }
+			<ReactTooltip clickable={true} html={true} />
 		</div>
 		);
 	}
 }
 
 const mapStateToProps = (state) => ({
+		network: state.app.network,
 		private_key: state.app.private_key,
-		leftOpen: state.app.ui.leftOpen,
-		rightOpen: state.app.ui.rightOpen,
+		publicKey: state.app.publicKey,
 		currentTicker: state.app.currentTicker,
-		inputSetTime: state.app.setTime,
+		websocket_status: state.app.websocket_status,
 	});
 
 

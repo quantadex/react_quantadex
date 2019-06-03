@@ -53,7 +53,7 @@ const Container = styled('div')`
   }
 
   &.icon-before.down .qt-dropdown-btn:before {
-    background-image: url('/public/images/menu-arrow-down.svg');
+    background-image: url(${devicePath("public/images/menu-arrow-down.svg")});
     width:6px;
     height:8px;
     background-size: 6px 10px;
@@ -64,7 +64,7 @@ const Container = styled('div')`
   }
 
   &.icon-after.down .qt-dropdown-btn:after {
-    background-image: url('/public/images/menu-arrow-down.svg');
+    background-image: url(${devicePath("public/images/menu-arrow-down.svg")});
     width:6px;
     height:8px;
     background-size: 6px 10px;
@@ -77,7 +77,7 @@ const Container = styled('div')`
   .qt-dropdown-menu {
     ${width};
     z-index:9999;
-    border: solid 1px rgba(255, 255, 255, 0.24);
+    border: solid 1px #55575A;
   }
 
   &.bordered.up .qt-dropdown-menu {
@@ -121,7 +121,11 @@ const Container = styled('div')`
 
 
   &.dark .qt-dropdown-item {
-    background-color: #121517;
+    background-color: #222;
+  }
+
+  &.dark .qt-dropdown-item:hover {
+    background-color: #333;
   }
 
   &.light .qt-dropdown-item {
@@ -179,7 +183,7 @@ export default class QTButton extends React.Component {
           {
             this.props.items.map((item,index) => {
               return (
-                <button className="qt-dropdown-item" data-value={item} onClick={this.updateValue.bind(this)}>{item}</button>
+                <button key={index} className="qt-dropdown-item" data-value={item} onClick={this.updateValue.bind(this)}>{item}</button>
               )
             })
           }

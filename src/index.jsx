@@ -2,8 +2,11 @@ import React from 'react';
 import {render} from 'react-dom';
 import Exchange from './components/exchange.jsx';
 import Fund from './components/fund.jsx';
-import Login, {GenerateKey} from './pages/login.jsx';
+import Message from './components/message.jsx';
 import Leaderboard from './components/leaderboard_full.jsx';
+import Landing from './pages/main/landing.jsx'
+import ExportKey from './components/export_key.jsx'
+import DiceGame from './pages/games/dice.jsx'
 
 import { createStore, applyMiddleware, compose } from 'redux'
 import { Provider } from 'react-redux'
@@ -11,38 +14,48 @@ import reducer from './redux/index.jsx'
 import thunk from 'redux-thunk';
 import DevTools from './redux/devtools.jsx';
 import logger from 'redux-logger'
-import { Router, Route, Switch,withRouter } from 'react-router-dom'
+import { Router, Route, Switch } from 'react-router-dom'
 
 import { injectGlobal } from 'emotion'
 import globalcss from './components/global-css.js'
-import createHistory from 'history/createBrowserHistory'
+import createHashHistory from 'history/createHashHistory'
+import createBrowserHistory from 'history/createBrowserHistory'
 import ReactGA from 'react-ga';
+ 
+ReactGA.initialize(window.isApp ? 'UA-114919036-4': 'UA-114919036-3');
+ReactGA.set({ checkProtocolTask: null })
 
-ReactGA.initialize('UA-114919036-3');
+window.addEventListener('keyboardDidShow', function () {
+	document.getElementById('app').classList.add("keyboard-show")
+});
+
+window.addEventListener('keyboardDidHide', function () {
+	document.getElementById('app').classList.remove("keyboard-show")
+});
 
 // , applyMiddleware(logger)
 
 injectGlobal`
 	@font-face {
 	  font-family: "SFCompactTextBold";
-	  src: url("/public/styles/fonts/SFCompactText-Bold.otf");
+	  src: url(${devicePath("public/styles/fonts/SFCompactText-Bold.otf")});
 	}
 	@font-face {
 		font-family: "SFCompactTextRegular";
-		src: url("/public/styles/fonts/SFCompactText-Regular.otf");
+		src: url(${devicePath("public/styles/fonts/SFCompactText-Regular.otf")});
 	}
 	@font-face {
 		font-family: "SFCompactTextLight";
-		src: url("/public/styles/fonts/SFCompactText-Light.otf");
+		src: url(${devicePath("public/styles/fonts/SFCompactText-Light.otf")});
 	}
 	@font-face {
 		font-family: "SFCompactTextSemiBold";
-		src: url("/public/styles/fonts/SFCompactText-Semibold.otf");
+		src: url(${devicePath("public/styles/fonts/SFCompactText-Semibold.otf")});
 	}
 
 	@font-face {
 	  font-family: "Multicolore";
-	  src: url("/public/styles/fonts/Multicolore.otf");
+	  src: url(${devicePath("public/styles/fonts/Multicolore.otf")});
 	}
 
 	* {
@@ -71,10 +84,6 @@ injectGlobal`
       text-decoration: none;
       color:white;
   }
-
-	span {
-		pointer-events: none;
-	}
 
 	input {
 		height: 32px;
@@ -192,20 +201,38 @@ injectGlobal`
 		border-bottom: 2px solid rgba(255,255,255,1) !important;
 	}
 
+	.cursor-pointer {
+		cursor: pointer;
+	}
+
+	.keyboard-show {
+		.exchange-bottom {
+			display: none !important;
+		}
+
+		.mobile-content {
+			margin-bottom: 0;
+		}
+	}
+
+	.grecaptcha-badge {
+		display: none;
+	}
+
+	.__react_component_tooltip {
+		white-space: normal !important;
+	}
 `
 
 const store = createStore(reducer, compose(applyMiddleware(thunk)))
 
-const FundPage = (page,props) => {
-	return (
-		<Fund
-			{...props}
-			page={page}
-		/>
-	)
+var history
+if (window.isApp) {
+	history = createHashHistory()
+} else {
+	history = createBrowserHistory()
 }
 
-const history = createHistory()
 history.listen((location, action) => {
 	//console.log("history change ", location.pathname);
 	ReactGA.set({ page: location.pathname });
@@ -214,21 +241,22 @@ history.listen((location, action) => {
 
 
 class Container extends React.Component {
-
-
   render () {
     return (
     <Provider store={store}>
 				<Router history={history}>
         <Switch>
-					<Route exact path="/" component={Exchange} />
-			<Route exact path="/exchange" component={Exchange} />
-			<Route path="/exchange/wallets" render={FundPage.bind(this,"wallets")} />
-			<Route path="/exchange/history" render={FundPage.bind(this,"history")} />
-			<Route path="/exchange/orders" render={FundPage.bind(this,"orders")} />
-			<Route exact path="/login" component={Login} />
-			<Route exact path="/keygen" component={GenerateKey} />
-			<Route exact path="/leaderboard" component={Leaderboard} />
+					<Route exact path="/" component={window.isApp ? Exchange : Landing} />
+					<Route exact path="/:net" component={Exchange} />
+					<Route exact path="/:net/dice" component={DiceGame} />
+					<Route exact path="/:net/exchange" component={Exchange} />
+					<Route exact path="/:net/exchange/:ticker" component={Exchange} />
+					<Route exact path="/:net/wallets" component={Fund} />
+					<Route exact path="/:net/message" component={Message} />
+					<Route exact path="/:net/export_key" component={ExportKey} />
+					<Route exact path="/:net/leaderboard" component={Leaderboard} />
+
+					<Route component={window.isApp ? Exchange : Landing}/>
         </Switch>
       </Router>
     </Provider>);

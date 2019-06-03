@@ -73,7 +73,7 @@ class Banner extends Component {
 		return (
 			<div className={banner_container}>
 				<div className="content">
-					<img src="/public/images/trophy.svg"/>
+					<img src={devicePath("public/images/trophy.svg")}/>
 					<p className="info">Participate QDEX Fantasy and<br/> <b>win up to $50K USD*</b></p>
 
 					<Leaderboard tableOnly={true}/>

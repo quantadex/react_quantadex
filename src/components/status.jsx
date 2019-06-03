@@ -1,92 +1,119 @@
 import React, { Component } from 'react';
 import { css } from 'emotion'
 import { connect } from 'react-redux'
+import { LOGIN } from '../redux/actions/app.jsx'
+import { withRouter} from "react-router-dom";
 
 const container = css`
     display: flex;
-    position: fixed;
-    bottom: 0;
     width: 100%;
-    background-color: #ffffff;
-    overflow: hidden;
+    white-space: nowrap;
+    line-height: 25px;
     z-index: 2;
 
-    .status-info {
-        width: 100%;
-        padding: 5px 0px 5px 30px;
-        color: #000;
-        font-size: 15px;
-        font-weight: bold;
-        white-space: nowrap;
+    .blocknum, .avg-lat, .net-select, .support {
+        border-left: 1px solid #444;
+        padding-right: 10px;
+    }
 
+    .brand {
+        width: 100%;
+        padding-left: 10px;
+    }
+    .blocknum {
+        background: url(${devicePath("public/images/blockchain.svg")}) no-repeat 10px;
+        padding-left: 40px;
+    }
+    .support {
+        padding-left: 10px;
         a {
-            margin-left: 5px;
-            color: #000;
+            color: #1cdad8 !important;
         }
     }
+    .avg-lat {
+        background: url(${devicePath("public/images/time.svg")}) no-repeat 10px;
+        padding-left: 32px;
+    }
 
-    .status-info.brand {
-        background: #eeeeef linear-gradient(to right, #ffffff, #eeeeef);
-        flex: 0 0 260px;
+    .net-select {
+        background: url(${devicePath("public/images/menu-arrow-down.svg")}) no-repeat 100% 9px;
+        padding: 0 15px 0 10px;
+        margin-right: 10px;
+        cursor: pointer;
+        user-select: none;
     }
-    .label {
-        font-size: 12px;
-        color: #999;
-        font-weight: 100;
+    .net-options {
+        display: none;
+        position: absolute;
+        bottom: 25px;
+        right: -5px;
+        border: 3px solid #000;
+        background: #23282c;
+        
+        div {
+            padding: 5px 20px;
+            border-bottom: 1px solid #333;
+        }
+        div:last-child {
+            border: none;
+        }
+        div:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
     }
+    .net-select:hover .net-options{
+        display: block;
+    }
+    
 
     &.mobile {
         position: relative;
         font-size: 13px;
-        justify-content: space-evenly;
-
-        .status-info {
+        justify-content: space-between;
+        .brand {
             display: none;
-            padding: 5px 0;
-            width: auto;
-            .label {
-                margin-right: 5px;
-            }
-            a {
-                margin: 0;
-            }
         }
+
+        .support {
+            width: 100%;
+            text-align: center;
+        }
+
         .explorer, .avg-lat {
             display: inline-block;
         }
-        div {
+        .blocknum, .avg-lat, .net-select {
             display: inline-block;
         }
     }
 `;
 
 class Status extends Component {
+    switchExNet(net) {
+        let current = window.location.pathname.startsWith("/testnet") ? "testnet" : "mainnet"
+        if (net == current) return
+        const defaultTicker = net == "mainnet" ? 'ETH_BTC' : 'ETH_USD'
+
+        window.location = "/" + net + "/exchange/" + defaultTicker
+    }
+    
     render() {
+        const { mobile, blockInfo } = this.props
+        const netsList = [{name: "mainnet"}, {name: "testnet"}]
+
         return (
-            <div id="quanta-status" className={container + (this.props.mobile ? " mobile" : "")}>
-                <div className="status-info brand">
-                    <span className="label">Powered by </span>
-                    <div>QUANTA - Fair Trading Protocol</div>
-                </div>
-                <div className="status-info explorer">
-                    <span className="label">QUANTA </span>
-                    <div><a href="http://testnet.quantadex.com" target="_blank">Explorer <img src="/public/images/external-link.svg" /></a></div>
-                </div>
-                <div className="status-info">
-                    <span className="label">HIGHEST BLOCK</span>
-                    <div>{this.props.blockInfo.blockNumber} <a><img src="/public/images/external-link.svg" /></a></div>
-                </div>
-                <div className="status-info avg-lat">
-                    <span className="label">{this.props.mobile ? "Avg. Block latency" : "AVERAGE BLOCK LATENCY"}</span>
-                    <div>{ this.props.blockInfo.blockTime} ms</div>
-                </div>
-                <div className="status-info">
-                    <span className="label">NUMBER OF NODES </span>
-                    <div>5</div>
-                </div>
-                <div className="status-info">
-                    <span className="label">ON-CHAIN CUSTODY </span>
-                    <div>2 tokens <a><img src="/public/images/external-link.svg" /></a></div>
+            <div id="quanta-status" className={container + (mobile ? " mobile" : "")}>
+                <div className="brand">QUANTA Fair Trading Protocol</div>
+                <div className="support"><a href="https://quantadex.zendesk.com/hc/en-us" target="_blank">{mobile ? "Help" : "Customer Support"}</a></div>
+                <div className="blocknum" title="Highest Block">{blockInfo.blockNumber}</div>
+                <div className="avg-lat" title="Average Block Latency">{blockInfo.blockTime}ms</div>
+                <div className="net-select position-relative text-uppercase">
+                    {window.location.pathname.startsWith("/testnet") ? "testnet" : "mainnet"}
+                    <div className="net-options">
+                        {netsList.map(item => {
+                            return <div key={item.name} onClick={() => this.switchExNet(item.name)}>{item.name}</div>
+                        })}
+                    </div>
                 </div>
             </div>
         )
@@ -94,6 +121,7 @@ class Status extends Component {
 }
 
 const mapStateToProps = (state) => ({
+    network: state.app.network,
     blockInfo: state.app.blockInfo || {}
 });
 

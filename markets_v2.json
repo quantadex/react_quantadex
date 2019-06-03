@@ -1,0 +1,53 @@
+{
+	"markets": {
+		"BTC": [
+			{ "name": "ETH/BTC","benchmarkSymbol": "BINANCE:ETH/BTC", "pricePrecision": 6},			
+			{ "name": "LTC/BTC", "benchmarkSymbol": "BINANCE:LTC/BTC", "pricePrecision": 6},
+			{
+				"name": "QDEX/BTC",
+				"pricePrecision": 6
+			}
+		],
+		"ETH": [
+			{ "name": "LTC/ETH","benchmarkSymbol": "BINANCE:LTC/ETH", "pricePrecision": 6},
+			{ "name": "BTC/ETH", "benchmarkSymbol": "BINANCE:BTC/ETH", "pricePrecision": 6},
+			{
+				"name": "QDEX/ETH",
+				"pricePrecision": 6
+			}
+		],
+		"USD": [
+			{ "name": "BTC/USD", "benchmarkSymbol": "BINANCE:BTC/USDT", "pricePrecision": 2},
+			{ "name": "ETH/USD", "benchmarkSymbol": "BINANCE:ETH/USDT", "pricePrecision": 2},
+			{
+				"name": "QDEX/USD", "pricePrecision": 2
+			}
+		]
+	},
+	"wallet_listing": 
+		[
+			"BTC",
+			"ETH",
+			"USD"
+		],
+	"coin_info": {
+		"QDEX": {
+			"website": "https://quantadex.com"
+		},
+		"QAIR": {
+			"website": "https://quantadex.com"
+		},		
+		"BTC": {
+			"website": "https://bitcoin.org"
+		},
+		"ETH": {
+			"website": "https://www.ethereum.org"
+		},
+		"BCH": {
+			"website": "https://www.bitcoincash.org"
+		},
+		"LTC": {
+			"website": "https://litecoin.org"
+		}
+	}
+}

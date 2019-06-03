@@ -2,6 +2,27 @@ import utils from "./utils";
 import { LimitOrder, FillOrder } from "./MarketClasses";
 import Immutable from "immutable";
 
+export function getBaseCounter(market) {
+	if (!market) return {}
+	const parts = market.split("/")
+	return {
+		base: assetsBySymbol[parts[0]],
+		counter: assetsBySymbol[parts[1]]
+	}
+}
+
+export function validMarketPair(a, b) {
+	const pair = [a, b]
+	const base = assets[a].symbol
+	const counter = assets[b].symbol
+	const symbolA = [base, counter]
+
+	const foundA = window.marketsHash[symbolA.join("/")]
+
+	return foundA ? pair : pair.reverse()
+}
+
+
 export function calculateStartDate(endDate, interval, ticks) {
 	return new Date(endDate.getTime() - (interval * ticks))
 }
@@ -15,7 +36,7 @@ export function transformPriceData(priceHistory, baseAsset, quoteAsset) {
 		if (!/Z$/.test(current.key.open)) {
 			current.key.open += "Z";
 		}
-		let date = new Date(current.key.open);
+		let date = new Date(current.key.open).getTime();
 
 		if (quoteAsset.id === current.key.quote) {
 			high = utils.get_asset_price(
@@ -121,7 +142,7 @@ export function transformPriceData(priceHistory, baseAsset, quoteAsset) {
 			low = findMin(open, close);
 		}
 
-		prices.push({ time: date.getTime(), open, high, low, close, volume });
+		prices.push({ time: date, open, high, low, close, volume });
 	}
 
 	return prices;

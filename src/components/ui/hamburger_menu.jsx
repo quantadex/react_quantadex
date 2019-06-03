@@ -1,9 +1,9 @@
 import React, {PropTypes} from 'react';
 import { Redirect, withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
-import { LOGIN } from '../../redux/actions/app.jsx'
+import { TOGGLE_CONNECT_DIALOG, LOGOUT } from '../../redux/actions/app.jsx'
 import { css } from 'emotion'
-
+import {clear} from '../../common/storage.js'
 import { Link } from 'react-router-dom'
 
 const container = css`
@@ -91,29 +91,31 @@ export class HamburgerMenu extends React.Component {
 
   render() {
     const a = Math.random()
+    const { mobile_nav, isMobile } = this.props
     return (
       <div ref="hamburgerMenu" className={container}>
-        <a><img src="/public/images/menuicons/hamburger.svg" width="16" height="16" /></a>
+        <a><img src={devicePath("public/images/menuicons/hamburger.svg")} width="16" height="16" /></a>
         <div className={"hamburger-menu flex-column position-absolute qt-font-small qt-font-regular " + (this.state.menuOpen ? 'd-flex' : 'd-none')}>
           {
             this.props.menuList.map((e, index) => {
-
               if (index == 0) {
                 return (
-                  <div className="group-head d-flex flex-column align-items-center justify-content-center">
-                    <div className="header qt-font-light">${this.props.total_fund ? (this.props.total_fund).toFixed(0): "N/A"}</div>
+                  <div key={index} className="group-head d-flex flex-column align-items-center justify-content-center">
+                    <div className="header qt-font-light">${this.props.total_fund ? this.props.total_fund.toLocaleString(navigator.language, {maximumFractionDigits: 0}): "N/A"}</div>
                     <div className="subheader">{e.items[0].subheader}</div> {/*<a className="qt-cursor-pointer qt-color-theme">hide</a>*/}
                   </div>
                 )
               }
+              if (isMobile && index == 1) return
 
               return (
-                <div className={"group " + css`background-color:${e.backgroundColor};`}>
+                <div key={index} className={"group " + css`background-color:${e.backgroundColor};`}>
                   {
-                    e.items.map((item) => {
-                      if (item.onClick) {
+                    e.items.map((item, index) => {
+                      if ((isMobile && item.mobile_nav) || item.onClick) {
+                        if ( this.props.private_key && item.text == "Unlock" ) return
                         return (
-                          <a onClick={item.onClick}
+                          <a key={index} onClick={isMobile && item.mobile_nav ? () => item.mobile_nav(mobile_nav) : () => item.onClick(this.props.dispatch)}
                              className="d-flex menu-row qt-cursor-pointer"
                              onMouseOver={this.handleHover.bind(this,item.iconPathActive)}
                              onMouseLeave={this.handleHover.bind(this,item.iconPath)}>
@@ -122,8 +124,9 @@ export class HamburgerMenu extends React.Component {
                           </a>
                         )
                       } else {
+                        if ( this.props.network == "mainnet" && item.text == "Leaderboard" ) return
                         return (
-                          <Link to={item.url}
+                          <Link key={index} to={item.text == "Exchange" && this.props.currentTicker ? item.url + this.props.currentTicker.replace("/", "_") : item.url}
                                 onMouseOver={this.handleHover.bind(this,item.iconPathActive)}
                                 onMouseLeave={this.handleHover.bind(this,item.iconPath)}
                                 className="d-flex menu-row">
@@ -144,7 +147,7 @@ export class HamburgerMenu extends React.Component {
   }
 }
 
-
+var net = window.location.pathname.startsWith("/testnet") ? "testnet" : "mainnet"
 HamburgerMenu.defaultProps = {
   menuList: [
     {
@@ -155,65 +158,60 @@ HamburgerMenu.defaultProps = {
   },
   {
     items: [{
-      iconPath:"/public/images/menuicons/quanta-grey.svg",
-      iconPathActive:"/public/images/menuicons/quanta-white.svg",
+      iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),
+      iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
       text:"Exchange",
-      url:"/exchange"
+      url:"/" + net + "/exchange/"
     }]
   },{
     items: [{
-      iconPath:"/public/images/menuicons/wallet-grey.svg",
-      iconPathActive:"/public/images/menuicons/wallet-white.svg",
+      iconPath: devicePath("public/images/menuicons/wallet-grey.svg"),
+      iconPathActive: devicePath("public/images/menuicons/wallet-white.svg"),
       text:"Wallets",
-      url:"/exchange/wallets"
-    },
-    {
-      iconPath:"/public/images/menuicons/quanta-grey.svg",
-      iconPathActive:"/public/images/menuicons/quanta-white.svg",
-      text:"Leaderboard",
-      url:"/leaderboard"
-    },
-    
-  //   {
-  //     iconPath:"/public/images/menuicons/deposit-grey.svg",
-  //     iconPathActive:"/public/images/menuicons/deposit-white.svg",
-  //     text:"Deposit / Withdraw",
-  //     url:"/exchange/wallets"
-  //   },{
-  //     iconPath:"/public/images/menuicons/fund-history-grey.svg",
-  //     iconPathActive:"/public/images/menuicons/fund-history-white.svg",
-  //     text:"Funds History",
-  //     url:"/exchange/history"
-  //   },{
-  //     iconPath:"/public/images/menuicons/order-history-grey.svg",
-  //     iconPathActive:"/public/images/menuicons/order-history-white.svg",
-  //     text:"Orders History",
-  //     url:"/exchange/orders"
-  //   }]
-  // },{
-  //   items: [{
-  //     iconPath:"/public/images/menuicons/referral-grey.svg",
-  //     iconPathActive:"/public/images/menuicons/referral-white.svg",
-  //     text:"Referrals",
-  //     url:"/referrals"
-  //   }]
-  // },{
-  //   items: [{
-  //     iconPath:"/public/images/menuicons/profile-grey.svg",
-  //     iconPathActive:"/public/images/menuicons/profile-white.svg",
-  //     text:"Profile",
-  //     url:"/exchange/wallets"
-  //   }
+      url:"/" + net + "/wallets",
+      mobile_nav: (mobile_nav) => mobile_nav(3)
+    },{
+      iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),
+      iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
+      text:"Sign/Verify",
+      url:"/" + net + "/message",
+      mobile_nav: (mobile_nav) => mobile_nav("message")
+    },{
+      iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),
+      iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
+      text:"Export Private Key",
+      url:"/" + net + "/export_key",
+      mobile_nav: (mobile_nav) => mobile_nav("export_key")
+    }
+    // {
+    //   iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),
+    //   iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
+    //   text:"Leaderboard",
+    //   url:"/" + net + "/leaderboard"
+    // },
   ],
     backgroundColor:"rgba(40, 48, 52,0.36)"
   },{
     items: [{
-      iconPath:"/public/images/menuicons/quanta-grey.svg",
-      iconPathActive:"/public/images/menuicons/quanta-white.svg",
+      iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),
+      iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
+      text:"Unlock",
+      onClick: (dispatch) => {
+        dispatch({
+          type: TOGGLE_CONNECT_DIALOG,
+          data: "connect"
+        })
+      },
+      mobile_nav: (mobile_nav) => mobile_nav("connect")
+    },{
+      iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),
+      iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
       text:"Logout",
-      // url:"/login"
-      onClick: () => {
-        window.location.assign('/login')
+      onClick: (dispatch) => {
+        clear()
+        dispatch({
+          type: LOGOUT
+        })
       }
     }],
     backgroundColor:"#323b40"
@@ -224,7 +222,11 @@ HamburgerMenu.propTypes = {
 };
 
 const mapStateToProps = (state) => ({
-  total_fund: state.app.totalFundValue
+  total_fund: state.app.totalFundValue,
+  currentTicker: state.app.currentTicker,
+  network: state.app.network,
+  private_key: state.app.private_key,
+  isMobile: state.app.isMobile
 });
 
 export default connect(mapStateToProps)(withRouter(HamburgerMenu))

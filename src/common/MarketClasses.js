@@ -1202,7 +1202,7 @@ class FillOrder {
             fill = {
                 id: fill.id,
                 op: fill.op[1],
-                time: null,
+                time: fill.time,
                 block: fill.block_num
             };
         }
@@ -1217,7 +1217,7 @@ class FillOrder {
         this.isCall = utils.is_object_type(fill.op.order_id, "call_order")
             ? true
             : false;
-
+            
         this.isBid = fill.op.receives.asset_id === this.market_base;
         this.className = this.isCall
             ? "orderHistoryCall"

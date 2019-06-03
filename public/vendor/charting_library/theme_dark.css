@@ -26,7 +26,7 @@ html, body {
 }
 
 .chart-loading-screen {
-  background-color: #1b262d !important;
+  background-color: transparent !important;
 }
 
 .tv-side-toolbar {
@@ -56,8 +56,8 @@ a:hover {
 }
 
 .chart-page .chart-container {
-  background-color: #1b262d !important;
-  border-color: rgba(17,20,22,1) !important;
+  background-color: #23282c !important;
+  border-color: #23282c !important;
 }
 
 .header-chart-panel {
@@ -65,7 +65,7 @@ a:hover {
 }
 
 .tv-side-toolbar {
-  background-color: #1b262d !important;
+  background-color: #23282c !important;
   border-color: #121b21 !important;
   color: #999 !important;
 }
@@ -97,7 +97,7 @@ a:hover {
 }
 
 .chart-controls-bar {
-  background: rgba(17,20,22,1) !important;
+  background: #23282c !important;
 }
 
 input.symbol-edit,
@@ -115,8 +115,8 @@ input.symbol-edit,
 .hotlist-controls .button,
 .symbol-edit-widget .button,
 .bottom-widgetbar-content.backtesting .button {
-    background-color: #2c3940 !important;
-    border-color: #2c3940 !important;
+    background-color: #333 !important;
+    border-color: #333 !important;
     color: #999 !important;
 }
 
@@ -255,8 +255,8 @@ i {
 }
 
 .favored-list-container span {
-    background-color: #2c3940 !important;
-    border-color: #2c3940 !important;
+    background-color: #333 !important;
+    border-color: #333 !important;
     color: #7d7d7d !important;
 }
 
@@ -901,8 +901,8 @@ to {
 }
 
 .charts-popup-list {
-  background: #1b262d !important;
-  border: 1px solid #121b21 !important;
+  background: #333 !important;
+  border: 1px solid #333 !important;
 }
 
 .charts-popup-list.intervals-list .item {
@@ -1104,7 +1104,7 @@ to {
 #library-container .save-load-buttons .active,
 #library-container .symbol-edit-widget .button.active,
 .feature-no-touch .chart-controls-bar-buttons a:not(.disabled):hover {
-  background: rgba(17,20,22,1) !important;
+  background: #23282c !important;
 }
 
 /* layout */
@@ -1163,9 +1163,31 @@ to {
 }
 
 .header-chart-panel-sizer {
-    background-color: rgba(17,20,22,1);
+    background-color: #23282c;
 }
 
 .pane-legend-line span {
     font-weight: bolder;
+}
+
+.favored-list .item.disabled {
+    display: none;
+}
+
+.header-chart-panel .custom-button {
+    background-color: transparent !important;
+    border: 0 !important;
+}
+
+.header-chart-panel .group .custom-button:hover {
+    background: transparent !important;
+    color: #66d7d7 !important;
+}
+
+.tv-close-panel {
+    display: none;
+}
+
+.active .custom-button {
+    color: #66d7d7 !important;
 }

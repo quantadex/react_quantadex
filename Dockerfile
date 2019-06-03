@@ -1,9 +1,13 @@
-FROM node:10.12
+FROM node:10.15-alpine
 
 RUN npm install -g yarn nodemon
 
 # Create app directory
 WORKDIR /app
+
+RUN apk update && apk upgrade && \
+	apk add --no-cache git make gcc g++ python
+
 
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied

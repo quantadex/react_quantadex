@@ -84,6 +84,23 @@ const Container = styled('div')`
 
   }
 
+  &.button {
+    .item {
+      padding:4px 0;
+      margin-right: 10px;
+      text-align: center;
+      border: 2px solid #4a4a4a;
+      border-radius: 20px;
+      color: #ddd;
+
+      &.selected {
+        border: solid 2px #50b3b7;
+        color:white;
+      }
+    }
+
+  }
+
   &.even-width {
 
     .item {
@@ -111,7 +128,6 @@ export default class QTTabBar extends React.Component {
       <Container
         className={this.props.className}
         number={this.props.tabs.names.length}
-        width={this.props.width}
         gutter={this.props.gutter}
         >
         {
@@ -120,6 +136,7 @@ export default class QTTabBar extends React.Component {
                 <div
                   key={tab}
                   data-index={index}
+                  style={{width: this.props.width}}
                   className={(this.state.selectedTabIndex == index ? "selected" : "") + " item"}
                   onClick={(e) => {this.setState({selectedTabIndex:e.target.dataset.index})
                                     this.props.switchTab(e.target.dataset.index, this.state.selectedTabIndex)

@@ -154,8 +154,8 @@ class Leaderboard extends Component {
 				<div>
 					<div className="leaderboard-share">
 						<span>Share</span>
-						<a><img src="/public/images/share/twitter.svg" /></a>
-						<a><img src="/public/images/share/fbook.svg" /></a>
+						<a><img src={devicePath("public/images/share/twitter.svg")} /></a>
+						<a><img src={devicePath("public/images/share/fbook.svg")} /></a>
 					</div>
 					<div className="pad-sides">
 						<h4>LEADERBOARD</h4>
@@ -174,8 +174,8 @@ class Leaderboard extends Component {
 				{ this.state.isReady ? 
 					<div>
 						<QTTabBar
-								className="pad-sides underline small fluid even-width qt-font-semibold d-flex justify-content-between"
-								width={85}
+								className="pad-sides underline small fluid even-width qt-font-semibold d-flex"
+								width={1000}
 								tabs = {tabs}
 								switchTab = {this.handleSwitch.bind(this)}
 							/>

@@ -4,21 +4,14 @@ import { css } from 'emotion'
 
 import { Link } from 'react-router-dom'
 import HamburgerMenu from './ui/hamburger_menu.jsx'
+import Connect, { ConnectDialog } from './connect.jsx';
 
 const container = css`
 	height: 52px;
   width:100%;
-  position:relative;
-
-  .back-link {
-    position:absolute;
-    left:0;
-    top: 50%;
-    transform: translateY(-50%);
-  }
 
   .back-link:before {
-    background-image: url('/public/images/menu-arrow-left.svg');
+    background-image: url(${devicePath("public/images/menu-arrow-left.svg")});
     width:6px;
     height:10px;
     background-size: 6px 10px;
@@ -29,10 +22,6 @@ const container = css`
   }
 
   .menu {
-    position:absolute;
-    right:0;
-    top: 50%;
-    transform: translateY(-50%);
 		display:flex;
 
 		.name {
@@ -43,35 +32,47 @@ const container = css`
   .logo {
     width:119px;
     height:19px;
-    background-image: url("/public/images/group-4.svg");
+    background-image: url(${devicePath("public/images/group-4.svg")});
     background-size:cover;
-    position:absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%,-50%);
   }
 `;
 
 class Header extends Component {
 	render() {
+    const { network, currentTicker, name, connectDialog, dispatch } = this.props
 		return (
-			<div className={container + " qt-font-small"}>
-        <Link to="/exchange" className="back-link">Back to Exchange</Link>
+      <React.Fragment>
+        <div className={container + " qt-font-small d-flex justify-content-between align-items-center"}>
+          <Link to={"/" + network + "/exchange/" + (currentTicker ? currentTicker.replace("/", "_") : "")} className="back-link">Back to Exchange</Link>
 
-        <a href="/" className="logo"></a>
-				<div className="menu">
-					<span className="name">{this.props.name}</span>
-					<HamburgerMenu />
-				</div>
-			</div>
+          <Link to={"/" + network + "/exchange/" + (currentTicker ? currentTicker.replace("/", "_") : "")} className="logo"></Link>
+            <div className="menu">
+              <span className="name mr-3">{name}</span>
+              <Connect type="lock" />
+              {name ?
+                <HamburgerMenu />
+                : null
+              }
+            </div>
+          
+        </div>
+        { connectDialog ? 
+					<ConnectDialog default={connectDialog} 
+						network={network} 
+						dispatch={dispatch}/> 
+					: null
+				}
+      </React.Fragment>
 		);
 	}
 }
 
 const mapStateToProps = (state) => ({
+    private_key: state.app.private_key,
 		currentTicker: state.app.currentTicker,
-    currentPrice: state.app.currentPrice,
-    name: state.app.name
+    name: state.app.name,
+    network: state.app.network,
+    connectDialog: state.app.ui.connectDialog
 	});
 
 export default connect(mapStateToProps)(Header);

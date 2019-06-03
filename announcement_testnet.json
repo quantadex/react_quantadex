@@ -1,0 +1,27 @@
+{
+	"entries": [
+		{
+			"title": "BitcoinCash Crosschain support (4-25)",
+			"link": "https://quantadex.zendesk.com/hc/en-us/articles/360027357792-Crosschain-support-for-BitcoinCash-ABC-BCH-",
+			"banner": "https://s3.amazonaws.com/quantachain.io/images/Listing_BitcoinCash.jpg"
+		},		
+		{
+			"title": "Litecoin Crosschain support (4-22)",
+			"link": "https://quantadex.zendesk.com/hc/en-us/articles/360027405451-Crosschain-support-for-Litecoin",
+			"banner": "https://s3.amazonaws.com/quantachain.io/images/Listing_litecoin.jpg"
+		},
+		{
+			"title": "Buy BTC with your credit card (4-3)",
+			"link": "https://quantadex.zendesk.com/hc/en-us/articles/360027567111",
+			"banner": "https://s3.amazonaws.com/quantachain.io/images/buy_with_creditcard.png"
+		},
+		{
+			"title": "Listed Digital Fantasy Sports DFS/BTC (4-3)",
+			"link": "https://quantadex.zendesk.com/hc/en-us/articles/360026257911-Listed-DIGITAL-FANTASY-SPORTS-DFS-"
+		},
+		{
+			"title": "Deposit BTC, ETH to start trading (4-1)",
+			"link": "https://quantadex.zendesk.com/hc/en-us/articles/360025283732-How-to-deposit-to-the-cross-chain-wallet"
+		}
+	]
+}

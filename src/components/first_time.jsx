@@ -130,10 +130,10 @@ const container = css`
     }
 
     .leaderboard-rule.balance {
-        background: url('/public/images/balance.png') no-repeat;
+        background: url(${devicePath('public/images/balance.png')}) no-repeat;
     }
     .leaderboard-rule.frequency {
-        background: url('/public/images/frequency.svg') no-repeat;
+        background: url(${devicePath('public/images/frequency.svg')}) no-repeat;
     }
     
     .disclaimer {
@@ -262,7 +262,7 @@ class FirstTime extends Component {
                     <div id="contest-rules" className="d-flex">
                         <div className="left">
                             <h2>Welcome to </h2>
-                            <img src="/public/images/qdex-fantasy.svg" alt="QDEX Fantasy" />
+                            <img src={devicePath("public/images/qdex-fantasy.svg")} alt="QDEX Fantasy" />
                             <p style={{margin: '30px 0 30px'}}>We are currently on the Warm-up Contest where 
                             you can win a grand prize $500 USD + 40,000 QDEX tokens, with total value of $12,500 USD*.</p>
 
@@ -294,11 +294,11 @@ class FirstTime extends Component {
 
                     <div id="starting-fund">
                         <div className="flex justify-center">
-                            <img onClick={() => this.openFund(this.props.mobile)} className="go-back" src="/public/images/back-button.svg"/>
+                            <img onClick={() => this.openFund(this.props.mobile)} className="go-back" src={devicePath("public/images/back-button.svg")}/>
                             <div class="flex-center">
-                                <img src="/public/images/coins.svg" />
+                                <img src={devicePath("public/images/coins.svg")} />
                                 <h1>You have unlocked 10,000 QDEX to start trading.
-                                    <img src="/public/images/thumb-up.svg" />
+                                    <img src={devicePath("public/images/thumb-up.svg")} />
                                 </h1>
                                 {/* <p>You can earn more initial tokens by depositing up to three Ropstein 
                                     Testnet Ethers into the QUANTA wallet, and experience QUANTA’s cross-chain 
