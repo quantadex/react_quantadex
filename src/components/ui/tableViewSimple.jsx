@@ -178,7 +178,7 @@ export default class QTTableViewSimple extends React.Component {
                       return (
                         <td key={index + "-" + colindex} id={"cancel-" + row.id.replace(/\./g, '-')} className={col.float}>
                           {cancelling && cancelling[row.id] ?
-                            <Loader size={15} /> 
+                            <Loader size={15} margin="0 30px 0 auto" /> 
                             :
                             <QTButton className="grey inverse qt-font-semibold qt-font-base" 
                             borderWidth="1" width="66" height="18" label="CANCEL"

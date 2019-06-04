@@ -91,7 +91,7 @@ export default class TxDialog extends Component {
                             { data.amount ?
                                 <tr>
                                     <td>Amount</td>
-                                    <td className="text-right text-secondary">{data.amount.amount} <SymbolToken name={data.amount.asset} showIcon={false}/></td>
+                                    <td className="text-right text-secondary">{data.amount.amount} <SymbolToken name={data.amount.asset} showIcon={false} withLink={false} /></td>
                                 </tr>
                                 : null
                             }

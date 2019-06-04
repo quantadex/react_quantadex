@@ -4,10 +4,11 @@ import {
   APPEND_TRADE, UPDATE_ORDER, UPDATE_OPEN_ORDERS, 
   SET_AMOUNT, UPDATE_USER_ORDER, UPDATE_TICKER, 
   UPDATE_TRADES, UPDATE_FEE, UPDATE_DIGITS, LOAD_FILLED_ORDERS ,
-  UPDATE_STORAGE, WEBSOCKET_STATUS
+  UPDATE_STORAGE, WEBSOCKET_STATUS,
+  UPDATE_ACCOUNT, UPDATE_BLOCK_INFO,
+  LOGIN, LOGOUT, TOGGLE_CONNECT_DIALOG, 
+  TOGGLE_BUY_QDEX_DIALOG
 } from "../actions/app.jsx";
-import { UPDATE_ACCOUNT, UPDATE_BLOCK_INFO } from "../actions/app.jsx";
-import { LOGIN, LOGOUT, TOGGLE_CONNECT_DIALOG } from "../actions/app.jsx";
 import { dataSize } from "../actions/app.jsx";
 import SortedSet from 'js-sorted-set'
 import { toast } from 'react-toastify';
@@ -33,11 +34,12 @@ let initialState = {
   tradeBook: { bids: [], asks: []},
   markets: [],
   currentPrice: undefined,
-  balance: [],
+  balance: {},
   vesting: [],
   genesis: [],
   ui: {
-    connectDialog: false
+    connectDialog: false,
+    buyQdexDialog: false
   },
   mostRecentTrade: {
     price: undefined
@@ -570,9 +572,10 @@ const app = (state = initialState, action) => {
         const real_balance = balance.balance / (10 ** window.assets[balance.asset_type].precision)
         const usd = state.usd_value[balance.asset_type] ? (real_balance + (onOrdersFund[balance.asset_type] || 0)) * state.usd_value[balance.asset_type] : 0
         total_fund_value += usd
+        const symbol = window.assets[balance.asset_type].symbol
         return {
           asset: balance.asset_type,
-          symbol: window.assets[balance.asset_type].symbol,
+          symbol: symbol,
           balance: real_balance,
           usd: usd
         }
@@ -808,6 +811,14 @@ const app = (state = initialState, action) => {
         ui: {
           ...state.ui,
           connectDialog: action.data,
+        }
+    }
+    case TOGGLE_BUY_QDEX_DIALOG:
+      return {
+        ...state,
+        ui: {
+          ...state.ui,
+          buyQdexDialog: action.data,
         }
     }
     case WEBSOCKET_STATUS:

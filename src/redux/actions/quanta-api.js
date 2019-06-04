@@ -167,7 +167,7 @@ export async function UpdateMarketsDataAsync() {
 	return { marketData, USD_value}
 }
 
-export async function fetchDataAsync(ticker, first = false) {
+export async function fetchDataAsync(ticker) {
 	const {marketData, USD_value} = await UpdateMarketsDataAsync()
 
 	var { base, counter } = getBaseCounter(ticker)
@@ -185,10 +185,6 @@ export async function fetchDataAsync(ticker, first = false) {
 	})
 
 	const data =  await Promise.all([orderBook, trades])
-	if (first) {
-		const ask_section = document.getElementById("ask-section")
-		if (ask_section) ask_section.scrollTop = ask_section.scrollHeight;
-	}
 
 	return {
 		ticker,

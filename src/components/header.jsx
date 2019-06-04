@@ -5,6 +5,7 @@ import { css } from 'emotion'
 import Ticker from './ui/ticker.jsx';
 import Dashboard from './dashboard.jsx';
 import { ConnectDialog } from './connect.jsx';
+import BuyQdex from './buy_qdex.jsx'
 
 const container = css`
 	margin: 5px 0;
@@ -64,7 +65,7 @@ class Header extends Component {
 	}
 
 	render() {
-		const { network, currentTicker, dispatch, connectDialog } = this.props
+		const { network, currentTicker, dispatch, connectDialog, buyQdexDialog } = this.props
 		const { showMarkets } = this.state
 		return (
 			<div className={container}>
@@ -105,48 +106,22 @@ class Header extends Component {
 						dispatch={dispatch}/> 
 					: null
 				}
+				{ buyQdexDialog ?
+                    <BuyQdex />
+                    : null
+                }
 			</div>
 		);
 	}
 }
-
-/*
-<div  className={this.props.className}>
-	<div className={container + " row"}>
-		<div className="col-md-2 text-left ticker">
-			{this.props.currentTicker}
-		</div>
-		<div className="col-md-2">
-			<div className="headerLabel">Last Price</div>
-			<div className="headerValue">{this.props.currentPrice}</div>
-		</div>
-		<div className="col-md-2">
-			<div className="headerLabel">24h Change</div>
-			<div className="headerValue"></div>
-		</div>
-		<div className="col-md-2">
-			<div className="headerLabel">24h High</div>
-			<div className="headerValue"></div>
-		</div>
-		<div className="col-md-2">
-			<div className="headerLabel">24h Low</div>
-			<div className="headerValue"></div>
-		</div>
-		<div className="col-md-2">
-			<div className="headerLabel">24h Volume</div>
-			<div className="headerValue"></div>
-		</div>
-	</div>
-</div>
-*/
-
 
 const mapStateToProps = (state) => ({
 		network: state.app.network,
 		private_key: state.app.private_key,
 		currentTicker: state.app.currentTicker,
 		currentPrice: state.app.mostRecentTrade.price,
-		connectDialog: state.app.ui.connectDialog
+		connectDialog: state.app.ui.connectDialog,
+		buyQdexDialog: state.app.ui.buyQdexDialog,
 	});
 
 export default connect(mapStateToProps)(Header);

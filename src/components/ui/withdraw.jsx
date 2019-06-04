@@ -187,7 +187,7 @@ class QTWithdraw extends React.Component {
       })
       .catch((e) => {
         var msg = "Please make sure the destination account name is correct."
-        if (String(e).includes("insufficient_balance")) {
+        if (String(e).includes("insufficient_balance") || String(e).toLowerCase().includes("insufficient balance")) {
           msg = "Insufficient Balance."
         }
 

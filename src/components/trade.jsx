@@ -1,20 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
-import moment from 'moment';
-
 import { css } from 'emotion'
-import { toast } from 'react-toastify';
-import globalcss from './global-css.js'
-
-import QTTabBar from './ui/tabBar.jsx'
-import QTDropdown from './ui/dropdown.jsx'
-import QTButton from './ui/button.jsx'
-import { Token, SmallToken } from './ui/ticker.jsx'
+import { SmallToken } from './ui/ticker.jsx'
 import Loader from './ui/loader.jsx'
-import {LockIcon} from './ui/account_lock.jsx'
 import Utils from '../common/utils'
-import lodash from 'lodash';
-
 import { buyTransaction, sellTransaction, TOGGLE_CONNECT_DIALOG } from "../redux/actions/app.jsx";
 import ReactGA from 'react-ga';
 
@@ -293,38 +282,9 @@ class Trade extends Component {
         }
     }
 
-    notify_success = (toastId, msg) => toast.update(toastId, {
-        render: msg,
-        type: toast.TYPE.SUCCESS,
-        autoClose: 2000,
-        position: toast.POSITION.TOP_CENTER,
-        pauseOnFocusLoss: false,
-        pauseOnHover: false
-    });
-    notify_failed = (toastId, msg) => toast.update(toastId, {
-        render: msg,
-        type: toast.TYPE.ERROR,
-        autoClose: 2000,
-        position: toast.POSITION.TOP_CENTER,
-        pauseOnFocusLoss: false,
-        pauseOnHover: false
-    });
-
-    toastMsg(label, success, e) {
-        const msg = (<div>
-            <span>{label}</span><br />
-            <span>{success ? "Order ID: " + e.trx.operation_results[0][1] :
-                "Failed order: " + (e.message.includes("insufficient balance") ? "Insufficient Balance" : "Unable to place order: " + e.message)}</span>
-        </div>)
-        return msg
-    }
-
     handleBuy(e) {
         const { dispatch, currentTicker } = this.props
         const { price, qty } = this.state
-        const asset = currentTicker.split('/')[0].split('0X')
-        const label = asset[0] + (asset[1] ? '0x' + asset[1].substr(0,4) : "") + " " + qty + " @ " + price
-        const toastId = toast("BUYING " + label, { autoClose: false, position: toast.POSITION.TOP_CENTER });
 
         ReactGA.event({
             category: 'BUY',
@@ -333,14 +293,7 @@ class Trade extends Component {
 
         this.setState({ processing: true })
         dispatch(buyTransaction(currentTicker, price, qty))
-            .then((e) => {
-                const msg = this.toastMsg("BUY " + label, true, e)
-                this.notify_success(toastId, msg)
-            }).catch((e) => {
-                const msg = this.toastMsg("BUY " + label, false, e)
-                this.notify_failed(toastId, msg)                
-                // log here
-            }).finally(() => {
+            .finally(() => {
                 this.setState({ processing: false })
             })
     }
@@ -348,9 +301,6 @@ class Trade extends Component {
     handleSell(e) {
         const { dispatch, currentTicker } = this.props
         const { price, qty } = this.state
-        const asset = currentTicker.split('/')[0].split('0X')
-        const label = asset[0] + (asset[1] ? '0x' + asset[1].substr(0,4) : "") + " " + qty + " @ " + price
-        const toastId = toast("SELLING " + label, { autoClose: false, position: toast.POSITION.TOP_CENTER });
 
         ReactGA.event({
             category: 'SELL',
@@ -359,13 +309,7 @@ class Trade extends Component {
 
         this.setState({ processing: true })
         dispatch(sellTransaction(currentTicker, price, qty))
-            .then((e) => {
-                const msg = this.toastMsg("SELL " + label, true, e)
-                this.notify_success(toastId, msg)
-            }).catch((e) => {
-                const msg = this.toastMsg("SELL " + label, false, e)
-                this.notify_failed(toastId, msg)
-            }).finally(() => {
+            .finally(() => {
                 this.setState({ processing: false })
             })
     }
