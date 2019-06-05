@@ -76,7 +76,7 @@ function toastMsg(label, success, e) {
 	return msg
 }
 
-export function buyTransaction(market, price, amount, fill_or_kill = false) {
+export function buyTransaction(market, price, amount, fill_or_kill = false, mobile_nav = undefined) {
 	return (dispatch, getState) => {
 		var {base, counter} = getBaseCounter(market)
 
@@ -92,30 +92,40 @@ export function buyTransaction(market, price, amount, fill_or_kill = false) {
 		return signAndBroadcast(tr, pKey)
 			.then((e) => {
 				const msg = toastMsg("BUY " + label, true, e[0])
-        notify_success(toastId, msg)
 				dispatch(updateUserData())
 				if (asset[0] == "QDEX") {
-					dispatch({
-						type: TOGGLE_BUY_QDEX_DIALOG,
-						data: false
-					})
+					if (mobile_nav) {
+						mobile_nav("trade")
+					} else {
+						dispatch({
+							type: TOGGLE_BUY_QDEX_DIALOG,
+							data: false
+						})
+					}
 				}
+				setTimeout(() => {
+					notify_success(toastId, msg)
+				}, 0)
 			}).catch((e) => {
 				if (e.message.includes("less than required")) {
-					dispatch({
-						type: TOGGLE_BUY_QDEX_DIALOG,
-						data: true
-					})
+					if (mobile_nav) {
+						mobile_nav("buy_qdex")
+					} else {
+						dispatch({
+							type: TOGGLE_BUY_QDEX_DIALOG,
+							data: true
+						})
+					}
 				}
 				const msg = toastMsg("BUY " + label, false, e)
 				notify_failed(toastId, msg)  
 				Rollbar.error("Buy Failed", e);
-				return "error"
+				return e
 			})
 	}
 }
 
-export function sellTransaction(market, price, amount) {
+export function sellTransaction(market, price, amount, mobile_nav = undefined) {
 	return (dispatch, getState) => {
 		var { base, counter } = getBaseCounter(market)
 
@@ -135,10 +145,14 @@ export function sellTransaction(market, price, amount) {
 				dispatch(updateUserData())
 			}).catch((e) => {
 				if (e.message.includes("less than required")) {
-					dispatch({
-						type: TOGGLE_BUY_QDEX_DIALOG,
-						data: true
-					})
+					if (mobile_nav) {
+						mobile_nav("buy_qdex")
+					} else {
+						dispatch({
+							type: TOGGLE_BUY_QDEX_DIALOG,
+							data: true
+						})
+					}
 				}
 				const msg = toastMsg("SELL " + label, false, e)
 				notify_failed(toastId, msg)

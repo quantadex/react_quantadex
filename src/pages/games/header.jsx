@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import { css } from 'emotion';
 import Connect, { ConnectDialog } from '../../components/connect.jsx';
+import BuyQdex from '../../components/buy_qdex.jsx'
 
 const container = css `
     height: 80px;
@@ -64,7 +65,7 @@ class Header extends Component {
     }
 
     render() {
-        const { name, balance, network, dispatch, connectDialog, setAsset, demo_fund } = this.props
+        const { name, balance, network, dispatch, connectDialog, setAsset, demo_fund, buyQdexDialog } = this.props
         const { selected_asset } = this.state
         return (
             <div className={container + " d-flex justify-content-between align-items-center px-5"}>
@@ -96,6 +97,11 @@ class Header extends Component {
                         dispatch={dispatch}/> 
                     : null
                 }
+
+                { buyQdexDialog ?
+                    <BuyQdex />
+                    : null
+                }
                 
             </div>
         )
@@ -109,7 +115,8 @@ const mapStateToProps = (state) => ({
     name: state.app.name,
     balance: state.app.balance || {},
     network: state.app.network,
-    connectDialog: state.app.ui.connectDialog
+    connectDialog: state.app.ui.connectDialog,
+    buyQdexDialog: state.app.ui.buyQdexDialog
 });
 
 export default connect(mapStateToProps)(Header);

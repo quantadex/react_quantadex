@@ -77,6 +77,7 @@ const container = css`
                 outline: none;
                 border-radius: 3px;
                 border: 1px solid #1cdad8;
+                background: transparent;
                 color: #1cdad8;
 
                 option {
@@ -84,9 +85,39 @@ const container = css`
                 }
             }
 
-            a {
+            .link {
                 color: #1cdad8;
                 text-decoration: underline;
+            }
+        }
+    }
+
+    &.mobile {
+        position: relative;
+        background-color: transparent;
+        z-index: 1;
+
+        .container {
+            width: 100% !important;
+            background-color: transparent;
+
+            .inputs-container {
+                label {
+                    width: 80px;
+                }
+
+                .inputs {
+                    flex-direction: column;
+                }
+
+                .inputs div {
+                    margin-bottom: 10px;
+                }
+
+                button {
+                    margin: 0;
+                    width: 100%;
+                }
             }
         }
     }
@@ -175,10 +206,12 @@ class BuyQdex extends Component {
     }
     
     render() {
-        const { balance, fee, network, isMobile, dispatch } = this.props
+        const { balance, fee, network, isMobile, dispatch, mobile_nav } = this.props
         const { trade_asset, price, pay_amount, receive_amount, processing } = this.state
+
+        const trade_asset_amount = balance[trade_asset] ? balance[trade_asset].balance : 0
         return (
-            <div className={container + " d-flex align-content-center"}>
+            <div className={container + " d-flex align-content-center" + (isMobile ? " mobile" : "")}>
                 <div className="container">
                     {!isMobile ? 
                         <div className="close-btn" onClick={this.closeDialog.bind(this)}><img src={devicePath("public/images/close_btn.svg")} /></div> 
@@ -194,6 +227,19 @@ class BuyQdex extends Component {
 
                         <div className="inputs d-flex my-5">
                             <div className="d-flex">
+                                <label className="mr-3">Receive Qdex</label>
+                                <input  
+                                    type="number"
+                                    placeholder="Enter Amount"
+                                    min="0"
+                                    value={receive_amount}
+                                    onChange={(e) => {
+                                        this.setState({receive_amount: e.target.value}, this.calculatePay)
+                                    }}
+                                />
+                            </div>
+                            
+                            <div className={"d-flex" + (isMobile ? "" : " mx-4")}>
                                 <label className="mr-3 text-nowrap">Pay With<br/>
                                     <select onChange={(e) => {
                                         this.setAsset(e.target.value)
@@ -211,34 +257,28 @@ class BuyQdex extends Component {
                                         this.setState({pay_amount: e.target.value}, this.calculateReceive)
                                     }}
                                 />
-                            </div>
-                            <div className="d-flex mx-4">
-                                <label className="mr-3">Receive Qdex</label>
-                                <input  
-                                    type="number"
-                                    placeholder="Enter Amount"
-                                    min="0"
-                                    value={receive_amount}
-                                    onChange={(e) => {
-                                        this.setState({receive_amount: e.target.value}, this.calculatePay)
-                                    }}
-                                />
+                                
                             </div>
                             <button 
-                                disabled={pay_amount <= 0 || receive_amount <= 0 || processing}
+                                disabled={pay_amount <= 0 || receive_amount <= 0 || pay_amount > trade_asset_amount || processing}
                                 onClick={() => {
                                     this.setState({processing: true})
-                                    dispatch(buyTransaction("QDEX/" + trade_asset, price, receive_amount, true))
-                                        .then((e) => e == "error" && this.setState({processing: false}))
+                                    dispatch(buyTransaction("QDEX/" + trade_asset, price, receive_amount, true, mobile_nav))
+                                        .then((e) => e && this.setState({processing: false}))
                                 }}
                             >
                                 { processing ? <Loader /> : "BUY"}
                             </button>
                         </div>
+                        {pay_amount > trade_asset_amount ? <span className="text-danger">* Insufficient {trade_asset}</span> : null}
                         <div>
                             <b>Available: </b>
-                            <span>{balance[trade_asset] ? balance[trade_asset].balance : 0} {trade_asset} </span>
-                            <Link to={"/" + network + "/wallets"} className="ml-3">Deposit</Link>
+                            <span>{trade_asset_amount} {trade_asset} </span>
+                            { isMobile? 
+                                <span className="link ml-3" onClick={() => mobile_nav("wallet")}>Deposit</span>
+                                : <Link to={"/" + network + "/wallets"} className="link ml-3">Deposit</Link>
+                            }
+                            
                         </div>
                     </div>
                 </div>

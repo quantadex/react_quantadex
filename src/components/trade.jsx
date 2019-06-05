@@ -283,7 +283,7 @@ class Trade extends Component {
     }
 
     handleBuy(e) {
-        const { dispatch, currentTicker } = this.props
+        const { dispatch, currentTicker, mobile_nav } = this.props
         const { price, qty } = this.state
 
         ReactGA.event({
@@ -292,14 +292,14 @@ class Trade extends Component {
         });
 
         this.setState({ processing: true })
-        dispatch(buyTransaction(currentTicker, price, qty))
+        dispatch(buyTransaction(currentTicker, price, qty, false, mobile_nav))
             .finally(() => {
                 this.setState({ processing: false })
             })
     }
 
     handleSell(e) {
-        const { dispatch, currentTicker } = this.props
+        const { dispatch, currentTicker, mobile_nav } = this.props
         const { price, qty } = this.state
 
         ReactGA.event({
@@ -308,7 +308,7 @@ class Trade extends Component {
         });
 
         this.setState({ processing: true })
-        dispatch(sellTransaction(currentTicker, price, qty))
+        dispatch(sellTransaction(currentTicker, price, qty, mobile_nav))
             .finally(() => {
                 this.setState({ processing: false })
             })
@@ -501,7 +501,7 @@ class Trade extends Component {
                       : 
                       mobile || publicKey ? 
                         <button className="connect-btn" 
-                        onClick={mobile && mobile_nav ? () => mobile_nav() 
+                        onClick={mobile && mobile_nav ? () => mobile_nav("connect") 
                           : 
                           () => this.props.dispatch({
                             type: TOGGLE_CONNECT_DIALOG,

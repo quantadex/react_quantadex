@@ -26,6 +26,7 @@ import { getItem, clear } from '../common/storage.js';
 import ExportKey from './export_key.jsx'
 import AppDownload from './app_download.jsx'
 import ReactTooltip from 'react-tooltip'
+import BuyQdex from './buy_qdex.jsx'
 
 function openAllLinksWithBlankTargetInSystemBrowser() {
     if ( typeof cordova === "undefined" || !cordova.InAppBrowser ) {
@@ -390,6 +391,8 @@ class Exchange extends Component {
 			case "settings": 
 				return {header: "Settings"}
 
+			case "buy_qdex": 
+				return {header: "Buy QDEX", left: () => this.handleSwitch(selectedTabIndex)}
 			case "chart": 
 				return {header: <this.MarketsList />, left: () => this.handleSwitch(selectedTabIndex)}
 			case "connect": 
@@ -423,11 +426,18 @@ class Exchange extends Component {
 			return (
 				<React.Fragment>
 					{!window.isApp ? <div className="mt-3"><this.MarketsList /></div> : null}
-					<Trade mobile={true} mobile_nav={() => this.handleSwitch("connect")} trade_side={params.trade_side || 0}/>
+					<Trade mobile={true} 
+						mobile_nav={(e) => this.handleSwitch(e)} 
+						trade_side={params.trade_side || 0}/>
 					<OrderBook mobile={true} mirror={true}/>
 					<TradingHistory mobile={true}/>
 					<ToastContainer />
 				</React.Fragment>
+			)
+		case "buy_qdex": 
+			return (
+				<BuyQdex isMobile={true} 
+					mobile_nav={(e) => this.handleSwitch(e)} />
 			)
 		case "wallet": 
 			if (publicKey) {
