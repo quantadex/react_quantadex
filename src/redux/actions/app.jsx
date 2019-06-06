@@ -552,9 +552,13 @@ async function fetchAndSubscribeTickerAsync(ticker, dispatch) {
 
 export function refreshData() {
 	return async function (dispatch, getState) {
-	dispatch(switchTicker(getState().app.currentTicker))
-	dispatch(updateUserData())
-}
+		if (getState().app.websocket_status) {
+			// console.log("Attempt to reconnect", getState().websocket_status);
+			const res = await QuantaApi.ConnectAsync(dispatch)
+		}
+		dispatch(switchTicker(getState().app.currentTicker))
+		dispatch(updateUserData())
+	}
 }
 
 export function updateUserData() {
