@@ -6,7 +6,7 @@ import globalcss from './global-css.js'
 
 import QTTabBar from './ui/tabBar.jsx'
 import { ToastContainer } from 'react-toastify';
-import {switchTicker, updateUserData} from "../redux/actions/app.jsx";
+import { switchTicker, refreshData } from "../redux/actions/app.jsx";
 import 'react-toastify/dist/ReactToastify.css';
 import Wallets from './wallets.jsx'
 import CrosschainHistory from './crosschain_history.jsx'
@@ -90,11 +90,11 @@ class Fund extends Component {
 			dispatch(switchTicker(default_ticker));
     } 
     
-		document.addEventListener('mouseenter', this.eventUpdate, false)
+    document.addEventListener('mouseenter', this.eventUpdate, false)
 	}
 
 	componentWillUnmount() {
-		document.removeEventListener('mouseenter', this.eventUpdate, false)
+    document.removeEventListener('mouseenter', this.eventUpdate, false)
   }
   
   componentWillReceiveProps(nextProps) {
@@ -103,9 +103,7 @@ class Fund extends Component {
   }
 	
 	eventUpdate() {
-		const { currentTicker, dispatch } = this.props
-    if (currentTicker) dispatch(switchTicker(currentTicker))
-		dispatch(updateUserData())
+		this.props.dispatch(refreshData())
 	}
 
   handleSwitch(index) {

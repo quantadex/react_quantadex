@@ -8,7 +8,7 @@ import { connect } from 'react-redux'
 
 class Exchange extends Component {
 	componentDidMount() {
-		const { match, history, location, dispatch, publicKey, userId } = this.props
+		const { match, history, location, dispatch } = this.props
 		if (!match.params.net || (match.params.net !== "mainnet" && match.params.net !== "testnet")) {
 			const default_ticker = 'ETH_BTC';
 			history.push("/mainnet/exchange/" + default_ticker + location.search)
@@ -21,7 +21,7 @@ class Exchange extends Component {
 		}
 		dispatch(updateUserData())
 	}
-	
+
 	componentDidUpdate(prevProps) {
 		const { match } = this.props
 		if (prevProps.match.params.ticker != match.params.ticker || prevProps.match.params.net != match.params.net) {

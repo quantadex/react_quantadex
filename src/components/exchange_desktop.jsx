@@ -12,7 +12,7 @@ import Balance from './balance.jsx';
 import Connect from './connect.jsx';
 import Status from './status.jsx'
 import Switch from './ui/switch.jsx';
-import { switchTicker, reconnectIfNeeded } from '../redux/actions/app.jsx'
+import { refreshData } from '../redux/actions/app.jsx'
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { connect } from 'react-redux'
@@ -219,8 +219,7 @@ class Exchange extends Component {
 	}
 	
 	eventUpdate() {
-		const { dispatch } = this.props
-		dispatch(reconnectIfNeeded())
+		this.props.dispatch(refreshData())
 	}
 
 	resizeDepthChart() {

@@ -18,12 +18,19 @@ import { Router, Route, Switch } from 'react-router-dom'
 
 import { injectGlobal } from 'emotion'
 import globalcss from './components/global-css.js'
-import createHashHistory from 'history/createHashHistory'
-import createBrowserHistory from 'history/createBrowserHistory'
+import { createHashHistory, createBrowserHistory } from 'history'
 import ReactGA from 'react-ga';
  
 ReactGA.initialize(window.isApp ? 'UA-114919036-4': 'UA-114919036-3');
 ReactGA.set({ checkProtocolTask: null })
+
+if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support 
+  window.hidden = "hidden";
+} else if (typeof document.msHidden !== "undefined") {
+  window.hidden = "msHidden";
+} else if (typeof document.webkitHidden !== "undefined") {
+  window.hidden = "webkitHidden";
+}
 
 window.addEventListener('keyboardDidShow', function () {
 	document.getElementById('app').classList.add("keyboard-show")

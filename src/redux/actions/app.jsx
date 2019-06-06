@@ -441,7 +441,25 @@ export function switchTicker(ticker, force_init=false) {
 
 	return function (dispatch,getState) {
 		async function update() {
+			dispatch({ type: UPDATE_TICKER, data: ticker })
 			if (window.initAPI == false || force_init) {
+				Apis.setRpcConnectionStatusCallback(
+					(status) => {
+						// console.log("ws status changed: ", status);
+						if (status === "reconnect")
+							ChainStore.resetCache(false);
+						if (status === "closed") {
+							dispatch({ type: "WEBSOCKET_STATUS", data: "Closed" })
+							setTimeout(() => {
+								if (!document[window.hidden]) QuantaApi.ConnectAsync(dispatch)
+							}, 1000)
+						}
+						if (status === "open") {
+							dispatch({ type: "WEBSOCKET_STATUS", data: null })
+						}
+					}
+				);
+
 				const res = await QuantaApi.ConnectAsync(dispatch)
 
 				await QuantaApi.UpdateGlobalPropertiesAsync()
@@ -457,7 +475,7 @@ export function switchTicker(ticker, force_init=false) {
 					}
 				});
 				window.initAPI = true;
-				console.log("initialized update");
+				// console.log("initialized update");
 			} else {
 				await fetchAndSubscribeTickerAsync(ticker, dispatch)
 			}
@@ -472,8 +490,6 @@ async function fetchAndSubscribeTickerAsync(ticker, dispatch) {
 	var {base, counter} = getBaseCounter(ticker)
 	if (!base || !counter) 
 		return
-
-	dispatch({ type: UPDATE_TICKER, data: ticker })
 
 	// update fees
 	const tmpOrder = createLimitOrderWithPrice("1.2.0", true, window.assets, base.id, counter.id, 1, 1)
@@ -534,16 +550,11 @@ async function fetchAndSubscribeTickerAsync(ticker, dispatch) {
 	await updateFetchDataAsync(ticker, true)
 }
 
-export function reconnectIfNeeded() {
+export function refreshData() {
 	return async function (dispatch, getState) {
-		if (getState().app.websocket_status) {
-			console.log("Attempt to reconnect", getState().websocket_status);
-			const res = await QuantaApi.ConnectAsync(dispatch)
-
-			dispatch(switchTicker(getState().app.currentTicker))
-			dispatch(updateUserData())
-		}
-	}
+	dispatch(switchTicker(getState().app.currentTicker))
+	dispatch(updateUserData())
+}
 }
 
 export function updateUserData() {

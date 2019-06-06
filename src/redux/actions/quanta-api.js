@@ -58,25 +58,21 @@ function timeStringToDate(block_time) {
  * @param {*} dispatch 
  */
 export async function ConnectAsync(dispatch) {
-	console.log("Connecting...");
-	Apis.setRpcConnectionStatusCallback(
-		(status) => {
-			console.log("ws status changed: ", status);
-			if (status === "reconnect")
-				ChainStore.resetCache(false);
-			if (status === "closed") 
-				dispatch({ type: "WEBSOCKET_STATUS", data: "Closed" })
-			if (status === "open")
-				dispatch({ type: "WEBSOCKET_STATUS", data: null })
-		}
-	);
-
-	const res = await Apis.instance(CONFIG.getEnv().WEBSOCKET_PATH, true, 5000, { enableOrders: true }).init_promise
-	ChainStore.subscribers.clear()
-	await ChainStore.init(false)		
-	ChainStore.subscribe(() => {
-		updateChainState(dispatch)
-	})
+	if (window.ws_connecting) return
+	// console.log("Connecting...");
+	window.ws_connecting = true
+	try {
+		const res = await Apis.instance(CONFIG.getEnv().WEBSOCKET_PATH, true, 5000, { enableOrders: true }).init_promise
+		ChainStore.subscribers.clear()
+		await ChainStore.init(false)		
+		ChainStore.subscribe(() => {
+			updateChainState(dispatch)
+		})
+	} catch (e) {
+		console.log(e)
+	}
+	
+	window.ws_connecting = false
 }
 
 /**
@@ -111,7 +107,7 @@ export async function UpdateGlobalPropertiesAsync() {
 	}
 	window.allMarketsByHash = lodash.keyBy(window.allMarkets, "name")
 	
-	console.log("done building markets", window.allMarketsByHash);
+	// console.log("done building markets", window.allMarketsByHash);
 
 }
 
@@ -131,7 +127,6 @@ export async function UpdateMarketsDataAsync() {
 				.exec("get_24_volume", [counter.id, base.id])])
 
 			if (!window.market_depth_time || ((new Date()) - window.market_depth_time) > (60 * 5 * 1000)) {
-				// await?
 				const depth = await Apis.instance().db_api().exec("get_order_book", [counter.id, base.id, 50])
 				let asks_depth = depth.asks.reduce((total, next) => {
 					return total + parseFloat(next.base)

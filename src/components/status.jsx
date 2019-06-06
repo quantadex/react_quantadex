@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import { css } from 'emotion'
 import { connect } from 'react-redux'
-import { LOGIN } from '../redux/actions/app.jsx'
-import { withRouter} from "react-router-dom";
 
 const container = css`
     display: flex;
@@ -10,6 +8,7 @@ const container = css`
     white-space: nowrap;
     line-height: 25px;
     z-index: 2;
+    user-select: none;
 
     .blocknum, .avg-lat, .net-select, .support {
         border-left: 1px solid #444;
@@ -40,7 +39,6 @@ const container = css`
         padding: 0 15px 0 10px;
         margin-right: 10px;
         cursor: pointer;
-        user-select: none;
     }
     .net-options {
         display: none;
