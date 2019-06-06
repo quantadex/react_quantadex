@@ -131,6 +131,7 @@ class BuyQdex extends Component {
             asks_data: [],
             pay_amount: "",
             receive_amount: "",
+            liquidity: 0,
             processing: false
         }
     }
@@ -142,7 +143,9 @@ class BuyQdex extends Component {
     setAsset(trade_asset) {
         this.props.dispatch(getQdexAsks(window.assetsBySymbol[trade_asset]))
         .then((asks_data) => {
-            this.setState({asks_data, trade_asset, pay_amount: "", receive_amount: ""})
+            const reducer = (accumulator, currentValue) => accumulator + parseFloat(currentValue.quote);
+            const liquidity = asks_data.reduce(reducer, 0);
+            this.setState({asks_data, trade_asset, pay_amount: "", receive_amount: "", liquidity})
         })
     }
 
@@ -207,7 +210,7 @@ class BuyQdex extends Component {
     
     render() {
         const { balance, fee, network, isMobile, dispatch, mobile_nav } = this.props
-        const { trade_asset, price, pay_amount, receive_amount, processing } = this.state
+        const { trade_asset, price, pay_amount, receive_amount, processing, liquidity } = this.state
 
         const trade_asset_amount = balance[trade_asset] ? balance[trade_asset].balance : 0
         return (
@@ -221,6 +224,7 @@ class BuyQdex extends Component {
                     
                     <div className="inputs-container">
                         <div>
+                            <p>Your wallet does not have enough QDEX to pay for current transaction.</p>
                             <b>Current: </b><span>{balance['QDEX'] ? balance['QDEX'].balance : 0} QDEX</span><br/>
                             <b>Platform fees: </b><span>{fee.amount} QDEX (per trade)</span>
                         </div>
@@ -271,13 +275,21 @@ class BuyQdex extends Component {
                             </button>
                         </div>
                         {pay_amount > trade_asset_amount ? <span className="text-danger">* Insufficient {trade_asset}</span> : null}
-                        <div>
-                            <b>Available: </b>
-                            <span>{trade_asset_amount} {trade_asset} </span>
-                            { isMobile? 
-                                <span className="link ml-3" onClick={() => mobile_nav("wallet")}>Deposit</span>
-                                : <Link to={"/" + network + "/wallets"} className="link ml-3">Deposit</Link>
-                            }
+                        <div className={"d-flex" + (isMobile? " flex-column": "")}>
+                            <div className="mr-5">
+                                <b>Liquidity Depth: </b>
+                                <span>{liquidity} QDEX</span>
+                            </div>
+
+                            <div>
+                                <b>Available: </b>
+                                <span>{trade_asset_amount} {trade_asset} </span>
+                                { isMobile? 
+                                    <span className="link ml-3" onClick={() => mobile_nav("wallet")}>Deposit</span>
+                                    : <Link to={"/" + network + "/wallets"} className="link ml-3">Deposit</Link>
+                                }
+                            </div>
+                            
                             
                         </div>
                     </div>
