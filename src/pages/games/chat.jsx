@@ -10,29 +10,6 @@ const container = css `
     .messages {
         height: calc(100% - 80px);
         padding: 20px 14px 0px 20px;
-        overflow: hidden;
-        overflow-y: scroll;
-        cursor: default;
-
-		::-webkit-scrollbar {
-			width: 6px;
-			height: 6px;
-		}
-		
-		::-webkit-scrollbar-track {
-		background: transparent; 
-		}
-		
-		::-webkit-scrollbar-thumb {
-		background: rgba(0,0,0,0.1); 
-		}
-		
-		::-webkit-scrollbar-thumb:hover {
-		background: rgba(0,0,0,0.2); 
-		}
-
-		scrollbar-width: thin;
-		scrollbar-color: rgba(0,0,0,0.1) transparent;
     }
 
     .message {
@@ -237,7 +214,7 @@ export default class Chat extends Component {
         const { message, messages } = this.state
         return (
             <div className={container}>
-                <div className="messages qt-font-small">
+                <div className="messages no-scrollbar qt-font-small">
                     { messages.map((msg) => {
                         return (
                             <div key={msg.name + msg.ts} className="message p-2 px-3 mb-3">
