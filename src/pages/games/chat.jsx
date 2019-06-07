@@ -168,7 +168,7 @@ export default class Chat extends Component {
             this.ref.push().set({
                 user: this.config.user,
                 message: message,
-                date: Date.now() | 0
+                date: Date.now()
             })
             this.setState({message: ""}, () => this.scrollToBottom())
         }
@@ -212,15 +212,30 @@ export default class Chat extends Component {
 
     render() {
         const { message, messages } = this.state
+        let last_ts
         return (
             <div className={container}>
                 <div className="messages no-scrollbar qt-font-small">
                     { messages.map((msg) => {
+                        let time
+                        if (!last_ts || msg.ts - last_ts > 2 * 60 * 1000) {
+                            time = new Date(msg.ts)
+                        }
+                        last_ts = msg.ts
                         return (
-                            <div key={msg.name + msg.ts} className="message p-2 px-3 mb-3">
-                                <span className="name pr-2">{msg.name}:</span>
-                                <span className="msg">{msg.message}</span>
-                            </div>
+                            <React.Fragment  key={msg.name + msg.ts}>
+                                { time ? 
+                                    <div className="d-flex justify-content-between w-100 qt-font-extra-small qt-white-62">
+                                        <span>{time.toLocaleDateString([], {weekday: "long"})}</span>
+                                        <span>{time.toLocaleTimeString([], {hour: "numeric", minute: "numeric"})}</span>
+                                    </div>
+                                    : null
+                                }
+                                <div className="message p-2 px-3 mb-3">
+                                    <span className="name pr-2">{msg.name}:</span>
+                                    <span className="msg">{msg.message}</span>
+                                </div>
+                            </React.Fragment>
                         )
                     })}
                     <div ref={(el) => { this.messagesEnd = el; }}/>

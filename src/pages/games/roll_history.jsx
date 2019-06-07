@@ -16,11 +16,11 @@ const container = css `
         }
 
         span.win {
-            color: green;
+            color: #57bc90;
         }
 
         span.loss {
-            color: red;
+            color: #e17055;
         }
 
         .header {
@@ -158,7 +158,7 @@ export default class RollHistory extends Component {
         return (
             <div className={container + " mx-auto my-5"}>
                 <div className="roll-table-container qt-font-normal px-5">
-                    <div className="header d-flex">
+                    <div className="header d-flex mb-3">
                         <span className="text-left">Bet ID</span>
                         <span>User</span>
                         <span>Time</span>

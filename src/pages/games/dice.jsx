@@ -187,9 +187,10 @@ const container = css `
 
         .container {
             background: #57A38B;
+            color: #fff;
 
             button {
-                background: #b09520;
+                background: #cdbd35;
             }
 
             button:disabled {

@@ -26,7 +26,6 @@ const container = css `
     }
 
     .assets-list {
-        display: none
         position: absolute;
         right: 0;
         top: 100%;
@@ -39,10 +38,6 @@ const container = css `
             background: rgb(230,213,69);
             background: linear-gradient(165deg,rgb(193, 175, 16) 10%, rgb(230,213,69) 59%,rgb(193, 175, 16) 90%);
         }
-    }
-
-    .avail-fund:hover .assets-list {
-        display: block;
     }
 `
 
