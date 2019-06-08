@@ -25,6 +25,7 @@ const container = css `
 
     input:disabled {
         background: #eee;
+        color: #999;
     }
 
     input::-moz-selection { background: #ccc; }

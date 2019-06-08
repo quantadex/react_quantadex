@@ -39,6 +39,12 @@ const container = css `
             background: linear-gradient(165deg,rgb(193, 175, 16) 10%, rgb(230,213,69) 59%,rgb(193, 175, 16) 90%);
         }
     }
+
+    .link {
+        color: #fff;
+        background: none;
+        margin-right: 0;
+    }
 `
 
 class Header extends Component {
@@ -70,7 +76,9 @@ class Header extends Component {
                         onClick={() => {
                             if (selected_asset) this.setState({show_assets: !show_assets})
                         }}>
-                        { private_key && selected_asset ? balance[selected_asset].balance + " " + balance[selected_asset].symbol.split('0X')[0] : (demo_fund/Math.pow(10, 8)).toFixed(8) + " BTC" }
+                        { private_key && selected_asset ? 
+                            balance[selected_asset].balance + " " + balance[selected_asset].symbol.split('0X')[0] + " " + String.fromCharCode(9662)  
+                            : (demo_fund/Math.pow(10, 8)).toFixed(8) + " BTC"}
                         { show_assets ?
                             <div className="assets-list">
                                 {Object.keys(balance).map(coin => {

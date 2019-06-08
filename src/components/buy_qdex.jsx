@@ -23,6 +23,7 @@ const container = css`
         border-radius: 5px;
         padding: 20px;
         align-self: center;
+        color: #fff;
 
         .close-btn {
             position: absolute;

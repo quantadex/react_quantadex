@@ -1,17 +1,19 @@
 import React, { Component } from 'react';
 import { css } from 'emotion';
 import { GetAccount } from '../../redux/actions/app.jsx'
+import QTTabBar from '../../components/ui/tabBar.jsx'
+import Loader from '../../components/ui/loader.jsx'
 import CONFIG from '../../config.js'
 
 
 const container = css `
-    max-width: 970px;
+    max-width: 1200px;
     overflow: hidden;
 
     .roll-table-container {
         height: 425px;
         span {
-            width: 100%;
+            width: 14.28%;
             text-align: center;
         }
 
@@ -74,11 +76,13 @@ export default class RollHistory extends Component {
         super(props);
         this.state = {
             history: [],
+            tab_index: 1,
         }
 
         this.names = {}
         this.buffer = []
         this.last_operation_id_num
+        this.tabs = {names: ["MY BETS", "ALL BETS"], selectedTabIndex: 1}
     }
 
     componentDidMount() {
@@ -92,8 +96,11 @@ export default class RollHistory extends Component {
         this.pushToDisplay()
     }
 
-    getRollHistory(account_id = false) {
-        fetch(CONFIG.getEnv().API_PATH + '/account?filter_field=operation_type&filter_value=50&size=10' + (account_id ? "&account_id=" + account_id : ""), { mode: "cors" }).then(e => e.json())
+    getRollHistory() {
+        fetch(CONFIG.getEnv().API_PATH + '/account?filter_field=operation_type&filter_value=50&size=10' 
+            + (this.state.tab_index == 0 ? "&account_id=" + this.props.userId : ""), 
+            { mode: "cors" }
+        ).then(e => e.json())
         .then(async (e) => {
             const list = []
             for (let op of e) {
@@ -132,7 +139,7 @@ export default class RollHistory extends Component {
                 this.buffer = list.concat(this.buffer)
             }
 
-            this.last_operation_id_num = e[0].operation_id_num
+            this.last_operation_id_num = e[0] && e[0].operation_id_num
         }).finally(() => {
             setTimeout(() => {
                 this.getRollHistory()
@@ -154,35 +161,53 @@ export default class RollHistory extends Component {
     }
 
     render() {
-        const { history } = this.state
+        const { userId } = this.props
+        const { history, tab_index } = this.state
         return (
             <div className={container + " mx-auto my-5"}>
-                <div className="roll-table-container qt-font-normal px-5">
-                    <div className="header d-flex mb-3">
-                        <span className="text-left">Bet ID</span>
-                        <span>User</span>
-                        <span>Time</span>
-                        <span>Wagered</span>
-                        <span>Payout</span>
-                        <span>Roll</span>
-                        <span className="text-right">Profit</span>
+                <QTTabBar
+                    className="underline static set-width qt-font-normal qt-font-bold d-flex justify-content-center mb-5"
+                    color={"100,100,100"}
+                    width={120}
+                    gutter={10}
+                    tabs={this.tabs}
+                    disabled={!userId ? ["0"] : false}
+                    switchTab = {(index) => {
+                        if (index != tab_index && (index != 0 || userId)) {
+                            this.last_operation_id_num = null
+                            this.setState({tab_index: index, history: []})
+                        }
+                            
+                    }}
+                />
+                { history.length == 0 ? <Loader type={"box"} margin={"auto"} className={"text-center"} /> :
+                    <div className="roll-table-container qt-font-normal px-5">
+                        <div className="header d-flex mb-3">
+                            <span className="text-left">Bet ID</span>
+                            <span>User</span>
+                            <span>Time</span>
+                            <span>Wagered</span>
+                            <span>Payout</span>
+                            <span>Roll</span>
+                            <span className="text-right">Profit</span>
+                        </div>
+                        <div className="content d-flex flex-column">
+                            {history.map((row, index) => {
+                                return (
+                                    <div key={row.id} className={"bet-row d-flex " + (index == 0 ? "first" : index == 10 ? "last" : "")}>
+                                        <span className="text-left">{row.id}</span>
+                                        <span>{row.user}</span>
+                                        <span>{row.time}</span>
+                                        <span>{row.wagered.toFixed(row.precision)} {row.symbol}</span>
+                                        <span>{row.payout.toFixed(2)}x</span>
+                                        <span>{row.roll}</span>
+                                        <span className={"text-right" + (row.profit >= 0 ? " win" : " loss")}>{row.profit.toFixed(row.precision)} {row.symbol}</span>
+                                    </div>
+                                )
+                            })}
+                        </div>
                     </div>
-                    <div className="content d-flex flex-column">
-                        {history.map((row, index) => {
-                            return (
-                                <div key={row.id} className={"bet-row d-flex " + (index == 0 ? "first" : index == 10 ? "last" : "")}>
-                                    <span className="text-left">{row.id}</span>
-                                    <span>{row.user}</span>
-                                    <span>{row.time}</span>
-                                    <span>{row.wagered.toFixed(row.precision)} {row.symbol}</span>
-                                    <span>{row.payout.toFixed(2)}x</span>
-                                    <span>{row.roll}</span>
-                                    <span className={"text-right" + (row.profit >= 0 ? " win" : " loss")}>{row.profit.toFixed(row.precision)} {row.symbol}</span>
-                                </div>
-                            )
-                        })}
-                    </div>
-                </div>
+                }
             </div>
         )
     }

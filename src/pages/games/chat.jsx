@@ -5,7 +5,9 @@ const container = css `
     height: calc(100vh - 80px);
     position: relative;
     background: #015249;
-    width: 350px;
+    width: 30%;
+    max-width: 400px;
+    min-width: 300px;
 
     .messages {
         height: calc(100% - 80px);

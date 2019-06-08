@@ -11,6 +11,7 @@ import DiceInput from './input.jsx'
 import Stats from './stats.jsx'
 import Chat from './chat.jsx'
 import RollHistory from './roll_history.jsx'
+import Toolbar from './toolbar.jsx'
 import CONFIG from '../../config.js'
 
 const container = css `
@@ -61,7 +62,7 @@ const container = css `
         margin-top: 50px;
         color: #eee;
         border-radius: 100px;
-        width: 100%;
+        width: 700px;
         box-shadow: 0 0 4px rgba(0,0,0,0.9) inset;
     }
 
@@ -126,15 +127,6 @@ const container = css `
         }
     }
 
-    .inputs-container {
-        background: #dfe6e9;    
-        width: 700px;
-        border: 2px solid #999;
-        border-radius: 5px;
-        overflow: hidden;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-    }
-
     .auto-inactive {
         background: #ccc;
     }
@@ -176,9 +168,19 @@ const container = css `
     .game-main {
         width: max-content;
         margin: 0 auto;
+
+        .inputs-container {
+            background: #dfe6e9;    
+            width: 700px;
+            border: 2px solid #999;
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
     }
 
     .game-history {
+        min-height: 560px;
         background: #fff;
     }
 
@@ -190,7 +192,7 @@ const container = css `
             color: #fff;
 
             button {
-                background: #cdbd35;
+                background: #d5c322;
             }
 
             button:disabled {
@@ -267,10 +269,17 @@ class DiceGame extends Component {
             modify_loss_amount: 0,
             modify_win: false,
             modify_win_amount: 0,
+
+            sounds: false,
+            stats: false,
+            hot_keys: false,
         }
 
         this.setInputs = this.setInputs.bind(this)
         this.roll_timeout
+
+        this.win_audio = new Audio('/public/audio/win.wav');
+        this.loss_audio = new Audio('/public/audio/loss.wav');
     }
 
     componentDidMount() {
@@ -353,7 +362,7 @@ class DiceGame extends Component {
                 } else if (count <= 5) {
                     this.getRollResult(tx, count + 1)
                 } else {
-                    throw "Can't get roll result"
+                    if (this.state.auto_rolling) this.stopAutoRoll()
                 }
             })
         }, 500)
@@ -376,6 +385,9 @@ class DiceGame extends Component {
         if (private_key) {
             dispatch(rollDice(amount, asset, (roll_over ? ">" : "<") + win_value.toFixed(0))).then(tx => {
                 this.getRollResult(tx, 1)
+            }).catch(e => {
+                this.setState({message: e})
+                this.stopAutoRoll()
             })
             return
         }
@@ -395,8 +407,10 @@ class DiceGame extends Component {
 
     onWin(win_amount) {
         const { fund, amount, win_num, auto, auto_rolling, gain_history, precision, precision_min,
-            stop_profit_amount, net_gain, modify_win, modify_win_amount, unmod_amount } = this.state
+            stop_profit_amount, net_gain, modify_win, modify_win_amount, unmod_amount, sounds } = this.state
         const gain = net_gain + win_amount
+        
+        if (sounds) this.win_audio.play()
 
         if (stop_profit_amount > 0 && gain >= stop_profit_amount) {
             this.stopAutoRoll()
@@ -418,8 +432,10 @@ class DiceGame extends Component {
 
     onLose(lose_amount) {
         const { lose_num, stop_loss_amount, net_gain, auto, auto_rolling, gain_history, fund, precision, precision_min,
-            amount, modify_loss, modify_loss_amount, unmod_amount } = this.state
+            amount, modify_loss, modify_loss_amount, unmod_amount, sounds } = this.state
         const loss = net_gain + lose_amount
+
+        if (sounds) this.loss_audio.play()
         
         if (stop_loss_amount > 0 && loss <= (stop_loss_amount * (-1))) {
             this.stopAutoRoll()
@@ -491,13 +507,14 @@ class DiceGame extends Component {
     }
 
     render() {
-        const { name, balance } = this.props
+        const { name, userId, private_key, balance } = this.props
         const { asset, auto, auto_rolling, fund, roll, roll_history, game_num, win_num, lose_num, wagered,
             message, net_gain, gain_history, auto_roll_limit, precision, precision_min,
             win_value, roll_over, amount, multiplier, chance,
             win_value_display, amount_display, multiplier_display, chance_display,
             stop_loss_amount_display, stop_profit_amount_display,
-            modify_loss, modify_loss_amount, modify_win, modify_win_amount, show_roll } = this.state
+            modify_loss, modify_loss_amount, modify_win, modify_win_amount, show_roll,
+            sounds, stats, hot_keys } = this.state
         const asset_symbol = window.assets && window.assets[asset] ? window.assets[asset].symbol : ""
         return (
             <div className={container + " d-flex flex-column"}>
@@ -591,7 +608,7 @@ class DiceGame extends Component {
                                                     <div className="after cursor-pointer" onClick={() => {
                                                         this.setState({roll_over: !roll_over}, () => this.changeSliderSide())
                                                     }}>
-                                                        {"<>"}
+                                                        &#8652;
                                                     </div>
                                                 }
                                             />
@@ -711,42 +728,66 @@ class DiceGame extends Component {
                                         </div>
                                         :null
                                     }
-                                    <div className="text-center mt-4">
+                                    <div className="text-center mt-4 mb-5">
                                         <button className="roll-btn gold mx-auto" onClick={() => auto_rolling ? this.stopAutoRoll() : auto ? this.autoRoll() : this.rollDice()}>
                                             { auto ? auto_rolling ? "Stop" : "Auto Roll" + (auto_roll_limit > 0 ? " x " + auto_roll_limit : "") : "Roll Dice"}
                                         </button>
                                     </div>
-
                                 </div>
-
-                                <Stats gain_history={gain_history}
-                                    profit={(net_gain/Math.pow(10, precision)).toFixed(precision)}
-                                    wins={win_num} lose={lose_num}
-                                    bets={game_num} luck={game_num && ((roll_history.reduce((partial_sum, a) => partial_sum + (a ? a[1] : 0), 0)/Math.min(game_num, roll_history.length))*100/parseFloat(chance)*100).toFixed(0)}
-                                    roll_history={roll_history.slice(-6)}
-                                    wagered={(wagered/Math.pow(10, precision)).toFixed(precision)}
-                                    chart_height={auto ? 310 : 140}
-                                />
+                                
+                                { stats ? 
+                                    <Stats gain_history={gain_history}
+                                        profit={(net_gain/Math.pow(10, precision)).toFixed(precision)}
+                                        wins={win_num} lose={lose_num}
+                                        bets={game_num} luck={game_num && ((roll_history.reduce((partial_sum, a) => partial_sum + (a ? a[1] : 0), 0)/Math.min(game_num, roll_history.length))*100/parseFloat(chance)*100).toFixed(0)}
+                                        roll_history={roll_history.slice(-6)}
+                                        wagered={(wagered/Math.pow(10, precision)).toFixed(precision)}
+                                        chart_height={auto ? 310 : 140}
+                                    />
+                                    : null
+                                }
                             </div>
 
                             <div className="slider-container position-relative mx-auto px-4">
                                 <div className="position-relative">
                                     <div className={"roll-indicator" + ((roll_over && roll >= win_value) || (!roll_over && roll <= win_value)  ? " win" : "") + (show_roll ? " show" : "")} style={{left: roll + "%"}}>{roll}</div>
-                                    <ReactSlider className="horizontal-slider" 
-                                        value={win_value}
-                                        min={1} 
-                                        max={99} 
-                                        onChange={(e) => this.setInputs("win_value", e)}
-                                        withBars
-                                        disabled={auto_rolling && true}
-                                    >
-                                        <div><span>| | |</span></div>
-                                    </ReactSlider>
+                                    {stats ? 
+                                        <ReactSlider className="horizontal-slider" 
+                                            value={win_value}
+                                            min={1} 
+                                            max={99} 
+                                            onChange={(e) => this.setInputs("win_value", e)}
+                                            withBars
+                                            disabled={auto_rolling && true}
+                                        >
+                                            <div><span>| | |</span></div>
+                                        </ReactSlider>
+                                        :
+                                        <ReactSlider className="horizontal-slider" 
+                                            value={win_value}
+                                            min={1} 
+                                            max={99} 
+                                            onChange={(e) => this.setInputs("win_value", e)}
+                                            withBars
+                                            disabled={auto_rolling && true}
+                                        >
+                                            <div><span>| | |</span></div>
+                                        </ReactSlider>
+                                    }
                                 </div>
                             </div>
+                            
+                            <Toolbar 
+                                sounds={sounds}
+                                stats={stats}
+                                hot_keys={hot_keys}
+                                toggleSounds={() => this.setState({sounds: !sounds})}
+                                toggleStats={() => this.setState({stats: !stats})}
+                                toggleHotkeys={() => this.setState({hot_keys: !hot_keys})}
+                            />
                         </div>
                         <div className="game-history mt-5">
-                            <RollHistory />
+                            <RollHistory userId={private_key && userId} />
                         </div>
 
 
@@ -776,6 +817,7 @@ class DiceGame extends Component {
 const mapStateToProps = (state) => ({
         private_key: state.app.private_key,
         name: state.app.name,
+        userId: state.app.userId,
         balance: state.app.balance || {}
 	});
 

@@ -64,15 +64,16 @@ const fb_loader = css`
 
 export default class Loader extends Component {
     render() {
-        if (this.props.type == "box") {
+        const { size, type, margin, className } = this.props
+        if (type == "box") {
             return (
-                <div className={fb_loader} style={{width: this.props.size, height: this.props.size, margin: this.props.margin}}>
+                <div className={fb_loader  + " " + (className || "")} style={{width: size, height: size, margin: margin}}>
                     <div className="lds-facebook"><div></div><div></div><div></div></div>
                 </div>
             )
         } else {
             return (
-                <div className={loader} style={{width: this.props.size, height: this.props.size, margin: this.props.margin}}></div>
+                <div className={loader + " " + (className || "")} style={{width: size, height: size, margin: margin}}></div>
             )
         }
         

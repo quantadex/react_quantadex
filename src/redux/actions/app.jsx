@@ -300,22 +300,20 @@ export const rollDice = (amount, asset, bet) => {
 			return tr.broadcast()
 				.then((res) => {
 					console.log("Call order update success!");
-					console.log("sent", new Date() - now)
 					return tr.id()
-					// return res;
+				}).catch((e) => {
+					console.log(e)
+					if (e.message.includes("less than required")) {
+						dispatch({
+							type: TOGGLE_BUY_QDEX_DIALOG,
+							data: true
+						})
+					}
+					throw "Insufficient Fund"
 				})
-
-			// return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key)).then(() => {
-			// 	console.log("sent", new Date() - now)
-			// 	// console.log(tr.id())
-			// 	return tr.id()
-			// 	// console.log(CONFIG.getEnv().API_PATH + `/account?filter_field=operation_history.op_object.tx&filter_value=${tr.id()}`)
-
-
-				
-			// })
 		}).catch(error => {
 			console.log(error)
+			throw error
 		})
 	}
 }
