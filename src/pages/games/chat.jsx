@@ -2,15 +2,14 @@ import React, { Component } from 'react';
 import { css } from 'emotion';
 
 const container = css `
-    height: calc(100vh - 80px);
+    height: 100%;
     position: relative;
     background: #015249;
     width: 30%;
-    max-width: 400px;
-    min-width: 300px;
+    overflow: hidden;
 
     .messages {
-        height: calc(100% - 80px);
+        height: calc(100% - 70px);
         padding: 20px 14px 0px 20px;
     }
 
@@ -216,7 +215,7 @@ export default class Chat extends Component {
         const { message, messages } = this.state
         let last_ts
         return (
-            <div className={container}>
+            <div className={container + " chat-container"}>
                 <div className="messages no-scrollbar qt-font-small">
                     { messages.map((msg) => {
                         let time

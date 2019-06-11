@@ -3,6 +3,7 @@ import { css } from 'emotion';
 
 const container = css `
     color: #fff;
+    margin-top: 120px;
 
     label {
         display: block;
@@ -26,7 +27,7 @@ export default class Toolbar extends Component {
         const { sounds, hot_keys, stats, toggleSounds, toggleHotkeys, toggleStats } = this.props
         
         return (
-            <div className={container + " d-flex justify-content-center qt-font-extra-small text-center mt-5"}>
+            <div className={container + "  d-none d-lg-flex justify-content-center qt-font-extra-small text-center"}>
                 <div className={"cursor-pointer mx-5" + (sounds ? "" : " inactive")}
                     onClick={toggleSounds}
                 >

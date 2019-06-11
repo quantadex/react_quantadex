@@ -292,14 +292,13 @@ export const rollDice = (amount, asset, bet) => {
 			bet,
 			numbers: []
 		}).then((tr) => {
-			// console.log(3, tr)
-			const pKey = PrivateKey.fromWif(getState().app.private_key)
-			tr.add_signer(pKey, pKey.toPublicKey().toPublicKeyString());
+			// const pKey = PrivateKey.fromWif(getState().app.private_key)
+			// tr.add_signer(pKey, pKey.toPublicKey().toPublicKeyString());
 			//console.log("serialized transaction:", tr.serialize().operations);
 			console.log('before broadcast', new Date() - now)
-			return tr.broadcast()
+			return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key))
 				.then((res) => {
-					console.log("Call order update success!");
+					// console.log("Call order update success!");
 					return tr.id()
 				}).catch((e) => {
 					console.log(e)
@@ -308,8 +307,10 @@ export const rollDice = (amount, asset, bet) => {
 							type: TOGGLE_BUY_QDEX_DIALOG,
 							data: true
 						})
+						throw "Insufficient QDEX"
 					}
-					throw "Insufficient Fund"
+					if (e.message.includes("Insufficient Balance")) throw "Insufficient Fund"
+					throw e.message
 				})
 		}).catch(error => {
 			console.log(error)

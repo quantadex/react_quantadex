@@ -5,11 +5,12 @@ import Connect, { ConnectDialog } from '../../components/connect.jsx';
 import BuyQdex from '../../components/buy_qdex.jsx'
 
 const container = css `
-    height: 80px;
+    min-height: 80px;
     background: rgb(168,157,59);
     background: linear-gradient(165deg, rgb(168,157,59) 10%,rgb(230,213,69) 59%,rgb(168,157,59));
     box-shadow: 0 1px 3px;
     border-bottom: 1px solid #d6c740;
+    overflow: hidden;
 
     .avail-fund {
         position: relative;

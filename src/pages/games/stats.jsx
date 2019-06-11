@@ -5,8 +5,6 @@ import Chart from './chart.jsx'
 const container = css `
     background: #57A38B;
     border-radius: 5px;
-    margin-left: 30px;
-    width: 240px;
     overflow: hidden
     color: #fff;
     cursor: default;
@@ -71,10 +69,10 @@ export default class Stats extends Component {
 
     render() {
         const { update } = this.state
-        const { gain_history, profit, wins, lose, bets, luck, roll_history, wagered, chart_height } = this.props
+        const { gain_history, profit, wins, lose, bets, luck, roll_history, wagered, chart_height, className } = this.props
         
         return (
-            <div className={container + " qt-font-extra-small"}>
+            <div className={container + " stats-container qt-font-extra-small ml-lg-4 " + (className || "")}>
                 <h5 className="text-center py-3">LIVE STATS</h5>
                 <div className="d-flex">
                     <div className="px-5 w-50">Wagered<br/>{wagered}</div>

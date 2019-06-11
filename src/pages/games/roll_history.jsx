@@ -12,9 +12,13 @@ const container = css `
 
     .roll-table-container {
         height: 425px;
+        overflow: hidden;
+        
         span {
-            width: 14.28%;
+            width: 100%;
             text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         span.win {
@@ -41,13 +45,7 @@ const container = css `
 
             .bet-row.first {
                 overflow: hidden;
-                will-change: height;
                 animation: 0.2s rollIn;
-            }
-
-            .bet-row.last {
-                opacity: 0;
-                animation: 0.2s fadeOut;
             }
         }
     }
@@ -58,15 +56,6 @@ const container = css `
         }
         100% {
             height: 40px;
-        }
-    }
-
-    @keyframes fadeOut {
-        0% {
-            opacity: 1;
-        }
-        100% {
-            opacity: 0;
         }
     }
 `
@@ -185,22 +174,22 @@ export default class RollHistory extends Component {
                         <div className="header d-flex mb-3">
                             <span className="text-left">Bet ID</span>
                             <span>User</span>
-                            <span>Time</span>
-                            <span>Wagered</span>
-                            <span>Payout</span>
-                            <span>Roll</span>
+                            <span className="d-none d-md-block">Time</span>
+                            <span className="d-none d-sm-block">Wagered</span>
+                            <span className="d-none d-md-block">Payout</span>
+                            <span className="d-none d-sm-block">Roll</span>
                             <span className="text-right">Profit</span>
                         </div>
                         <div className="content d-flex flex-column">
                             {history.map((row, index) => {
                                 return (
-                                    <div key={row.id} className={"bet-row d-flex " + (index == 0 ? "first" : index == 10 ? "last" : "")}>
+                                    <div key={row.id} className={"bet-row d-flex " + (index == 0 ? "first" : "")}>
                                         <span className="text-left">{row.id}</span>
                                         <span>{row.user}</span>
-                                        <span>{row.time}</span>
-                                        <span>{row.wagered.toFixed(row.precision)} {row.symbol}</span>
-                                        <span>{row.payout.toFixed(2)}x</span>
-                                        <span>{row.roll}</span>
+                                        <span className="d-none d-md-block">{row.time}</span>
+                                        <span className="d-none d-sm-block">{row.wagered.toFixed(row.precision)} {row.symbol}</span>
+                                        <span className="d-none d-md-block">{row.payout.toFixed(2)}x</span>
+                                        <span className="d-none d-sm-block">{row.roll}</span>
                                         <span className={"text-right" + (row.profit >= 0 ? " win" : " loss")}>{row.profit.toFixed(row.precision)} {row.symbol}</span>
                                     </div>
                                 )

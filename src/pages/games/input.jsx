@@ -12,7 +12,8 @@ const container = css `
         width: 110px;
         text-transform: uppercase;
         margin-right: 10px;
-        font-size: 14px;
+        margin-bottom: 0;
+        font-size: 12px;
         color: #777;
     }
     input {
@@ -61,6 +62,11 @@ const container = css `
             cursor: default;
             line-height: 35px;
         }
+
+        .after.input-center {
+            position: static;
+            height: 32px;
+        }
     }
 
     
@@ -68,10 +74,10 @@ const container = css `
 
 export default class DiceInput extends Component {
     render() {
-        const { label, type, step, min, value, disabled, onChange, onBlur, after, children } = this.props
+        const { label, type, step, min, value, disabled, onChange, onBlur, after, children, className } = this.props
 
         return (
-            <div className={container}>
+            <div className={container + " " + (className || "")}>
                 <label>{label}</label>
                 <div className="d-flex">
                     {children}
