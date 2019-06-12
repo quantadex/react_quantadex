@@ -283,7 +283,6 @@ export const loadOrderHistory = (page) => {
 }
 
 export const rollDice = (amount, asset, bet) => {
-	const now = new Date()
 	return (dispatch, getState) => {
 		return ApplicationApi.roll_dice({ 
 			account: getState().app.userId,
@@ -292,10 +291,6 @@ export const rollDice = (amount, asset, bet) => {
 			bet,
 			numbers: []
 		}).then((tr) => {
-			// const pKey = PrivateKey.fromWif(getState().app.private_key)
-			// tr.add_signer(pKey, pKey.toPublicKey().toPublicKeyString());
-			//console.log("serialized transaction:", tr.serialize().operations);
-			console.log('before broadcast', new Date() - now)
 			return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key))
 				.then((res) => {
 					// console.log("Call order update success!");

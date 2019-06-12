@@ -24,17 +24,17 @@ export default class Toolbar extends Component {
 
     render() {
         const {  } = this.state
-        const { sounds, hot_keys, stats, toggleSounds, toggleHotkeys, toggleStats } = this.props
+        const { sounds, hot_keys, stats, toggleSounds, toggleHotkeys, toggleStats, className } = this.props
         
         return (
-            <div className={container + "  d-none d-lg-flex justify-content-center qt-font-extra-small text-center"}>
+            <div className={container + " toolbar-container justify-content-center qt-font-extra-small text-center " + (className || "")}>
                 <div className={"cursor-pointer mx-5" + (sounds ? "" : " inactive")}
                     onClick={toggleSounds}
                 >
                     <img src={"/public/images/dice/sound-icon.svg"} />
                     <label>Sounds</label>
                 </div>
-                <div className={"cursor-pointer mx-5" + (hot_keys ? "" : " inactive")}
+                <div className={"cursor-pointer mx-5 d-none d-lg-block" + (hot_keys ? "" : " inactive")}
                     onClick={toggleHotkeys}
                 >
                     <img src={"/public/images/dice/hot-keys.svg"} />

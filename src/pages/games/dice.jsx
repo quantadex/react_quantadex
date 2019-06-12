@@ -12,6 +12,7 @@ import Stats from './stats.jsx'
 import Chat from './chat.jsx'
 import RollHistory from './roll_history.jsx'
 import Toolbar from './toolbar.jsx'
+import MobileNav from './mobile_nav.jsx'
 import CONFIG from '../../config.js'
 
 const container = css `
@@ -189,6 +190,7 @@ const container = css `
     .game-history {
         min-height: 560px;
         background: #fff;
+        flex-grow: 1;
     }
 
     #connect-dialog {
@@ -208,19 +210,13 @@ const container = css `
         }
     }
 
-    .right-column {
-        height: 100%;
+    .content-container {
+        max-height: calc(100vh - 80px);
+        flex-grow: 1;
     }
 
-    .mobile-nav {
-        background: #015249;
-        min-height: 50px;
-        
-        div {
-            color: #fff;
-            font-size: 15px;
-            font-weight: bold;
-        }
+    .right-column {
+        height: 100%;
     }
 
     .no-scrollbar {
@@ -275,6 +271,11 @@ const container = css `
     }
 
     @media screen and (max-width: 992px) {
+        .content-container {
+            margin-bottom: 50px;
+            max-height: calc(100vh - 130px);
+        }
+
         .slider-container {
             margin-top: 30px;
             margin-bottom: 30px;
@@ -284,12 +285,8 @@ const container = css `
             padding: 0 10px 0 15px;
         }
 
-        .content-container {
-            flex-grow: 1;
-        }
-
         .stats-container {
-            margin: 100px 0 20px;
+            margin: 20px 0;
         }
 
         .chat-container, .game-history {
@@ -301,7 +298,6 @@ const container = css `
             bottom: 0;
             z-index: 2;
             width: 0%;
-            transition: width 0.3s;
         }
 
         .show-chat {
@@ -315,13 +311,19 @@ const container = css `
                 width: 100%;
             }
         }
+        .toolbar-container {
+            margin-top: 90px;
+        }
     }
+
+    
 `
 
 class DiceGame extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            processing: false,
             asset: null,
             precision: 8,
             precision_min: "0.00000001",
@@ -362,7 +364,6 @@ class DiceGame extends Component {
             hot_keys: false,
             show_chat: false,
             show_bets: false,
-            show_options: false,
         }
 
         this.setInputs = this.setInputs.bind(this)
@@ -453,6 +454,7 @@ class DiceGame extends Component {
                     if (this.state.auto_rolling) this.stopAutoRoll()
                 }
             })
+            .finally(() => this.setState({processing: false}))
         }, 500)
     }
 
@@ -460,8 +462,6 @@ class DiceGame extends Component {
         const { dispatch, private_key, balance } = this.props
         const { win_value, game_num, amount, fund, roll_history, multiplier,
             auto_rolling, auto_roll_num, auto_roll_limit, wagered, asset, roll_over } = this.state
-
-        this.setState({message: ""})
 
         if (auto_rolling && auto_roll_limit > 0 && auto_roll_num == auto_roll_limit) {
             this.stopAutoRoll()
@@ -471,6 +471,8 @@ class DiceGame extends Component {
             auto_rolling && this.stopAutoRoll()
             return this.setState({message: "Insufficient Fund"})
         }
+
+        this.setState({message: "", processing: true})
 
         if (private_key) {
             dispatch(rollDice(amount, asset, (roll_over ? ">" : "<") + win_value.toFixed(0))).then(tx => {
@@ -491,8 +493,9 @@ class DiceGame extends Component {
         }, 0)
 
         setTimeout(() => {
+            this.setState({processing: false})
             if (this.state.auto_rolling) this.rollDice()
-        }, 700)
+        }, 1000)
     }
 
     onWin(win_amount) {
@@ -605,17 +608,13 @@ class DiceGame extends Component {
             win_value_display, amount_display, multiplier_display, chance_display,
             stop_loss_amount_display, stop_profit_amount_display,
             modify_loss, modify_loss_amount, modify_win, modify_win_amount, show_roll,
-            sounds, stats, hot_keys, show_chat, show_bets, show_options } = this.state
+            sounds, stats, hot_keys, show_chat, show_bets, processing } = this.state
         const asset_symbol = window.assets && window.assets[asset] ? window.assets[asset].symbol : ""
         return (
-            <div className={container + " d-flex flex-column"}
-                onClick={() => {
-                    this.setState({show_options: false})
-                }}
-            >
+            <div className={container + " d-flex flex-column"}>
                 <Header setAsset={this.setAsset.bind(this)} demo_fund={fund}/>
                 <div className={"d-flex position-relative content-container" + (show_chat ? " show-chat" : "") + (show_bets ? " show-bets" : "")}>
-                    <Chat user={name} />
+                    <Chat user={private_key ? name : ""} />
                     <div className="right-column d-flex flex-column w-100 no-scrollbar">
                         <div className="game-main">
                             <div className="d-flex flex-column flex-lg-row justify-content-center pt-5">
@@ -629,9 +628,10 @@ class DiceGame extends Component {
                                         <div className={"cursor-pointer w-100 py-3" + (auto ?  "" : " auto-inactive")}
                                             onClick={() => this.setState({auto: true})}>AUTOMATED BETTING</div>
                                     </div>
-                                    <div className="my-4 px-5">
+                                    <div className="my-4 px-2 px-lg-5">
                                         <div className="d-flex">
                                             <DiceInput 
+                                                offset={true}
                                                 label="Bet Amount"
                                                 type="number"
                                                 step={precision_min}
@@ -641,7 +641,7 @@ class DiceGame extends Component {
                                                 onChange={(e) => this.setState({amount_display: e.target.value})}
                                                 onBlur={(e) => this.setInputs("amount", e.target.value)}
                                                 after={
-                                                    <div className="after input-center d-flex">
+                                                    <div className="after d-flex">
                                                         <div className="mx-1 cursor-pointer" onClick={() => {
                                                             this.setInputs("amount", (amount/2/Math.pow(10, precision)))
                                                         }}>&frac12;</div>
@@ -796,7 +796,7 @@ class DiceGame extends Component {
                                     </div>
 
                                     { auto ?
-                                        <div className="my-4 px-5">
+                                        <div className="my-4 px-2 px-lg-5">
                                             <div className="d-flex flex-wrap flex-lg-nowrap">
                                                 <DiceInput 
                                                     label="On Loss"
@@ -879,8 +879,14 @@ class DiceGame extends Component {
                                         :null
                                     }
                                     <div className="text-center my-5">
-                                        <button className="roll-btn gold mx-auto" onClick={() => auto_rolling ? this.stopAutoRoll() : auto ? this.autoRoll() : this.rollDice()}>
-                                            { auto ? auto_rolling ? "Stop" : "Auto Roll" + (auto_roll_limit > 0 ? " x " + auto_roll_limit : "") : "Roll Dice"}
+                                        <button className="roll-btn gold mx-auto" 
+                                            onClick={() => {
+                                                if (processing && !(auto && auto_rolling)) return
+                                                auto_rolling ? this.stopAutoRoll() : auto ? this.autoRoll() : this.rollDice()
+                                            }}>
+                                            { auto ? 
+                                                auto_rolling ? "Stop" : processing ? "Stopping..." : "Auto Roll" + (auto_roll_limit > 0 ? " x " + auto_roll_limit : "") 
+                                                : (processing ? "Rolling..." : "Roll Dice")}
                                         </button>
                                     </div>
 
@@ -900,6 +906,16 @@ class DiceGame extends Component {
                                         </div>
                                     </div>
                                 </div>
+
+                                <Toolbar 
+                                    className="d-flex d-lg-none"
+                                    sounds={sounds}
+                                    stats={stats}
+                                    hot_keys={hot_keys}
+                                    toggleSounds={() => this.setState({sounds: !sounds})}
+                                    toggleStats={() => this.setState({stats: !stats})}
+                                    toggleHotkeys={() => this.setState({hot_keys: !hot_keys})}
+                                />
                                 
                                 { stats ? 
                                     <Stats 
@@ -909,13 +925,14 @@ class DiceGame extends Component {
                                         bets={game_num} luck={game_num && ((roll_history.reduce((partial_sum, a) => partial_sum + (a ? a[1] : 0), 0)/Math.min(game_num, roll_history.length))*100/parseFloat(chance)*100).toFixed(0)}
                                         roll_history={roll_history.slice(-6)}
                                         wagered={(wagered/Math.pow(10, precision)).toFixed(precision)}
-                                        chart_height={auto ? 310 : 140}
+                                        chart_height={auto ? 268 : 128}
                                     />
                                     : null
                                 }
                             </div>
 
                             <Toolbar 
+                                className="d-none d-lg-flex"
                                 sounds={sounds}
                                 stats={stats}
                                 hot_keys={hot_keys}
@@ -929,35 +946,10 @@ class DiceGame extends Component {
                         </div>
                     </div>
                 </div>
-                <div className="mobile-nav d-flex d-lg-none justify-content-around align-items-center">
-                    <div className="cursor-pointer" onClick={() => this.setState({show_chat: !show_chat, show_bets: false})}>CHAT</div>
-                    <div className="cursor-pointer" onClick={() => this.setState({show_bets: !show_bets, show_chat: false})}>BETS</div>
-                    <div className="position-relative cursor-pointer"
-                        onClick={(e) => {
-                            e.stopPropagation() 
-                            this.setState({show_options: !show_options})
-                        }}>
-                        OPTIONS
-                        { show_options ?
-                            <div className="options-menu" onClick={(e) => e.stopPropagation()}>
-                                <div className={"item my-2" + (sounds ? "" : " inactive")} 
-                                    onClick={() => this.setState({sounds: !sounds})}
-                                >
-                                    <img src="/public/images/dice/sound-icon.svg" />
-                                    <span>Sounds</span>
-                                </div>
-                                <div className={"item my-2" + (stats ? "" : " inactive")} 
-                                    onClick={() => this.setState({stats: !stats})}
-                                >
-                                    <img src="/public/images/dice/live-stats.svg" />
-                                    <span>Live Stats</span>
-                                </div>
-                            </div>
-                            : null
-                        }
-                        
-                    </div>
-                </div>
+                <MobileNav 
+                    show_bets={show_bets} show_chat={show_chat}
+                    onClick={(change) => this.setState(change)}
+                />
 				<ToastContainer />
             </div>
         )

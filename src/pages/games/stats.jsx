@@ -14,6 +14,13 @@ const container = css `
         background: #57bc90;
     }
 
+    .game-stats {
+        span {
+            width: 50px;
+            text-align: right;
+        }
+    }
+
     .history-container {
         height: 25px;
     }
@@ -70,7 +77,6 @@ export default class Stats extends Component {
     render() {
         const { update } = this.state
         const { gain_history, profit, wins, lose, bets, luck, roll_history, wagered, chart_height, className } = this.props
-        
         return (
             <div className={container + " stats-container qt-font-extra-small ml-lg-4 " + (className || "")}>
                 <h5 className="text-center py-3">LIVE STATS</h5>
@@ -79,11 +85,11 @@ export default class Stats extends Component {
                     <div className="px-5 w-50">Profit<br/>{profit}</div>
                 </div>
                 <Chart data={gain_history} style={{height: chart_height}} />
-                <div className="d-flex flex-wrap px-5">
+                <div className="game-stats d-flex flex-wrap px-5">
                     <div className="w-50">Wins <span className="float-right pr-4">{wins}</span></div>
                     <div className="w-50">Losses <span className="float-right">{lose}</span></div>
                     <div className="w-50">Bets <span className="float-right pr-4">{bets}</span></div>
-                    <div className="w-50">Luck <span className="float-right">{luck}%</span></div>
+                    <div className="w-50">Luck <span className="float-right">{luck == 0 && gain_history.length < 100 ? 100 : luck}%</span></div>
                 </div>
                 <div className="d-flex justify-content-around my-4 history-container">
                     {roll_history.map((roll, index) => {

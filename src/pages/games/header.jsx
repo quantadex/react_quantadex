@@ -10,7 +10,7 @@ const container = css `
     background: linear-gradient(165deg, rgb(168,157,59) 10%,rgb(230,213,69) 59%,rgb(168,157,59));
     box-shadow: 0 1px 3px;
     border-bottom: 1px solid #d6c740;
-    overflow: hidden;
+    z-index: 999;
 
     .avail-fund {
         position: relative;

@@ -134,7 +134,7 @@ export default class Chat extends Component {
 
         this.ref = this.db.ref(`quantadice/${channel}`)
         this.ref.off('child_added', this.onMessage)
-        this.ref.limitToLast(20)
+        this.ref.limitToLast(50)
         .on('child_added', this.onMessage)
         
         setTimeout(() => {

@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 import { css } from 'emotion';
 
 const container = css `
-    margin-top: 10px;
-    margin-left: 10px;
+    margin: 10px 5px 0;
     width: 100%;
     white-space: nowrap;
 
@@ -17,7 +16,6 @@ const container = css `
         color: #777;
     }
     input {
-        padding: 10px;
         color: #555;
         width: 100%;
         background: #fff;
@@ -60,28 +58,31 @@ const container = css `
             color: #999;
             padding: 0 10px;
             cursor: default;
-            line-height: 35px;
+            line-height: 32px;
         }
+    }
 
-        .after.input-center {
+    .offset {
+        input {
+            min-width: 0;
+        }
+        .after {
             position: static;
             height: 32px;
         }
     }
-
-    
 `
 
 export default class DiceInput extends Component {
     render() {
-        const { label, type, step, min, value, disabled, onChange, onBlur, after, children, className } = this.props
+        const { label, type, step, min, value, disabled, onChange, onBlur, after, children, offset, className } = this.props
 
         return (
             <div className={container + " " + (className || "")}>
                 <label>{label}</label>
                 <div className="d-flex">
                     {children}
-                    <div className="input-field d-flex position-relative w-100">
+                    <div className={"input-field d-flex position-relative w-100" + (offset ? " offset" : "") }>
                         <input type={type} step={step} min={min} value={value} 
                             disabled={disabled}
                             onFocus={(e) => e.target.select()}
