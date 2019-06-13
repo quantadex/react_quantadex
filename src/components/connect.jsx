@@ -889,7 +889,6 @@ export class ConnectDialog extends Component {
                             onClick={() => {
                                 const c = confirm("This will remove your credentials from current device. Make sure you have backup of you Private Key before continue!")
                                 if (c) {
-                                    clear()
                                     this.setState({storeEncrypted: null, storeName: null})
                                     dispatch({
                                         type: LOGOUT

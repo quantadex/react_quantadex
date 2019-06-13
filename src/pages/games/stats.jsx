@@ -89,7 +89,7 @@ export default class Stats extends Component {
                     <div className="w-50">Wins <span className="float-right pr-4">{wins}</span></div>
                     <div className="w-50">Losses <span className="float-right">{lose}</span></div>
                     <div className="w-50">Bets <span className="float-right pr-4">{bets}</span></div>
-                    <div className="w-50">Luck <span className="float-right">{luck == 0 && gain_history.length < 100 ? 100 : luck}%</span></div>
+                    <div className="w-50">Luck <span className="float-right">{luck == 0 && gain_history.length < 10 ? 100 : luck}%</span></div>
                 </div>
                 <div className="d-flex justify-content-around my-4 history-container">
                     {roll_history.map((roll, index) => {

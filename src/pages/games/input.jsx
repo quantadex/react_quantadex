@@ -59,6 +59,7 @@ const container = css `
             padding: 0 10px;
             cursor: default;
             line-height: 32px;
+            user-select: none;
         }
     }
 

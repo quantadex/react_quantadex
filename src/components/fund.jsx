@@ -59,18 +59,38 @@ const container = css`
 
   &.mobile {
     padding: 0;
-    background-color: transparent !important;
+    background-color: #0a121e !important;
     min-height: unset;
 
     .content {
       margin-top: 20px;
+      min-height: 100vh;
     }
 
     .table-row .row {
       height: auto;
       padding: 5px 0;
     }
-  }
+
+    .tab-row {
+      background-color: transparent;
+      margin: 0;
+      height: auto;
+      border: none;
+      font-size: 12px;
+      white-space: nowrap;
+      position: -webkit-sticky;
+      position: -webkit-sticky;
+      position: sticky;
+      top: 0;
+      background: #0A121E;
+      z-index: 1;
+    }
+
+    .tabs {
+      width: 100%;
+      font-size: 12px;
+    }
 `;
 
 class Fund extends Component {
@@ -80,6 +100,7 @@ class Fund extends Component {
       selectedTabIndex: 0,
     }
 
+    this.wallet_path = location.pathname.includes("/wallets")
     this.eventUpdate = this.eventUpdate.bind(this)
   }
 
@@ -124,11 +145,11 @@ class Fund extends Component {
     const content = [<Wallets mobile_nav={mobile_nav} />, <Vesting />, <CrosschainHistory user={name} />, <Referral />]
 		return (
 		<div className={container + " container-fluid" + (isMobile ? " mobile" : "")}>
-      {isMobile ? 
+      {isMobile && !this.wallet_path ? 
           null
         :
-        <div className="row header-row">
-          <Header />
+        <div className="header-row">
+          <Header mobile={isMobile} hash={this.props.location.hash} />
         </div>
       }
       

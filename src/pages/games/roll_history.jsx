@@ -114,6 +114,7 @@ export default class RollHistory extends Component {
                     time: new Date(op.block_data.block_time + "Z").toLocaleTimeString([], {hour: "numeric", minute: "numeric"}),
                     wagered: op_object.risk.amount/Math.pow(10, asset.precision),
                     payout: op_object.win ? (op_object.payout.amount/op_object.risk.amount) + 1 : 0,
+                    bet: op_object.bet,
                     roll: op_object.outcome,
                     profit: op_object.payout.amount/Math.pow(10, asset.precision),
                     symbol: asset.symbol.split('0X')[0].slice(0,4),
@@ -177,6 +178,7 @@ export default class RollHistory extends Component {
                             <span className="d-none d-md-block">Time</span>
                             <span className="d-none d-sm-block">Wagered</span>
                             <span className="d-none d-md-block">Payout</span>
+                            <span className="d-none d-md-block">Game</span>
                             <span className="d-none d-sm-block">Roll</span>
                             <span className="text-right">Profit</span>
                         </div>
@@ -189,6 +191,7 @@ export default class RollHistory extends Component {
                                         <span className="d-none d-md-block">{row.time}</span>
                                         <span className="d-none d-sm-block">{row.wagered.toFixed(row.precision)} {row.symbol}</span>
                                         <span className="d-none d-md-block">{row.payout.toFixed(2)}x</span>
+                                        <span className="d-none d-md-block">{row.bet[0]} {row.bet.slice(1)}</span>
                                         <span className="d-none d-sm-block">{row.roll}</span>
                                         <span className={"text-right" + (row.profit >= 0 ? " win" : " loss")}>{row.profit.toFixed(row.precision)} {row.symbol}</span>
                                     </div>

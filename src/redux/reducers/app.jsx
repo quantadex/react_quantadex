@@ -15,6 +15,7 @@ import { toast } from 'react-toastify';
 import Ticker, {SymbolToken} from '../../components/ui/ticker.jsx'
 import lodash from 'lodash'
 import moment from 'moment'
+import {clear} from '../../common/storage.js'
 
 let network = window.location.pathname.startsWith("/testnet") ? "testnet" : "mainnet"
 if (localStorage.env !== network) localStorage.clear()
@@ -651,6 +652,7 @@ const app = (state = initialState, action) => {
       }
 
     case LOGOUT: 
+      clear()
       return {
         ...state,
         private_key: null,

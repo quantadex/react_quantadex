@@ -136,7 +136,7 @@ export default class Chat extends Component {
         this.ref.off('child_added', this.onMessage)
         this.ref.limitToLast(50)
         .on('child_added', this.onMessage)
-        
+
         setTimeout(() => {
             this.scrollToBottom()
         }, 1000)
@@ -201,7 +201,8 @@ export default class Chat extends Component {
         }
     
         const script = document.querySelector(`#${this.scriptId}`)
-    
+        window.firebase = undefined
+
         if (script) {
           script.remove()
         }

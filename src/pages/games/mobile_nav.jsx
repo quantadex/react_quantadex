@@ -37,10 +37,10 @@ export default class MobileNav extends Component {
         
         return (
             <div className={container + " d-flex d-lg-none justify-content-around align-items-center"}>
-                <div className={"cursor-pointer" + (show_chat || show_bets ? "" : " active")} 
-                    onClick={() => onClick({show_chat: false, show_bets: false})}>DICE</div>
                 <div className={"cursor-pointer" + (show_chat ? " active" : "")} 
                     onClick={() => onClick({show_chat: true, show_bets: false})}>CHAT</div>
+                <div className={"cursor-pointer" + (show_chat || show_bets ? "" : " active")} 
+                    onClick={() => onClick({show_chat: false, show_bets: false})}>DICE</div>
                 <div className={"cursor-pointer" + (show_bets ? " active" : "")} 
                     onClick={() => onClick({show_bets: true, show_chat: false})}>BETS</div>
             </div>

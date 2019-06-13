@@ -3,27 +3,33 @@ import { connect } from 'react-redux'
 import { css } from 'emotion';
 import Connect, { ConnectDialog } from '../../components/connect.jsx';
 import BuyQdex from '../../components/buy_qdex.jsx'
+import Menu from './menu.jsx'
 
 const container = css `
     min-height: 80px;
     background: rgb(168,157,59);
     background: linear-gradient(165deg, rgb(168,157,59) 10%,rgb(230,213,69) 59%,rgb(168,157,59));
-    box-shadow: 0 1px 3px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.5);
     border-bottom: 1px solid #d6c740;
+    color: #fff;
     z-index: 999;
+
+    .logo {
+        max-width: 25%;
+    }
 
     .avail-fund {
         position: relative;
+        width: min-content;
         min-width: 160px;
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
         white-space: nowrap;
         background: #b09520;
         border-radius: 3px;
         padding: 5px 15px;
         box-shadow: 1px 1px 1px #fde829;
-    }
-
-    .user-data {
-        color: #fff;
     }
 
     .assets-list {
@@ -55,6 +61,28 @@ class Header extends Component {
             selected_asset: null,
             show_assets: false,
         }
+
+        this.toggleAssets = this.toggleAssets.bind(this)
+    }
+
+    toggleAssets(e) {
+        const { selected_asset, show_assets } = this.state
+        if (!selected_asset) return
+        const Assets = this.refs.Assets;
+        var isClickInside = Assets.contains(e.target);
+        if (isClickInside) {
+            this.setState({show_assets:!show_assets})
+        } else {
+            this.setState({show_assets:false})
+        }
+    }
+
+    componentDidMount() {
+        document.addEventListener('click', this.toggleAssets)
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener('click', this.toggleAssets)
     }
 
     componentWillReceiveProps(nextProps) {
@@ -70,23 +98,22 @@ class Header extends Component {
         const { name, balance, network, dispatch, connectDialog, setAsset, demo_fund, buyQdexDialog, private_key } = this.props
         const { selected_asset, show_assets } = this.state
         return (
-            <div className={container + " d-flex justify-content-between align-items-center px-5"}>
-                <img src="/public/images/dice/logo.svg" alt="QUANTA DICE" />
-                <div className="user-data d-flex qt-font-normal align-items-center">
-                    <div className="avail-fund text-right cursor-pointer"
-                        onClick={() => {
-                            if (selected_asset) this.setState({show_assets: !show_assets})
-                        }}>
-                        { private_key && selected_asset ? 
-                            balance[selected_asset].balance + " " + balance[selected_asset].symbol.split('0X')[0] + " " + String.fromCharCode(9662)  
-                            : (demo_fund/Math.pow(10, 8)).toFixed(8) + " BTC"}
+            <div className={container + " px-4 px-md-5"}>
+                <div className="d-flex qt-font-normal align-items-center justify-content-between h-100">
+                    <img className="logo" src="/public/images/dice/logo.svg" alt="QUANTA DICE" />
+                    <div className="w-100 position-relative">
+                        <div  ref="Assets" className="avail-fund text-right cursor-pointer ml-auto">
+                            { private_key && selected_asset ? 
+                                balance[selected_asset].balance + " " + balance[selected_asset].symbol.split('0X')[0] + " " + String.fromCharCode(9662)  
+                                : (demo_fund/Math.pow(10, 8)).toFixed(8) + " BTC"}
+                        </div>
                         { show_assets ?
-                            <div className="assets-list">
+                            <div className="assets-list text-right">
                                 {Object.keys(balance).map(coin => {
                                     return (
                                         <div key={coin} className="asset my-2 px-3 py-2 cursor-pointer"
                                             onClick={() => {
-                                                this.setState({selected_asset: coin, show_assets: false})
+                                                this.setState({selected_asset: coin})
                                                 setAsset(coin)
                                             }}
                                         >
@@ -96,9 +123,17 @@ class Header extends Component {
                                 })}
                             </div>
                             : null
-                        }     
+                        } 
                     </div>
-                    <div className="pl-5">{private_key ? <div>{name} <Connect type="lock" /></div> : <Connect type="link" />}</div>
+                    <div className="d-flex align-items-center ml-5">
+                        {private_key ? 
+                            <div className="d-none d-md-block mr-4">{name}</div> // <Connect type="lock" /></div> 
+                            : <div className="d-none d-md-block"><Connect type="link" /></div> 
+                        }
+                        <div className={private_key ? "d-block" : "d-block d-md-none"}>
+                            <Menu network={network} dispatch={dispatch} connected={private_key && true || false} />
+                        </div>
+                    </div>
                 </div>
 
                 { connectDialog ?

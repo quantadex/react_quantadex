@@ -293,11 +293,18 @@ const container = css `
             position: absolute;
             margin: 0 !important;
             top: 0;
-            left: 0;
-            right: 0;
             bottom: 0;
             z-index: 2;
             width: 0%;
+            transition: width 0.3s;
+        }
+
+        .chat-container {
+            left: 0;
+        }
+
+        .game-history {
+            right: 0;
         }
 
         .show-chat {
@@ -315,8 +322,6 @@ const container = css `
             margin-top: 90px;
         }
     }
-
-    
 `
 
 class DiceGame extends Component {
@@ -495,7 +500,7 @@ class DiceGame extends Component {
         setTimeout(() => {
             this.setState({processing: false})
             if (this.state.auto_rolling) this.rollDice()
-        }, 1000)
+        }, 700)
     }
 
     onWin(win_amount) {
@@ -567,7 +572,7 @@ class DiceGame extends Component {
 
         function setMultiState(win_value, chance, multiplier) {
             self.setState({win_value: win_value, win_value_display: win_value, 
-                chance: chance, chance_display: chance, 
+                chance: chance, chance_display: chance, roll_history: Array(100),
                 multiplier: parseFloat(multiplier.toFixed(3)), multiplier_display: multiplier.toFixed(3)})
         }
         
@@ -581,7 +586,7 @@ class DiceGame extends Component {
             case "win_value":
                 win_value = value < 1 ? 1 : Math.min(value, 99)
                 chance = roll_over ? 100 - win_value : win_value
-                multiplier = 100/chance
+                multiplier = 100/chance*0.99
                 return setMultiState(win_value, chance, multiplier)
             // case "multiplier":
             //     multiplier = value < 1.01 ? 1.01 : Math.min(value, 99)
@@ -643,13 +648,13 @@ class DiceGame extends Component {
                                                 after={
                                                     <div className="after d-flex">
                                                         <div className="mx-1 cursor-pointer" onClick={() => {
-                                                            this.setInputs("amount", (amount/2/Math.pow(10, precision)))
+                                                            !auto_rolling && this.setInputs("amount", (amount/2/Math.pow(10, precision)))
                                                         }}>&frac12;</div>
                                                         <div className="mx-1 cursor-pointer" onClick={() => {
-                                                            this.setInputs("amount", (amount*2/Math.pow(10, precision)))
+                                                            !auto_rolling && this.setInputs("amount", (amount*2/Math.pow(10, precision)))
                                                         }}>2x</div>
                                                         <div className="mx-1 cursor-pointer" onClick={() => {
-                                                            if(balance[asset]) this.setInputs("amount", balance[asset].balance)
+                                                            if(!auto_rolling && balance[asset]) this.setInputs("amount", balance[asset].balance)
                                                         }}>MAX</div>
                                                     </div>
                                                 }

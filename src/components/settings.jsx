@@ -53,7 +53,6 @@ class Settings extends Component {
             action: () => {
                 const c = confirm("This will remove your credentials from current device. Make sure you have backup of you Private Key before continue!")
                 if (c) {
-                    clear()
                     dispatch({ type: LOGOUT })
                 }
             }
