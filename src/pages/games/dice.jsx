@@ -371,9 +371,12 @@ class DiceGame extends Component {
             show_chat: false,
             show_bets: false,
             bet_info: null,
+            shared_message: null,
         }
 
         this.setInputs = this.setInputs.bind(this)
+        this.showBetDialog = this.showBetDialog.bind(this)
+        this.shareToChat = this.shareToChat.bind(this)
         this.roll_timeout
 
         this.win_audio = new Audio('/public/audio/win.wav');
@@ -381,15 +384,20 @@ class DiceGame extends Component {
     }
 
     componentDidMount() {
-        const { match, dispatch } = this.props
+        const { match, location, dispatch } = this.props
 
         if (!window.markets && !window.isApp) {
 			const default_ticker = match && match.params.net == "testnet" ? "ETH/USD" : 'ETH/BTC'
-            dispatch(switchTicker(default_ticker));
-            dispatch(updateUserData());
+            dispatch(switchTicker(default_ticker))
+            dispatch(updateUserData())
         } 
 
         this.changeSliderSide()
+
+        if (location.search.includes("bet=")) {
+            const arr = location.search.slice(1).split("=")
+            this.setState({bet_info: arr[arr.indexOf("bet") + 1]})
+        }
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -421,9 +429,6 @@ class DiceGame extends Component {
 
     autoRoll() {
         const { amount_display } = this.state
-        // const auto_rolling = setInterval(() => {
-        //     this.rollDice()
-        // }, 700)
         this.setState({auto_rolling: true, unmod_amount: amount_display, 
             auto_roll_num: 0, game_num: 0, win_num:0, lose_num: 0, roll_history: Array(100) })
         setTimeout(() => {
@@ -566,6 +571,15 @@ class DiceGame extends Component {
         localStorage.setItem("dice_asset", asset)
     }
 
+    showBetDialog(id) {
+        this.setState({bet_info: id})
+        this.props.history.push("?bet=" + id)
+    }
+
+    shareToChat(message) {
+        this.setState({shared_message: message, bet_info: null, show_chat: true, show_bets: false}, () => this.setState({shared_message: null}))
+    }
+
     setInputs(type, val) {
         const self = this
         const { precision, roll_over, precision_min } = this.state
@@ -575,7 +589,7 @@ class DiceGame extends Component {
         function setMultiState(win_value, chance, multiplier) {
             self.setState({win_value: win_value, win_value_display: win_value, 
                 chance: chance, chance_display: chance, roll_history: Array(100),
-                multiplier: parseFloat(multiplier.toFixed(3)), multiplier_display: multiplier.toFixed(3)})
+                multiplier: parseFloat(multiplier.toFixed(2)), multiplier_display: multiplier.toFixed(2)})
         }
         
         function setAmount(key, value) {
@@ -588,7 +602,7 @@ class DiceGame extends Component {
             case "win_value":
                 win_value = value < 1 ? 1 : Math.min(value, 99)
                 chance = roll_over ? 100 - win_value : win_value
-                multiplier = 100/chance*0.99
+                multiplier = 100/chance
                 return setMultiState(win_value, chance, multiplier)
             // case "multiplier":
             //     multiplier = value < 1.01 ? 1.01 : Math.min(value, 99)
@@ -608,20 +622,20 @@ class DiceGame extends Component {
     }
 
     render() {
-        const { name, userId, private_key, balance } = this.props
+        const { name, userId, private_key, balance, history } = this.props
         const { asset, auto, auto_rolling, fund, roll, roll_history, game_num, win_num, lose_num, wagered,
             message, net_gain, gain_history, auto_roll_limit, precision, precision_min,
             win_value, roll_over, amount, multiplier, chance,
             win_value_display, amount_display, multiplier_display, chance_display,
             stop_loss_amount_display, stop_profit_amount_display,
             modify_loss, modify_loss_amount, modify_win, modify_win_amount, show_roll,
-            sounds, stats, hot_keys, show_chat, show_bets, processing, bet_info } = this.state
+            sounds, stats, hot_keys, show_chat, show_bets, processing, bet_info, shared_message } = this.state
         const asset_symbol = window.assets && window.assets[asset] ? window.assets[asset].symbol : ""
         return (
             <div className={container + " d-flex flex-column"}>
-                <Header setAsset={this.setAsset.bind(this)} demo_fund={fund}/>
+                <Header setAsset={this.setAsset.bind(this)} demo_fund={fund} />
                 <div className={"d-flex position-relative content-container" + (show_chat ? " show-chat" : "") + (show_bets ? " show-bets" : "")}>
-                    <Chat user={private_key ? name : ""} display_bet={(id) => this.setState({bet_info: id})} />
+                    <Chat user={private_key ? name : ""} display_bet={(id) => this.showBetDialog(id)} shared_message={shared_message} />
                     <div className="right-column d-flex flex-column w-100 no-scrollbar">
                         <div className="game-main">
                             <div className="d-flex flex-column flex-lg-row justify-content-center pt-5">
@@ -949,7 +963,7 @@ class DiceGame extends Component {
                             />
                         </div>
                         <div className="game-history mt-5">
-                            <RollHistory userId={private_key && userId} show_info={(id) => this.setState({bet_info: id})} />
+                            <RollHistory userId={private_key && userId} show_info={(id) => this.showBetDialog(id)} />
                         </div>
                     </div>
                 </div>
@@ -958,7 +972,12 @@ class DiceGame extends Component {
                     onClick={(change) => this.setState(change)}
                 />
                 { bet_info ?
-                    <BetInfo id={bet_info} close={() => this.setState({bet_info: null})} />
+                    <BetInfo id={bet_info} 
+                    share={this.shareToChat}
+                    close={() => {
+                        this.setState({bet_info: null})
+                        history.push()
+                    }} />
                     : null
                 }
 				<ToastContainer />
@@ -968,10 +987,10 @@ class DiceGame extends Component {
 }
 
 const mapStateToProps = (state) => ({
-        private_key: state.app.private_key,
-        name: state.app.name,
-        userId: state.app.userId,
-        balance: state.app.balance || {}
-	});
+    private_key: state.app.private_key,
+    name: state.app.name,
+    userId: state.app.userId,
+    balance: state.app.balance || {}
+});
 
 export default connect(mapStateToProps)(DiceGame);

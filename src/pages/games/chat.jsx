@@ -50,6 +50,7 @@ const container = css `
             padding: 10px;
             border: 0;
             border-radius: 5px;
+            color: #555;
         }
 
         button {
@@ -111,6 +112,11 @@ export default class Chat extends Component {
         if (nextProps.user != this.state.user) {
             this.setState({user: nextProps.user})
             this.setUser(nextProps.user)
+        }
+
+        if (nextProps.shared_message) {
+            const { message } = this.state
+            this.setState({message: (message ? message + " " + nextProps.shared_message : nextProps.shared_message) + " "})
         }
     }
 

@@ -149,11 +149,16 @@ export default class BetInfo extends Component {
 
             this.setState({data: {name, tx_seed, chain_id, time, op: data.operation_history.op_object, precision, symbol, roll_over}})
         })
+        .catch(() => {
+            setTimeout(() => {
+                this.componentDidMount()
+            }, 1000)
+        })
 
     }
 
     render() {
-        const { close } = this.props
+        const { close, share } = this.props
         const { id, data } = this.state
         return (
             <div className={container + " d-flex justify-content-center"} onClick={close}>
@@ -162,7 +167,12 @@ export default class BetInfo extends Component {
                     { data ?
                         <React.Fragment>
                             <div className="bet-info text-center">
-                                <h4><b>BET #{id}</b></h4>
+                                <h4><b>BET #{id}</b>
+                                    <img className="ml-2 cursor-pointer" 
+                                        src="/public/images/share.svg" width="20"
+                                        onClick={() => share("/bet " + id)}
+                                    />
+                                </h4>
                                 <p className="text-secondary">
                                     Placed by {data.name}<br/>
                                     at {data.time.toLocaleString()}
