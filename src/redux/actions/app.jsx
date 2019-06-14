@@ -45,6 +45,18 @@ export function GetAccount(id) {
 	})
 }
 
+export function GetBlock(id) {
+	return Apis.instance().db_api().exec("get_block", [id]).then(e => {
+		return e
+	})
+}
+
+export function GetChainId() {
+	return Apis.instance().db_api().exec("get_chain_id", []).then(e => {
+		return e
+	})
+}
+
 function notify_success(toastId, msg) {
 	toast.update(toastId, {
 		render: msg,

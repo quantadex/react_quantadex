@@ -13,6 +13,7 @@ import Chat from './chat.jsx'
 import RollHistory from './roll_history.jsx'
 import Toolbar from './toolbar.jsx'
 import MobileNav from './mobile_nav.jsx'
+import BetInfo from './bet_info.jsx'
 import CONFIG from '../../config.js'
 
 const container = css `
@@ -369,6 +370,7 @@ class DiceGame extends Component {
             hot_keys: false,
             show_chat: false,
             show_bets: false,
+            bet_info: null,
         }
 
         this.setInputs = this.setInputs.bind(this)
@@ -464,7 +466,7 @@ class DiceGame extends Component {
     }
 
     rollDice() {
-        const { dispatch, private_key, balance } = this.props
+        const { dispatch, private_key } = this.props
         const { win_value, game_num, amount, fund, roll_history, multiplier,
             auto_rolling, auto_roll_num, auto_roll_limit, wagered, asset, roll_over } = this.state
 
@@ -613,7 +615,7 @@ class DiceGame extends Component {
             win_value_display, amount_display, multiplier_display, chance_display,
             stop_loss_amount_display, stop_profit_amount_display,
             modify_loss, modify_loss_amount, modify_win, modify_win_amount, show_roll,
-            sounds, stats, hot_keys, show_chat, show_bets, processing } = this.state
+            sounds, stats, hot_keys, show_chat, show_bets, processing, bet_info } = this.state
         const asset_symbol = window.assets && window.assets[asset] ? window.assets[asset].symbol : ""
         return (
             <div className={container + " d-flex flex-column"}>
@@ -947,7 +949,7 @@ class DiceGame extends Component {
                             />
                         </div>
                         <div className="game-history mt-5">
-                            <RollHistory userId={private_key && userId} />
+                            <RollHistory userId={private_key && userId} show_info={(id) => this.setState({bet_info: id}) } />
                         </div>
                     </div>
                 </div>
@@ -955,6 +957,10 @@ class DiceGame extends Component {
                     show_bets={show_bets} show_chat={show_chat}
                     onClick={(change) => this.setState(change)}
                 />
+                { bet_info ?
+                    <BetInfo id={bet_info} close={() => this.setState({bet_info: null})} />
+                    : null
+                }
 				<ToastContainer />
             </div>
         )
