@@ -267,13 +267,18 @@ export default class Chat extends Component {
     render() {
         const { message, messages } = this.state
         let last_ts
+        let last_dt
         return (
             <div className={container + " chat-container"}>
                 <div className="messages no-scrollbar qt-font-small">
                     { messages.map((msg) => {
-                        let time
+                        let date, time
                         if (!last_ts || msg.ts - last_ts > 2 * 60 * 1000) {
                             time = new Date(msg.ts)
+                            if (time.getDate() != last_dt) {
+                                date = time.getDate()
+                                last_dt = date
+                            }
                         }
                         last_ts = msg.ts
                         
@@ -281,7 +286,7 @@ export default class Chat extends Component {
                             <React.Fragment  key={msg.name + msg.ts}>
                                 { time ? 
                                     <div className="d-flex justify-content-between w-100 qt-font-extra-small qt-white-62">
-                                        <span>{time.toLocaleDateString([], {weekday: "long"})}</span>
+                                        <span>{date ? time.toLocaleDateString([], {weekday: "long"}) : ""}</span>
                                         <span>{time.toLocaleTimeString([], {hour: "numeric", minute: "numeric"})}</span>
                                     </div>
                                     : null
