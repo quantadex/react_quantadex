@@ -147,7 +147,6 @@ export default class BetInfo extends Component {
             const precision = asset.precision
             const roll_over = data.operation_history.op_object.bet[0] == ">" ? true : false
 
-            console.log(data, name, block_hash, op_index, tx_data, chain_id, time.toLocaleString())
             this.setState({data: {name, tx_seed, chain_id, time, op: data.operation_history.op_object, precision, symbol, roll_over}})
         })
 
@@ -156,7 +155,6 @@ export default class BetInfo extends Component {
     render() {
         const { close } = this.props
         const { id, data } = this.state
-        console.log(this.state)
         return (
             <div className={container + " d-flex justify-content-center"} onClick={close}>
                 <div className="info-container qt-font-small align-self-center p-5 position-relative" onClick={(e) => e.stopPropagation()}>

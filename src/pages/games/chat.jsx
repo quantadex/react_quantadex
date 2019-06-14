@@ -11,6 +11,16 @@ const container = css `
     .messages {
         height: calc(100% - 70px);
         padding: 20px 14px 0px 20px;
+
+        .bet-id {
+            text-decoration: underline;
+            cursor: pointer;
+            opacity: 0.7;
+        }
+
+        .bet-id:hover {
+            opacity: 1;
+        }
     }
 
     .message {
@@ -159,6 +169,22 @@ export default class Chat extends Component {
         this.config.user = user
         this.onLoad(false)
     }
+
+    parseMessage(message, bet_ids = []) {
+        if (message.includes("/bet ")) {
+            message = message.replace(/\/bet /g, " /bet ").replace(/\s+/g,' ').trim()
+            let parseMsg
+            const arr = message.split(" ")
+            const bet_index = arr.indexOf("/bet")
+            bet_ids.push(arr[bet_index + 1])
+            arr.splice(bet_index, 2, "[bet]")
+            parseMsg = arr.join(" ")
+
+            return this.parseMessage(parseMsg, bet_ids)
+        }
+
+        return {message, bet_ids}
+    }
     
     post() {
         if (!this.ref) {
@@ -166,9 +192,11 @@ export default class Chat extends Component {
         }
         const { message } = this.state
         if (message) {
+            const parse_msg = this.parseMessage(message)
             this.ref.push().set({
                 user: this.config.user,
-                message: message,
+                message: parse_msg.message,
+                bet_ids: parse_msg.bet_ids,
                 date: Date.now()
             })
             this.setState({message: ""}, () => this.scrollToBottom())
@@ -183,7 +211,7 @@ export default class Chat extends Component {
           return false
         }
         
-        messages.push({name: value.user, message: value.message, ts: value.date})
+        messages.push({name: value.user, message: value.message, ts: value.date, bet_ids: value.bet_ids})
         this.setState(messages, () => {
             if (this.messagesEnd.getBoundingClientRect().top < window.innerHeight) {
                 this.scrollToBottom()
@@ -212,6 +240,24 @@ export default class Chat extends Component {
         this.destroy()
     }
 
+    LinkedMessage(message, bet_ids) {
+        const arr = message.split("[bet]")
+        return (
+            arr.map((text, index) => {
+                return (
+                    bet_ids && index < bet_ids.length && /^\d+$/.test(bet_ids[index]) ? 
+                        <React.Fragment key={index}>
+                            {text}<span className="bet-id" onClick={() => this.props.display_bet(bet_ids[index])}>
+                                bet: #{bet_ids[index]}
+                            </span>
+                        </React.Fragment>
+                    : bet_ids && index < bet_ids.length ? "bet: #" + text + bet_ids[index] : text
+                    
+                )
+            })
+        )
+    }
+
     render() {
         const { message, messages } = this.state
         let last_ts
@@ -224,6 +270,7 @@ export default class Chat extends Component {
                             time = new Date(msg.ts)
                         }
                         last_ts = msg.ts
+                        
                         return (
                             <React.Fragment  key={msg.name + msg.ts}>
                                 { time ? 
@@ -235,7 +282,7 @@ export default class Chat extends Component {
                                 }
                                 <div className="message p-2 px-3 mb-3">
                                     <span className="name pr-2">{msg.name}:</span>
-                                    <span className="msg">{msg.message}</span>
+                                    <span className="msg">{this.LinkedMessage(msg.message, msg.bet_ids)}</span>
                                 </div>
                             </React.Fragment>
                         )

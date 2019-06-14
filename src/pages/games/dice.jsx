@@ -621,7 +621,7 @@ class DiceGame extends Component {
             <div className={container + " d-flex flex-column"}>
                 <Header setAsset={this.setAsset.bind(this)} demo_fund={fund}/>
                 <div className={"d-flex position-relative content-container" + (show_chat ? " show-chat" : "") + (show_bets ? " show-bets" : "")}>
-                    <Chat user={private_key ? name : ""} />
+                    <Chat user={private_key ? name : ""} display_bet={(id) => this.setState({bet_info: id})} />
                     <div className="right-column d-flex flex-column w-100 no-scrollbar">
                         <div className="game-main">
                             <div className="d-flex flex-column flex-lg-row justify-content-center pt-5">
@@ -949,7 +949,7 @@ class DiceGame extends Component {
                             />
                         </div>
                         <div className="game-history mt-5">
-                            <RollHistory userId={private_key && userId} show_info={(id) => this.setState({bet_info: id}) } />
+                            <RollHistory userId={private_key && userId} show_info={(id) => this.setState({bet_info: id})} />
                         </div>
                     </div>
                 </div>
