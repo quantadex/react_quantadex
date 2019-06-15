@@ -61,6 +61,13 @@ const container = css `
             line-height: 32px;
             user-select: none;
         }
+
+        .asset-symbol {
+            position: absolute;
+            height: 50%;
+            top: 25%;
+            right: 10px;
+        }
     }
 
     .offset {
@@ -76,7 +83,7 @@ const container = css `
 
 export default class DiceInput extends Component {
     render() {
-        const { label, type, step, min, value, disabled, onChange, onBlur, after, children, offset, className } = this.props
+        const { label, type, step, min, value, disabled, onChange, onBlur, after, children, offset, asset, className } = this.props
 
         return (
             <div className={container + " " + (className || "")}>
@@ -84,14 +91,27 @@ export default class DiceInput extends Component {
                 <div className="d-flex">
                     {children}
                     <div className={"input-field d-flex position-relative w-100" + (offset ? " offset" : "") }>
-                        <input type={type} step={step} min={min} value={value} 
-                            disabled={disabled}
-                            onFocus={(e) => e.target.select()}
-                            onChange={onChange}
-                            onBlur={onBlur}
-                            onKeyPress={e => {
-                                if (e.key == "Enter") onBlur(e)
-                            }} />
+                        <div className="position-relative w-100">
+                            <input type={type} step={step} min={min} value={value} 
+                                disabled={disabled}
+                                onFocus={(e) => e.target.select()}
+                                onChange={onChange}
+                                onBlur={onBlur}
+                                onKeyPress={e => {
+                                    if (e.key == "Enter") onBlur(e)
+                                }} />
+                            
+                            { asset ?
+                                <img className="asset-symbol"
+                                    src={`/public/images/coins/${asset.toLowerCase()}.svg`} 
+                                    onError={(e) => {
+                                        e.target.src='/public/images/crosschain-coin.svg'}
+                                    }
+                                    title={asset} 
+                                />
+                                : null
+                            }
+                        </div>
                         { after ?
                             after
                             : null

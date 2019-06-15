@@ -118,6 +118,10 @@ export default class Chat extends Component {
             const { message } = this.state
             this.setState({message: (message ? message + " " + nextProps.shared_message : nextProps.shared_message) + " "})
         }
+
+        if(nextProps.show_chat && !this.props.show_chat) {
+            this.scrollToBottom()
+        }
     }
 
     onLoad(initRef = true) {
@@ -226,7 +230,10 @@ export default class Chat extends Component {
     }
 
     scrollToBottom = () => {
-        this.messagesEnd.scrollIntoView({ behavior: "smooth" });
+        setTimeout(() => {
+            if (this.refs.Chat.clientWidth == 0) return
+            this.messagesEnd.scrollIntoView({ behavior: "smooth" });
+        }, 100)
     }
 
     destroy () {
@@ -269,7 +276,7 @@ export default class Chat extends Component {
         let last_ts
         let last_dt
         return (
-            <div className={container + " chat-container"}>
+            <div ref="Chat" className={container + " chat-container"}>
                 <div className="messages no-scrollbar qt-font-small">
                     { messages.map((msg) => {
                         let date, time

@@ -9,6 +9,7 @@ const container = css `
     min-height: 50px;
     text-align: center;
     box-shadow: 0px -1px 1px rgba(0,0,0,0.1);
+    user-select: none;
     z-index: 999;
     
     div {

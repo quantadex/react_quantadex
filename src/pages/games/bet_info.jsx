@@ -10,6 +10,7 @@ const container = css `
     bottom: 0;
     left: 0;
     right: 0;
+    min-height: 100vh;
     background: rgba(0,0,0,0.3);
     z-index: 999;
 
@@ -143,7 +144,7 @@ export default class BetInfo extends Component {
             const name = await GetAccount(data.account_history.account).then(account => account.name)
             const time = new Date(data.block_data.block_time + "Z")
             const asset = window.assets[data.operation_history.op_object.risk.asset_id]
-            const symbol = asset.symbol.split("0X")[0].slice(0,4)
+            const symbol = asset.symbol
             const precision = asset.precision
             const roll_over = data.operation_history.op_object.bet[0] == ">" ? true : false
 

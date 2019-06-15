@@ -127,7 +127,7 @@ export default class RollHistory extends Component {
                     bet: op_object.bet,
                     roll: op_object.outcome,
                     profit: op_object.payout.amount/Math.pow(10, asset.precision),
-                    symbol: asset.symbol.split('0X')[0].slice(0,4),
+                    symbol: asset.symbol,
                     precision: asset.precision
                 }
                 list.push(data)
