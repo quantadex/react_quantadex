@@ -4,7 +4,6 @@ import { connect } from 'react-redux'
 import { AccountLogin, ConnectAccount, GetAccount, TOGGLE_CONNECT_DIALOG, LOGOUT } from '../redux/actions/app.jsx'
 import { PrivateKey, PublicKey, decryptWallet, encryptWallet, hash } from "@quantadex/bitsharesjs";
 import WalletApi from "../common/api/WalletApi";
-import QTTabBar from './ui/tabBar.jsx'
 import Loader from '../components/ui/loader.jsx'
 import Lock from './ui/account_lock.jsx'
 import CONFIG from '../config.js'
@@ -102,7 +101,6 @@ const dialog = css`
             position: relative;
             background-color: #fff;
             padding: 20px;
-            margin: 20px 0;
             color: #999;
             font-size: 15px;
 
@@ -152,6 +150,39 @@ const dialog = css`
             select {
                 border: 1px solid #ccc;
                 border-radius: 3px;
+            }
+        }
+    }
+
+    .selection-tab {
+        align-items: center;
+        padding: 7px 20px;
+        background: #d8d8d8;
+        color: #555;
+        cursor: pointer;
+
+        .select-btn {
+            border: 3px solid #2ebeed;
+            border-radius: 100%;
+            margin-right: 10px;
+
+            div {
+                width: 20px;
+                height: 20px;
+                border: 4px solid #fff;
+                border-radius: 100%;
+                background: #fff;
+            }
+        }
+    }
+
+    .active {
+        .selection-tab {
+            background: #fff;
+            cursor: default;
+
+            .select-btn div {
+                background: #2ebeed;
             }
         }
     }
@@ -303,7 +334,6 @@ export class ConnectDialog extends Component {
         };
 
         this.handleChange = this.handleChange.bind(this)
-        this.KeyConnect = this.KeyConnect.bind(this)
         this.KeyCreate = this.KeyCreate.bind(this)
         this.VerifyEmail = this.VerifyEmail.bind(this)
         this.ConfirmEmail = this.ConfirmEmail.bind(this)
@@ -853,10 +883,6 @@ export class ConnectDialog extends Component {
                 self.setState({processing: true})
                 cordova.plugins.barcodeScanner.scan(
                     function (result) {
-                        // alert("We got a barcode\n" +
-                        //     "Result: " + result.text + "\n" +
-                        //     "Format: " + result.format + "\n" +
-                        //     "Cancelled: " + result.cancelled);
                         if (result.text) {
                             self.setState({bip58: result.text, processing: false})
                         }
@@ -1003,7 +1029,7 @@ export class ConnectDialog extends Component {
                     <div className="d-flex justify-content-between qt-font-small mb-2">
                         <div>{uploaded_file_msg}</div>
                         <div className="link text-right"
-                            onClick={() => this.resetInputs({encryptStep: 1})}>I don’t have a .json-file</div>
+                            onClick={() => this.resetInputs({encryptStep: 1})}>Convert Private Key</div>
                     </div>
                 </React.Fragment>
                 }
@@ -1033,7 +1059,7 @@ export class ConnectDialog extends Component {
         const { private_key, password, confirm_password, authError, errorMsg, downloaded } = this.state
         return (
             <div className="input-container">
-                <div className="link float-right qt-font-small" onClick={() => this.resetInputs({encryptStep: 0})}>Close</div>
+                <div className="link float-right qt-font-small" onClick={() => this.resetInputs({encryptStep: 0})}>Back</div>
                 <h5>CREATE AN ENCRYPTED PRIVATE "JSON" KEY</h5>
                 <p className="info">
                     Encrypting your private key will make it safer to login, and store.
@@ -1125,50 +1151,11 @@ export class ConnectDialog extends Component {
         )
     }
 
-    
-    KeyConnect() {
-        const { isMobile, network } = this.props
-        const { selectedTabIndex, encryptStep, account_select } = this.state
-        const tabs = {
-            names: ["Encrypted Key", "Private Key"],
-            selectedTabIndex: selectedTabIndex,
-        }
-
-        return (
-            <div id="key-connect">
-                <div className="d-flex justify-content-between">
-                    <h4>CONNECT {network == "testnet" ? "TESTNET" : ""} WALLET</h4>
-                    <div className={"link text-nowrap" + (isMobile ? "" : " mr-5")} onClick={() => this.resetInputs({dialogType: "create"})}>Don’t have an account?</div>
-                </div>
-                {!account_select && 
-                <QTTabBar
-                    className="underline small static set-width qt-font-bold d-flex justify-content-left"
-                    width={120}
-                    gutter={10}
-                    tabs={tabs}
-                    switchTab={this.handleSwitch.bind(this)}
-                />}
-                
-                { account_select ?
-                    <this.AccountSelect /> 
-                    :
-                    selectedTabIndex == 0 ? 
-                        (encryptStep == 0 ? <this.ConnectEncrypted /> : <this.EncryptKey />)
-                        : <this.ConnectPrivateKey />
-                }
-            </div>
-        )
-    }
-
     KeyCreate() {
         const { isMobile, network } = this.props
         const { regStep, referrer, referrer_error } = this.state
         return (
             <div id="key-create">
-                <div className="d-flex justify-content-between">
-                    <h4>CREATE {network == "testnet" ? "TESTNET" : ""} WALLET</h4>
-                    <div className={"link text-nowrap" + (isMobile ? "" : " mr-5")} onClick={() => this.resetInputs({dialogType: "connect"})}>Already have a key?</div>
-                </div>
                 <div className="input-container">
                     {referrer ? 
                         <div className="referral text-right small mb-1">
@@ -1224,7 +1211,6 @@ export class ConnectDialog extends Component {
                         </div>
                         : null
                     }
-                    
                 </div>
             </React.Fragment>
         )
@@ -1232,7 +1218,7 @@ export class ConnectDialog extends Component {
 
     render() {
         const { isMobile, network } = this.props
-        const { dialogType } = this.state
+        const { dialogType, selectedTabIndex, encryptStep, account_select } = this.state
         return (
             <div id="connect-dialog" className={dialog + " d-flex align-content-center qt-font-regular" + (isMobile ? " mobile" : "")} 
                 onDragOver={(e)=> e.preventDefault()} onDrop={(e) => e.preventDefault()}>
@@ -1241,11 +1227,46 @@ export class ConnectDialog extends Component {
                         <div className="close-btn" onClick={this.closeDialog.bind(this)}><img src={devicePath("public/images/close_btn.svg")} /></div> 
                         : null
                     }
-                    {dialogType == "create" ? 
-                        <this.KeyCreate />
-                        :
-                        <this.KeyConnect />
-                    }
+                    <h4>CONNECT {network == "testnet" ? "TESTNET" : ""} WALLET</h4>
+
+                    <div className="my-3">
+                        <div className={dialogType == "create" ? "active" : ""}>
+                            <div className="selection-tab d-flex"
+                                onClick={() => this.setState({dialogType: "create"})}
+                            >
+                                <div className="select-btn"><div></div></div>
+                                <b>Create a Wallet.</b>&nbsp;New to Quanta?
+                            </div>
+                            { dialogType == "create" ? <this.KeyCreate /> : null }
+                        </div>
+
+                        <div className={"border-top border-bottom " + (dialogType == "connect" && selectedTabIndex == 0 ? "active" : "")}
+                            onClick={() => this.setState({dialogType: "connect", selectedTabIndex: 0})}
+                        >
+                            <div className="selection-tab d-flex">
+                                <div className="select-btn"><div></div></div>
+                                <b>Connect with Encrypted Key</b>
+                            </div>
+                            { dialogType == "connect" && selectedTabIndex == 0 ? 
+                                account_select ? <this.AccountSelect /> : encryptStep == 0 ? <this.ConnectEncrypted /> : <this.EncryptKey />
+                                : null 
+                            }
+                        </div>
+
+                        <div className={dialogType == "connect" && selectedTabIndex == 1 ? "active" : ""}
+                            onClick={() => this.setState({dialogType: "connect", selectedTabIndex: 1})}
+                        >
+                            <div className="selection-tab d-flex">
+                                <div className="select-btn"><div></div></div>
+                                <b>Connect with Private Key</b>
+                            </div>
+                            { dialogType == "connect" && selectedTabIndex == 1 ? 
+                                account_select ? <this.AccountSelect /> : <this.ConnectPrivateKey />
+                                : null 
+                            }
+                        </div>
+                    </div>
+
                     <p>Your private keys are not sent to QUANTA. All transactions are signed within your browser 
                         and keys are not exposed over the internet.</p>
                 </div>

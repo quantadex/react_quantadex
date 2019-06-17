@@ -103,7 +103,7 @@ export default class Tutorial extends Component {
                         Connect<br/> Your Wallet
                         <img src="/public/images/dice/connect.svg" />
                     </div>
-                    <div className="card mx-5">
+                    <div className="card mx-3 mx-sm-5">
                         <div className="step">2</div>
                         Roll<br/> Your Dice
                         <img src="/public/images/dice/dice.svg" />
