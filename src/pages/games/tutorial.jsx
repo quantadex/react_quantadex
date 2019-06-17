@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { css } from 'emotion'
+import { TOGGLE_CONNECT_DIALOG } from "../../redux/actions/app.jsx";
 
 const container = css `
     position: absolute;
@@ -145,6 +146,7 @@ export default class Tutorial extends Component {
     }
 
     Info = () => {
+        const { dispatch, close } = this.props
         return (
             <div className="content info p-5">
                 <h4>Multi-assets support</h4>
@@ -167,7 +169,13 @@ export default class Tutorial extends Component {
                     When you refer your friends, you can earn up to 30% of the QDEX fees from your referee’s dice, and QuantaDex activities.
                 </p>
 
-                <button className="mt-5" onClick={this.props.close}>GET STARTED</button>
+                <button className="mt-5" onClick={() => {
+                    dispatch({
+                        type: TOGGLE_CONNECT_DIALOG,
+                        data: "create"
+                    })
+                    close()
+                }}>GET STARTED</button>
             </div>
         )
     }

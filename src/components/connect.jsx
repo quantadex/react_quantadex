@@ -368,10 +368,11 @@ export class ConnectDialog extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if (this.state.dialogType !== nextProps.default && !this.props.isMobile) {
+        if (this.props.default !== nextProps.default && !this.props.isMobile) {
             this.setState({dialogType: nextProps.default})
         }
     }
+
     static getDerivedStateFromError(error) {
         // Update state so the next render will show the fallback UI.
         console.log(error)
@@ -687,11 +688,8 @@ export class ConnectDialog extends Component {
             <React.Fragment>
                 <h3 className="text-dark qt-font-bold">1/3 - VERIFY YOUR EMAIL</h3>
                 <p className="qt-font-small my-4">
-                    The QUANTA blockchain is Graphene-based Architecture which uses an 
-                    account system based on username, and public-private key signature. 
-                    This wallet creation will generate you a random public-private key, 
-                    and register your account with the blockchain, then encrypt your private 
-                    key with a password  into a private “json” key.
+                    Encrypted wallet via email protects from accidental loss, and provide quick access to our mobile app.  
+                    The private key is generated locally and encrypted with your password.
                 </p>
 
                 <label>EMAIL TO RECEIVE THE ENCRYPTED KEY</label><br/>
