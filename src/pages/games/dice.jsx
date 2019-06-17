@@ -376,7 +376,7 @@ class DiceGame extends Component {
             modify_win: false,
             modify_win_amount: 0,
 
-            sounds: false,
+            sounds: true,
             stats: false,
             hot_keys: false,
             show_chat: false,
@@ -389,6 +389,7 @@ class DiceGame extends Component {
         this.setInputs = this.setInputs.bind(this)
         this.showBetDialog = this.showBetDialog.bind(this)
         this.shareToChat = this.shareToChat.bind(this)
+        this.handleHotkeys = this.handleHotkeys.bind(this)
         this.roll_timeout
 
         this.win_audio = new Audio('/public/audio/win.wav');
@@ -410,6 +411,12 @@ class DiceGame extends Component {
             const arr = location.search.slice(1).split("=")
             this.setState({bet_info: arr[arr.indexOf("bet") + 1]})
         }
+
+        document.addEventListener("keypress", this.handleHotkeys)
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener("keypress", this.handleHotkeys)
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -427,6 +434,44 @@ class DiceGame extends Component {
                 this.setState({show_roll: false})
             }, 2000)
         }
+    }
+
+    handleHotkeys(e) {
+        if (!this.state.hot_keys) return
+
+        const { auto, auto_rolling, processing } = this.state
+        const key = e.code
+
+        switch(key) {
+            case "KeyF":
+                this.flipBet()
+                break
+            case "KeyS":
+                this.halfBet()
+                break
+            case "KeyD":
+                this.doubleBet()
+                break
+            case "Space":
+                e.preventDefault()
+                auto ? auto_rolling ? this.stopAutoRoll() : this.autoRoll() : (!processing && this.rollDice())
+                break
+        }
+    }
+
+    flipBet() {
+        const { roll_over } = this.state
+        this.setState({roll_over: !roll_over}, () => this.changeSliderSide())
+    }
+
+    halfBet() {
+        const { auto_rolling, amount, precision } = this.state
+        !auto_rolling && this.setInputs("amount", (amount/2/Math.pow(10, precision)))
+    }
+
+    doubleBet() {
+        const { auto_rolling, amount, precision } = this.state
+        !auto_rolling && this.setInputs("amount", (amount*2/Math.pow(10, precision)))
     }
 
     changeSliderSide() {
@@ -459,7 +504,7 @@ class DiceGame extends Component {
             fetch(CONFIG.getEnv().API_PATH + `/account?filter_field=operation_history.op_object.tx&filter_value=${tx}`, { mode: "cors" })
             .then(e => e.json())
             .then((e) => {
-                // console.log('result', e)
+                const { auto_rolling } = this.state
                 if (e.length > 0) {
                     this.props.dispatch(updateUserData());
                     const { outcome, payout, risk, win } = e[0].operation_history.op_object
@@ -470,12 +515,12 @@ class DiceGame extends Component {
                         game_num: game_num + 1, message: false, auto_roll_num: auto_roll_num + 1, wagered: wagered + risk.amount})
                     win ? this.onWin(payout.amount) : this.onLose(payout.amount)
                     setTimeout(() => {
-                        if (this.state.auto_rolling) this.rollDice()
+                        if (auto_rolling) this.rollDice()
                     }, 500)
                 } else if (count <= 5) {
                     this.getRollResult(tx, count + 1)
                 } else {
-                    if (this.state.auto_rolling) this.stopAutoRoll()
+                    if (auto_rolling) this.stopAutoRoll()
                 }
             })
             .finally(() => this.setState({processing: false}))
@@ -634,7 +679,7 @@ class DiceGame extends Component {
     }
 
     render() {
-        const { name, userId, private_key, balance, history } = this.props
+        const { name, userId, private_key, balance, history, dispatch } = this.props
         const { asset, auto, auto_rolling, fund, roll, roll_history, game_num, win_num, lose_num, wagered,
             net_gain, gain_history, auto_roll_limit, precision, precision_min,
             win_value, roll_over, amount, multiplier, chance,
@@ -679,12 +724,8 @@ class DiceGame extends Component {
                                                 asset={asset}
                                                 after={
                                                     <div className="after d-flex">
-                                                        <div className="mx-1 cursor-pointer" onClick={() => {
-                                                            !auto_rolling && this.setInputs("amount", (amount/2/Math.pow(10, precision)))
-                                                        }}>&frac12;</div>
-                                                        <div className="mx-1 cursor-pointer" onClick={() => {
-                                                            !auto_rolling && this.setInputs("amount", (amount*2/Math.pow(10, precision)))
-                                                        }}>2x</div>
+                                                        <div className="mx-1 cursor-pointer" onClick={this.halfBet}>&frac12;</div>
+                                                        <div className="mx-1 cursor-pointer" onClick={this.doubleBet}>2x</div>
                                                         <div className="mx-1 cursor-pointer" onClick={() => {
                                                             if(!auto_rolling && balance[asset]) this.setInputs("amount", balance[asset].balance)
                                                         }}>MAX</div>
@@ -718,7 +759,7 @@ class DiceGame extends Component {
                                                     label="PROFIT ON WIN"
                                                     type="number"
                                                     disabled={true}
-                                                    value={(((amount * multiplier) - amount) / Math.pow(10, precision)).toFixed(precision)}
+                                                    value={(((amount * multiplier) - amount) / Math.pow(10, precision)).toFixed(precision + 1).slice(0, -1)}
                                                     asset={asset}
                                                 />
                                             }
@@ -764,9 +805,7 @@ class DiceGame extends Component {
                                                 onChange={(e) => this.setState({win_value_display: Utils.maxPrecision(e.target.value, 3)})}
                                                 onBlur={(e) => this.setInputs("win_value", e.target.value)}
                                                 after={
-                                                    <div className="after cursor-pointer" onClick={() => {
-                                                        this.setState({roll_over: !roll_over}, () => this.changeSliderSide())
-                                                    }}>
+                                                    <div className="after cursor-pointer" onClick={this.flipBet}>
                                                         &#8652;
                                                     </div>
                                                 }
@@ -784,9 +823,7 @@ class DiceGame extends Component {
                                                 onChange={(e) => this.setState({win_value_display: Utils.maxPrecision(e.target.value, 3)})}
                                                 onBlur={(e) => this.setInputs("win_value", e.target.value)}
                                                 after={
-                                                    <div className="after cursor-pointer" onClick={() => {
-                                                        this.setState({roll_over: !roll_over}, () => this.changeSliderSide())
-                                                    }}>
+                                                    <div className="after cursor-pointer" onClick={this.flipBet}>
                                                         &#8652;
                                                     </div>
                                                 }
@@ -932,10 +969,8 @@ class DiceGame extends Component {
                                     className="d-flex d-lg-none"
                                     sounds={sounds}
                                     stats={stats}
-                                    hot_keys={hot_keys}
                                     toggleSounds={() => this.setState({sounds: !sounds})}
                                     toggleStats={() => this.setState({stats: !stats})}
-                                    toggleHotkeys={() => this.setState({hot_keys: !hot_keys})}
                                 />
                                 
                                 { stats ? 
@@ -982,7 +1017,7 @@ class DiceGame extends Component {
                 }
 
                 { show_tutorial ?
-                    <Tutorial close={() => {
+                    <Tutorial dispatch={dispatch} close={() => {
                         this.setState({show_tutorial: false}, localStorage.setItem("dice_start", true))
                     }} />
                     : null

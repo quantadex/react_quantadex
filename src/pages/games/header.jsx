@@ -15,6 +15,7 @@ const container = css `
     z-index: 999;
 
     .logo {
+        min-width: 100px;
         max-width: 25%;
     }
 
