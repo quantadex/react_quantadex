@@ -197,7 +197,7 @@ export default class Chat extends Component {
     }
     
     post() {
-        if (!this.ref) {
+        if (!this.ref || !this.props.user) {
             return false
         }
         const { message } = this.state
@@ -272,6 +272,7 @@ export default class Chat extends Component {
     }
 
     render() {
+        const { user } = this.props
         const { message, messages } = this.state
         let last_ts
         let last_dt
@@ -312,8 +313,9 @@ export default class Chat extends Component {
                     <textarea value={message}
                         className="w-100 qt-font-small"
                         type="text"
-                        placeholder="Type your message" 
+                        placeholder={user ? "Type your message" : "Log in to use chat"}
                         autoComplete="off"
+                        disabled={!user}
                         onChange={(e) => this.setState({message: e.target.value})}
                         onKeyPress={e => {
                             if (e.key == "Enter") {

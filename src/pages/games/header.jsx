@@ -37,6 +37,7 @@ const container = css `
         position: absolute;
         right: 0;
         top: 100%;
+        min-width: 160px;
         background: #b09520;
         border-radius: 3px;
         box-shadow: 0 2px 5px rgba(0,0,0,0.5);

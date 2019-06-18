@@ -8,6 +8,7 @@ const container = css`
 
     .menu {
         position: absolute;
+        overflow: hidden;
         top: 30px;
         right: 0;
         border-radius: 3px;
@@ -20,7 +21,15 @@ const container = css`
             a {
                 color: #377a5d;
             }
-        } 
+        }
+
+        .menu-item:last-child {
+            border: 0 !important;
+        }
+
+        .menu-item:hover {
+            background: #ddd;
+        }
     }
 `
 
@@ -80,12 +89,12 @@ export default class Menu extends Component {
             <div ref="Menu" className={container}>
                 <img className="cursor-pointer" src={devicePath("public/images/hamb.svg")} width="18" height="18" />
                 { menuOpen ?
-                    <div className="menu">
+                    <div className="menu py-2">
                         { this.menuItems.map((item, index) => {
                             if (item.disabled(connected)) return
                             return (
-                                <div key={index} className="menu-item my-3 mx-4 cursor-pointer"
-                                onClick={item.onClick}
+                                <div key={index} className="menu-item py-3 px-5 border-bottom cursor-pointer"
+                                    onClick={item.onClick}
                                 >
                                     { item.link ? <Link to={item.link} >{item.label}</Link> : item.onClick ? item.label : null }
                                 </div>
