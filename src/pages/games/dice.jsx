@@ -15,6 +15,7 @@ import Toolbar from './toolbar.jsx'
 import MobileNav from './mobile_nav.jsx'
 import BetInfo from './bet_info.jsx'
 import Tutorial from './tutorial.jsx'
+import Jackpot from './pot.jsx'
 import CONFIG from '../../config.js'
 
 const container = css `
@@ -386,6 +387,8 @@ class DiceGame extends Component {
             show_tutorial: !localStorage.getItem("dice_start"),
         }
 
+        this.init = false
+
         this.setInputs = this.setInputs.bind(this)
         this.showBetDialog = this.showBetDialog.bind(this)
         this.shareToChat = this.shareToChat.bind(this)
@@ -399,13 +402,24 @@ class DiceGame extends Component {
     componentDidMount() {
         const { match, location, dispatch } = this.props
 
-        if (!window.markets && !window.isApp) {
+        if (!this.init && !window.markets && !window.isApp) {
 			const default_ticker = match && match.params.net == "testnet" ? "ETH/USD" : 'ETH/BTC'
             dispatch(switchTicker(default_ticker))
             dispatch(updateUserData())
+            
+            this.changeSliderSide()
+            this.init = true
         } 
 
-        this.changeSliderSide()
+        if (!window.initAPI) {
+            setTimeout(() => {
+                this.componentDidMount()
+            }, 1000)
+            return
+        }
+
+        this.setInputs("win_value", this.state.win_value)
+        this.setState({init: true})
 
         if (location.search.includes("bet=")) {
             const arr = location.search.slice(1).split("=")
@@ -487,10 +501,9 @@ class DiceGame extends Component {
     autoRoll() {
         const { amount_display } = this.state
         this.setState({auto_rolling: true, unmod_amount: amount_display, 
-            auto_roll_num: 0, game_num: 0, win_num:0, lose_num: 0, roll_history: Array(100) })
-        setTimeout(() => {
-            this.rollDice()
-        }, 0)
+            auto_roll_num: 0, game_num: 0, win_num:0, lose_num: 0, roll_history: Array(100)},
+            () => this.rollDice()
+        )
     }
 
     stopAutoRoll() {
@@ -512,7 +525,8 @@ class DiceGame extends Component {
                     
                     // console.log("result", outcome, payout, risk, win)
                     this.setState({roll: outcome, roll_history: [...roll_history, [outcome, win ? 1 : 0 ]].slice(-100), 
-                        game_num: game_num + 1, message: false, auto_roll_num: auto_roll_num + 1, wagered: wagered + risk.amount})
+                        game_num: game_num + 1, message: false, auto_roll_num: auto_roll_num + 1, 
+                        wagered: wagered + risk.amount, processing: false})
                     win ? this.onWin(payout.amount) : this.onLose(payout.amount)
                     setTimeout(() => {
                         if (auto_rolling) this.rollDice()
@@ -520,10 +534,10 @@ class DiceGame extends Component {
                 } else if (count <= 5) {
                     this.getRollResult(tx, count + 1)
                 } else {
+                    this.setState({message: "Server error. Unable to get roll result.", processing: false})
                     if (auto_rolling) this.stopAutoRoll()
                 }
             })
-            .finally(() => this.setState({processing: false}))
         }, 500)
     }
 
@@ -556,10 +570,9 @@ class DiceGame extends Component {
         const roll = (Math.random() < 0.5 ? Math.random() * 100 : Math.abs(parseFloat(Math.random().toFixed(6)) - 0.999999) * 100).toFixed(0)
         const win = (roll_over && roll >= win_value) || (!roll_over && roll <= win_value)
         this.setState({roll, roll_history: [...roll_history, [roll, win ? 1 : 0 ]].slice(-100), 
-            game_num: game_num + 1, message: false, auto_roll_num: auto_roll_num + 1, wagered: wagered + amount})
-        setTimeout(() => {
-            win ? this.onWin(amount * multiplier - amount) : this.onLose(-1*amount)
-        }, 0)
+            game_num: game_num + 1, message: false, auto_roll_num: auto_roll_num + 1, wagered: wagered + amount},
+            () => win ? this.onWin(amount * multiplier - amount) : this.onLose(-1*amount)
+        )
 
         setTimeout(() => {
             this.setState({processing: false})
@@ -621,7 +634,9 @@ class DiceGame extends Component {
         const precision = window.assetsBySymbol[asset].precision
         const zero = (0).toFixed(precision)
         const precision_min = (1/Math.pow(10, precision)).toFixed(precision)
-        this.setState({asset, precision, precision_min, amount: 1,
+        const fund = this.props.balance[asset].balance * Math.pow(10, precision)
+        
+        this.setState({fund, asset, precision, precision_min, amount: 1,
             amount_display: precision_min, unmod_amount: precision_min, 
             stop_loss_amount_display: zero, stop_profit_amount_display: zero,
             wagered: 0, net_gain: 0, roll_history: Array(100), gain_history: [0]})
@@ -659,7 +674,7 @@ class DiceGame extends Component {
             case "win_value":
                 win_value = value < 1 ? 1 : Math.min(value, 99)
                 chance = roll_over ? 100 - win_value : win_value
-                multiplier = 100/chance
+                multiplier = (100/chance)*(1-((window.roll_dice_percent_of_fee || 0)/10000))
                 return setMultiState(win_value, chance, multiplier)
             // case "multiplier":
             //     multiplier = value < 1.01 ? 1.01 : Math.min(value, 99)
@@ -680,7 +695,7 @@ class DiceGame extends Component {
 
     render() {
         const { name, userId, private_key, balance, history, dispatch } = this.props
-        const { asset, auto, auto_rolling, fund, roll, roll_history, game_num, win_num, lose_num, wagered,
+        const { init, asset, auto, auto_rolling, fund, roll, roll_history, game_num, win_num, lose_num, wagered,
             net_gain, gain_history, auto_roll_limit, precision, precision_min,
             win_value, roll_over, amount, multiplier, chance,
             win_value_display, amount_display, multiplier_display, chance_display,
@@ -805,7 +820,7 @@ class DiceGame extends Component {
                                                 onChange={(e) => this.setState({win_value_display: Utils.maxPrecision(e.target.value, 3)})}
                                                 onBlur={(e) => this.setInputs("win_value", e.target.value)}
                                                 after={
-                                                    <div className="after cursor-pointer" onClick={this.flipBet}>
+                                                    <div className="after cursor-pointer" onClick={this.flipBet.bind(this)}>
                                                         &#8652;
                                                     </div>
                                                 }
@@ -823,7 +838,7 @@ class DiceGame extends Component {
                                                 onChange={(e) => this.setState({win_value_display: Utils.maxPrecision(e.target.value, 3)})}
                                                 onBlur={(e) => this.setInputs("win_value", e.target.value)}
                                                 after={
-                                                    <div className="after cursor-pointer" onClick={this.flipBet}>
+                                                    <div className="after cursor-pointer" onClick={this.flipBet.bind(this)}>
                                                         &#8652;
                                                     </div>
                                                 }
@@ -1000,6 +1015,9 @@ class DiceGame extends Component {
                         <div className="game-history mt-5">
                             <RollHistory userId={private_key && userId} show_info={(id) => this.showBetDialog(id)} />
                         </div>
+
+                        <Jackpot init={init} asset={asset} precision={precision} />
+                        
                     </div>
                 </div>
                 <MobileNav 

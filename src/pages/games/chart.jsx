@@ -45,7 +45,6 @@ export default class Chart extends Component {
                     text: ''
                 },
                 labels: {
-                    format: '{value:.5f}',
                     style: {
                         color: '#fff'
                     }

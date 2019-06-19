@@ -18,7 +18,7 @@ import moment from 'moment'
 import {clear} from '../../common/storage.js'
 
 let network = window.location.pathname.startsWith("/testnet") ? "testnet" : "mainnet"
-if (localStorage.env !== network) localStorage.clear()
+if (localStorage.env !== undefined && localStorage.env !== network) localStorage.clear()
 
 let initialState = {
   network: network,

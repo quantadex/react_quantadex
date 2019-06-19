@@ -45,6 +45,12 @@ export function GetAccount(id) {
 	})
 }
 
+export function GetAccountBalances(id, assets=[]) {
+	return Apis.instance().db_api().exec("get_account_balances", [id, assets]).then(e => {
+		return e
+	})
+}
+
 export function GetBlock(id) {
 	return Apis.instance().db_api().exec("get_block", [id]).then(e => {
 		return e

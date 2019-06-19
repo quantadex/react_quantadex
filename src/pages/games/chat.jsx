@@ -313,7 +313,7 @@ export default class Chat extends Component {
                     <textarea value={message}
                         className="w-100 qt-font-small"
                         type="text"
-                        placeholder={user ? "Type your message" : "Log in to use chat"}
+                        placeholder={user ? "Type your message" : "Login to use chat"}
                         autoComplete="off"
                         disabled={!user}
                         onChange={(e) => this.setState({message: e.target.value})}

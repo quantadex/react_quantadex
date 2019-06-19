@@ -36,7 +36,6 @@ export default class Toolbar extends Component {
     }
 
     render() {
-        const {  } = this.state
         const { sounds, hot_keys, stats, toggleSounds, toggleHotkeys, toggleStats, className } = this.props
         
         return (

@@ -86,6 +86,7 @@ export async function UpdateGlobalPropertiesAsync() {
 
 	const gp = await Apis.instance().db_api().exec("get_global_properties", [])
 	window.maker_rebate_percent_of_fee = gp.parameters.extensions.maker_rebate_percent_of_fee
+	window.roll_dice_percent_of_fee = gp.parameters.extensions.roll_dice_percent_of_fee || 0
 
 		// setup markets
 	const markets = await fetch(CONFIG.getEnv().MARKETS_JSON, { mode: "cors" }).then(e => e.json()).catch(e => {

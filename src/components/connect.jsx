@@ -69,7 +69,7 @@ const dialog = css`
 
     .link {
         text-align: right;
-        color: #66d7d7;
+        color: #66d7d7 !important;
         cursor: pointer;
     }
 

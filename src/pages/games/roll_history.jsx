@@ -45,7 +45,7 @@ const container = css `
 
             .bet-row.first {
                 overflow: hidden;
-                animation: 0.2s rollIn;
+                animation: 0.2s ease-out rollIn;
             }
 
             .bet-id:hover {
@@ -160,8 +160,36 @@ export default class RollHistory extends Component {
         }, 1000)
     }
 
+    BetRow(row, first = false) {
+        const { show_info } = this.props
+        return (
+            <div key={row.id} className={"bet-row d-flex " + (first ? "first" : "")}>
+                <span className="text-left bet-id cursor-pointer" onClick={() => show_info(row.id)}>{row.id}</span>
+                <span>{row.user}</span>
+                <span className="d-none d-md-block">{row.time}</span>
+                <span className="d-none d-sm-block">{row.wagered.toFixed(row.precision)} 
+                <img src={`/public/images/coins/${row.symbol.toLowerCase()}.svg`} 
+                    onError={(e) => {
+                        e.target.src='/public/images/crosschain-coin.svg'}
+                    }
+                    title={row.symbol} 
+                /></span>
+                <span className="d-none d-md-block">{row.payout.toFixed(2)}x</span>
+                <span className="d-none d-md-block">{row.bet[0]} {row.bet.slice(1)}</span>
+                <span className="d-none d-sm-block">{row.roll}</span>
+                <span className={"text-right" + (row.profit >= 0 ? " win" : " loss")}>{row.profit.toFixed(row.precision)}
+                <img src={`/public/images/coins/${row.symbol.toLowerCase()}.svg`} 
+                    onError={(e) => {
+                        e.target.src='/public/images/crosschain-coin.svg'}
+                    }
+                    title={row.symbol} 
+                /></span>
+            </div>
+        )
+    }
+
     render() {
-        const { userId, show_info } = this.props
+        const { userId } = this.props
         const { history, tab_index } = this.state
         return (
             <div className={container + " mx-auto my-5"}>
@@ -193,32 +221,13 @@ export default class RollHistory extends Component {
                             <span className="text-right">Profit</span>
                         </div>
                         <div className="content d-flex flex-column">
-                            {history.map((row, index) => {
-                                return (
-                                    <div key={row.id} className={"bet-row d-flex " + (index == 0 ? "first" : "")}>
-                                        <span className="text-left bet-id cursor-pointer" onClick={() => show_info(row.id)}>{row.id}</span>
-                                        <span>{row.user}</span>
-                                        <span className="d-none d-md-block">{row.time}</span>
-                                        <span className="d-none d-sm-block">{row.wagered.toFixed(row.precision)} 
-                                        <img src={`/public/images/coins/${row.symbol.toLowerCase()}.svg`} 
-                                            onError={(e) => {
-                                                e.target.src='/public/images/crosschain-coin.svg'}
-                                            }
-                                            title={row.symbol} 
-                                        /></span>
-                                        <span className="d-none d-md-block">{row.payout.toFixed(2)}x</span>
-                                        <span className="d-none d-md-block">{row.bet[0]} {row.bet.slice(1)}</span>
-                                        <span className="d-none d-sm-block">{row.roll}</span>
-                                        <span className={"text-right" + (row.profit >= 0 ? " win" : " loss")}>{row.profit.toFixed(row.precision)}
-                                        <img src={`/public/images/coins/${row.symbol.toLowerCase()}.svg`} 
-                                            onError={(e) => {
-                                                e.target.src='/public/images/crosschain-coin.svg'}
-                                            }
-                                            title={row.symbol} 
-                                        /></span>
-                                    </div>
-                                )
-                            })}
+
+                            {this.BetRow(history.slice(0,1)[0], true)}
+                            <div>
+                                {history.slice(1).map((row) => {
+                                    return this.BetRow(row)
+                                })}
+                            </div>
                         </div>
                     </div>
                 }

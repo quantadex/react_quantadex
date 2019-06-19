@@ -73,7 +73,7 @@ export function signAndBroadcast(tr, pKey) {
 		//console.log("serialized transaction:", tr.serialize().operations);
 		return tr.broadcast()
 			.then((res) => {
-				console.log("Call order update success!");
+				// console.log("Call order update success!");
 				return res;
 			})
 	});
