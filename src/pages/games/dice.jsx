@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import { css } from 'emotion';
 import { toast } from 'react-toastify';
 import { ToastContainer } from 'react-toastify';
-import {switchTicker, updateUserData, rollDice} from "../../redux/actions/app.jsx";
+import {switchTicker, updateUserData, refreshData, rollDice} from "../../redux/actions/app.jsx";
 import ReactSlider from 'react-slider';
 import Utils from '../../common/utils.js'
 import Header from './header.jsx'
@@ -393,8 +393,9 @@ class DiceGame extends Component {
         this.showBetDialog = this.showBetDialog.bind(this)
         this.shareToChat = this.shareToChat.bind(this)
         this.handleHotkeys = this.handleHotkeys.bind(this)
-        this.roll_timeout
+        this.eventUpdate = this.eventUpdate.bind(this)
 
+        this.roll_timeout
         this.win_audio = new Audio('/public/audio/win.wav');
         this.loss_audio = new Audio('/public/audio/loss.wav');
     }
@@ -427,10 +428,12 @@ class DiceGame extends Component {
         }
 
         document.addEventListener("keypress", this.handleHotkeys)
+        window.addEventListener("focus", this.eventUpdate, false)
     }
 
     componentWillUnmount() {
         document.removeEventListener("keypress", this.handleHotkeys)
+        window.removeEventListener("focus", this.eventUpdate, false)
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -449,6 +452,10 @@ class DiceGame extends Component {
             }, 2000)
         }
     }
+
+    eventUpdate() {
+		this.props.dispatch(refreshData())
+	}
 
     handleHotkeys(e) {
         if (!this.state.hot_keys) return
@@ -1015,9 +1022,10 @@ class DiceGame extends Component {
                         <div className="game-history mt-5">
                             <RollHistory userId={private_key && userId} show_info={(id) => this.showBetDialog(id)} />
                         </div>
-
-                        <Jackpot init={init} asset={asset} precision={precision} />
                         
+                        <div className="d-none d-lg-block">
+                            <Jackpot init={init} asset={asset} precision={precision} />
+                        </div>
                     </div>
                 </div>
                 <MobileNav 
