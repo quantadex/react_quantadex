@@ -101,7 +101,7 @@ class Header extends Component {
         return (
             <div className={container + " px-4 px-md-5"}>
                 <div className="d-flex qt-font-normal align-items-center justify-content-between h-100">
-                    <img className="logo" src="/public/images/dice/logo.svg" alt="QUANTA DICE" />
+                    <img className="logo" src="/public/images/dice/logo.png" alt="QUANTA DICE" />
                     <div className="w-100 position-relative">
                         <div  ref="Assets" className="avail-fund text-right cursor-pointer ml-auto">
                             { private_key && selected_asset ? 

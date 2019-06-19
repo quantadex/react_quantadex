@@ -164,7 +164,9 @@ export default class BetInfo extends Component {
         return (
             <div className={container + " d-flex justify-content-center"} onClick={close}>
                 <div className="info-container qt-font-small align-self-center p-5 position-relative" onClick={(e) => e.stopPropagation()}>
-                    <div className="close-btn cursor-pointer" onClick={close}>&#9932;</div>
+                    <div className="close-btn cursor-pointer" onClick={close}>
+                        <img src="/public/images/x_close.svg" height="12" alt="Close" />
+                    </div>
                     { data ?
                         <React.Fragment>
                             <div className="bet-info text-center">

@@ -74,7 +74,7 @@ export default class RollHistory extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            history: [],
+            history: undefined,
             tab_index: 1,
         }
 
@@ -96,8 +96,9 @@ export default class RollHistory extends Component {
     }
 
     getRollHistory() {
+        const { tab_index } = this.state
         fetch(CONFIG.getEnv().API_PATH + '/account?filter_field=operation_type&filter_value=50&size=10' 
-            + (this.state.tab_index == 0 ? "&account_id=" + this.props.userId : ""), 
+            + (tab_index == 0 ? "&account_id=" + this.props.userId : ""), 
             { mode: "cors" }
         ).then(e => e.json())
         .then(async (e) => {
@@ -133,14 +134,20 @@ export default class RollHistory extends Component {
                 list.push(data)
             }
 
-            if (this.state.history.length == 0) {
+            if (!this.state.history) {
                 this.setState({history: list})
             } else {
                 this.buffer = list.concat(this.buffer)
             }
 
             this.last_operation_id_num = e[0] && e[0].operation_id_num
-        }).finally(() => {
+        })
+        .then(() => {
+            setTimeout(() => {
+                this.getRollHistory()
+            }, 1000)
+        })
+        .catch(() => {
             setTimeout(() => {
                 this.getRollHistory()
             }, 1000)
@@ -161,6 +168,7 @@ export default class RollHistory extends Component {
     }
 
     BetRow(row, first = false) {
+        if (!row) return 
         const { show_info } = this.props
         return (
             <div key={row.id} className={"bet-row d-flex " + (first ? "first" : "")}>
@@ -208,7 +216,7 @@ export default class RollHistory extends Component {
                             
                     }}
                 />
-                { history.length == 0 ? <Loader type={"box"} margin={"auto"} className={"text-center"} /> :
+                { history ? 
                     <div className="roll-table-container qt-font-normal px-5">
                         <div className="header d-flex mb-3">
                             <span className="text-left">Bet ID</span>
@@ -221,7 +229,6 @@ export default class RollHistory extends Component {
                             <span className="text-right">Profit</span>
                         </div>
                         <div className="content d-flex flex-column">
-
                             {this.BetRow(history.slice(0,1)[0], true)}
                             <div>
                                 {history.slice(1).map((row) => {
@@ -230,6 +237,7 @@ export default class RollHistory extends Component {
                             </div>
                         </div>
                     </div>
+                    : <Loader type={"box"} margin={"auto"} className={"text-center"} />
                 }
             </div>
         )

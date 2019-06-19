@@ -506,7 +506,7 @@ class Exchange extends Component {
 		return (
 		<div className={container + " d-flex flex-column" + (window.isApp ? " app" : " web")}>
 			{ app_download && web_android ?
-				<AppDownload />
+				<AppDownload close={() => this.setState({app_download: false})} />
 			: null
 			}
 			<MobileHeader header={this.Header(headerIndex)} mobile_nav={this.handleSwitch.bind(this)} />
