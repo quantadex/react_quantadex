@@ -151,7 +151,7 @@ export async function UpdateMarketsDataAsync() {
 				base_volume: data[1].base_volume,
 				quote_volume: data[1].quote_volume
 			})
-			if (counter.symbol == 'USD') {
+			if (counter.symbol == 'USD' || counter.symbol == 'TUSD0X0000000000085D4780B73119B644AE5ECD22B376') {
 				USD_value[base.id] = data[0].latest
 				USD_value[counter.id] = 1
 			}

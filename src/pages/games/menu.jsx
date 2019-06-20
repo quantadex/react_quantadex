@@ -43,24 +43,28 @@ export default class Menu extends Component {
         
         const { dispatch } = this.props
         this.menuItems = [
-        {label : "Connect Wallet", 
-            onClick: () => {
-            dispatch({
-                type: TOGGLE_CONNECT_DIALOG,
-                data: "connect"
-            })
+            {label : "QUANTADEX", 
+                link: `/${this.props.network}/exchange`, 
+                disabled: () => { return false }
             },
-            disabled: (connected) => connected
-        },
-        {label : "Deposit", link: `/${this.props.network}/wallets#Dice`, disabled: (connected) => !connected},
-        {label : "Logout", 
-            onClick: () => {
-            dispatch({
-                type: LOGOUT,
-            })
+            {label : "Connect Wallet", 
+                onClick: () => {
+                dispatch({
+                    type: TOGGLE_CONNECT_DIALOG,
+                    data: "connect"
+                })
+                },
+                disabled: (connected) => connected
             },
-            disabled: (connected) => !connected
-        },
+            {label : "Deposit", link: `/${this.props.network}/wallets#Dice`, disabled: (connected) => !connected},
+            {label : "Logout", 
+                onClick: () => {
+                dispatch({
+                    type: LOGOUT,
+                })
+                },
+                disabled: (connected) => !connected
+            },
         ]
     }
 

@@ -158,18 +158,19 @@ const dialog = css`
         align-items: center;
         padding: 7px 20px;
         background: #d8d8d8;
-        color: #555;
+        color: #000;
         cursor: pointer;
+        font-size: 14px;
 
         .select-btn {
             border: 3px solid #2ebeed;
             border-radius: 100%;
-            margin-right: 10px;
+            margin-right: 12px;
 
             div {
-                width: 20px;
-                height: 20px;
-                border: 4px solid #fff;
+                width: 16px;
+                height: 16px;
+                border: 3px solid #fff;
                 border-radius: 100%;
                 background: #fff;
             }
@@ -686,7 +687,7 @@ export class ConnectDialog extends Component {
         
         return (
             <React.Fragment>
-                <h3 className="text-dark qt-font-bold">1/3 - VERIFY YOUR EMAIL</h3>
+                <h5 className="text-dark">1/3 - VERIFY YOUR EMAIL</h5>
                 <p className="qt-font-small my-4">
                     Encrypted wallet via email protects from accidental loss, and provide quick access to our mobile app.  
                     The private key is generated locally and encrypted with your password.
@@ -748,7 +749,7 @@ export class ConnectDialog extends Component {
 
         return (
             <React.Fragment>
-                <h3 className="text-dark qt-font-bold">2/3 - CONFIRM YOUR EMAIL</h3>
+                <h5 className="text-dark">2/3 - CONFIRM YOUR EMAIL</h5>
                 <p className="qt-font-small my-4">
                     We sent a code to {email}. Enter it below:
                 </p>
@@ -783,7 +784,7 @@ export class ConnectDialog extends Component {
 
         return (
             <React.Fragment>
-                <h3 className="text-dark qt-font-bold">{no_email ? "": "3/3 - "}SETUP YOUR WALLET</h3>
+                <h5 className="text-dark">{no_email ? "": "3/3 - "}SETUP YOUR WALLET</h5>
                 <div className="mb-2">
                     <label>USERNAME</label>
                     <br/>
@@ -1225,7 +1226,7 @@ export class ConnectDialog extends Component {
                         <div className="close-btn" onClick={this.closeDialog.bind(this)}><img src={devicePath("public/images/close_btn.svg")} /></div> 
                         : null
                     }
-                    <h4>CONNECT {network == "testnet" ? "TESTNET" : ""} WALLET</h4>
+                    <h3>CONNECT {network == "testnet" ? "TESTNET" : ""} WALLET</h3>
 
                     <div className="my-3">
                         <div className={dialogType == "create" ? "active" : ""}>
@@ -1265,7 +1266,7 @@ export class ConnectDialog extends Component {
                         </div>
                     </div>
 
-                    <p>Your private keys are not sent to QUANTA. All transactions are signed within your browser 
+                    <p className="qt-font-extra-small qt-white-62 qt-font-light m-0">Your private keys are not sent to QUANTA. All transactions are signed within your browser 
                         and keys are not exposed over the internet.</p>
                 </div>
             </div>

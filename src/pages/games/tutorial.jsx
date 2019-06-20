@@ -59,7 +59,7 @@ const container = css `
         }
     }
     
-    h4 {
+    h3 {
         font-weight: bold;
     }
 
@@ -97,7 +97,7 @@ export default class Tutorial extends Component {
     GetStarted = () => {
         return (
             <div className="content get-started p-5">
-                <h4 className="mb-4">Easy to get started</h4>
+                <h3 className="mb-4">Easy to get started</h3>
                 <div className="d-flex justify-content-center align-items-center ">
                     <div className="card">
                         <div className="step">1</div>
@@ -107,7 +107,7 @@ export default class Tutorial extends Component {
                     <div className="card mx-3 mx-sm-5">
                         <div className="step">2</div>
                         Roll<br/> Your Dice
-                        <img src="/public/images/dice/dice.svg" />
+                        <img src="/public/images/dice/dice-gold.svg" />
                     </div>
                     <div className="card">
                         <div className="step">3</div>
@@ -116,25 +116,25 @@ export default class Tutorial extends Component {
                     </div>
                 </div>
 
-                <h4 className="mt-5 mb-4">Blockchain Security & Fairness</h4>
+                <h3 className="mt-5 mb-4">Blockchain Security & Fairness</h3>
                 <div className="d-flex flex-column flex-sm-row">
                     <div className="w-100">
-                        <h5>Trust</h5>
-                        <p className="qt-font-extra-small">
+                        <h4>Trust</h4>
+                        <p className="qt-font-small">
                             Dice is operated on smart contract. 
                             Quanta Blockchain ensures asset security, unlockable by your private key. 
                         </p>
                     </div>
                     <div className="w-100">
-                        <h5>Fairness</h5>
-                        <p className="qt-font-extra-small">
+                        <h4>Fairness</h4>
+                        <p className="qt-font-small">
                             Distributed N+1 randomness, 
                             computes outcome from your roll’s unique signature.
                         </p>
                     </div>
                     <div className="w-100">
-                        <h5>Proveable</h5>
-                        <p className="qt-font-extra-small">
+                        <h4>Proveable</h4>
+                        <p className="qt-font-small">
                             Every roll can be proven with the roll’s unique data, 
                             recomputed to produce the same outcome.
                         </p>
@@ -149,13 +149,13 @@ export default class Tutorial extends Component {
         const { dispatch, close } = this.props
         return (
             <div className="content info p-5">
-                <h4>Multi-assets support</h4>
+                <h3>Multi-assets support</h3>
                 <p>
                     Supported with Quanta innovative cross-chain technology. 
                     You can use Quanta Dice with QDEX, BTC, ETH, BCH, LTC, along with dozens of other assets listed on QuantaDex.
                 </p>
 
-                <h4 className="mt-5">Fees</h4>
+                <h3 className="mt-5">Fees</h3>
                 <p>
                     <b>4%</b> Standard Fees<br/>
                     Fees are deducted from the payout in the asset you put at risk.<br/>
@@ -164,7 +164,7 @@ export default class Tutorial extends Component {
                     Maintain your QDEX balance above the fees * exchange rates & the system will automatic deduct the discounted fees.
                 </p>
 
-                <h4 className="mt-5">Referral Program</h4>
+                <h3 className="mt-5">Referral Program</h3>
                 <p>
                     When you refer your friends, you can earn up to 30% of the QDEX fees from your referee’s dice, and QuantaDex activities.
                 </p>
@@ -191,7 +191,7 @@ export default class Tutorial extends Component {
                     <div className="header d-flex py-4 px-5">
                         <img src="/public/images/dice/logo.svg" />
                         <div className="w-100 align-self-center">
-                            Play & Win Up to 99X in Cryptos
+                            Roll & Win Up to 99X in Cryptos
                         </div>
                     </div>
                     {this.Screens[index]}

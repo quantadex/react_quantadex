@@ -36,7 +36,7 @@ const container = css`
       border-bottom: solid 1px rgba(18, 21, 23,0.24);
 
       .menu-row {
-        padding:6px 0 6px 24px;
+        padding:6px 20px 6px 24px;
       }
 
       .menu-row div {
@@ -149,10 +149,18 @@ export class HamburgerMenu extends React.Component {
 var net = window.location.pathname.startsWith("/testnet") ? "testnet" : "mainnet"
 HamburgerMenu.defaultProps = {
   menuList: [
-    {
+  {
     items: [{
       header:"$12.560",
       subheader:" estimated funds"
+    }]
+  },
+  {
+    items: [{
+      iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),
+      iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
+      text: <span>QUANTA DICE<br/> <span className="qt-font-extra-small">Roll & Win up to 100X Cryptos</span></span>,
+      url:"/" + net + "/dice"
     }]
   },
   {

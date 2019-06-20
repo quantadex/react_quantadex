@@ -7,8 +7,8 @@ import CONFIG from '../../config.js'
 
 
 const container = css `
+    width: 100%;
     max-width: 1200px;
-    overflow: hidden;
 
     .roll-table-container {
         height: 425px;

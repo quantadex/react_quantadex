@@ -14,12 +14,16 @@ const container = css `
     
     div {
         color: #fff;
-        font-size: 15px;
+        font-size: 12px;
         font-weight: bold;
         width: 100%;
         height: 100%;
-        line-height: 50px;
+        line-height: 14px;
         color: rgba(255,255,255,0.5);
+
+        img {
+            opacity: 0.5;
+        }
     }
 
     div:nth-child(2) {
@@ -29,6 +33,10 @@ const container = css `
 
     div.active {
         color: #fff;
+
+        img {
+            opacity: 1;
+        }
     }
 `
 
@@ -39,11 +47,20 @@ export default class MobileNav extends Component {
         return (
             <div className={container + " d-flex d-lg-none justify-content-around align-items-center"}>
                 <div className={"cursor-pointer" + (show_chat ? " active" : "")} 
-                    onClick={() => onClick({show_chat: true, show_bets: false})}>CHAT</div>
+                    onClick={() => onClick({show_chat: true, show_bets: false})}>
+                    <img src="/public/images/dice/chat.svg" alt="Chat" /><br/>
+                    Chat
+                </div>
                 <div className={"cursor-pointer" + (show_chat || show_bets ? "" : " active")} 
-                    onClick={() => onClick({show_chat: false, show_bets: false})}>DICE</div>
+                    onClick={() => onClick({show_chat: false, show_bets: false})}>
+                    <img src="/public/images/dice/dice.svg" alt="Dice" /><br/>
+                    Dice
+                </div>
                 <div className={"cursor-pointer" + (show_bets ? " active" : "")} 
-                    onClick={() => onClick({show_bets: true, show_chat: false})}>BETS</div>
+                    onClick={() => onClick({show_bets: true, show_chat: false})}>
+                    <img src="/public/images/dice/list.svg" alt="Bets" /><br/>
+                    Bets
+                </div>
             </div>
         )
     }

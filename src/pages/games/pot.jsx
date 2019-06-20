@@ -5,6 +5,7 @@ import { GetAccountBalances } from "../../redux/actions/app.jsx"
 const container = css `
     color: #fff;
     background: #555;
+    margin-top: auto;
 
     h1 {
         color: rgb(211,174,13);
@@ -19,10 +20,10 @@ const container = css `
         font-weight: bold;
         text-align: center;
         width: 40px;
-        animation: 0.3s ease-out popIn;
+        animation: 0.3s ease-out flipIn;
     }
 
-    @keyframes popIn {
+    @keyframes flipIn {
         0% {
             transform: rotateX(90deg);
         }

@@ -197,8 +197,6 @@ const container = css `
     }
 
     #connect-dialog {
-        background-color: rgba(0,0,0,0.2);
-
         .container {
             background: #57A38B;
             color: #fff;
@@ -299,7 +297,8 @@ const container = css `
             bottom: 0;
             z-index: 2;
             width: 0%;
-            transition: width 0.3s;
+            overflow: hidden;
+            overflow-y: scroll;
         }
 
         .chat-container {
@@ -1019,11 +1018,8 @@ class DiceGame extends Component {
                                 toggleHotkeys={() => this.setState({hot_keys: !hot_keys})}
                             />
                         </div>
-                        <div className="game-history mt-5">
+                        <div className="game-history mt-5 d-flex flex-column">
                             <RollHistory userId={private_key && userId} show_info={(id) => this.showBetDialog(id)} />
-                        </div>
-                        
-                        <div className="d-none d-lg-block">
                             <Jackpot init={init} asset={asset} precision={precision} />
                         </div>
                     </div>
