@@ -149,10 +149,10 @@ class Wallets extends Component {
       }
       if (window.wallet_listing.includes(symbol) || symbol == "QDEX") {
         dataSource.push(data)
-        in_wallet.push(symbol)
       } else {
         unlisted.push(data)
       }
+      in_wallet.push(symbol)
     });
 
     for (let coin of (Object.keys(window.assetsBySymbol) || [])) {
