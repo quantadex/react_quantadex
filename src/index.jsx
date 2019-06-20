@@ -246,26 +246,35 @@ history.listen((location, action) => {
 	ReactGA.pageview(location.pathname);
 });
 
+if (/Android|iPad|iPhone|iPod/i.test(navigator.userAgent)) {
+	$(document).on('focus', 'input, textarea', function() {
+		document.getElementById('app').classList.add('kb-opened')
+	});
+
+	$(document).on('blur', 'input, textarea', function() {
+		document.getElementById('app').classList.remove('kb-opened')
+	});
+}
 
 class Container extends React.Component {
   render () {
     return (
     <Provider store={store}>
-				<Router history={history}>
-        <Switch>
-					<Route exact path="/" component={window.isApp ? Exchange : Landing} />
-					<Route exact path="/:net" component={Exchange} />
-					<Route exact path="/:net/dice" component={DiceGame} />
-					<Route exact path="/:net/exchange" component={Exchange} />
-					<Route exact path="/:net/exchange/:ticker" component={Exchange} />
-					<Route exact path="/:net/wallets" component={Fund} />
-					<Route exact path="/:net/message" component={Message} />
-					<Route exact path="/:net/export_key" component={ExportKey} />
-					<Route exact path="/:net/leaderboard" component={Leaderboard} />
+		<Router history={history}>
+			<Switch>
+				<Route exact path="/" component={window.isApp ? Exchange : Landing} />
+				<Route exact path="/:net" component={Exchange} />
+				<Route exact path="/:net/dice" component={DiceGame} />
+				<Route exact path="/:net/exchange" component={Exchange} />
+				<Route exact path="/:net/exchange/:ticker" component={Exchange} />
+				<Route exact path="/:net/wallets" component={Fund} />
+				<Route exact path="/:net/message" component={Message} />
+				<Route exact path="/:net/export_key" component={ExportKey} />
+				<Route exact path="/:net/leaderboard" component={Leaderboard} />
 
-					<Route component={window.isApp ? Exchange : Landing}/>
-        </Switch>
-      </Router>
+				<Route component={window.isApp ? Exchange : Landing}/>
+			</Switch>
+      	</Router>
     </Provider>);
   }
 }

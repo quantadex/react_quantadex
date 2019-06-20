@@ -113,7 +113,7 @@ export default class MarketBox extends Component {
             }
         }
 
-        if (get_binance) {
+        if (get_binance && binance_symbol.length > 0) {
             // console.log(binance_symbol, symbol_map)
             const binance_socket = new WebSocket('wss://stream.binance.com:9443/stream?streams=' + binance_symbol.join('/'));
             binance_socket.addEventListener('message', function (event) {

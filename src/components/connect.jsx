@@ -59,7 +59,7 @@ const dialog = css`
     bottom: 0;
     left: 0;
     right: 0;
-    background-color: rgba(0,0,0,0.6);
+    background-color: rgba(0,0,0,0.8);
     font-size: 13px;
     z-index: 999;
 

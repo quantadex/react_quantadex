@@ -10,14 +10,13 @@ const container = css `
     text-align: center;
     box-shadow: 0px -1px 1px rgba(0,0,0,0.1);
     user-select: none;
-    z-index: 999;
+    z-index: 990;
     
     div {
         color: #fff;
         font-size: 12px;
         font-weight: bold;
         width: 100%;
-        height: 100%;
         line-height: 14px;
         color: rgba(255,255,255,0.5);
 
@@ -37,6 +36,10 @@ const container = css `
         img {
             opacity: 1;
         }
+    }
+
+    .kb-opened & {
+        position: relative;
     }
 `
 

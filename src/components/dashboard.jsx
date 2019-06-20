@@ -119,12 +119,6 @@ class Dashboard extends Component {
 				: null
 				}
 				
-				{/* <section className="menu d-flex justify-content-start qt-font-extra-small qt-font-light text-center">
-					<QTTabBar
-						className="block medium fluid qt-font-regular d-flex justify-content-start"
-						tabs = {tabs}
-					/>
-				</section> */}
 				<section className="mb-3">
 					<QTTabBar
 						className="underline small fluid even-width qt-font-bold d-flex justify-content-start"

@@ -277,6 +277,11 @@ const container = css `
             max-height: calc(100vh - 130px);
         }
 
+        .kb-opened & .content-container {
+            margin-bottom: 0px;
+            max-height: calc(100vh - 80px);
+        }
+
         .slider-container {
             margin-top: 30px;
             margin-bottom: 30px;
@@ -745,8 +750,8 @@ class DiceGame extends Component {
                                                 asset={asset}
                                                 after={
                                                     <div className="after d-flex">
-                                                        <div className="mx-1 cursor-pointer" onClick={this.halfBet}>&frac12;</div>
-                                                        <div className="mx-1 cursor-pointer" onClick={this.doubleBet}>2x</div>
+                                                        <div className="mx-1 cursor-pointer" onClick={this.halfBet.bind(this)}>&frac12;</div>
+                                                        <div className="mx-1 cursor-pointer" onClick={this.doubleBet.bind(this)}>2x</div>
                                                         <div className="mx-1 cursor-pointer" onClick={() => {
                                                             if(!auto_rolling && balance[asset]) this.setInputs("amount", balance[asset].balance)
                                                         }}>MAX</div>
