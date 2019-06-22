@@ -158,7 +158,7 @@ export default class Chat extends Component {
         .on('child_added', this.onMessage)
 
         setTimeout(() => {
-            this.scrollToBottom()
+            this.scrollToBottom(false)
         }, 1000)
     }
     
@@ -229,10 +229,10 @@ export default class Chat extends Component {
         })
     }
 
-    scrollToBottom = () => {
+    scrollToBottom = (smooth = true) => {
         setTimeout(() => {
             if (this.refs.Chat.clientWidth == 0) return
-            this.messagesEnd.scrollIntoView({ behavior: "smooth" });
+            this.messagesEnd.scrollIntoView({ behavior: smooth ? "smooth" : "auto" });
         }, 100)
     }
 
