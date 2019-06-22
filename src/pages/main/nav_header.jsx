@@ -80,8 +80,8 @@ export default class NavHeader extends Component {
                         <img className="d-block d-sm-none" src="/public/images/hamb.svg" />
                         <div className="menu-items py-3 text-left">
                             <a href="/">Main</a>
-                            <a href="/fairprotocol">Technology</a>
-                            <a href="/blog">Blog</a>
+                            <a href="/technology">Technology</a>
+                            <a href="http://medium.com/@quantadex">Blog</a>
                             <a href={"/mainnet/exchange/ETH_BTC" + location.search}>Launch</a>
                         </div>
                     </div>
