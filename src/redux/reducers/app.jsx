@@ -215,6 +215,7 @@ let initialState = {
     },
     spread: 0,
     spreadDollar:0,
+    user_orders: {},
     asks: {
       dataSource: new SortedSet({ comparator: function(a, b) { return parseFloat(a.price) - parseFloat(b.price); }}),
 
@@ -533,6 +534,7 @@ const app = (state = initialState, action) => {
 
     case USER_DATA:
       const onOrdersFund = {}
+      const user_orders = {}
       currentOrders = []
       const limitOrdersDataSource = action.data.openOrders.map((order) => {
         const tickerPair = [order.assets[order.sell_price.base.asset_id].symbol, order.assets[order.sell_price.quote.asset_id].symbol]
@@ -554,6 +556,15 @@ const app = (state = initialState, action) => {
         onOrdersFund[onOrderFeeAsset] = (onOrdersFund[onOrderFeeAsset] || 0) + onOrderFeeValue
         onOrdersFund[onOrderAsset] = (onOrdersFund[onOrderAsset] || 0) + onOrderValue
         currentOrders.push(order.id)
+
+        const user_orders_list = user_orders[ticker.join('/')]
+        if (user_orders_list) {
+          user_orders_list.push(order.getPrice())
+          user_orders[ticker.join('/')] = user_orders_list
+        } else {
+          user_orders[ticker.join('/')] = [order.getPrice()]
+        }
+
         return {
           assets: ticker.join('/'),
           pair: <Ticker ticker={ticker.join('/')} withLink={true} />,
@@ -594,6 +605,10 @@ const app = (state = initialState, action) => {
         referral_paid: referral_paid,
         onOrdersFund: onOrdersFund,
         totalFundValue: total_fund_value,
+        orderBook: {
+          ...state.orderBook,
+          user_orders
+        },
         openOrders: {
           ...state.openOrders,
           dataSource: limitOrdersDataSource

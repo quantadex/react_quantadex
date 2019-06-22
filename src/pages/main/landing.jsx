@@ -10,7 +10,7 @@ export default class Landing extends Component {
     render() {
         return (
             <div style={{fontSize: "initial", color: "#333"}}>
-                <NavHeader />
+                <NavHeader page="main" />
                 <Announcement />
                 <MarketBox />
                 <Reasons />

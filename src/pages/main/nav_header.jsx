@@ -72,7 +72,7 @@ export default class NavHeader extends Component {
                     <div className="w-100 text-left">
                         <img src="/public/images/logo.svg" />
                     </div>
-                    <a className="d-none d-sm-block" href="/">Main</a>
+                    <a className={"d-none d-sm-block" + (page == "main" ? " active" : "")} href="/">Main</a>
                     <a className={"d-none d-sm-block" + (page == "tech" ? " active" : "")} href="/technology">Technology</a>
                     <a className="d-none d-sm-block" href="http://medium.com/@quantadex" target="_blank">Blog</a>
                     <a className="d-none d-sm-block launch-btn" href={"/mainnet/exchange/ETH_BTC" + location.search}>Launch</a>

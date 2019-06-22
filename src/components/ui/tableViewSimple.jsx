@@ -104,6 +104,15 @@ const container = css`
     right: 5px;
   }
 
+  .user-order::after {
+    content: "";
+    border: solid 4px transparent;
+    border-left-color: #fff;
+    position: absolute;
+    left: 0;
+    transform: translateY(6px);
+  }
+
 `
 
 export default class QTTableViewSimple extends React.Component {
@@ -141,7 +150,7 @@ export default class QTTableViewSimple extends React.Component {
         {
           dataSource.map((row, index) => {
             return (
-              <tr key={row.id ? row.id + index : index}
+              <tr key={row.id ? row.id + index : index} className={row.is_user ? "user-order" : ""}
                 onClick={onAction ? () => onAction(row) : null}>
                 {columns.map((col, colindex) => {
                     var col_color = row[col.key];

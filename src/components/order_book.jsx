@@ -77,6 +77,7 @@ class OrderBook extends Component {
 
 	render() {
 		const { currentTicker, asks, bids, decimals, mobile, mostRecentTrade, spread, mirror } = this.props
+		const user_orders = this.props.user_orders[currentTicker]
 		if (currentTicker == null) {
 			return <div></div>;
 		}
@@ -90,7 +91,8 @@ class OrderBook extends Component {
 				...ask,
 				price: parseFloat(ask.price).toFixed(decimals.value),
 				total: parseFloat(ask.total).toFixed(decimals.maxTotalDecimals),
-				volume: askVolume
+				volume: askVolume,
+				is_user: user_orders && user_orders.includes(parseFloat(ask.price))
 			})
 			asksIterator = asksIterator.next()
 		}
@@ -108,7 +110,8 @@ class OrderBook extends Component {
 				...bid,
 				price: parseFloat(bid.price).toFixed(decimals.value),
 				total: parseFloat(bid.total).toFixed(decimals.maxTotalDecimals),
-				volume: bidVolume
+				volume: bidVolume,
+				is_user: user_orders && user_orders.includes(parseFloat(bid.price))
 			})
 			bidsIterator = bidsIterator.next()
 		}
@@ -233,7 +236,7 @@ class OrderBook extends Component {
 }
 
 const mapStateToProps = (state) => ({
-	orderbook: state.app.orderBook, 
+	user_orders: state.app.orderBook.user_orders,
   	bids: state.app.orderBook.bids,
   	asks: state.app.orderBook.asks,
 	decimals: state.app.orderBook.decimals,
