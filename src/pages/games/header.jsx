@@ -137,7 +137,7 @@ class Header extends Component {
                     </div>
                 </div>
 
-                { connectDialog ?
+                { !private_key && connectDialog ?
                     <ConnectDialog default={connectDialog}
                         network={network} 
                         dispatch={dispatch}/> 

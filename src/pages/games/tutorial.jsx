@@ -146,7 +146,7 @@ export default class Tutorial extends Component {
     }
 
     Info = () => {
-        const { dispatch, close } = this.props
+        const { dispatch, close, has_account } = this.props
         return (
             <div className="content info p-5">
                 <h3>Multi-assets support</h3>
@@ -172,7 +172,7 @@ export default class Tutorial extends Component {
                 <button className="mt-5" onClick={() => {
                     dispatch({
                         type: TOGGLE_CONNECT_DIALOG,
-                        data: "create"
+                        data: has_account ? "connect" : "create"
                     })
                     close()
                 }}>GET STARTED</button>
