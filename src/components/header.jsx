@@ -62,6 +62,28 @@ class Header extends Component {
 		this.state = {
 			showMarkets: false
 		}
+		
+		this.toggleDropdown = this.toggleDropdown.bind(this)
+	}
+
+	toggleDropdown(e) {
+		const markets = this.refs.markets;
+		const list = this.refs.list;
+		if (list.contains(e.target)) {
+			this.setState({showMarkets: true})
+		} else if (markets.contains(e.target)) {
+			this.setState({showMarkets: !this.state.showMarkets})
+		} else {
+			this.setState({showMarkets: false})
+		}
+	}
+	
+	componentDidMount() {
+		document.addEventListener('click', this.toggleDropdown, true)
+	}
+
+	componentWillUnmount() {
+		document.removeEventListener('click', this.toggleDropdown, true)
 	}
 
 	render() {
@@ -89,12 +111,11 @@ class Header extends Component {
 						</div>
 					: "" }
 
-					<div className="d-flex align-items-center position-relative cursor-pointer" 
-						onClick={() => this.setState({showMarkets: !showMarkets})}>
+					<div ref="markets" className="d-flex align-items-center position-relative cursor-pointer">
 						<span className="header-coin-name qt-font-normal qt-font-bold qt-color-theme">
 							<Ticker ticker={currentTicker} />
 						</span>
-						<div id="market-list" className={"markets" + (showMarkets ? " active" : "")}>
+						<div ref="list" id="market-list" className={"markets" + (showMarkets ? " active" : "")}>
 							<Dashboard closeSelf={() => this.setState({showMarkets: false})} />
 						</div>
 					</div>
