@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
+import { Link } from 'react-router-dom'
 import { css } from 'emotion'
 import QTTabBar from './ui/tabBar.jsx'
 import {SymbolToken} from './ui/ticker.jsx'
@@ -16,31 +17,32 @@ const container = css`
 	background-color: #23282c;
 	cursor: initial;
 
- 	table {
-	  width: 100%;
-	  thead {
-		  color: #777;
-	  }
-	  tr {
-		  border-bottom: 1px solid #333;
-		  cursor: pointer;
-	  }
-	  tbody tr:hover {
-		  background-color: rgba(52,62,68,0.3);
-	  }
-	  .market {
-		  font-weight: bold;
-		  line-height: 25px;
-		  .issuer {
-			  background-color: #5b5a69;
-			  font-size: 10px;
-			  font-weight: 100;
-			  border-radius: 3px;
-			  padding: 1px 4px;
-			  margin: 0 3px;
-			  opacity: 0.7;
-		  }
-	  }
+	.head {
+		color: #777;
+	}
+
+	.row-item {
+		flex: 1;
+		line-height: 25px;
+		border-bottom: 1px solid #333;
+		cursor: pointer;
+	}
+
+	.market {
+		font-weight: bold;
+		.issuer {
+			background-color: #5b5a69;
+			font-size: 10px;
+			font-weight: 100;
+			border-radius: 3px;
+			padding: 1px 4px;
+			margin: 0 3px;
+			opacity: 0.7;
+		}
+	}
+
+	.table-row:hover {
+		background-color: rgba(52,62,68,0.3);
 	}
 	
 	&.mobile {
@@ -53,7 +55,7 @@ const container = css`
 		input {
 			flex: auto;
 		}
-		table tr {
+		.row-item {
 			border-bottom: 1px solid #333;
 			line-height: 40px;
 		}
@@ -71,10 +73,8 @@ class Dashboard extends Component {
 		}
 	}
 
-	switchMarket(e) {
-		const { mobile_nav, closeSelf, history, match, location } = this.props
-
-		history.push("/" + (match.params.net || "mainnet") + "/exchange/" + e.replace("/", "_") + location.search)
+	switchMarket() {
+		const { mobile_nav, closeSelf } = this.props
 		setTimeout(() => {
 			if (mobile_nav) mobile_nav()
 			if (closeSelf) closeSelf()
@@ -130,40 +130,38 @@ class Dashboard extends Component {
 				
 				{ markets.length != 0 ?
 					<section className="price">
+						<div className="head d-flex">
+							<div className="row-item">Pairs</div>
+							<div className="row-item text-right">Price</div>
+							<div className="row-item text-right">
+								<img data-tip="The market depth for this<br/> token on the QUANTA Network"
+									src={devicePath("public/images/question.png")} /> Depth
+							</div>
+						</div>
+						<ReactTooltip clickable={true} html={true} />
 						
-						<table>
-							<thead>
-								<tr>
-									<td>Pairs</td>
-									<td className="text-right">Price</td>
-									<td className="text-right">
-										<img data-tip="The market depth for this<br/> token on the QUANTA Network"
-											src={devicePath("public/images/question.png")} /> Depth
-									</td>
-								</tr>
-							</thead>
-							<tbody>
-								{
-									markets[subtabs.names[this.state.selectedCoin]] && markets[subtabs.names[this.state.selectedCoin]].filter(market => this.shortName(market.name).toLowerCase().includes(this.state.filter.toLowerCase())).map((market, index) => {
-										let pair = market.name.split('/')
-										let usd_price = pair[1] === "ETH" ? window.binance_price["ETHUSDT"] 
-														: (pair[1] === "BTC" ? window.binance_price["BTCUSDT"] 
-															: pair[1].startsWith("TUSD") || pair[1] == "USD" ? 1 : 0)
-										return <tr key={index} onClick={() => this.switchMarket(market.name)}>
-											<td className="market">
-												<SymbolToken name={pair[0]} showIcon={false} withLink={false} />
-											</td>
-											<td className="text-right">{market.last == 0 ? "-" : market.last}</td>
-											<td className="text-right">{window.allMarketsByHash[market.name].depth == 0 || usd_price == 0 ? "-" : "$" + Math.round(window.allMarketsByHash[market.name].depth * parseFloat(usd_price))}</td>
-										</tr>
-									})
-								}
-							</tbody>
-						</table>
+						{
+							markets[subtabs.names[this.state.selectedCoin]] && markets[subtabs.names[this.state.selectedCoin]].filter(market => this.shortName(market.name).toLowerCase().includes(this.state.filter.toLowerCase())).map((market, index) => {
+								
+								const { match, location } = this.props
+								const url = ("/" + (match.params.net || "mainnet") + "/exchange/" + market.name.replace("/", "_") + location.search)
+
+								let pair = market.name.split('/')
+								let usd_price = pair[1] === "ETH" ? window.binance_price["ETHUSDT"] 
+												: (pair[1] === "BTC" ? window.binance_price["BTCUSDT"] 
+													: pair[1].startsWith("TUSD") || pair[1] == "USD" ? 1 : 0)
+								return (
+									<Link key={index} to={url} className="table-row d-flex" onClick={() => this.switchMarket()}>
+										<div className="row-item market"><SymbolToken name={pair[0]} showIcon={false} withLink={false} /></div>
+										<div className="row-item text-right">{market.last == 0 ? "-" : market.last}</div>
+										<div className="row-item text-right">{window.allMarketsByHash[market.name].depth == 0 || usd_price == 0 ? "-" : "$" + Math.round(window.allMarketsByHash[market.name].depth * parseFloat(usd_price))}</div>
+									</Link>
+								)
+							})
+						}
 					</section>
 				: <Loader size="50px" />
 				}
-				<ReactTooltip clickable={true} html={true} />
 			</div>
 		);
 	}
