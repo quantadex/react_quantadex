@@ -77,7 +77,7 @@ function computeTotalBalance(assets, USD_value, balance) {
     return total
 }
 
-function getAccounts(start) {
+export function getAccounts(start) {
     return Promise.all([Apis.instance().db_api().exec("lookup_accounts", [start, 100])])
     .then((res) => {
         const data = res[0]
@@ -85,7 +85,7 @@ function getAccounts(start) {
     })
 }
 
-function getBalance(id) {
+export function getBalance(id) {
     return Promise.all([Apis.instance().db_api().exec("get_account_balances", [id, []])])
     .then((res) => {
         const data = res[0]
