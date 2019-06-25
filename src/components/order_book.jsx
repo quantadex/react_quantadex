@@ -76,7 +76,7 @@ class OrderBook extends Component {
 	}
 
 	render() {
-		const { currentTicker, asks, bids, decimals, mobile, mostRecentTrade, spread, mirror } = this.props
+		const { currentTicker, asks, bids, decimals, mobile, mostRecentTrade, spread, mirror, usd_value } = this.props
 		const user_orders = this.props.user_orders[currentTicker]
 		if (currentTicker == null) {
 			return <div></div>;
@@ -96,9 +96,7 @@ class OrderBook extends Component {
 			})
 			asksIterator = asksIterator.next()
 		}
-
 		asksDataSource.reverse()
-
 
 		var bidsIterator = bids.dataSource.beginIterator();
 		var bidsDataSource = []
@@ -116,6 +114,12 @@ class OrderBook extends Component {
 			bidsIterator = bidsIterator.next()
 		}
 
+		let usd = 0
+		if (window.assetsBySymbol) {
+			const counter = window.assetsBySymbol[currentTicker.split('/')[1]].id
+			usd = usd_value[counter]
+		}
+		
 		if (mirror) {
 			const bids_columns = [{
 				name: (ticker) => {return "Bids " + ticker.split('/')[0].split('0X')[0]},
@@ -211,6 +215,12 @@ class OrderBook extends Component {
 				<section className="orderbook-middle d-flex justify-content-between">
 					<div className="d-flex flex-column justify-content-center">
 						<div className="qt-color-theme qt-font-huge qt-font-light">{mostRecentTrade.price}</div>
+						{ usd ?
+							<div className="text-secondary qt-font-small qt-font-light">
+								${(mostRecentTrade.price * usd).toLocaleString(navigator.language, {maximumFractionDigits: 5, minimumFractionDigits: 2})}
+								</div>
+							: null
+						}
 					</div>
 					<div className="d-flex flex-column justify-content-center">
 						<div className="qt-opacity-half qt-font-base text-right">Spread</div>
@@ -243,7 +253,8 @@ const mapStateToProps = (state) => ({
 	spread: state.app.orderBook.spread,
 	spreadDollar:state.app.orderBook.spreadDollar,
 	mostRecentTrade: state.app.mostRecentTrade,
-	currentTicker:state.app.currentTicker,
-	});
+	currentTicker: state.app.currentTicker,
+	usd_value: state.app.usd_value,
+});
 
 export default connect(mapStateToProps)(OrderBook);

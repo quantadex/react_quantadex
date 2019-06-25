@@ -75,6 +75,30 @@ export async function ConnectAsync(dispatch) {
 	window.ws_connecting = false
 }
 
+function getBinanceData(markets) {
+	var symbol_map = {}
+	var binance_symbol = []
+	window.binance_data = {}
+	
+	for (const coin of Object.keys(markets.markets)) {
+		for (const market of markets.markets[coin]) {
+			if ((market.name.endsWith("/TUSD0X0000000000085D4780B73119B644AE5ECD22B376") || market.name.endsWith("/USD")) && market.benchmarkSymbol) {
+				let symbol = market.benchmarkSymbol.split(":")[1].replace("/", "")
+				symbol_map[symbol] = market.name
+				binance_symbol.push(symbol.toLowerCase() + '@ticker')
+			}
+		}
+	}
+
+	if (binance_symbol.length > 0) {
+		const binance_socket = new WebSocket('wss://stream.binance.com:9443/stream?streams=' + binance_symbol.join('/'));
+		binance_socket.addEventListener('message', function (event) {
+			const data = JSON.parse(event.data).data
+			window.binance_data[symbol_map[data.s].split('/')[0]] = {last_price: data.c, change: data.P}
+		});
+	}
+}
+
 /**
  * UpdateGlobalPropertiesAsync 
  * updates the global assets, keys, and rebates -- anything related to global states goes here.
@@ -92,6 +116,8 @@ export async function UpdateGlobalPropertiesAsync() {
 	const markets = await fetch(CONFIG.getEnv().MARKETS_JSON, { mode: "cors" }).then(e => e.json()).catch(e => {
 		Rollbar.error("Failed to get Markets JSON", e);
 	})
+
+	if (!window.binance_data) getBinanceData(markets)
 
 	window.markets = markets.markets
 	window.marketsHash = Object.keys(markets.markets).reduce(function (previous, key) {
@@ -142,7 +168,11 @@ export async function UpdateMarketsDataAsync() {
 			if (!marketData[market]) {
 				marketData[market] = []
 			}
-			let latest = data[0].latest === "0" ? data[0].highest_bid === "0" || data[0].highest_ask === "0" ? "-" : (parseFloat(data[0].highest_bid) + parseFloat(data[0].lowest_ask)) / 2 : data[0].latest
+			let latest = data[0].latest !== "0" ? 
+							data[0].latest
+								: data[0].highest_bid !== "0" || data[0].highest_ask !== "0" ? 
+									(parseFloat(data[0].highest_bid) + parseFloat(data[0].lowest_ask)) / 2 
+									: "-" 
 			latest = Utils.maxPrecision(latest, window.allMarketsByHash[pair.name].pricePrecision)
 			window.allMarketsByHash[pair.name].last = latest
 			marketData[market].push({
@@ -152,11 +182,12 @@ export async function UpdateMarketsDataAsync() {
 				quote_volume: data[1].quote_volume
 			})
 			if (counter.symbol == 'USD' || counter.symbol == 'TUSD0X0000000000085D4780B73119B644AE5ECD22B376') {
-				USD_value[base.id] = data[0].latest
+				USD_value[base.id] = data[0].latest > 0 ? data[0].latest : window.binance_data[base.symbol] ? window.binance_data[base.symbol].last_price : 0
 				USD_value[counter.id] = 1
 			}
 		}
 	}	
+	
 	// update global
 	window.market_depth_time = new Date()
 

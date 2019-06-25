@@ -71,8 +71,7 @@ const container = css`
         text-decoration: none !important;
 	}
 `
-var symbol_map = {}
-var binance_data = {}
+
 export default class MarketBox extends Component {
     constructor(props) {
         super(props);
@@ -94,11 +93,13 @@ export default class MarketBox extends Component {
 
     getMarketsData(markets, get_binance=false) {
         var binance_symbol = []
+        var symbol_map = {}
+
         for (const coin of Object.keys(markets.markets)) {
             for (const market of markets.markets[coin]) {
                 if (get_binance && market.benchmarkSymbol) {
                     let symbol = market.benchmarkSymbol.split(":")[1].replace("/", "")
-                    symbol_map[market.name] = symbol
+                    symbol_map[symbol] = market.name
                     binance_symbol.push(symbol.toLowerCase() + '@ticker')
                 }
 
@@ -119,10 +120,9 @@ export default class MarketBox extends Component {
             binance_socket.addEventListener('message', function (event) {
                 const data = JSON.parse(event.data).data
                 // console.log(data.P)
-                binance_data[data.s] = {last_price: data.c, change: data.P}
+                window.binance_data[symbol_map[data.s]] = {last_price: data.c, change: data.P}
             });
         }
-        
     }
 
     componentDidMount() {
@@ -134,6 +134,7 @@ export default class MarketBox extends Component {
                 
                 fetch("https://s3.amazonaws.com/quantachain.io/markets_mainnet.json").then(e => e.json())
                 .then((e) => {
+                    window.binance_data = {}
                     const markets = e;
                     this.getMarketsData(markets, true)
                     setInterval(() => {
@@ -182,7 +183,7 @@ export default class MarketBox extends Component {
                         <tbody>
                             {(this.state.allMarkets ? markets : markets.slice(0, 3)).map(market => {
                                 const pairs = market.pair.split("/")
-                                const binance_market = binance_data[symbol_map[market.pair]]
+                                const binance_market = window.binance_data[market.pair]
                                 const percent_change = market.latest == 0 && binance_market ? binance_market.change : market.percent_change 
                                 return (
                                     <tr key={market.pair} className="border-bottom">
@@ -225,7 +226,7 @@ export default class MarketBox extends Component {
                         <tbody>
                             {(this.state.allMarkets ? markets : markets.slice(0, 3)).map(market => {
                                 const pairs = market.pair.split("/")
-                                const binance_market = binance_data[symbol_map[market.pair]]
+                                const binance_market = window.binance_data[market.pair]
                                 return (
                                     <tr key={market.pair} className="border-bottom">
                                         <td><a className="text-secondary" href={"/mainnet/exchange/" + market.pair.replace("/", "_") + location.search}><this.SymbolToken name={pairs[0]} withLink={false} />/<this.SymbolToken name={pairs[1]} withLink={false} /></a></td>

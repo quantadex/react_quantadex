@@ -435,13 +435,6 @@ export function getQdexAsks(counter) {
 	}
 }
 
-window.binance_price = {"BTCUSDT": 0, "ETHUSDT": 0}
-const binance_socket = new WebSocket('wss://stream.binance.com:9443/stream?streams=btcusdt@miniTicker/ethusdt@miniTicker');
-binance_socket.addEventListener('message', function (event) {
-	const data = JSON.parse(event.data).data
-	window.binance_price[data.s] = data.c
-});
-
 window.initAPI = false;
 export var dataSize = 100;
 

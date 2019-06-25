@@ -142,14 +142,13 @@ class Dashboard extends Component {
 						
 						{
 							markets[subtabs.names[this.state.selectedCoin]] && markets[subtabs.names[this.state.selectedCoin]].filter(market => this.shortName(market.name).toLowerCase().includes(this.state.filter.toLowerCase())).map((market, index) => {
-								
 								const { match, location } = this.props
 								const url = ("/" + (match.params.net || "mainnet") + "/exchange/" + market.name.replace("/", "_") + location.search)
 
 								let pair = market.name.split('/')
-								let usd_price = pair[1] === "ETH" ? window.binance_price["ETHUSDT"] 
-												: (pair[1] === "BTC" ? window.binance_price["BTCUSDT"] 
-													: pair[1].startsWith("TUSD") || pair[1] == "USD" ? 1 : 0)
+								let usd_price = pair[1] === "ETH" ? window.binance_data["ETH"] ? window.binance_data["ETH"].last_price : 0
+												: pair[1] === "BTC" ? window.binance_data["BTC"] ? window.binance_data["BTC"].last_price : 0
+													: pair[1].startsWith("TUSD") || pair[1] == "USD" ? 1 : 0
 								return (
 									<Link key={index} to={url} className="table-row d-flex" onClick={() => this.switchMarket()}>
 										<div className="row-item market"><SymbolToken name={pair[0]} showIcon={false} withLink={false} /></div>

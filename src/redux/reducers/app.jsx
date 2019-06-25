@@ -581,10 +581,16 @@ const app = (state = initialState, action) => {
       
       var total_fund_value = 0
       const balances = action.data.accountData.length > 0 && action.data.accountData[0][1].balances.map((balance => {
-        const real_balance = balance.balance / (10 ** window.assets[balance.asset_type].precision)
-        const usd = state.usd_value[balance.asset_type] ? (real_balance + (onOrdersFund[balance.asset_type] || 0)) * state.usd_value[balance.asset_type] : 0
-        total_fund_value += usd
+        
         const symbol = window.assets[balance.asset_type].symbol
+        const real_balance = balance.balance / (10 ** window.assets[balance.asset_type].precision)
+        const total_balance = real_balance + (onOrdersFund[balance.asset_type] || 0)
+        const binance = state.usd_value[balance.asset_type] > 0 ? null : window.binance_data[symbol + (state.network == "testnet" ? "/USD" : "/TUSD0X0000000000085D4780B73119B644AE5ECD22B376")]
+        const usd = state.usd_value[balance.asset_type] > 0 ? 
+                    total_balance * state.usd_value[balance.asset_type] 
+                      : binance ? total_balance * parseFloat(binance.last_price)
+                        : 0
+        total_fund_value += usd
         return {
           asset: balance.asset_type,
           symbol: symbol,
