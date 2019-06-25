@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { css } from 'emotion'
+import ProductsMenu from '../../components/ui/products_menu.jsx'
 
 const container = css`
     background: #121517;
@@ -69,8 +70,9 @@ export default class NavHeader extends Component {
         return (
             <div className={container}>
                 <div className="container nav-bar d-flex justify-content-end align-items-center">
-                    <div className="w-100 text-left">
+                    <div className="w-100 text-left d-flex align-items-center">
                         <img src="/public/images/logo.svg" />
+					    <ProductsMenu className="ml-5" />
                     </div>
                     <a className={"d-none d-sm-block" + (page == "main" ? " active" : "")} href="/">Main</a>
                     <a className={"d-none d-sm-block" + (page == "tech" ? " active" : "")} href="/technology">Technology</a>

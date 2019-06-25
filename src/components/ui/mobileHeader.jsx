@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import { css } from 'emotion'
 import Connect from "../connect.jsx"
 import Menu from "../menu.jsx"
+import ProductsMenu from './products_menu.jsx'
 
 const container = css `
     min-height: 60px;
@@ -20,7 +21,7 @@ const container = css `
 
 class MobileHeader extends Component {
     render() {
-        const { header, publicKey, mobile_nav } = this.props
+        const { header, publicKey, mobile_nav, network } = this.props
 
         if (window.isApp) {
             return (
@@ -42,7 +43,11 @@ class MobileHeader extends Component {
 
         return (
             <div className={container + " d-flex justify-content-between align-items-center border-bottom border-dark px-3"}>
-                <div><Link to={"/" + window.location.search}><img src={devicePath("public/images/logo.svg")} alt="QUANTADEX" /></Link></div>
+                <div className="d-flex align-items-center">
+                    <Link to={"/" + window.location.search}><img src={devicePath("public/images/logo.svg")} alt="QUANTADEX" /></Link>
+					<ProductsMenu network={network} className="ml-3" />
+                </div>
+                
                 { publicKey ?
                     <Menu mobile_nav={mobile_nav}/>
                     :

@@ -6,6 +6,7 @@ import Ticker from './ui/ticker.jsx';
 import Dashboard from './dashboard.jsx';
 import { ConnectDialog } from './connect.jsx';
 import BuyQdex from './buy_qdex.jsx'
+import ProductsMenu from './ui/products_menu.jsx'
 
 const container = css`
 	margin: 5px 0;
@@ -92,11 +93,11 @@ class Header extends Component {
 		return (
 			<div className={container}>
 				<div className="d-flex justify-content-between align-items-center">
-					<div className="w-100">
-						<Link to={"/" + network + "/exchange/" + (currentTicker ? currentTicker.replace("/", "_") : "")} className="header-logo">
+					<div className="w-100 d-flex align-items-center">
+						<Link to={"/"} className="header-logo">
 							<img src={network == "mainnet" ? devicePath("public/images/logo.svg") : devicePath("public/images/qdex-fantasy-light.svg")} width="220" />
 						</Link>
-						
+						<ProductsMenu network={network} className="ml-5" />
 					</div>
 					{/* <div className="price-stats d-flex">
 						<div>

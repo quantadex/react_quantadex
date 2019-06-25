@@ -4,6 +4,7 @@ import { css } from 'emotion';
 import Connect, { ConnectDialog } from '../../components/connect.jsx';
 import BuyQdex from '../../components/buy_qdex.jsx'
 import Menu from './menu.jsx'
+import ProductsMenu from '../../components/ui/products_menu.jsx'
 
 const container = css `
     min-height: 80px;
@@ -102,6 +103,8 @@ class Header extends Component {
             <div className={container + " px-4 px-md-5"}>
                 <div className="d-flex qt-font-normal align-items-center justify-content-between h-100">
                     <img className="logo" src="/public/images/dice/logo.svg" alt="QUANTA DICE" />
+					<ProductsMenu network={network} className="ml-0 ml-sm-5" />
+
                     <div className="w-100 position-relative">
                         <div  ref="Assets" className="avail-fund text-right cursor-pointer ml-auto">
                             { private_key && selected_asset ? 
