@@ -16,6 +16,7 @@ import MobileNav from './mobile_nav.jsx'
 import BetInfo from './bet_info.jsx'
 import Tutorial from './tutorial.jsx'
 import Jackpot from './pot.jsx'
+import Footer from './footer.jsx'
 import CONFIG from '../../config.js'
 
 const container = css `
@@ -191,7 +192,6 @@ const container = css `
     }
 
     .game-history {
-        min-height: 560px;
         background: #fff;
         flex-grow: 1;
     }
@@ -381,6 +381,7 @@ class DiceGame extends Component {
             modify_win: false,
             modify_win_amount: 0,
 
+            max_bet: false,
             sounds: true,
             stats: false,
             hot_keys: false,
@@ -705,20 +706,20 @@ class DiceGame extends Component {
     }
 
     render() {
-        const { name, userId, private_key, balance, history, dispatch } = this.props
+        const { name, userId, private_key, balance, history, dispatch, network } = this.props
         const { init, asset, auto, auto_rolling, fund, roll, roll_history, game_num, win_num, lose_num, wagered,
             net_gain, gain_history, auto_roll_limit, precision, precision_min,
             win_value, roll_over, amount, multiplier, chance,
             win_value_display, amount_display, multiplier_display, chance_display,
             stop_loss_amount_display, stop_profit_amount_display,
             modify_loss, modify_loss_amount, modify_win, modify_win_amount, show_roll,
-            sounds, stats, hot_keys, show_chat, show_bets, 
+            max_bet, sounds, stats, hot_keys, show_chat, show_bets, 
             processing, bet_info, shared_message, show_tutorial } = this.state
         return (
             <div className={container + " d-flex flex-column"}>
                 <Header setAsset={this.setAsset.bind(this)} demo_fund={fund} />
                 <div className={"d-flex position-relative content-container" + (show_chat ? " show-chat" : "") + (show_bets ? " show-bets" : "")}>
-                    <Chat user={private_key ? name : ""} 
+                    <Chat user={private_key ? name : ""} network={network}
                         show_chat={show_chat}
                         display_bet={(id) => this.showBetDialog(id)} 
                         shared_message={shared_message} />
@@ -752,9 +753,13 @@ class DiceGame extends Component {
                                                     <div className="after d-flex">
                                                         <div className="mx-1 cursor-pointer" onClick={this.halfBet.bind(this)}>&frac12;</div>
                                                         <div className="mx-1 cursor-pointer" onClick={this.doubleBet.bind(this)}>2x</div>
-                                                        <div className="mx-1 cursor-pointer" onClick={() => {
-                                                            if(!auto_rolling && balance[asset]) this.setInputs("amount", balance[asset].balance)
-                                                        }}>MAX</div>
+                                                        { max_bet ?
+                                                            <div className="mx-1 cursor-pointer" onClick={() => {
+                                                                if(!auto_rolling && balance[asset]) this.setInputs("amount", balance[asset].balance)
+                                                            }}>MAX</div>
+                                                            : null
+                                                        }
+                                                        
                                                     </div>
                                                 }
                                             />
@@ -993,8 +998,10 @@ class DiceGame extends Component {
 
                                 <Toolbar 
                                     className="d-flex d-lg-none"
+                                    max_bet={max_bet}
                                     sounds={sounds}
                                     stats={stats}
+                                    toggleMaxBet={() => this.setState({max_bet: !max_bet})}
                                     toggleSounds={() => this.setState({sounds: !sounds})}
                                     toggleStats={() => this.setState({stats: !stats})}
                                 />
@@ -1015,9 +1022,11 @@ class DiceGame extends Component {
 
                             <Toolbar 
                                 className="d-none d-lg-flex"
+                                max_bet={max_bet}
                                 sounds={sounds}
                                 stats={stats}
                                 hot_keys={hot_keys}
+                                toggleMaxBet={() => this.setState({max_bet: !max_bet})}
                                 toggleSounds={() => this.setState({sounds: !sounds})}
                                 toggleStats={() => this.setState({stats: !stats})}
                                 toggleHotkeys={() => this.setState({hot_keys: !hot_keys})}
@@ -1026,7 +1035,9 @@ class DiceGame extends Component {
                         <div className="game-history mt-5 d-flex flex-column">
                             <RollHistory userId={private_key && userId} show_info={(id) => this.showBetDialog(id)} />
                             <Jackpot init={init} asset={asset} precision={precision} />
+                            <Footer network={network} />
                         </div>
+                        
                     </div>
                 </div>
                 <MobileNav 
@@ -1044,7 +1055,7 @@ class DiceGame extends Component {
                 }
 
                 { show_tutorial ?
-                    <Tutorial dispatch={dispatch} close={() => {
+                    <Tutorial dispatch={dispatch} has_account={name && true} close={() => {
                         this.setState({show_tutorial: false}, localStorage.setItem("dice_start", true))
                     }} />
                     : null
@@ -1056,6 +1067,7 @@ class DiceGame extends Component {
 }
 
 const mapStateToProps = (state) => ({
+    network: state.app.network,
     private_key: state.app.private_key,
     name: state.app.name,
     userId: state.app.userId,

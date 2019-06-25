@@ -19,7 +19,7 @@ const container = css `
         font-size: 25px;
         font-weight: bold;
         text-align: center;
-        width: 40px;
+        width: 30px;
         animation: 0.3s ease-out flipIn;
     }
 

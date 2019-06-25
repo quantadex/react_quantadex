@@ -87,19 +87,19 @@ export default class ProductsMenu extends React.Component {
                         <div className="icon">
                             <img src="/public/images/advanced-trader-interface.svg" />
                         </div>
-                        <img src="/public/images/quanta_dex_link.svg" />
+                        <img src="/public/images/quantadex_link.svg" />
                     </Link>
                     <Link to={"/" + network + "/dice"}>
                         <div className="icon">
                             <img src="/public/images/dice.svg" />
                         </div>
-                        <img src="/public/images/quanta_dice_link.svg" />
+                        <img src="/public/images/quantadice_link.svg" />
                     </Link>
                     <a href={"http://explorer.quantadex.com/" + network}>
                         <div className="icon">
                             <img src="/public/images/explorer.svg" />
                         </div>
-                        <img src="/public/images/quanta_explorer_link.svg" />
+                        <img src="/public/images/quantaexplorer_link.svg" />
                     </a>
                 </div>
                 : null

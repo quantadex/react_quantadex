@@ -107,7 +107,7 @@ export default class Tutorial extends Component {
                     <div className="card mx-3 mx-sm-5">
                         <div className="step">2</div>
                         Roll<br/> Your Dice
-                        <img src="/public/images/dice/dice-gold.svg" />
+                        <img src="/public/images/dice/dice_gold.svg" />
                     </div>
                     <div className="card">
                         <div className="step">3</div>
@@ -157,11 +157,7 @@ export default class Tutorial extends Component {
 
                 <h3 className="mt-5">Fees</h3>
                 <p>
-                    <b>4%</b> Standard Fees<br/>
-                    Fees are deducted from the payout in the asset you put at risk.<br/>
-                    <br/>
-                    Save <b>50%</b> on fees when paid in QDEX.<br/>
-                    Maintain your QDEX balance above the fees * exchange rates & the system will automatic deduct the discounted fees.
+                    The house holds 3% edge on winnings which contributes to the jackpot, and a 0.01 QDEX platform fee.
                 </p>
 
                 <h3 className="mt-5">Referral Program</h3>

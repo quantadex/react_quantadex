@@ -36,22 +36,28 @@ export default class Toolbar extends Component {
     }
 
     render() {
-        const { sounds, hot_keys, stats, toggleSounds, toggleHotkeys, toggleStats, className } = this.props
+        const { max_bet, sounds, hot_keys, stats, toggleMaxBet, toggleSounds, toggleHotkeys, toggleStats, className } = this.props
         
         return (
             <React.Fragment>
                 <div className={container + " toolbar-container justify-content-center qt-font-extra-small text-center " + (className || "")}>
+                    <div className={"cursor-pointer mx-5" + (max_bet ? "" : " inactive")}
+                        onClick={toggleMaxBet}
+                    >
+                        <img src={"/public/images/dice/maxbet_icon.svg"} />
+                        <label>Max Bet</label>
+                    </div>
                     <div className={"cursor-pointer mx-5" + (sounds ? "" : " inactive")}
                         onClick={toggleSounds}
                     >
-                        <img src={"/public/images/dice/sound-icon.svg"} />
+                        <img src={"/public/images/dice/sound_icon.svg"} />
                         <label>Sounds</label>
                     </div>
                     { hot_keys !== undefined ?
                         <div className={"cursor-pointer mx-5" + (hot_keys ? "" : " inactive")}
                             onClick={toggleHotkeys}
                         >
-                            <img src={"/public/images/dice/hot-keys.svg"} />
+                            <img src={"/public/images/dice/hot_keys.svg"} />
                             <label>Hot Keys</label>
                         </div>
                         : null
@@ -60,7 +66,7 @@ export default class Toolbar extends Component {
                     <div className={"cursor-pointer mx-5" + (stats ? "" : " inactive")}
                         onClick={toggleStats}
                     >
-                        <img src={"/public/images/dice/live-stats.svg"} />
+                        <img src={"/public/images/dice/live_stats.svg"} />
                         <label>Live Stats</label>
                     </div>
                 </div>

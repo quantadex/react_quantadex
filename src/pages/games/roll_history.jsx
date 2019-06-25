@@ -211,7 +211,7 @@ export default class RollHistory extends Component {
                     switchTab = {(index) => {
                         if (index != tab_index && (index != 0 || userId)) {
                             this.last_operation_id_num = null
-                            this.setState({tab_index: index, history: []})
+                            this.setState({tab_index: index, history: undefined})
                         }
                             
                     }}

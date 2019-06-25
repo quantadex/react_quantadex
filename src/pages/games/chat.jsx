@@ -85,7 +85,7 @@ export default class Chat extends Component {
               messagingSenderId: "81485966475",
               appId: "1:81485966475:web:dbb871925a9b99a2"
             },
-            channel: 'test',
+            channel: this.props.network + '_channel_1',
             user: 'anonymous',
             delayRender: false
         }
