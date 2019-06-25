@@ -103,6 +103,7 @@ export default class RollHistory extends Component {
             { mode: "cors" }
         ).then(e => e.json())
         .then(async (e) => {
+            if (tab_index != this.state.tab_index) return
             const list = []
             for (let op of e) {
                 if (op.operation_id_num == this.last_operation_id_num) break
@@ -215,7 +216,6 @@ export default class RollHistory extends Component {
                             this.buffer = []
                             this.setState({tab_index: index, history: undefined})
                         }
-                            
                     }}
                 />
                 { history ? 
