@@ -109,7 +109,7 @@ class Header extends Component {
                         <div  ref="Assets" className="avail-fund text-right cursor-pointer ml-auto">
                             { private_key && selected_asset ? 
                                 balance[selected_asset].balance + " " + balance[selected_asset].symbol.split('0X')[0] + " " + String.fromCharCode(9662)  
-                                : (demo_fund/Math.pow(10, 8)).toFixed(8) + " BTC"}
+                                : (demo_fund/Math.pow(10, 5)).toFixed(5) + " BTC"}
                         </div>
                         { show_assets ?
                             <div className="assets-list text-right">

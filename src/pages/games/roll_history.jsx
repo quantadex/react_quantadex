@@ -8,6 +8,7 @@ import CONFIG from '../../config.js'
 
 const container = css `
     width: 100%;
+    min-height: 490px;
     max-width: 1200px;
 
     .roll-table-container {
@@ -211,6 +212,7 @@ export default class RollHistory extends Component {
                     switchTab = {(index) => {
                         if (index != tab_index && (index != 0 || userId)) {
                             this.last_operation_id_num = null
+                            this.buffer = []
                             this.setState({tab_index: index, history: undefined})
                         }
                             
