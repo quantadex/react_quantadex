@@ -684,7 +684,7 @@ class DiceGame extends Component {
             case "amount":
                 return setAmount(type, Math.max(value, precision_min))
             case "win_value":
-                win_value = value < 1 ? 1 : Math.min(value, 99)
+                win_value = roll_over ? Math.max(4, Math.min(value, 99)) : Math.max(1, Math.min(value, 96))
                 chance = roll_over ? 100 - win_value : win_value
                 multiplier = (100/chance)*(1-((window.roll_dice_percent_of_fee || 0)/10000))
                 return setMultiState(win_value, chance, multiplier)

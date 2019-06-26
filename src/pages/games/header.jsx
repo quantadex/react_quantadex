@@ -16,13 +16,15 @@ const container = css `
     z-index: 999;
 
     .logo {
-        max-width: 30%;
+        max-width: 185px;
+        height: 100%;
+        max-height: 40px;
     }
 
     .avail-fund {
         position: relative;
         width: min-content;
-        min-width: 160px;
+        min-width: 140px;
         max-width: 200px;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -102,8 +104,8 @@ class Header extends Component {
         return (
             <div className={container + " px-4 px-md-5"}>
                 <div className="d-flex qt-font-normal align-items-center justify-content-between h-100">
-                    <img className="logo" src="/public/images/dice/logo.svg" alt="QUANTA DICE" />
-					<ProductsMenu network={network} className="ml-0 ml-sm-5" />
+                    <img className="logo" src="/public/images/quantadice_link.svg" alt="QUANTA DICE" />
+					<ProductsMenu network={network} className="ml-2 ml-sm-5" />
 
                     <div className="w-100 position-relative">
                         <div  ref="Assets" className="avail-fund text-right cursor-pointer ml-auto">
@@ -129,7 +131,7 @@ class Header extends Component {
                             : null
                         } 
                     </div>
-                    <div className="d-flex align-items-center ml-5">
+                    <div className="d-flex align-items-center ml-2 ml-sm-5">
                         {private_key ? 
                             <div className="d-none d-md-block mr-4">{name}</div> // <Connect type="lock" /></div> 
                             : <div className="d-none d-md-block"><Connect type="link" /></div> 
