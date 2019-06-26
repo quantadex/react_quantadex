@@ -227,7 +227,7 @@ class BuyQdex extends Component {
                         <div>
                             <p>Your wallet does not have enough QDEX to pay for current transaction.</p>
                             <b>Current: </b><span>{balance['QDEX'] ? balance['QDEX'].balance : 0} QDEX</span><br/>
-                            <b>Platform fees: </b><span>{fee.amount} QDEX (per trade)</span>
+                            <b>Platform fees: </b><span>{location.pathname.includes("net/dice") ? "0.01" : fee.amount} QDEX (per trade)</span>
                         </div>
 
                         <div className="inputs d-flex my-5">
