@@ -187,7 +187,7 @@ export default class Tutorial extends Component {
                     <div className="header d-flex py-4 px-5">
                         <img src="/public/images/dice/logo.svg" />
                         <div className="w-100 align-self-center">
-                            Roll & Win Up to 99X in Cryptos
+                            Roll & Win Up to 100X in Cryptos
                         </div>
                     </div>
                     {this.Screens[index]}

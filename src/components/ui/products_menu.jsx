@@ -26,7 +26,7 @@ const container = css`
         position: absolute;
         top: -20px;
         left: 50%;
-        transform: translateX(-50%);
+        transform: translateX(-50%) scaleX(1.5);
     }
 
     a {

@@ -18,7 +18,6 @@ const container = css `
     .logo {
         max-width: 185px;
         height: 100%;
-        max-height: 40px;
     }
 
     .avail-fund {
@@ -104,7 +103,7 @@ class Header extends Component {
         return (
             <div className={container + " px-4 px-md-5"}>
                 <div className="d-flex qt-font-normal align-items-center justify-content-between h-100">
-                    <img className="logo" src="/public/images/quantadice_link.svg" alt="QUANTA DICE" />
+                    <img className="logo" src="/public/images/dice/logo.svg" alt="QUANTA DICE" />
 					<ProductsMenu network={network} className="ml-2 ml-sm-5" />
 
                     <div className="w-100 position-relative">
