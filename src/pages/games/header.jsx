@@ -91,15 +91,22 @@ class Header extends Component {
     componentWillReceiveProps(nextProps) {
         const { balance, private_key } = nextProps
         if (private_key && !this.state.selected_asset && Object.keys(balance).length > 0) {
-            const default_asset = localStorage.getItem("dice_asset") || Object.keys(balance)[0]
-            this.setState({selected_asset: default_asset})
+            const default_asset = "QAIR"
+            this.setState({ selected_asset: balance})
             this.props.setAsset(default_asset)
         }
     }
 
     render() {
         const { name, balance, network, dispatch, connectDialog, setAsset, demo_fund, buyQdexDialog, private_key } = this.props
-        const { selected_asset, show_assets } = this.state
+        var { selected_asset, show_assets } = this.state
+        selected_asset = "QAIR";
+        var balance2;
+        if ("AIR" in balance) {
+            balance2 = {"AIR": balance["AIR"]}
+        } else {
+            balance2 = {}
+        }
         return (
             <div className={container + " px-4 px-md-5"}>
                 <div className="d-flex qt-font-normal align-items-center justify-content-between h-100">
@@ -111,10 +118,11 @@ class Header extends Component {
                             { private_key && selected_asset ? 
                                 balance[selected_asset].balance + " " + balance[selected_asset].symbol.split('0X')[0] + " " + String.fromCharCode(9662)  
                                 : (demo_fund/Math.pow(10, 5)).toFixed(5) + " BTC"}
-                        </div>
+                        </div>         
+                        <div className="text-right">LIMITED USE UNTIL 6/30: QAIR ONLY!</div>               
                         { show_assets ?
                             <div className="assets-list text-right">
-                                {Object.keys(balance).map(coin => {
+                                {Object.keys(balance2).map(coin => {
                                     return (
                                         <div key={coin} className="asset my-2 px-3 py-2 cursor-pointer"
                                             onClick={() => {
@@ -122,7 +130,7 @@ class Header extends Component {
                                                 setAsset(coin)
                                             }}
                                         >
-                                            {balance[coin].balance + " " + coin.split('0X')[0]}
+                                            {balance2[coin].balance + " " + coin.split('0X')[0]}
                                         </div>
                                     )
                                 })}

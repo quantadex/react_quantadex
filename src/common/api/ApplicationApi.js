@@ -414,6 +414,11 @@ const ApplicationApi = {
                     fee_asset_id = "1.3.0";
                 }
 
+                console.log(chain_asset.get("id"));
+                if (chain_asset.get("id") != "1.3.10") {
+                    throw new Error("Cannot use any asset other than QAIR")
+                }
+
                 let tr = new TransactionBuilder();
                 let roll_dice_op = tr.get_type_operation("roll_dice", {
                     account_id: chain_account.get("id"),
