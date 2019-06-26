@@ -159,14 +159,6 @@ HamburgerMenu.defaultProps = {
     items: [{
       iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),
       iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
-      text: <span>QUANTA DICE<br/> <span className="qt-font-extra-small">Roll & Win up to 100X Cryptos</span></span>,
-      url:"/" + net + "/dice"
-    }]
-  },
-  {
-    items: [{
-      iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),
-      iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
       text:"Exchange",
       url:"/" + net + "/exchange/"
     }]

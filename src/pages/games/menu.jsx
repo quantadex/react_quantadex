@@ -43,10 +43,6 @@ export default class Menu extends Component {
         
         const { dispatch } = this.props
         this.menuItems = [
-            {label : "QUANTADEX", 
-                link: `/${this.props.network}/exchange`, 
-                disabled: () => { return false }
-            },
             {label : "Connect Wallet", 
                 onClick: () => {
                 dispatch({
