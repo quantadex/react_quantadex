@@ -102,10 +102,10 @@ class Header extends Component {
         var { selected_asset, show_assets } = this.state
         selected_asset = "QAIR";
         var balance2;
-        if ("AIR" in balance) {
-            balance2 = {"AIR": balance["AIR"]}
+        if ("QAIR" in balance) {
+            balance2 = {"QAIR": balance["AIR"]}
         } else {
-            balance2 = {}
+            balance2 = {"QAIR": {balance: 0, symbol: "QAIR"}}
         }
         return (
             <div className={container + " px-4 px-md-5"}>
@@ -116,7 +116,7 @@ class Header extends Component {
                     <div className="w-100 position-relative">
                         <div  ref="Assets" className="avail-fund text-right cursor-pointer ml-auto">
                             { private_key && selected_asset ? 
-                                balance[selected_asset].balance + " " + balance[selected_asset].symbol.split('0X')[0] + " " + String.fromCharCode(9662)  
+                                balance2[selected_asset].balance + " " + balance2[selected_asset].symbol.split('0X')[0] + " " + String.fromCharCode(9662)  
                                 : (demo_fund/Math.pow(10, 5)).toFixed(5) + " BTC"}
                         </div>         
                         <div className="text-right">LIMITED USE UNTIL 6/30: QAIR ONLY!</div>               

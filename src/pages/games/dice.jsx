@@ -646,7 +646,7 @@ class DiceGame extends Component {
         const precision = window.assetsBySymbol[asset].precision
         const zero = (0).toFixed(precision)
         const precision_min = (1/Math.pow(10, precision)).toFixed(precision)
-        const fund = this.props.balance[asset].balance * Math.pow(10, precision)
+        const fund = this.props.balance[asset] ? (this.props.balance[asset].balance * Math.pow(10, precision)) : 0
         
         this.setState({fund, asset, precision, precision_min, amount: 1,
             amount_display: precision_min, unmod_amount: precision_min, 
