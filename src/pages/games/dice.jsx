@@ -648,10 +648,9 @@ class DiceGame extends Component {
         const precision_min = (1/Math.pow(10, precision)).toFixed(precision)
         const fund = this.props.balance[asset].balance * Math.pow(10, precision)
         
-        this.setState({fund, asset, precision, precision_min, amount: 1,
-            amount_display: precision_min, unmod_amount: precision_min, 
+        this.setState({fund, asset, precision, precision_min, unmod_amount: precision_min, 
             stop_loss_amount_display: zero, stop_profit_amount_display: zero,
-            wagered: 0, net_gain: 0, roll_history: Array(100), gain_history: [0]})
+            wagered: 0, net_gain: 0, roll_history: Array(100), gain_history: [0]}, () => this.setInputs("amount", precision_min))
         localStorage.setItem("dice_asset", asset)
     }
 
@@ -666,7 +665,7 @@ class DiceGame extends Component {
 
     setInputs(type, val) {
         const self = this
-        const { precision, roll_over, precision_min } = this.state
+        const { asset, precision, roll_over, precision_min } = this.state
         const value = parseFloat(val) || 0
         let win_value, chance, multiplier
 
@@ -677,6 +676,11 @@ class DiceGame extends Component {
         }
         
         function setAmount(key, value) {
+            if (key == "amount") {
+                const mins = {BTC: 0.00005, ETH: 0.0001, TUSD: 0.10, BCH: 0.0001, LTC: 0.0001, QDEX: 0.10, QAIR: 1}
+                value = Math.max(value, mins[asset.split("0X")[0]] || 0.0001)
+            }
+            
             self.setState({[key]: Math.round(value*Math.pow(10, precision)), [key+"_display"]: value.toFixed(precision)})
         }
 
