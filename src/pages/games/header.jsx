@@ -131,7 +131,7 @@ class Header extends Component {
                             : null
                         } 
                     </div>
-                    <div className="d-flex align-items-center ml-2 ml-sm-5">
+                    <div className="d-flex align-items-center ml-3 ml-sm-5">
                         {private_key ? 
                             <div className="d-none d-md-block mr-4">{name}</div> // <Connect type="lock" /></div> 
                             : <div className="d-none d-md-block"><Connect type="link" /></div> 
