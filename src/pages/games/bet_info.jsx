@@ -151,11 +151,8 @@ export default class BetInfo extends Component {
             this.setState({data: {name, tx_seed, chain_id, time, op: data.operation_history.op_object, precision, symbol, roll_over}})
         })
         .catch(() => {
-            setTimeout(() => {
-                this.componentDidMount()
-            }, 1000)
+            this.setState({data: null})
         })
-
     }
 
     render() {
@@ -167,13 +164,14 @@ export default class BetInfo extends Component {
                     <div className="close-btn cursor-pointer" onClick={close}>
                         <img src="/public/images/x_close.svg" height="12" alt="Close" />
                     </div>
-                    { data ?
+                    { data && data.op.payout ?
                         <React.Fragment>
                             <div className="bet-info text-center">
                                 <h4><b>BET #{id}</b>
                                     <img className="ml-2 cursor-pointer" 
                                         src="/public/images/share.svg" width="20"
                                         onClick={() => share("/bet " + id)}
+                                        title="Share to chat"
                                     />
                                 </h4>
                                 <p className="text-secondary">
@@ -233,7 +231,9 @@ export default class BetInfo extends Component {
                                 </div>
                             </div>
                         </React.Fragment>
-                        : <Loader type={"box"} margin={"auto"} className={"text-center"} />
+                        : data && !data.op.payout || data === null ?
+                            <div className="text-center">Unable to get BET #{id}</div>
+                            : <Loader type={"box"} margin={"auto"} className={"text-center"} />
                     }
                     
                 </div>
