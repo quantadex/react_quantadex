@@ -269,6 +269,7 @@ injectGlobal`
 
 	.__react_component_tooltip {
 		white-space: normal !important;
+		line-height: 20px;
 	}
 `
 

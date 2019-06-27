@@ -40,7 +40,7 @@ export const SmallToken = ({ name }) => {
 	return <span>{token[0]}</span>//{token[1] ? "0x" + token[1].substr(0, 4) : ""}</span>
 }
 
-export const SymbolToken = ({ name, showIcon = true, withLink= true }) => {
+export const SymbolToken = ({ name, showIcon = true, withLink = true, tooltip = true }) => {
 	if (name === undefined || name === null) {
 		return "INVALID"
 	}
@@ -62,7 +62,8 @@ export const SymbolToken = ({ name, showIcon = true, withLink= true }) => {
 				<img src={devicePath("public/images/crosschain-coin.svg")} 
 				data-tip={(token[1] ? "ERC20: 0x" + token[1].substr(0, 4) : assetsBySymbol[token[0]].options.description) + "<br/>Secure by Crosschain"} 
 				data-place="right" />
-				<ReactTooltip clickable={true} html={true} />
+				{tooltip ? <ReactTooltip clickable={true} html={true} /> : null}
+				
 			</span>
 			: null
 		}</span>

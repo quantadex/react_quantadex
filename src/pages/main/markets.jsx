@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Apis } from "@quantadex/bitsharesjs-ws";
 import lodash from 'lodash';
 import { css } from 'emotion';
+import Ticker, { SymbolToken } from '../../components/ui/ticker.jsx'
 
 const wsString = "wss://mainnet-api.quantachain.io:8095"
 
@@ -80,6 +81,10 @@ const container = css`
     .trade-link {
         background-color: #66d7d7;
         color: #fff;
+    }
+
+    .symbol a {
+        color: #6c757d;
     }
 
     .issuer-tag {
@@ -163,6 +168,7 @@ export default class MarketBox extends Component {
                 .then((e) => {
                     window.binance_data = {}
                     const markets = e;
+                    window.coin_info = markets.coin_info
                     this.getMarketsData(markets, true)
                     setInterval(() => {
                         this.getMarketsData(markets)
@@ -170,20 +176,6 @@ export default class MarketBox extends Component {
                 })
             })
         })
-    }
-
-    SymbolToken = ({ name, withLink= true }) => {
-        const token = name.split("0X")
-    
-        return (<span className={container + " symbol"}>{token[0]}{token[1] && 
-            (withLink ? 
-            <a className="issuer-tag"
-                href={"https://etherscan.io/token/0x" + token[1]} target="_blank">0x{token[1].substr(0, 4)}</a>
-            
-            : <span className="issuer-tag">0x{token[1].substr(0, 4)}</span>)
-            }
-            </span>
-        )
     }
 
     render() {
@@ -226,8 +218,8 @@ export default class MarketBox extends Component {
                                         const percent_change = market.latest == 0 && binance_market ? binance_market.change : market.percent_change 
                                         return (
                                             <tr key={market.pair} className="border-bottom">
-                                                <td><a className="text-secondary" href={"/mainnet/exchange/" + market.pair.replace("/", "_") + location.search}><this.SymbolToken name={pairs[0]} withLink={false} />/<this.SymbolToken name={pairs[1]} withLink={false} /></a></td>
-                                                <td><this.SymbolToken name={pairs[0]} /></td>
+                                                <td><a className="text-secondary" href={"/mainnet/exchange/" + market.pair.replace("/", "_") + location.search}><Ticker ticker={market.pair} /></a></td>
+                                                <td><SymbolToken name={pairs[0]} /></td>
                                                 {/* <td className="text-right">{this.maxPrecision(market.latest, precision)}</td> */}
                                                 <td className="text-right blue">
                                                     {market.latest == 0 ? 
@@ -247,7 +239,7 @@ export default class MarketBox extends Component {
                                                 <td className="text-right">{this.maxPrecision(market.highest_bid, precision)}</td> */}
                                                 <td className="text-right">{market.lowest_ask == 0 ? "-" : Number.parseFloat(market.lowest_ask).toFixed(5) }</td>
                                                 <td className="text-right">{market.highest_bid == 0 ? "-" : Number.parseFloat(market.highest_bid).toFixed(5) }</td>
-                                                <td className="text-right">{market.base_volume + ' '} <this.SymbolToken name={pairs[1]} /></td>
+                                                <td className="text-right">{market.base_volume + ' '} <SymbolToken name={pairs[1]} tooltip={false} /></td>
                                             </tr>
                                         )
                                     })}
@@ -268,7 +260,7 @@ export default class MarketBox extends Component {
                                         const binance_market = window.binance_data[market.pair]
                                         return (
                                             <tr key={market.pair} className="border-bottom">
-                                                <td><a className="text-secondary" href={"/mainnet/exchange/" + market.pair.replace("/", "_") + location.search}><this.SymbolToken name={pairs[0]} withLink={false} />/<this.SymbolToken name={pairs[1]} withLink={false} /></a></td>
+                                                <td><a className="text-secondary" href={"/mainnet/exchange/" + market.pair.replace("/", "_") + location.search}><SymbolToken name={pairs[0]} withLink={false} />/<SymbolToken name={pairs[1]} withLink={false} /></a></td>
                                                 <td className="text-right blue">
                                                     {market.latest == 0 ? 
                                                         market.lowest_ask != 0 && market.highest_bid != 0 ?
@@ -278,7 +270,7 @@ export default class MarketBox extends Component {
                                                                 : "-"
                                                     : Number.parseFloat(market.latest).toFixed(5) }
                                                 </td>
-                                                <td className="text-right">{market.base_volume + ' '} <this.SymbolToken name={pairs[1]} /></td>
+                                                <td className="text-right">{market.base_volume + ' '} <SymbolToken name={pairs[1]} tooltip={false} /></td>
                                             </tr>
                                         )
                                     })}
