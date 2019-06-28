@@ -15,6 +15,7 @@ import Toolbar from './toolbar.jsx'
 import MobileNav from './mobile_nav.jsx'
 import BetInfo from './bet_info.jsx'
 import Tutorial from './tutorial.jsx'
+import ConnectPrompt from './connect_prompt.jsx'
 import Jackpot from './pot.jsx'
 import Footer from './footer.jsx'
 import CONFIG from '../../config.js'
@@ -363,8 +364,8 @@ class DiceGame extends Component {
             win_value: 50,
             roll_over: true,
             win_value_display: "50",
-            amount: 1,
-            amount_display: "0.00001",
+            amount: 5,
+            amount_display: "0.00005",
             unmod_amount: 1,
             multiplier: 1.98039,
             multiplier_display: "2.000",
@@ -390,6 +391,7 @@ class DiceGame extends Component {
             bet_info: null,
             shared_message: null,
             show_tutorial: !localStorage.getItem("dice_start"),
+            connect_prompt: 0
         }
 
         this.init = false
@@ -556,7 +558,7 @@ class DiceGame extends Component {
     rollDice() {
         const { dispatch, private_key } = this.props
         const { win_value, game_num, amount, fund, roll_history, multiplier,
-            auto_rolling, auto_roll_num, auto_roll_limit, wagered, asset, roll_over } = this.state
+            auto_rolling, auto_roll_num, auto_roll_limit, wagered, asset, roll_over, connect_prompt } = this.state
 
         if (auto_rolling && auto_roll_limit > 0 && auto_roll_num == auto_roll_limit) {
             this.stopAutoRoll()
@@ -581,10 +583,12 @@ class DiceGame extends Component {
 
         const roll = (Math.random() < 0.5 ? Math.random() * 100 : Math.abs(parseFloat(Math.random().toFixed(6)) - 0.999999) * 100).toFixed(0)
         const win = (roll_over && roll >= win_value) || (!roll_over && roll <= win_value)
-        this.setState({roll, roll_history: [...roll_history, [roll, win ? 1 : 0 ]].slice(-100), 
+        this.setState({roll, roll_history: [...roll_history, [roll, win ? 1 : 0 ]].slice(-100), connect_prompt: connect_prompt + 1,
             game_num: game_num + 1, message: false, auto_roll_num: auto_roll_num + 1, wagered: wagered + amount},
             () => win ? this.onWin(amount * multiplier - amount) : this.onLose(-1*amount)
         )
+
+        if (connect_prompt + 1 > 9 && auto_rolling) this.stopAutoRoll()
 
         setTimeout(() => {
             this.setState({processing: false})
@@ -718,7 +722,7 @@ class DiceGame extends Component {
             stop_loss_amount_display, stop_profit_amount_display,
             modify_loss, modify_loss_amount, modify_win, modify_win_amount, show_roll,
             max_bet, sounds, stats, hot_keys, show_chat, show_bets, 
-            processing, bet_info, shared_message, show_tutorial } = this.state
+            processing, bet_info, shared_message, show_tutorial, connect_prompt } = this.state
         return (
             <div className={container + " d-flex flex-column"}>
                 <Header setAsset={this.setAsset.bind(this)} demo_fund={fund} />
@@ -1062,6 +1066,11 @@ class DiceGame extends Component {
                     <Tutorial dispatch={dispatch} has_account={name && true} close={() => {
                         this.setState({show_tutorial: false}, localStorage.setItem("dice_start", true))
                     }} />
+                    : null
+                }
+
+                { connect_prompt > 9 ?
+                    <ConnectPrompt dispatch={dispatch} close={() => this.setState({connect_prompt: 0})} />
                     : null
                 }
 				<ToastContainer />
