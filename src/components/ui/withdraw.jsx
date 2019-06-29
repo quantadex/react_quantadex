@@ -251,11 +251,18 @@ class QTWithdraw extends React.Component {
   }
 
   Withdraw() {
+    const { handleClick } = this.props
+    const { isCrosschain, showTransfer, asset, issuer, amount, fee, error, errorMsg, memo } = this.state
+    const mins = {BTC: 0.00075, ETH: 0.015, LTC: 0.0015, BCH: 0.0015}
+    const withdraw_fees = {BTC: 0.0005, ETH: 0.005, LTC: 0.0005, BCH: 0.0005}
+
+    const min_amount = mins[asset] || (asset.split('0X').length == 2 ? 0.015 : 0)
+    const withdraw_fee = withdraw_fees[asset] || (asset.split('0X').length == 2 ? 0.005 : 0)
     return (
       <div className="input-container">
-        <div className="close-dialog cursor-pointer" onClick={this.props.handleClick}>Close</div>
-        {this.state.isCrosschain ? 
-          <div className="d-md-none toggle qt-font-small mb-3" onClick={this.toggleTransfer}>Switch to {this.state.showTransfer ? "Withdraw" : "Transfer"}</div> 
+        <div className="close-dialog cursor-pointer" onClick={handleClick}>Close</div>
+        {isCrosschain ? 
+          <div className="d-md-none toggle qt-font-small mb-3" onClick={this.toggleTransfer}>Switch to {showTransfer ? "Withdraw" : "Transfer"}</div> 
           : null}
         <div className="mb-3">
           <label className="my-0">DESTINATION ACCOUNT</label>
@@ -263,11 +270,11 @@ class QTWithdraw extends React.Component {
             data-tip="Withdraw requires funds to go back to the QUANTA cross-chain issuer for processing.">
               <img src={devicePath("public/images/question.png")} />
           </div>
-          <input type="text" readOnly value={this.state.issuer || ""}/>
+          <input type="text" readOnly value={issuer || ""}/>
         </div>
         <div className="mb-3">
           <label className="my-0">AMOUNT</label>
-          <input type="number" value={this.state.amount} onChange={(e) => this.setState({amount: Utils.maxPrecision(e.target.value, this.coin.precision)})}/>
+          <input type="number" value={amount} onChange={(e) => this.setState({amount: Utils.maxPrecision(e.target.value, this.coin.precision)})}/>
         </div>
         <div className="mb-3">
           <label className="my-0">BENEFICIARY ADDRESS</label>
@@ -275,39 +282,50 @@ class QTWithdraw extends React.Component {
             data-tip="Specify the outgoing address where you want to withdraw your tokens.">
               <img src={devicePath("public/images/question.png")} />
           </div>
-          {this.state.error && <span className="text-danger float-right">{this.state.errorMsg}</span>}
-          <input type="text" spellCheck="false" value={this.state.memo} 
+          {error && <span className="text-danger float-right">{errorMsg}</span>}
+          <input type="text" spellCheck="false" value={memo} 
             onChange={(e) => {
               this.setState({memo: e.target.value})
               this.validateAddress(e.target.value)
             }}/>
         </div>
-
+        { min_amount > 0 ? 
+          <span className={amount > 0 && amount < min_amount ? "text-danger" : ""}>* Widthdraw Minimum: {min_amount}</span> 
+          : null
+        }
         <div className="d-flex justify-content-between mt-3">
+          { withdraw_fee > 0 ? 
+            <div>
+              <b>WITHDRAW FEE</b><br/>
+              {withdraw_fee} {asset.split('0X')[0]}
+            </div>
+            : null
+          }
           <div>
             <b>TRANSACTION FEE</b><br/>
-            {this.state.fee.amount} {this.state.fee.asset}
+            {fee.amount} {fee.asset}
           </div>
+          
           <button className="cursor-pointer" onClick={() => this.confirmTransaction({type: "Withdraw"})}
-            disabled={this.state.memo.length == 0 || this.state.amount == 0 || this.state.error}>SEND</button>
+            disabled={memo.length == 0 || amount == 0 || amount < min_amount || error}>SEND</button>
         </div>
       </div>
     )
   }
 
   render() {
-    const {showTransfer, issuer, destination, amount, asset, fee, memo} = this.state
+    const {isCrosschain, showTransfer, confirmDialog, issuer, destination, amount, asset, fee, memo} = this.state
     return (
       <div className={container + " d-flex"}>
         <div className="d-none d-md-flex w-75 align-items-center position-relative">
-          {this.state.isCrosschain ? 
-            <div className="position-absolute toggle qt-font-small" onClick={this.toggleTransfer}>Switch to {this.state.showTransfer ? "Withdraw" : "Transfer"}</div> 
+          {isCrosschain ? 
+            <div className="position-absolute toggle qt-font-small" onClick={this.toggleTransfer}>Switch to {showTransfer ? "Withdraw" : "Transfer"}</div> 
             : null}
           <this.CoinDetails />
         </div>
-        {this.state.showTransfer ? <this.Transfer /> : <this.Withdraw />}
+        {showTransfer ? <this.Transfer /> : <this.Withdraw />}
 
-        {this.state.confirmDialog && 
+        {confirmDialog && 
           <TxDialog data={{
               type: showTransfer ? "Transfer" : "Withdraw",
               destination: showTransfer ? destination : issuer,

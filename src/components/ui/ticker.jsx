@@ -19,6 +19,10 @@ const container = css`
 	.crosschain-icon {
 		margin-bottom: 2px;
 	}
+
+	a {
+		color: inherit !important;
+	}
 `
 
 export const Token = ({ name }) => {
