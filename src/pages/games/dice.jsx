@@ -361,14 +361,14 @@ class DiceGame extends Component {
             wagered: 0,
             net_gain: 0,
             gain_history: [0],
-            win_value: 50,
+            win_value: 51,
             roll_over: true,
             win_value_display: "50",
             amount: 5,
             amount_display: "0.00005",
             unmod_amount: 1,
             multiplier: 1.98039,
-            multiplier_display: "2.000",
+            multiplier_display: "2.00",
             chance: 49.99,
             chance_display: "50",
             auto_roll_limit: 0,
@@ -505,7 +505,7 @@ class DiceGame extends Component {
     changeSliderSide() {
         const { roll_over, win_value } = this.state
 
-        this.setInputs("win_value", 100 - win_value)
+        this.setInputs("win_value", 101 - win_value)
 
         const bar = document.getElementsByClassName("bar")
         bar[roll_over ? 0 : 1].classList.remove("gold")
@@ -582,7 +582,7 @@ class DiceGame extends Component {
         }
 
         const roll = (Math.random() < 0.5 ? Math.random() * 100 : Math.abs(parseFloat(Math.random().toFixed(6)) - 0.999999) * 100).toFixed(0)
-        const win = (roll_over && roll >= win_value) || (!roll_over && roll <= win_value)
+        const win = (roll_over && roll > win_value) || (!roll_over && roll < win_value)
         this.setState({roll, roll_history: [...roll_history, [roll, win ? 1 : 0 ]].slice(-100), connect_prompt: connect_prompt + 1,
             game_num: game_num + 1, message: false, auto_roll_num: auto_roll_num + 1, wagered: wagered + amount},
             () => win ? this.onWin(amount * multiplier - amount) : this.onLose(-1*amount)
@@ -692,8 +692,8 @@ class DiceGame extends Component {
             case "amount":
                 return setAmount(type, Math.max(value, precision_min))
             case "win_value":
-                win_value = roll_over ? Math.max(4, Math.min(value, 99)) : Math.max(1, Math.min(value, 96))
-                chance = roll_over ? 100 - win_value : win_value
+                win_value = roll_over ? Math.max(4, Math.min(value, 99)) : Math.max(2, Math.min(value, 97))
+                chance = roll_over ? 100 - win_value : win_value - 1
                 multiplier = (100/chance)*(1-((window.roll_dice_percent_of_fee || 0)/10000))
                 return setMultiState(win_value, chance, multiplier)
             // case "multiplier":
@@ -989,7 +989,7 @@ class DiceGame extends Component {
 
                                     <div className="slider-container mx-auto px-4 position-absolute">
                                         <div className="position-relative">
-                                            <div className={"roll-indicator" + ((roll_over && roll >= win_value) || (!roll_over && roll <= win_value)  ? " win" : "") + (show_roll ? " show" : "")} style={{left: roll + "%"}}>{roll}</div>
+                                            <div className={"roll-indicator" + ((roll_over && roll > win_value) || (!roll_over && roll < win_value)  ? " win" : "") + (show_roll ? " show" : "")} style={{left: roll + "%"}}>{roll}</div>
                                             <ReactSlider className="horizontal-slider" 
                                                 value={win_value}
                                                 min={1} 
