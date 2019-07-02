@@ -201,7 +201,7 @@ export async function fetchDataAsync(ticker) {
 	const trades = Apis.instance().history_api().exec("get_fill_order_history", [base.id, counter.id, 100]).then((filled) => {
 		const trade_history = convertHistoryToOrderedSet(filled, base.id)
 		// console.log("history filled ", filled);
-		//console.log("converted ", trade_history);
+		// console.log("converted ", trade_history);
 		return trade_history
 	})
 
