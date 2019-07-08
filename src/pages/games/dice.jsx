@@ -19,6 +19,7 @@ import ConnectPrompt from './connect_prompt.jsx'
 import Jackpot from './pot.jsx'
 import Footer from './footer.jsx'
 import CONFIG from '../../config.js'
+import ReactGA from 'react-ga';
 
 const container = css `
     height: 100vh;
@@ -414,10 +415,12 @@ class DiceGame extends Component {
 			const default_ticker = match && match.params.net == "testnet" ? "ETH/USD" : 'ETH/BTC'
             dispatch(switchTicker(default_ticker))
             dispatch(updateUserData())
-            
+        } 
+
+        if (!this.init) {
             this.changeSliderSide()
             this.init = true
-        } 
+        }
 
         if (!window.initAPI) {
             setTimeout(() => {
@@ -572,6 +575,12 @@ class DiceGame extends Component {
         this.setState({message: "", processing: true})
 
         if (private_key) {
+            ReactGA.event({
+                category: 'DICE',
+                action: "Roll_" + (auto_rolling ? "Auto" : "Manual"),
+                label: roll_over ? "Over" : "Under",
+                value: win_value
+            });
             dispatch(rollDice(amount, asset, (roll_over ? ">" : "<") + win_value.toFixed(0))).then(tx => {
                 this.getRollResult(tx, 1)
             }).catch(e => {
@@ -681,7 +690,7 @@ class DiceGame extends Component {
         
         function setAmount(key, value) {
             if (key == "amount") {
-                const mins = {BTC: 0.00005, ETH: 0.0001, TUSD: 0.10, BCH: 0.0001, LTC: 0.0001, QDEX: 0.10, QAIR: 1}
+                const mins = {BTC: 0.0001, ETH: 0.0001, TUSD: 0.10, BCH: 0.0001, LTC: 0.0001, QDEX: 0.10, QAIR: 1}
                 value = Math.max(value, mins[asset.split("0X")[0]] || 0.0001)
             }
             
@@ -830,7 +839,7 @@ class DiceGame extends Component {
                                                     label="PROFIT ON WIN"
                                                     type="number"
                                                     disabled={true}
-                                                    value={(((amount * multiplier) - amount) / Math.pow(10, precision)).toFixed(precision)}
+                                                    value={(Math.floor((amount * multiplier) - amount) / Math.pow(10, precision)).toFixed(precision)}
                                                     asset={asset}
                                                 />
                                             }
