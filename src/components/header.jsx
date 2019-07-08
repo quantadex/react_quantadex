@@ -15,6 +15,10 @@ const container = css`
 	width: 100%;
 	border-right: 2px solid #444;
 
+	.header-logo {
+		max-height: 35px;
+	}
+
 	.header-slogan {
 		margin-left: 8.5px;
 		display:inline-block;
