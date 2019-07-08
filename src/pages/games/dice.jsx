@@ -419,6 +419,7 @@ class DiceGame extends Component {
 
         if (!this.init) {
             this.changeSliderSide()
+            this.setInputs("amount", 0)
             this.init = true
         }
 
