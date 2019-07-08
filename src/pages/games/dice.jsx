@@ -807,7 +807,7 @@ class DiceGame extends Component {
                                                     label="PROFIT ON WIN"
                                                     type="number"
                                                     disabled={true}
-                                                    value={(((amount * multiplier) - amount) / Math.pow(10, precision)).toFixed(precision + 1).slice(0, -1)}
+                                                    value={(Math.ceil((amount * multiplier) - amount) / Math.pow(10, precision)).toFixed(precision)}
                                                     asset={asset}
                                                 />
                                             }
@@ -839,7 +839,7 @@ class DiceGame extends Component {
                                                     label="PROFIT ON WIN"
                                                     type="number"
                                                     disabled={true}
-                                                    value={(Math.floor((amount * multiplier) - amount) / Math.pow(10, precision)).toFixed(precision)}
+                                                    value={(Math.ceil((amount * multiplier) - amount) / Math.pow(10, precision)).toFixed(precision)}
                                                     asset={asset}
                                                 />
                                             }
