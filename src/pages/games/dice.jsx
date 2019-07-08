@@ -733,6 +733,7 @@ class DiceGame extends Component {
             modify_loss, modify_loss_amount, modify_win, modify_win_amount, show_roll,
             max_bet, sounds, stats, hot_keys, show_chat, show_bets, 
             processing, bet_info, shared_message, show_tutorial, connect_prompt } = this.state
+        const profit = amount * ((100/chance) - 1) - Math.floor(amount * ((100/chance) - 1) * (window.roll_dice_percent_of_fee || 0) / 10000)
         return (
             <div className={container + " d-flex flex-column"}>
                 <Header setAsset={this.setAsset.bind(this)} demo_fund={fund} />
@@ -808,7 +809,7 @@ class DiceGame extends Component {
                                                     label="PROFIT ON WIN"
                                                     type="number"
                                                     disabled={true}
-                                                    value={(Math.ceil((amount * multiplier) - amount) / Math.pow(10, precision)).toFixed(precision)}
+                                                    value={(profit / Math.pow(10, precision)).toFixed(precision)}
                                                     asset={asset}
                                                 />
                                             }
@@ -840,7 +841,7 @@ class DiceGame extends Component {
                                                     label="PROFIT ON WIN"
                                                     type="number"
                                                     disabled={true}
-                                                    value={(Math.ceil((amount * multiplier) - amount) / Math.pow(10, precision)).toFixed(precision)}
+                                                    value={(profit / Math.pow(10, precision)).toFixed(precision)}
                                                     asset={asset}
                                                 />
                                             }
