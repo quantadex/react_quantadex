@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>QUANTADEX | Blog</title>
+    <link>http://localhost:3000/blog/</link>
+    <description>Recent content on QUANTADEX | Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <copyright>Copyright © 2008–2018, Quanta Foundation, Ltd; all rights reserved.</copyright>
+    <lastBuildDate>Wed, 09 Apr 2014 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="http://localhost:3000/blog/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>About Hugo</title>
+      <link>http://localhost:3000/blog/about/</link>
+      <pubDate>Wed, 09 Apr 2014 00:00:00 +0000</pubDate>
+      
+      <guid>http://localhost:3000/blog/about/</guid>
+      <description>Hugo is the world’s fastest framework for building websites. It is written in Go.
+It makes use of a variety of open source projects including:
+ https://github.com/russross/blackfriday https://github.com/alecthomas/chroma https://github.com/muesli/smartcrop https://github.com/spf13/cobra https://github.com/spf13/viper  Learn more and contribute on GitHub.</description>
+    </item>
+    
+  </channel>
+</rss>
