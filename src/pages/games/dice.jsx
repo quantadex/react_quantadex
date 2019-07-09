@@ -567,7 +567,7 @@ class DiceGame extends Component {
 
     rollDice() {
         const { dispatch, private_key } = this.props
-        const { win_value, game_num, amount, fund, roll_history, multiplier,
+        const { win_value, game_num, amount, fund, roll_history, multiplier, chance,
             auto_rolling, auto_roll_num, auto_roll_limit, wagered, asset, roll_over, connect_prompt } = this.state
 
         if (auto_rolling && auto_roll_limit > 0 && auto_roll_num == auto_roll_limit) {
@@ -585,8 +585,8 @@ class DiceGame extends Component {
             ReactGA.event({
                 category: 'DICE',
                 action: "Roll_" + (auto_rolling ? "Auto" : "Manual"),
-                label: roll_over ? "Over" : "Under",
-                value: win_value
+                label: asset,
+                value: chance
             });
             dispatch(rollDice(amount, asset, (roll_over ? ">" : "<") + win_value.toFixed(0))).then(tx => {
                 this.getRollResult(tx, 1)
