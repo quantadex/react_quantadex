@@ -6,6 +6,7 @@ import { ToastContainer } from 'react-toastify';
 import {switchTicker, updateUserData, refreshData, rollDice} from "../../redux/actions/app.jsx";
 import ReactSlider from 'react-slider';
 import Utils from '../../common/utils.js'
+import { calculate_profit } from '../../common/dice.js'
 import Header from './header.jsx'
 import DiceInput from './input.jsx'
 import Stats from './stats.jsx'
@@ -733,7 +734,8 @@ class DiceGame extends Component {
             modify_loss, modify_loss_amount, modify_win, modify_win_amount, show_roll,
             max_bet, sounds, stats, hot_keys, show_chat, show_bets, 
             processing, bet_info, shared_message, show_tutorial, connect_prompt } = this.state
-        const profit = amount * ((100/chance) - 1) - Math.floor(amount * ((100/chance) - 1) * (window.roll_dice_percent_of_fee || 0) / 10000)
+        
+        const profit = (Number(calculate_profit(roll_over, win_value, BigInt(amount || 0), BigInt(window.roll_dice_percent_of_fee || 0)))/Math.pow(10, precision)).toFixed(precision)
         return (
             <div className={container + " d-flex flex-column"}>
                 <Header setAsset={this.setAsset.bind(this)} demo_fund={fund} />
@@ -809,7 +811,7 @@ class DiceGame extends Component {
                                                     label="PROFIT ON WIN"
                                                     type="number"
                                                     disabled={true}
-                                                    value={(profit / Math.pow(10, precision)).toFixed(precision)}
+                                                    value={profit}
                                                     asset={asset}
                                                 />
                                             }
@@ -841,7 +843,7 @@ class DiceGame extends Component {
                                                     label="PROFIT ON WIN"
                                                     type="number"
                                                     disabled={true}
-                                                    value={(profit / Math.pow(10, precision)).toFixed(precision)}
+                                                    value={profit}
                                                     asset={asset}
                                                 />
                                             }
