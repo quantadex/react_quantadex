@@ -147,12 +147,12 @@ export default class RollHistory extends Component {
         .then(() => {
             setTimeout(() => {
                 this.getRollHistory()
-            }, 1000)
+            }, 3000)
         })
         .catch(() => {
             setTimeout(() => {
                 this.getRollHistory()
-            }, 1000)
+            }, 6000)
         })
     }
 
