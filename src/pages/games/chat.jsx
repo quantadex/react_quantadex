@@ -2,37 +2,25 @@ import React, { Component } from 'react';
 import { css } from 'emotion';
 
 const container = css `
-    height: calc(100vh - 80px);
+    height: 100%;
     position: relative;
     background: #015249;
-    width: 350px;
+    width: 30%;
+    overflow: hidden;
 
     .messages {
-        height: calc(100% - 80px);
+        height: calc(100% - 70px);
         padding: 20px 14px 0px 20px;
-        overflow: hidden;
-        overflow-y: scroll;
-        cursor: default;
 
-		::-webkit-scrollbar {
-			width: 6px;
-			height: 6px;
-		}
-		
-		::-webkit-scrollbar-track {
-		background: transparent; 
-		}
-		
-		::-webkit-scrollbar-thumb {
-		background: rgba(0,0,0,0.1); 
-		}
-		
-		::-webkit-scrollbar-thumb:hover {
-		background: rgba(0,0,0,0.2); 
-		}
+        .bet-id {
+            text-decoration: underline;
+            cursor: pointer;
+            opacity: 0.7;
+        }
 
-		scrollbar-width: thin;
-		scrollbar-color: rgba(0,0,0,0.1) transparent;
+        .bet-id:hover {
+            opacity: 1;
+        }
     }
 
     .message {
@@ -62,6 +50,7 @@ const container = css `
             padding: 10px;
             border: 0;
             border-radius: 5px;
+            color: #555;
         }
 
         button {
@@ -96,7 +85,7 @@ export default class Chat extends Component {
               messagingSenderId: "81485966475",
               appId: "1:81485966475:web:dbb871925a9b99a2"
             },
-            channel: 'test',
+            channel: this.props.network + '_channel_1',
             user: 'anonymous',
             delayRender: false
         }
@@ -123,6 +112,15 @@ export default class Chat extends Component {
         if (nextProps.user != this.state.user) {
             this.setState({user: nextProps.user})
             this.setUser(nextProps.user)
+        }
+
+        if (nextProps.shared_message) {
+            const { message } = this.state
+            this.setState({message: (message ? message + " " + nextProps.shared_message : nextProps.shared_message) + " "})
+        }
+
+        if(nextProps.show_chat && !this.props.show_chat) {
+            this.scrollToBottom()
         }
     }
 
@@ -156,11 +154,11 @@ export default class Chat extends Component {
 
         this.ref = this.db.ref(`quantadice/${channel}`)
         this.ref.off('child_added', this.onMessage)
-        this.ref.limitToLast(20)
+        this.ref.limitToLast(50)
         .on('child_added', this.onMessage)
-        
+
         setTimeout(() => {
-            this.scrollToBottom()
+            this.scrollToBottom(false)
         }, 1000)
     }
     
@@ -181,17 +179,35 @@ export default class Chat extends Component {
         this.config.user = user
         this.onLoad(false)
     }
+
+    parseMessage(message, bet_ids = []) {
+        if (message.includes("/bet ")) {
+            message = message.replace(/\/bet /g, " /bet ").replace(/\s+/g,' ').trim()
+            let parseMsg
+            const arr = message.split(" ")
+            const bet_index = arr.indexOf("/bet")
+            bet_ids.push(arr[bet_index + 1])
+            arr.splice(bet_index, 2, "[bet]")
+            parseMsg = arr.join(" ")
+
+            return this.parseMessage(parseMsg, bet_ids)
+        }
+
+        return {message, bet_ids}
+    }
     
     post() {
-        if (!this.ref) {
+        if (!this.ref || !this.props.user) {
             return false
         }
         const { message } = this.state
         if (message) {
+            const parse_msg = this.parseMessage(message)
             this.ref.push().set({
                 user: this.config.user,
-                message: message,
-                date: Date.now() | 0
+                message: parse_msg.message,
+                bet_ids: parse_msg.bet_ids,
+                date: Date.now()
             })
             this.setState({message: ""}, () => this.scrollToBottom())
         }
@@ -205,7 +221,7 @@ export default class Chat extends Component {
           return false
         }
         
-        messages.push({name: value.user, message: value.message, ts: value.date})
+        messages.push({name: value.user, message: value.message, ts: value.date, bet_ids: value.bet_ids})
         this.setState(messages, () => {
             if (this.messagesEnd.getBoundingClientRect().top < window.innerHeight) {
                 this.scrollToBottom()
@@ -213,8 +229,11 @@ export default class Chat extends Component {
         })
     }
 
-    scrollToBottom = () => {
-        this.messagesEnd.scrollIntoView({ behavior: "smooth" });
+    scrollToBottom = (smooth = true) => {
+        setTimeout(() => {
+            if (this.refs.Chat.clientWidth == 0) return
+            this.messagesEnd.scrollIntoView({ behavior: smooth ? "smooth" : "auto" });
+        }, 100)
     }
 
     destroy () {
@@ -223,7 +242,8 @@ export default class Chat extends Component {
         }
     
         const script = document.querySelector(`#${this.scriptId}`)
-    
+        window.firebase = undefined
+
         if (script) {
           script.remove()
         }
@@ -233,17 +253,57 @@ export default class Chat extends Component {
         this.destroy()
     }
 
-    render() {
-        const { message, messages } = this.state
+    LinkedMessage(message, bet_ids) {
+        const arr = message.split("[bet]")
         return (
-            <div className={container}>
-                <div className="messages qt-font-small">
+            arr.map((text, index) => {
+                return (
+                    bet_ids && index < bet_ids.length && /^\d+$/.test(bet_ids[index]) ? 
+                        <React.Fragment key={index}>
+                            {text}<span className="bet-id" onClick={() => this.props.display_bet(bet_ids[index])}>
+                                bet: #{bet_ids[index]}
+                            </span>
+                        </React.Fragment>
+                    : bet_ids && index < bet_ids.length ? "bet: #" + text + bet_ids[index] : text
+                    
+                )
+            })
+        )
+    }
+
+    render() {
+        const { user } = this.props
+        const { message, messages } = this.state
+        let last_ts
+        let last_dt
+        return (
+            <div ref="Chat" className={container + " chat-container"}>
+                <div className="messages no-scrollbar qt-font-small">
                     { messages.map((msg) => {
+                        let date, time
+                        if (!last_ts || msg.ts - last_ts > 5 * 60 * 1000) {
+                            time = new Date(msg.ts)
+                            if (time.getDate() != last_dt) {
+                                date = time.getDate()
+                                last_dt = date
+                            }
+                        }
+                        last_ts = msg.ts
+                        
                         return (
-                            <div key={msg.name + msg.ts} className="message p-2 px-3 mb-3">
-                                <span className="name pr-2">{msg.name}:</span>
-                                <span className="msg">{msg.message}</span>
-                            </div>
+                            <React.Fragment  key={msg.name + msg.ts}>
+                                { time ? 
+                                    <div className="d-flex justify-content-between w-100 qt-font-extra-small qt-white-62">
+                                        <span>{date ? time.toLocaleDateString([], {weekday: "long"}) : ""}</span>
+                                        <span>{time.toLocaleTimeString([], {hour: "numeric", minute: "numeric"})}</span>
+                                    </div>
+                                    : null
+                                }
+                                <div className="message p-2 px-3 mb-3">
+                                    <span className="name pr-2">{msg.name}:</span>
+                                    <span className="msg">{this.LinkedMessage(msg.message, msg.bet_ids)}</span>
+                                </div>
+                            </React.Fragment>
                         )
                     })}
                     <div ref={(el) => { this.messagesEnd = el; }}/>
@@ -253,8 +313,9 @@ export default class Chat extends Component {
                     <textarea value={message}
                         className="w-100 qt-font-small"
                         type="text"
-                        placeholder="Type your message" 
+                        placeholder={user ? "Type your message" : "Login to use chat"}
                         autoComplete="off"
+                        disabled={!user}
                         onChange={(e) => this.setState({message: e.target.value})}
                         onKeyPress={e => {
                             if (e.key == "Enter") {

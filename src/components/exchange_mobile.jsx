@@ -21,11 +21,12 @@ import Ticker from './ui/ticker.jsx';
 import { css } from 'emotion'
 import globalcss from './global-css.js'
 import CONFIG from '../config.js'
-import { UPDATE_STORAGE, LOGIN, updateUserData, reconnectIfNeeded } from '../redux/actions/app.jsx'
+import { UPDATE_STORAGE, LOGIN, updateUserData, refreshData } from '../redux/actions/app.jsx'
 import { getItem, clear } from '../common/storage.js';
 import ExportKey from './export_key.jsx'
 import AppDownload from './app_download.jsx'
 import ReactTooltip from 'react-tooltip'
+import BuyQdex from './buy_qdex.jsx'
 
 function openAllLinksWithBlankTargetInSystemBrowser() {
     if ( typeof cordova === "undefined" || !cordova.InAppBrowser ) {
@@ -299,11 +300,11 @@ class Exchange extends Component {
 		}, false);
 
 		document.addEventListener("resume", () => {
-			dispatch(reconnectIfNeeded())
+			dispatch(refreshData())
 		}, false);
 
 		!window.isApp && window.addEventListener("focus", () => {
-			dispatch(reconnectIfNeeded())
+			dispatch(refreshData())
 		});
 	}
 
@@ -390,6 +391,8 @@ class Exchange extends Component {
 			case "settings": 
 				return {header: "Settings"}
 
+			case "buy_qdex": 
+				return {header: "Buy QDEX", left: () => this.handleSwitch(selectedTabIndex)}
 			case "chart": 
 				return {header: <this.MarketsList />, left: () => this.handleSwitch(selectedTabIndex)}
 			case "connect": 
@@ -423,11 +426,18 @@ class Exchange extends Component {
 			return (
 				<React.Fragment>
 					{!window.isApp ? <div className="mt-3"><this.MarketsList /></div> : null}
-					<Trade mobile={true} mobile_nav={() => this.handleSwitch("connect")} trade_side={params.trade_side || 0}/>
+					<Trade mobile={true} 
+						mobile_nav={(e) => this.handleSwitch(e)} 
+						trade_side={params.trade_side || 0}/>
 					<OrderBook mobile={true} mirror={true}/>
 					<TradingHistory mobile={true}/>
 					<ToastContainer />
 				</React.Fragment>
+			)
+		case "buy_qdex": 
+			return (
+				<BuyQdex isMobile={true} 
+					mobile_nav={(e) => this.handleSwitch(e)} />
 			)
 		case "wallet": 
 			if (publicKey) {
@@ -496,7 +506,7 @@ class Exchange extends Component {
 		return (
 		<div className={container + " d-flex flex-column" + (window.isApp ? " app" : " web")}>
 			{ app_download && web_android ?
-				<AppDownload />
+				<AppDownload close={() => this.setState({app_download: false})} />
 			: null
 			}
 			<MobileHeader header={this.Header(headerIndex)} mobile_nav={this.handleSwitch.bind(this)} />

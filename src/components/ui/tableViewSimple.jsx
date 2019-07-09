@@ -104,6 +104,22 @@ const container = css`
     right: 5px;
   }
 
+  .user-order::after {
+    content: "";
+    border: solid 4px transparent;
+    position: absolute;
+    transform: translateY(6px);
+  }
+
+  .left.user-order::after {
+    border-left-color: #fff;
+    left: 0;
+  }
+
+  .right.user-order::after {
+    border-right-color: #fff;
+    right: 0;
+  }
 `
 
 export default class QTTableViewSimple extends React.Component {
@@ -141,7 +157,7 @@ export default class QTTableViewSimple extends React.Component {
         {
           dataSource.map((row, index) => {
             return (
-              <tr key={row.id ? row.id + index : index}
+              <tr key={row.id ? row.id + index : index} className={row.is_user ? "user-order " + barDir : ""}
                 onClick={onAction ? () => onAction(row) : null}>
                 {columns.map((col, colindex) => {
                     var col_color = row[col.key];
@@ -178,7 +194,7 @@ export default class QTTableViewSimple extends React.Component {
                       return (
                         <td key={index + "-" + colindex} id={"cancel-" + row.id.replace(/\./g, '-')} className={col.float}>
                           {cancelling && cancelling[row.id] ?
-                            <Loader size={15} /> 
+                            <Loader size={15} margin="0 30px 0 auto" /> 
                             :
                             <QTButton className="grey inverse qt-font-semibold qt-font-base" 
                             borderWidth="1" width="66" height="18" label="CANCEL"

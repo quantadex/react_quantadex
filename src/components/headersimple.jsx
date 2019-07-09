@@ -39,11 +39,13 @@ const container = css`
 
 class Header extends Component {
 	render() {
-    const { network, currentTicker, name, connectDialog, dispatch } = this.props
+    const { network, currentTicker, name, connectDialog, dispatch, mobile, hash } = this.props
 		return (
       <React.Fragment>
         <div className={container + " qt-font-small d-flex justify-content-between align-items-center"}>
-          <Link to={"/" + network + "/exchange/" + (currentTicker ? currentTicker.replace("/", "_") : "")} className="back-link">Back to Exchange</Link>
+          <Link to={"/" + network + (hash == "#Dice" ? "/dice" : ("/exchange/" + (currentTicker ? currentTicker.replace("/", "_") : "")))} className="back-link">
+            {(mobile ? "" : "Back to ") + (hash == "#Dice" ? "Dice" : "Exchange")}
+          </Link>
 
           <Link to={"/" + network + "/exchange/" + (currentTicker ? currentTicker.replace("/", "_") : "")} className="logo"></Link>
             <div className="menu">

@@ -4,19 +4,21 @@ import {
   APPEND_TRADE, UPDATE_ORDER, UPDATE_OPEN_ORDERS, 
   SET_AMOUNT, UPDATE_USER_ORDER, UPDATE_TICKER, 
   UPDATE_TRADES, UPDATE_FEE, UPDATE_DIGITS, LOAD_FILLED_ORDERS ,
-  UPDATE_STORAGE, WEBSOCKET_STATUS
+  UPDATE_STORAGE, WEBSOCKET_STATUS,
+  UPDATE_ACCOUNT, UPDATE_BLOCK_INFO,
+  LOGIN, LOGOUT, TOGGLE_CONNECT_DIALOG, 
+  TOGGLE_BUY_QDEX_DIALOG
 } from "../actions/app.jsx";
-import { UPDATE_ACCOUNT, UPDATE_BLOCK_INFO } from "../actions/app.jsx";
-import { LOGIN, LOGOUT, TOGGLE_CONNECT_DIALOG } from "../actions/app.jsx";
 import { dataSize } from "../actions/app.jsx";
 import SortedSet from 'js-sorted-set'
 import { toast } from 'react-toastify';
 import Ticker, {SymbolToken} from '../../components/ui/ticker.jsx'
 import lodash from 'lodash'
 import moment from 'moment'
+import {clear} from '../../common/storage.js'
 
 let network = window.location.pathname.startsWith("/testnet") ? "testnet" : "mainnet"
-if (localStorage.env !== network) localStorage.clear()
+if (localStorage.env !== undefined && localStorage.env !== network) localStorage.clear()
 
 let initialState = {
   network: network,
@@ -33,11 +35,12 @@ let initialState = {
   tradeBook: { bids: [], asks: []},
   markets: [],
   currentPrice: undefined,
-  balance: [],
+  balance: {},
   vesting: [],
   genesis: [],
   ui: {
-    connectDialog: false
+    connectDialog: false,
+    buyQdexDialog: false
   },
   mostRecentTrade: {
     price: undefined
@@ -212,6 +215,7 @@ let initialState = {
     },
     spread: 0,
     spreadDollar:0,
+    user_orders: {},
     asks: {
       dataSource: new SortedSet({ comparator: function(a, b) { return parseFloat(a.price) - parseFloat(b.price); }}),
 
@@ -530,6 +534,7 @@ const app = (state = initialState, action) => {
 
     case USER_DATA:
       const onOrdersFund = {}
+      const user_orders = {}
       currentOrders = []
       const limitOrdersDataSource = action.data.openOrders.map((order) => {
         const tickerPair = [order.assets[order.sell_price.base.asset_id].symbol, order.assets[order.sell_price.quote.asset_id].symbol]
@@ -551,6 +556,15 @@ const app = (state = initialState, action) => {
         onOrdersFund[onOrderFeeAsset] = (onOrdersFund[onOrderFeeAsset] || 0) + onOrderFeeValue
         onOrdersFund[onOrderAsset] = (onOrdersFund[onOrderAsset] || 0) + onOrderValue
         currentOrders.push(order.id)
+
+        const user_orders_list = user_orders[ticker.join('/')]
+        if (user_orders_list) {
+          user_orders_list.push(order.getPrice())
+          user_orders[ticker.join('/')] = user_orders_list
+        } else {
+          user_orders[ticker.join('/')] = [order.getPrice()]
+        }
+
         return {
           assets: ticker.join('/'),
           pair: <Ticker ticker={ticker.join('/')} withLink={true} />,
@@ -567,12 +581,19 @@ const app = (state = initialState, action) => {
       
       var total_fund_value = 0
       const balances = action.data.accountData.length > 0 && action.data.accountData[0][1].balances.map((balance => {
+        
+        const symbol = window.assets[balance.asset_type].symbol
         const real_balance = balance.balance / (10 ** window.assets[balance.asset_type].precision)
-        const usd = state.usd_value[balance.asset_type] ? (real_balance + (onOrdersFund[balance.asset_type] || 0)) * state.usd_value[balance.asset_type] : 0
+        const total_balance = real_balance + (onOrdersFund[balance.asset_type] || 0)
+        const binance = state.usd_value[balance.asset_type] > 0 ? null : window.binance_data[symbol + (state.network == "testnet" ? "/USD" : "/TUSD0X0000000000085D4780B73119B644AE5ECD22B376")]
+        const usd = state.usd_value[balance.asset_type] > 0 ? 
+                    total_balance * state.usd_value[balance.asset_type] 
+                      : binance ? total_balance * parseFloat(binance.last_price)
+                        : 0
         total_fund_value += usd
         return {
           asset: balance.asset_type,
-          symbol: window.assets[balance.asset_type].symbol,
+          symbol: symbol,
           balance: real_balance,
           usd: usd
         }
@@ -584,12 +605,16 @@ const app = (state = initialState, action) => {
 
       return {
         ...state,
-        balance: balances,
+        balance: lodash.keyBy(balances, "symbol"),
         vesting: vesting,
         genesis: genesis,
         referral_paid: referral_paid,
         onOrdersFund: onOrdersFund,
         totalFundValue: total_fund_value,
+        orderBook: {
+          ...state.orderBook,
+          user_orders
+        },
         openOrders: {
           ...state.openOrders,
           dataSource: limitOrdersDataSource
@@ -648,6 +673,7 @@ const app = (state = initialState, action) => {
       }
 
     case LOGOUT: 
+      clear()
       return {
         ...state,
         private_key: null,
@@ -808,6 +834,14 @@ const app = (state = initialState, action) => {
         ui: {
           ...state.ui,
           connectDialog: action.data,
+        }
+    }
+    case TOGGLE_BUY_QDEX_DIALOG:
+      return {
+        ...state,
+        ui: {
+          ...state.ui,
+          buyQdexDialog: action.data,
         }
     }
     case WEBSOCKET_STATUS:

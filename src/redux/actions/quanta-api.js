@@ -58,25 +58,45 @@ function timeStringToDate(block_time) {
  * @param {*} dispatch 
  */
 export async function ConnectAsync(dispatch) {
-	console.log("Connecting...");
-	Apis.setRpcConnectionStatusCallback(
-		(status) => {
-			console.log("ws status changed: ", status);
-			if (status === "reconnect")
-				ChainStore.resetCache(false);
-			if (status === "closed") 
-				dispatch({ type: "WEBSOCKET_STATUS", data: "Closed" })
-			if (status === "open")
-				dispatch({ type: "WEBSOCKET_STATUS", data: null })
-		}
-	);
+	if (window.ws_connecting) return
+	// console.log("Connecting...");
+	window.ws_connecting = true
+	try {
+		const res = await Apis.instance(CONFIG.getEnv().WEBSOCKET_PATH, true, 5000, { enableOrders: true }).init_promise
+		ChainStore.subscribers.clear()
+		await ChainStore.init(false)		
+		ChainStore.subscribe(() => {
+			updateChainState(dispatch)
+		})
+	} catch (e) {
+		console.log(e)
+	}
+	
+	window.ws_connecting = false
+}
 
-	const res = await Apis.instance(CONFIG.getEnv().WEBSOCKET_PATH, true, 5000, { enableOrders: true }).init_promise
-	ChainStore.subscribers.clear()
-	await ChainStore.init(false)		
-	ChainStore.subscribe(() => {
-		updateChainState(dispatch)
-	})
+function getBinanceData(markets) {
+	var symbol_map = {}
+	var binance_symbol = []
+	window.binance_data = {}
+	
+	for (const coin of Object.keys(markets.markets)) {
+		for (const market of markets.markets[coin]) {
+			if ((market.name.endsWith("/TUSD0X0000000000085D4780B73119B644AE5ECD22B376") || market.name.endsWith("/USD")) && market.benchmarkSymbol) {
+				let symbol = market.benchmarkSymbol.split(":")[1].replace("/", "")
+				symbol_map[symbol] = market.name
+				binance_symbol.push(symbol.toLowerCase() + '@ticker')
+			}
+		}
+	}
+
+	if (binance_symbol.length > 0) {
+		const binance_socket = new WebSocket('wss://stream.binance.com:9443/stream?streams=' + binance_symbol.join('/'));
+		binance_socket.addEventListener('message', function (event) {
+			const data = JSON.parse(event.data).data
+			window.binance_data[symbol_map[data.s].split('/')[0]] = {last_price: data.c, change: data.P}
+		});
+	}
 }
 
 /**
@@ -90,11 +110,14 @@ export async function UpdateGlobalPropertiesAsync() {
 
 	const gp = await Apis.instance().db_api().exec("get_global_properties", [])
 	window.maker_rebate_percent_of_fee = gp.parameters.extensions.maker_rebate_percent_of_fee
+	window.roll_dice_percent_of_fee = gp.parameters.extensions.roll_dice_percent_of_fee || 0
 
 		// setup markets
 	const markets = await fetch(CONFIG.getEnv().MARKETS_JSON, { mode: "cors" }).then(e => e.json()).catch(e => {
 		Rollbar.error("Failed to get Markets JSON", e);
 	})
+
+	if (!window.binance_data) getBinanceData(markets)
 
 	window.markets = markets.markets
 	window.marketsHash = Object.keys(markets.markets).reduce(function (previous, key) {
@@ -111,7 +134,7 @@ export async function UpdateGlobalPropertiesAsync() {
 	}
 	window.allMarketsByHash = lodash.keyBy(window.allMarkets, "name")
 	
-	console.log("done building markets", window.allMarketsByHash);
+	// console.log("done building markets", window.allMarketsByHash);
 
 }
 
@@ -131,7 +154,6 @@ export async function UpdateMarketsDataAsync() {
 				.exec("get_24_volume", [counter.id, base.id])])
 
 			if (!window.market_depth_time || ((new Date()) - window.market_depth_time) > (60 * 5 * 1000)) {
-				// await?
 				const depth = await Apis.instance().db_api().exec("get_order_book", [counter.id, base.id, 50])
 				let asks_depth = depth.asks.reduce((total, next) => {
 					return total + parseFloat(next.base)
@@ -146,7 +168,11 @@ export async function UpdateMarketsDataAsync() {
 			if (!marketData[market]) {
 				marketData[market] = []
 			}
-			let latest = data[0].latest === "0" ? data[0].highest_bid === "0" || data[0].highest_ask === "0" ? "-" : (parseFloat(data[0].highest_bid) + parseFloat(data[0].lowest_ask)) / 2 : data[0].latest
+			let latest = data[0].latest !== "0" ? 
+							data[0].latest
+								: data[0].highest_bid !== "0" || data[0].highest_ask !== "0" ? 
+									(parseFloat(data[0].highest_bid) + parseFloat(data[0].lowest_ask)) / 2 
+									: "-" 
 			latest = Utils.maxPrecision(latest, window.allMarketsByHash[pair.name].pricePrecision)
 			window.allMarketsByHash[pair.name].last = latest
 			marketData[market].push({
@@ -155,26 +181,27 @@ export async function UpdateMarketsDataAsync() {
 				base_volume: data[1].base_volume,
 				quote_volume: data[1].quote_volume
 			})
-			if (counter.symbol == 'USD') {
-				USD_value[base.id] = data[0].latest
+			if (counter.symbol == 'USD' || counter.symbol == 'TUSD0X0000000000085D4780B73119B644AE5ECD22B376') {
+				USD_value[base.id] = data[0].latest > 0 ? data[0].latest : window.binance_data[base.symbol] ? window.binance_data[base.symbol].last_price : 0
 				USD_value[counter.id] = 1
 			}
 		}
 	}	
+	
 	// update global
 	window.market_depth_time = new Date()
 
 	return { marketData, USD_value}
 }
 
-export async function fetchDataAsync(ticker, first = false) {
+export async function fetchDataAsync(ticker) {
 	const {marketData, USD_value} = await UpdateMarketsDataAsync()
 
 	var { base, counter } = getBaseCounter(ticker)
 	const trades = Apis.instance().history_api().exec("get_fill_order_history", [base.id, counter.id, 100]).then((filled) => {
 		const trade_history = convertHistoryToOrderedSet(filled, base.id)
 		// console.log("history filled ", filled);
-		//console.log("converted ", trade_history);
+		// console.log("converted ", trade_history);
 		return trade_history
 	})
 
@@ -185,10 +212,6 @@ export async function fetchDataAsync(ticker, first = false) {
 	})
 
 	const data =  await Promise.all([orderBook, trades])
-	if (first) {
-		const ask_section = document.getElementById("ask-section")
-		if (ask_section) ask_section.scrollTop = ask_section.scrollHeight;
-	}
 
 	return {
 		ticker,

@@ -135,24 +135,26 @@ class Wallets extends Component {
 
   setDataSource(balance) {
     if (!window.assets || !window.wallet_listing) return
+    const { onOrdersFund } = this.props
+
     const dataSource = []
     const in_wallet = []
     const unlisted = []
 
-    balance.forEach(currency => {
-      let symbol = window.assets[currency.asset].symbol
+    Object.keys(balance).forEach(symbol => {
+      let currency = balance[symbol]
       const data = {
         pairs: symbol,
         balance: currency.balance,
-        on_orders: this.props.onOrdersFund[currency.asset] || 0,
+        on_orders: onOrdersFund[currency.asset] || 0,
         usd_value: currency.usd > 0 ? currency.usd.toLocaleString(navigator.language, {maximumFractionDigits: 2, minimumFractionDigits: 2}) : "N/A"
       }
       if (window.wallet_listing.includes(symbol) || symbol == "QDEX") {
         dataSource.push(data)
-        in_wallet.push(symbol)
       } else {
         unlisted.push(data)
       }
+      in_wallet.push(symbol)
     });
 
     for (let coin of (Object.keys(window.assetsBySymbol) || [])) {
@@ -329,7 +331,7 @@ class Wallets extends Component {
 
 const mapStateToProps = (state) => ({
     isMobile: state.app.isMobile,
-    balance: state.app.balance || [],
+    balance: state.app.balance || {},
     onOrdersFund: state.app.onOrdersFund || [],
     publicKey: state.app.publicKey || "",
     private_key: state.app.private_key,

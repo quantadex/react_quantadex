@@ -15,6 +15,7 @@ const container = css`
   background-color:white;
   font-size: 12px;
   color: #8A899D;
+  text-align: left;
 
   h5 {
     color: #333;
@@ -194,18 +195,20 @@ class QTDeposit extends React.Component {
   }
   
   CoinDetails() {
-    const coin = window.assetsBySymbol[this.props.asset]
+    const { asset, vertical } = this.props
+    const { issuer } = this.state
+    const coin = window.assetsBySymbol[asset]
 
-    !this.state.issuer && GetAccount(coin.issuer).then(issuer => {
+    !issuer && GetAccount(coin.issuer).then(issuer => {
       this.setState({issuer: (issuer.name == "null-account" ? "Native": issuer.name)})
     })
 
     return (
-      <div className={coin_details + " mx-auto py-5"}>
+      <div className={coin_details + " mx-auto py-5" + (vertical ? " d-flex justify-content-between align-items-center w-100 px-5 border-bottom" : "")}>
         <h1>DEPOSIT<br/><SymbolToken name={coin.symbol} showIcon={false} /></h1>
         <div>
           Asset ID: <span className="value">{coin.id}</span> <a href={CONFIG.getEnv().EXPLORER_URL + "/object/" + coin.id} target="_blank"><img src={devicePath("public/images/external-link.svg")} /></a><br/>
-          Issuer: <span className="value">{this.state.issuer}</span><br/>
+          Issuer: <span className="value">{issuer}</span><br/>
           Precision: <span className="value">{coin.precision}</span><br/>
           Max Supply: <span className="value">{(parseInt(coin.options.max_supply)/Math.pow(10, coin.precision)).toLocaleString(navigator.language)}</span>
         </div>
@@ -279,17 +282,21 @@ class QTDeposit extends React.Component {
   }
 
   render() {
+    const { asset, handleClick, vertical } = this.props
+    const { init, deposit_address } = this.state
     return (
-      <div className={container + " d-flex"}>
-        <div className="d-none d-md-flex w-75 align-items-center">
-          {this.props.asset !== "ERC20" ? <this.CoinDetails /> :
+      <div className={container + " d-flex" + (vertical ? " flex-column" : "")}>
+        <div className={"d-none d-md-flex align-items-center" + (vertical ? " w-100" : " w-75")}>
+          {asset !== "ERC20" ? <this.CoinDetails /> :
             <div className={coin_details + " mx-auto"}>
-              <h1>DEPOSIT<br/>{this.props.asset}</h1>
+              <h1>DEPOSIT<br/>{asset}</h1>
             </div>
           }
         </div>
-        <div className="close-dialog cursor-pointer" onClick={this.props.handleClick}>Close</div>
-        {this.state.init && !this.state.deposit_address ? <this.NoAddress /> : <this.Deposit />}
+        <div className="close-dialog cursor-pointer" onClick={handleClick}>
+          <img src="/public/images/x_close.svg" height="12" alt="Close" />
+        </div>
+        {init && !deposit_address ? <this.NoAddress /> : <this.Deposit />}
       </div>
     );
   }

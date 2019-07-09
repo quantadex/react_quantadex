@@ -1,20 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
-import moment from 'moment';
-
 import { css } from 'emotion'
-import { toast } from 'react-toastify';
-import globalcss from './global-css.js'
-
-import QTTabBar from './ui/tabBar.jsx'
-import QTDropdown from './ui/dropdown.jsx'
-import QTButton from './ui/button.jsx'
-import { Token, SmallToken } from './ui/ticker.jsx'
+import { SmallToken } from './ui/ticker.jsx'
 import Loader from './ui/loader.jsx'
-import {LockIcon} from './ui/account_lock.jsx'
 import Utils from '../common/utils'
-import lodash from 'lodash';
-
 import { buyTransaction, sellTransaction, TOGGLE_CONNECT_DIALOG } from "../redux/actions/app.jsx";
 import ReactGA from 'react-ga';
 
@@ -293,38 +282,9 @@ class Trade extends Component {
         }
     }
 
-    notify_success = (toastId, msg) => toast.update(toastId, {
-        render: msg,
-        type: toast.TYPE.SUCCESS,
-        autoClose: 2000,
-        position: toast.POSITION.TOP_CENTER,
-        pauseOnFocusLoss: false,
-        pauseOnHover: false
-    });
-    notify_failed = (toastId, msg) => toast.update(toastId, {
-        render: msg,
-        type: toast.TYPE.ERROR,
-        autoClose: 2000,
-        position: toast.POSITION.TOP_CENTER,
-        pauseOnFocusLoss: false,
-        pauseOnHover: false
-    });
-
-    toastMsg(label, success, e) {
-        const msg = (<div>
-            <span>{label}</span><br />
-            <span>{success ? "Order ID: " + e.trx.operation_results[0][1] :
-                "Failed order: " + (e.message.includes("insufficient balance") ? "Insufficient Balance" : "Unable to place order: " + e.message)}</span>
-        </div>)
-        return msg
-    }
-
     handleBuy(e) {
-        const { dispatch, currentTicker } = this.props
+        const { dispatch, currentTicker, mobile_nav } = this.props
         const { price, qty } = this.state
-        const asset = currentTicker.split('/')[0].split('0X')
-        const label = asset[0] + (asset[1] ? '0x' + asset[1].substr(0,4) : "") + " " + qty + " @ " + price
-        const toastId = toast("BUYING " + label, { autoClose: false, position: toast.POSITION.TOP_CENTER });
 
         ReactGA.event({
             category: 'BUY',
@@ -332,25 +292,15 @@ class Trade extends Component {
         });
 
         this.setState({ processing: true })
-        dispatch(buyTransaction(currentTicker, price, qty))
-            .then((e) => {
-                const msg = this.toastMsg("BUY " + label, true, e)
-                this.notify_success(toastId, msg)
-            }).catch((e) => {
-                const msg = this.toastMsg("BUY " + label, false, e)
-                this.notify_failed(toastId, msg)                
-                // log here
-            }).finally(() => {
+        dispatch(buyTransaction(currentTicker, price, qty, false, mobile_nav))
+            .finally(() => {
                 this.setState({ processing: false })
             })
     }
 
     handleSell(e) {
-        const { dispatch, currentTicker } = this.props
+        const { dispatch, currentTicker, mobile_nav } = this.props
         const { price, qty } = this.state
-        const asset = currentTicker.split('/')[0].split('0X')
-        const label = asset[0] + (asset[1] ? '0x' + asset[1].substr(0,4) : "") + " " + qty + " @ " + price
-        const toastId = toast("SELLING " + label, { autoClose: false, position: toast.POSITION.TOP_CENTER });
 
         ReactGA.event({
             category: 'SELL',
@@ -358,14 +308,8 @@ class Trade extends Component {
         });
 
         this.setState({ processing: true })
-        dispatch(sellTransaction(currentTicker, price, qty))
-            .then((e) => {
-                const msg = this.toastMsg("SELL " + label, true, e)
-                this.notify_success(toastId, msg)
-            }).catch((e) => {
-                const msg = this.toastMsg("SELL " + label, false, e)
-                this.notify_failed(toastId, msg)
-            }).finally(() => {
+        dispatch(sellTransaction(currentTicker, price, qty, mobile_nav))
+            .finally(() => {
                 this.setState({ processing: false })
             })
     }
@@ -377,8 +321,7 @@ class Trade extends Component {
     setPercentAmount(perc, symbol) {
       const { balance } = this.props
       const { trade_side, price} = this.state
-      const coin = window.assetsBySymbol[symbol].id
-      const amount = balance[coin] ? balance[coin].balance * (parseInt(perc)/100) : 0
+      const amount = balance[symbol] ? balance[symbol].balance * (parseInt(perc)/100) : 0
 
       let qty, total
       if (trade_side == 0) {
@@ -408,16 +351,16 @@ class Trade extends Component {
         const counter = window.assetsBySymbol && window.assetsBySymbol[tradingPair[1]]
         const precisions = [base ? base.precision : 5, counter ? counter.precision : 5] || [0,0]
         var pairBalance = []
-        Object.keys(balance).forEach((currency) => {
-            if (!window.assets[balance[currency].asset]) {
+        Object.keys(balance).forEach((symbol) => {
+            if (!window.assetsBySymbol[symbol]) {
               return
             }
             var item = {}
-            item.currency = window.assets[balance[currency].asset].symbol
+            item.currency = symbol
             if (!tradingPair.includes(item.currency)) {
                 return
             }
-            item.amount = balance[currency].balance ? balance[currency].balance : 0
+            item.amount = balance[symbol].balance ? balance[symbol].balance : 0
             pairBalance.push(item)
         })
         const taker_fee = (window.assetsBySymbol && window.assetsBySymbol[tradingPair[trade_side]].options.market_fee_percent/100) || 0
@@ -558,7 +501,7 @@ class Trade extends Component {
                       : 
                       mobile || publicKey ? 
                         <button className="connect-btn" 
-                        onClick={mobile && mobile_nav ? () => mobile_nav() 
+                        onClick={mobile && mobile_nav ? () => mobile_nav("connect") 
                           : 
                           () => this.props.dispatch({
                             type: TOGGLE_CONNECT_DIALOG,
@@ -572,8 +515,8 @@ class Trade extends Component {
 
                     { mobile && publicKey ?
                       <div className="d-flex justify-content-around flex-wrap qt-font-light qt-font-small text-secondary">
-                        <span className="mx-2">{base.symbol.split("0X")[0]} Balance: {balance[base.id] ? balance[base.id].balance : 0}</span>
-                        <span className="mx-2">{counter.symbol.split("0X")[0]} Balance: {balance[counter.id] ? balance[counter.id].balance : 0}</span>
+                        <span className="mx-2">{base.symbol.split("0X")[0]} Balance: {balance[base.symbol] ? balance[base.symbol].balance : 0}</span>
+                        <span className="mx-2">{counter.symbol.split("0X")[0]} Balance: {balance[counter.symbol] ? balance[counter.symbol].balance : 0}</span>
                       </div>
                       : null
                     }
@@ -592,7 +535,7 @@ const mapStateToProps = (state) => ({
     asks: state.app.tradeBook.asks,
     currentTicker: state.app.currentTicker,
     currentPrice: state.app.mostRecentTrade,
-    balance: state.app.balance && lodash.keyBy(state.app.balance, "asset"),
+    balance: state.app.balance || {},
     inputBuy: state.app.inputBuy,
     inputBuyAmount: state.app.inputBuyAmount,
     inputSetTime: state.app.setTime,

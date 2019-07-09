@@ -3,7 +3,6 @@ import { Redirect, withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { TOGGLE_CONNECT_DIALOG, LOGOUT } from '../../redux/actions/app.jsx'
 import { css } from 'emotion'
-import {clear} from '../../common/storage.js'
 import { Link } from 'react-router-dom'
 
 const container = css`
@@ -37,7 +36,7 @@ const container = css`
       border-bottom: solid 1px rgba(18, 21, 23,0.24);
 
       .menu-row {
-        padding:6px 0 6px 24px;
+        padding:6px 20px 6px 24px;
       }
 
       .menu-row div {
@@ -150,7 +149,7 @@ export class HamburgerMenu extends React.Component {
 var net = window.location.pathname.startsWith("/testnet") ? "testnet" : "mainnet"
 HamburgerMenu.defaultProps = {
   menuList: [
-    {
+  {
     items: [{
       header:"$12.560",
       subheader:" estimated funds"
@@ -208,7 +207,6 @@ HamburgerMenu.defaultProps = {
       iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
       text:"Logout",
       onClick: (dispatch) => {
-        clear()
         dispatch({
           type: LOGOUT
         })

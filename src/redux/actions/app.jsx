@@ -1,4 +1,5 @@
 import lodash from 'lodash';
+import React from 'react';
 import ApplicationApi from "../../common/api/ApplicationApi";
 import WalletApi from "../../common/api/WalletApi";
 import { Apis } from "@quantadex/bitsharesjs-ws";
@@ -6,6 +7,7 @@ import { FillOrder, LimitOrder } from "../../common/MarketClasses";
 import { PrivateKey, ChainStore } from "@quantadex/bitsharesjs";
 import { createLimitOrderWithPrice, createLimitOrder2, cancelOrder, signAndBroadcast } from "../../common/Transactions";
 import { validMarketPair, getBaseCounter, aggregateOrderBook, convertHistoryToOrderedSet } from "../../common/PriceData";
+import { toast } from 'react-toastify';
 import ReactGA from 'react-ga';
 import CONFIG from '../../config.js'
 import Utils from "../../common/utils.js";
@@ -31,6 +33,7 @@ export const UPDATE_BLOCK_INFO = 'UPDATE_BLOCK_INFO';
 export const UPDATE_STORAGE = 'UPDATE_STORAGE';
 export const LOAD_FILLED_ORDERS = 'LOAD_FILLED_ORDERS';
 export const TOGGLE_CONNECT_DIALOG = 'TOGGLE_CONNECT_DIALOG';
+export const TOGGLE_BUY_QDEX_DIALOG = 'TOGGLE_BUY_QDEX_DIALOG';
 export const INIT_BALANCE = 'INIT_BALANCE'
 export const UPDATE_OPEN_ORDERS = 'UPDATE_OPEN_ORDERS'
 export const WEBSOCKET_STATUS = 'WEBSOCKET_STATUS'
@@ -42,30 +45,112 @@ export function GetAccount(id) {
 	})
 }
 
-export function buyTransaction(market, price, amount) {
+export function GetAccountBalances(id, assets=[]) {
+	return Apis.instance().db_api().exec("get_account_balances", [id, assets]).then(e => {
+		return e
+	})
+}
+
+export function GetBlock(id) {
+	return Apis.instance().db_api().exec("get_block", [id]).then(e => {
+		return e
+	})
+}
+
+export function GetChainId() {
+	return Apis.instance().db_api().exec("get_chain_id", []).then(e => {
+		return e
+	})
+}
+
+function notify_success(toastId, msg) {
+	toast.update(toastId, {
+		render: msg,
+		type: toast.TYPE.SUCCESS,
+		autoClose: 2000,
+		position: toast.POSITION.TOP_CENTER,
+		pauseOnFocusLoss: false,
+		pauseOnHover: false
+	});
+}
+
+function notify_failed(toastId, msg) {
+	toast.update(toastId, {
+		render: msg,
+		type: toast.TYPE.ERROR,
+		autoClose: 2000,
+		position: toast.POSITION.TOP_CENTER,
+		pauseOnFocusLoss: false,
+		pauseOnHover: false
+	});
+}
+
+function toastMsg(label, success, e) {
+	const msg = (<div>
+		<span>{label}</span><br />
+		<span>{success ? "Order ID: " + e.trx.operation_results[0][1] :
+			"Failed order: " + (e.message.toLowerCase().includes("insufficient balance") ? "Insufficient Balance" : "Unable to place order: " + e.message)}</span>
+	</div>)
+	return msg
+}
+
+export function buyTransaction(market, price, amount, fill_or_kill = false, mobile_nav = undefined) {
 	return (dispatch, getState) => {
 		var {base, counter} = getBaseCounter(market)
 
+		const asset = market.split('/')[0].split('0X')
+		const label = asset[0] + (asset[1] ? '0x' + asset[1].substr(0,4) : "") + " " + amount + " @ " + price
+		const toastId = toast("BUYING " + label, { autoClose: false, position: toast.POSITION.TOP_CENTER });
+
 		var user_id = getState().app.userId;
 		const pKey = PrivateKey.fromWif(getState().app.private_key);
-		const order = createLimitOrderWithPrice(user_id, true, window.assets, base.id, counter.id, price, amount)
+		const order = createLimitOrderWithPrice(user_id, true, window.assets, base.id, counter.id, price, amount, fill_or_kill)
 		const tr = createLimitOrder2(order)
 
 		return signAndBroadcast(tr, pKey)
 			.then((e) => {
+				const msg = toastMsg("BUY " + label, true, e[0])
 				dispatch(updateUserData())
-				return e[0]
+				if (asset[0] == "QDEX") {
+					if (mobile_nav) {
+						mobile_nav("trade")
+					} else {
+						dispatch({
+							type: TOGGLE_BUY_QDEX_DIALOG,
+							data: false
+						})
+					}
+				}
+				setTimeout(() => {
+					notify_success(toastId, msg)
+				}, 0)
 			}).catch((e) => {
+				if (e.message.includes("less than required")) {
+					if (mobile_nav) {
+						mobile_nav("buy_qdex")
+					} else {
+						dispatch({
+							type: TOGGLE_BUY_QDEX_DIALOG,
+							data: true
+						})
+					}
+				}
+				const msg = toastMsg("BUY " + label, false, e)
+				notify_failed(toastId, msg)  
 				Rollbar.error("Buy Failed", e);
-				throw e
+				return e
 			})
 	}
 }
 
-export function sellTransaction(market, price, amount) {
+export function sellTransaction(market, price, amount, mobile_nav = undefined) {
 	return (dispatch, getState) => {
 		var { base, counter } = getBaseCounter(market)
 
+		const asset = market.split('/')[0].split('0X')
+		const label = asset[0] + (asset[1] ? '0x' + asset[1].substr(0,4) : "") + " " + amount + " @ " + price
+		const toastId = toast("SELLING " + label, { autoClose: false, position: toast.POSITION.TOP_CENTER });
+	
 		var user_id = getState().app.userId;
 		const pKey = PrivateKey.fromWif(getState().app.private_key);
 		const order = createLimitOrderWithPrice(user_id, false, window.assets, base.id, counter.id, price, amount)
@@ -73,11 +158,23 @@ export function sellTransaction(market, price, amount) {
 
 		return signAndBroadcast(tr, pKey)
 			.then((e) => {
+				const msg = toastMsg("SELL " + label, true, e[0])
+				notify_success(toastId, msg)
 				dispatch(updateUserData())
-				return e[0]
 			}).catch((e) => {
+				if (e.message.includes("less than required")) {
+					if (mobile_nav) {
+						mobile_nav("buy_qdex")
+					} else {
+						dispatch({
+							type: TOGGLE_BUY_QDEX_DIALOG,
+							data: true
+						})
+					}
+				}
+				const msg = toastMsg("SELL " + label, false, e)
+				notify_failed(toastId, msg)
 				Rollbar.error("Sell Failed", e);
-				throw e
 			})
 	}
 
@@ -204,7 +301,6 @@ export const loadOrderHistory = (page) => {
 }
 
 export const rollDice = (amount, asset, bet) => {
-	const now = new Date()
 	return (dispatch, getState) => {
 		return ApplicationApi.roll_dice({ 
 			account: getState().app.userId,
@@ -213,30 +309,25 @@ export const rollDice = (amount, asset, bet) => {
 			bet,
 			numbers: []
 		}).then((tr) => {
-			// console.log(3, tr)
-			const pKey = PrivateKey.fromWif(getState().app.private_key)
-			tr.add_signer(pKey, pKey.toPublicKey().toPublicKeyString());
-			//console.log("serialized transaction:", tr.serialize().operations);
-			console.log('before broadcast', new Date() - now)
-			return tr.broadcast()
+			return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key))
 				.then((res) => {
-					console.log("Call order update success!");
-					console.log("sent", new Date() - now)
+					// console.log("Call order update success!");
 					return tr.id()
-					// return res;
+				}).catch((e) => {
+					console.log(e)
+					if (e.message.includes("less than required")) {
+						dispatch({
+							type: TOGGLE_BUY_QDEX_DIALOG,
+							data: true
+						})
+						throw "Insufficient QDEX"
+					}
+					if (e.message.includes("Insufficient Balance")) throw "Insufficient Fund"
+					throw e.message
 				})
-
-			// return signAndBroadcast(tr, PrivateKey.fromWif(getState().app.private_key)).then(() => {
-			// 	console.log("sent", new Date() - now)
-			// 	// console.log(tr.id())
-			// 	return tr.id()
-			// 	// console.log(CONFIG.getEnv().API_PATH + `/account?filter_field=operation_history.op_object.tx&filter_value=${tr.id()}`)
-
-
-				
-			// })
 		}).catch(error => {
 			console.log(error)
+			throw error
 		})
 	}
 }
@@ -335,12 +426,14 @@ export const ConnectAccount = (account_id, private_key) => {
 	}
 }
 
-window.binance_price = {"BTCUSDT": 0, "ETHUSDT": 0}
-const binance_socket = new WebSocket('wss://stream.binance.com:9443/stream?streams=btcusdt@miniTicker/ethusdt@miniTicker');
-binance_socket.addEventListener('message', function (event) {
-	const data = JSON.parse(event.data).data
-	window.binance_price[data.s] = data.c
-});
+export function getQdexAsks(counter) {
+	return function () {
+		const qdex_id = window.assetsBySymbol.QDEX.id
+		return Apis.instance().db_api().exec("get_order_book", [counter.id, qdex_id, 50]).then((ob) => {
+			return aggregateOrderBook([], ob.asks, window.assets[qdex_id].precision).asks
+		})
+	}
+}
 
 window.initAPI = false;
 export var dataSize = 100;
@@ -353,7 +446,25 @@ export function switchTicker(ticker, force_init=false) {
 
 	return function (dispatch,getState) {
 		async function update() {
+			dispatch({ type: UPDATE_TICKER, data: ticker })
 			if (window.initAPI == false || force_init) {
+				Apis.setRpcConnectionStatusCallback(
+					(status) => {
+						// console.log("ws status changed: ", status);
+						if (status === "reconnect")
+							ChainStore.resetCache(false);
+						if (status === "closed") {
+							dispatch({ type: "WEBSOCKET_STATUS", data: "Closed" })
+							setTimeout(() => {
+								if (!document[window.hidden]) QuantaApi.ConnectAsync(dispatch)
+							}, 1000)
+						}
+						if (status === "open") {
+							dispatch({ type: "WEBSOCKET_STATUS", data: null })
+						}
+					}
+				);
+
 				const res = await QuantaApi.ConnectAsync(dispatch)
 
 				await QuantaApi.UpdateGlobalPropertiesAsync()
@@ -369,7 +480,7 @@ export function switchTicker(ticker, force_init=false) {
 					}
 				});
 				window.initAPI = true;
-				console.log("initialized update");
+				// console.log("initialized update");
 			} else {
 				await fetchAndSubscribeTickerAsync(ticker, dispatch)
 			}
@@ -384,8 +495,6 @@ async function fetchAndSubscribeTickerAsync(ticker, dispatch) {
 	var {base, counter} = getBaseCounter(ticker)
 	if (!base || !counter) 
 		return
-
-	dispatch({ type: UPDATE_TICKER, data: ticker })
 
 	// update fees
 	const tmpOrder = createLimitOrderWithPrice("1.2.0", true, window.assets, base.id, counter.id, 1, 1)
@@ -420,7 +529,7 @@ async function fetchAndSubscribeTickerAsync(ticker, dispatch) {
 	}, base.id, counter.id])
 
 	async function updateFetchDataAsync(ticker, first=false) {
-		const data = await QuantaApi.fetchDataAsync(ticker, first)
+		const data = await QuantaApi.fetchDataAsync(ticker)
 
 		window.USD_value = data.USD_value
 		dispatch({
@@ -435,21 +544,25 @@ async function fetchAndSubscribeTickerAsync(ticker, dispatch) {
 				orderBook: data.orderBook,
 				trades: data.trades,
 			}
-		})		
+		})	
+		
+		if (first) {
+			const ask_section = document.getElementById("ask-section")
+			if (ask_section) ask_section.scrollTop = ask_section.scrollHeight;
+		}
 	}
 
 	await updateFetchDataAsync(ticker, true)
 }
 
-export function reconnectIfNeeded() {
+export function refreshData() {
 	return async function (dispatch, getState) {
 		if (getState().app.websocket_status) {
-			console.log("Attempt to reconnect", getState().websocket_status);
+			// console.log("Attempt to reconnect", getState().websocket_status);
 			const res = await QuantaApi.ConnectAsync(dispatch)
-
-			dispatch(switchTicker(getState().app.currentTicker))
-			dispatch(updateUserData())
 		}
+		dispatch(switchTicker(getState().app.currentTicker))
+		dispatch(updateUserData())
 	}
 }
 

@@ -6,7 +6,7 @@ import globalcss from './global-css.js'
 
 import QTTabBar from './ui/tabBar.jsx'
 import { ToastContainer } from 'react-toastify';
-import {switchTicker, updateUserData} from "../redux/actions/app.jsx";
+import { switchTicker, refreshData } from "../redux/actions/app.jsx";
 import 'react-toastify/dist/ReactToastify.css';
 import Wallets from './wallets.jsx'
 import CrosschainHistory from './crosschain_history.jsx'
@@ -59,18 +59,38 @@ const container = css`
 
   &.mobile {
     padding: 0;
-    background-color: transparent !important;
+    background-color: #0a121e !important;
     min-height: unset;
 
     .content {
       margin-top: 20px;
+      min-height: 100vh;
     }
 
     .table-row .row {
       height: auto;
       padding: 5px 0;
     }
-  }
+
+    .tab-row {
+      background-color: transparent;
+      margin: 0;
+      height: auto;
+      border: none;
+      font-size: 12px;
+      white-space: nowrap;
+      position: -webkit-sticky;
+      position: -webkit-sticky;
+      position: sticky;
+      top: 0;
+      background: #0A121E;
+      z-index: 1;
+    }
+
+    .tabs {
+      width: 100%;
+      font-size: 12px;
+    }
 `;
 
 class Fund extends Component {
@@ -80,6 +100,7 @@ class Fund extends Component {
       selectedTabIndex: 0,
     }
 
+    this.wallet_path = location.pathname.includes("/wallets")
     this.eventUpdate = this.eventUpdate.bind(this)
   }
 
@@ -90,11 +111,11 @@ class Fund extends Component {
 			dispatch(switchTicker(default_ticker));
     } 
     
-		document.addEventListener('mouseenter', this.eventUpdate, false)
+    document.addEventListener('mouseenter', this.eventUpdate, false)
 	}
 
 	componentWillUnmount() {
-		document.removeEventListener('mouseenter', this.eventUpdate, false)
+    document.removeEventListener('mouseenter', this.eventUpdate, false)
   }
   
   componentWillReceiveProps(nextProps) {
@@ -103,9 +124,7 @@ class Fund extends Component {
   }
 	
 	eventUpdate() {
-		const { currentTicker, dispatch } = this.props
-    if (currentTicker) dispatch(switchTicker(currentTicker))
-		dispatch(updateUserData())
+		this.props.dispatch(refreshData())
 	}
 
   handleSwitch(index) {
@@ -126,11 +145,11 @@ class Fund extends Component {
     const content = [<Wallets mobile_nav={mobile_nav} />, <Vesting />, <CrosschainHistory user={name} />, <Referral />]
 		return (
 		<div className={container + " container-fluid" + (isMobile ? " mobile" : "")}>
-      {isMobile ? 
+      {isMobile && !this.wallet_path ? 
           null
         :
-        <div className="row header-row">
-          <Header />
+        <div className="header-row">
+          <Header mobile={isMobile} hash={this.props.location.hash} />
         </div>
       }
       

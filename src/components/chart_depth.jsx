@@ -152,12 +152,22 @@ class DepthChart extends Component {
                 name: 'Bids',
                 data: [],
                 step: 'right',
-                color: '#03a7a8'
+                color: '#03a7a8',
+                states: {
+                    inactive: {
+                        opacity: 1
+                    }
+                },
             }, {
                 name: 'Asks',
                 data: [],
                 step: 'left',
-                color: '#fc5857'
+                color: '#fc5857',
+                states: {
+                    inactive: {
+                        opacity: 1
+                    }
+                },
             }],
         })
         

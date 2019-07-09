@@ -193,12 +193,12 @@ export function aggregateOrderBook(bids, asks, precision) {
 	}
 }
 
-export function convertHistoryToOrderedSet(history, base) {
+export function convertHistoryToOrderedSet(history, base, assets = undefined) {
 	let activeMarketHistory = Immutable.OrderedSet();
 	history.forEach(order => {
 		if (!order.op.is_maker) {
 			activeMarketHistory = activeMarketHistory.add(
-				new FillOrder(order, window.assets, base)
+				new FillOrder(order, assets || window.assets, base)
 			);
 		}
 	})

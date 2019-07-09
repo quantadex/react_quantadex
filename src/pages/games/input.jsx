@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 import { css } from 'emotion';
 
 const container = css `
-    margin-top: 10px;
-    margin-left: 10px;
+    margin: 10px 5px 0;
     width: 100%;
     white-space: nowrap;
 
@@ -12,11 +11,11 @@ const container = css `
         width: 110px;
         text-transform: uppercase;
         margin-right: 10px;
-        font-size: 14px;
+        margin-bottom: 0;
+        font-size: 12px;
         color: #777;
     }
     input {
-        padding: 10px;
         color: #555;
         width: 100%;
         background: #fff;
@@ -25,6 +24,7 @@ const container = css `
 
     input:disabled {
         background: #eee;
+        color: #999;
     }
 
     input::-moz-selection { background: #ccc; }
@@ -58,31 +58,60 @@ const container = css `
             color: #999;
             padding: 0 10px;
             cursor: default;
-            line-height: 35px;
+            line-height: 32px;
+            user-select: none;
+        }
+
+        .asset-symbol {
+            position: absolute;
+            height: 50%;
+            top: 25%;
+            right: 10px;
         }
     }
 
-    
+    .offset {
+        input {
+            min-width: 0;
+        }
+        .after {
+            position: static;
+            height: 32px;
+        }
+    }
 `
 
 export default class DiceInput extends Component {
     render() {
-        const { label, type, step, min, value, disabled, onChange, onBlur, after, children } = this.props
+        const { label, type, step, min, value, disabled, onChange, onBlur, after, children, offset, asset, className } = this.props
 
         return (
-            <div className={container}>
+            <div className={container + " " + (className || "")}>
                 <label>{label}</label>
                 <div className="d-flex">
                     {children}
-                    <div className="input-field d-flex position-relative w-100">
-                        <input type={type} step={step} min={min} value={value} 
-                            disabled={disabled}
-                            onFocus={(e) => e.target.select()}
-                            onChange={onChange}
-                            onBlur={onBlur}
-                            onKeyPress={e => {
-                                if (e.key == "Enter") onBlur(e)
-                            }} />
+                    <div className={"input-field d-flex position-relative w-100" + (offset ? " offset" : "") }>
+                        <div className="position-relative w-100">
+                            <input type={type} step={step} min={min} value={value} 
+                                disabled={disabled}
+                                onFocus={(e) => e.target.select()}
+                                onChange={onChange}
+                                onBlur={onBlur}
+                                onKeyPress={e => {
+                                    if (e.key == "Enter") onBlur(e)
+                                }} />
+                            
+                            { asset ?
+                                <img className="asset-symbol"
+                                    src={`/public/images/coins/${asset.toLowerCase()}.svg`} 
+                                    onError={(e) => {
+                                        e.target.src='/public/images/crosschain-coin.svg'}
+                                    }
+                                    title={asset} 
+                                />
+                                : null
+                            }
+                        </div>
                         { after ?
                             after
                             : null

@@ -26,6 +26,10 @@ const gutterWidth = (props) => {
   `
 }
 
+const color = (props) => {
+  return props.color || "255,255,255"
+}
+
 const Container = styled('div')`
 
 
@@ -73,12 +77,12 @@ const Container = styled('div')`
     .item {
       padding:4px 0;
       text-align: center;
-      border-bottom: solid 1px rgba(255,255,255,0.19);
-      color: rgba(255,255,255,0.5);
+      border-bottom: solid 1px rgba(${color},0.19);
+      color: rgba(${color},0.5);
 
       &.selected {
-        border-bottom: solid 2px white;
-        color:white;
+        border-bottom: solid 2px rgba(${color},1);
+        color:rgba(${color},1);
       }
     }
 
@@ -124,23 +128,28 @@ export default class QTTabBar extends React.Component {
   }
 
   render() {
+    const { className, tabs, gutter, color, width, switchTab, selectedTabIndex, disabled } = this.props
+
     return (
       <Container
-        className={this.props.className}
-        number={this.props.tabs.names.length}
-        gutter={this.props.gutter}
+        className={className}
+        number={tabs.names.length}
+        gutter={gutter}
+        color={color}
         >
         {
-          this.props.tabs.names.map((tab,index) => {
+          tabs.names.map((tab,index) => {
             return (
                 <div
                   key={tab}
                   data-index={index}
-                  style={{width: this.props.width}}
+                  style={{width: width}}
                   className={(this.state.selectedTabIndex == index ? "selected" : "") + " item"}
-                  onClick={(e) => {this.setState({selectedTabIndex:e.target.dataset.index})
-                                    this.props.switchTab(e.target.dataset.index, this.state.selectedTabIndex)
-                                  }}>
+                  onClick={(e) => {
+                    if (disabled && disabled.includes(e.target.dataset.index)) return
+                    this.setState({selectedTabIndex: e.target.dataset.index})
+                    switchTab(e.target.dataset.index, this.state.selectedTabIndex)
+                  }}>
                   {tab}
                 </div>
             )

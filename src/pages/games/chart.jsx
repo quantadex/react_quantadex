@@ -13,11 +13,11 @@ export default class Chart extends Component {
             }]
         }
         
-        window.depthChartWidget.update(options)
+        window.chartWidget.update(options)
     }
 
     componentDidMount() {
-        window.depthChartWidget = Highchart.chart("chart_container", {
+        window.chartWidget = Highchart.chart("chart_container", {
             chart: {
                 type: 'line',
                 backgroundColor: "transparent",
@@ -45,7 +45,6 @@ export default class Chart extends Component {
                     text: ''
                 },
                 labels: {
-                    format: '{value:.2f}',
                     style: {
                         color: '#fff'
                     }

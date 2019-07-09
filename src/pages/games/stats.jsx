@@ -5,8 +5,6 @@ import Chart from './chart.jsx'
 const container = css `
     background: #57A38B;
     border-radius: 5px;
-    margin-left: 30px;
-    width: 240px;
     overflow: hidden
     color: #fff;
     cursor: default;
@@ -14,6 +12,13 @@ const container = css `
 
     h5 {
         background: #57bc90;
+    }
+
+    .game-stats {
+        span {
+            width: 50px;
+            text-align: right;
+        }
     }
 
     .history-container {
@@ -71,21 +76,20 @@ export default class Stats extends Component {
 
     render() {
         const { update } = this.state
-        const { gain_history, profit, wins, lose, bets, luck, roll_history, wagered, chart_height } = this.props
-        
+        const { gain_history, profit, wins, lose, bets, luck, roll_history, wagered, chart_height, className } = this.props
         return (
-            <div className={container + " qt-font-extra-small"}>
+            <div className={container + " stats-container qt-font-extra-small ml-lg-4 " + (className || "")}>
                 <h5 className="text-center py-3">LIVE STATS</h5>
                 <div className="d-flex">
                     <div className="px-5 w-50">Wagered<br/>{wagered}</div>
                     <div className="px-5 w-50">Profit<br/>{profit}</div>
                 </div>
                 <Chart data={gain_history} style={{height: chart_height}} />
-                <div className="d-flex flex-wrap px-5">
+                <div className="game-stats d-flex flex-wrap px-5">
                     <div className="w-50">Wins <span className="float-right pr-4">{wins}</span></div>
                     <div className="w-50">Losses <span className="float-right">{lose}</span></div>
                     <div className="w-50">Bets <span className="float-right pr-4">{bets}</span></div>
-                    <div className="w-50">Luck <span className="float-right">{luck}%</span></div>
+                    <div className="w-50">Luck <span className="float-right">{luck == 0 && gain_history.length < 10 ? 100 : luck}%</span></div>
                 </div>
                 <div className="d-flex justify-content-around my-4 history-container">
                     {roll_history.map((roll, index) => {

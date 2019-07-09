@@ -76,7 +76,8 @@ class OrderBook extends Component {
 	}
 
 	render() {
-		const { currentTicker, asks, bids, decimals, mobile, mostRecentTrade, spread, mirror } = this.props
+		const { currentTicker, asks, bids, decimals, mobile, mostRecentTrade, spread, mirror, usd_value } = this.props
+		const user_orders = this.props.user_orders[currentTicker]
 		if (currentTicker == null) {
 			return <div></div>;
 		}
@@ -90,13 +91,12 @@ class OrderBook extends Component {
 				...ask,
 				price: parseFloat(ask.price).toFixed(decimals.value),
 				total: parseFloat(ask.total).toFixed(decimals.maxTotalDecimals),
-				volume: askVolume
+				volume: askVolume,
+				is_user: user_orders && user_orders.includes(parseFloat(ask.price))
 			})
 			asksIterator = asksIterator.next()
 		}
-
 		asksDataSource.reverse()
-
 
 		var bidsIterator = bids.dataSource.beginIterator();
 		var bidsDataSource = []
@@ -108,11 +108,18 @@ class OrderBook extends Component {
 				...bid,
 				price: parseFloat(bid.price).toFixed(decimals.value),
 				total: parseFloat(bid.total).toFixed(decimals.maxTotalDecimals),
-				volume: bidVolume
+				volume: bidVolume,
+				is_user: user_orders && user_orders.includes(parseFloat(bid.price))
 			})
 			bidsIterator = bidsIterator.next()
 		}
 
+		let usd = 0
+		if (window.assetsBySymbol) {
+			const counter = window.assetsBySymbol[currentTicker.split('/')[1]].id
+			usd = usd_value[counter]
+		}
+		
 		if (mirror) {
 			const bids_columns = [{
 				name: (ticker) => {return "Bids " + ticker.split('/')[0].split('0X')[0]},
@@ -208,6 +215,12 @@ class OrderBook extends Component {
 				<section className="orderbook-middle d-flex justify-content-between">
 					<div className="d-flex flex-column justify-content-center">
 						<div className="qt-color-theme qt-font-huge qt-font-light">{mostRecentTrade.price}</div>
+						{ usd ?
+							<div className="text-secondary qt-font-small qt-font-light">
+								${(mostRecentTrade.price * usd).toLocaleString(navigator.language, {maximumFractionDigits: 5, minimumFractionDigits: 2})}
+								</div>
+							: null
+						}
 					</div>
 					<div className="d-flex flex-column justify-content-center">
 						<div className="qt-opacity-half qt-font-base text-right">Spread</div>
@@ -233,14 +246,15 @@ class OrderBook extends Component {
 }
 
 const mapStateToProps = (state) => ({
-	orderbook: state.app.orderBook, 
+	user_orders: state.app.orderBook.user_orders,
   	bids: state.app.orderBook.bids,
   	asks: state.app.orderBook.asks,
 	decimals: state.app.orderBook.decimals,
 	spread: state.app.orderBook.spread,
 	spreadDollar:state.app.orderBook.spreadDollar,
 	mostRecentTrade: state.app.mostRecentTrade,
-	currentTicker:state.app.currentTicker,
-	});
+	currentTicker: state.app.currentTicker,
+	usd_value: state.app.usd_value,
+});
 
 export default connect(mapStateToProps)(OrderBook);

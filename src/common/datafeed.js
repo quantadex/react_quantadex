@@ -1011,6 +1011,8 @@ Datafeeds.DataPulseUpdater.prototype.subscribeDataListener = function(
             newDataCallback(lastBar);
           }
         }
+      }).catch((e) => {
+        console.error("datafeed error", e);
       })
   }
 
