@@ -19,6 +19,8 @@ import Tutorial from './tutorial.jsx'
 import ConnectPrompt from './connect_prompt.jsx'
 import Jackpot from './pot.jsx'
 import Footer from './footer.jsx'
+import Deposit from './deposit.jsx'
+import Withdraw from './withdraw.jsx'
 import CONFIG from '../../config.js'
 import ReactGA from 'react-ga';
 
@@ -384,6 +386,9 @@ class DiceGame extends Component {
             modify_win: false,
             modify_win_amount: 0,
 
+            deposit: false,
+            withdraw: false,
+
             max_bet: false,
             sounds: true,
             stats: false,
@@ -661,7 +666,7 @@ class DiceGame extends Component {
         const precision = window.assetsBySymbol[asset].precision
         const zero = (0).toFixed(precision)
         const precision_min = (1/Math.pow(10, precision)).toFixed(precision)
-        const fund = this.props.balance[asset].balance * Math.pow(10, precision)
+        const fund = (this.props.balance[asset] ? this.props.balance[asset].balance : 0) * Math.pow(10, precision)
         
         this.setState({fund, asset, precision, precision_min, unmod_amount: precision_min, 
             stop_loss_amount_display: zero, stop_profit_amount_display: zero,
@@ -733,12 +738,16 @@ class DiceGame extends Component {
             stop_loss_amount_display, stop_profit_amount_display,
             modify_loss, modify_loss_amount, modify_win, modify_win_amount, show_roll,
             max_bet, sounds, stats, hot_keys, show_chat, show_bets, 
-            processing, bet_info, shared_message, show_tutorial, connect_prompt } = this.state
+            processing, bet_info, shared_message, show_tutorial, connect_prompt,
+            deposit, withdraw } = this.state
         
         const profit = (Number(calculate_profit(roll_over, win_value, BigInt(amount || 0), BigInt(window.roll_dice_percent_of_fee || 0)))/Math.pow(10, precision)).toFixed(precision)
         return (
             <div className={container + " d-flex flex-column"}>
-                <Header setAsset={this.setAsset.bind(this)} demo_fund={fund} />
+                <Header setAsset={this.setAsset.bind(this)} demo_fund={fund}
+                    open_deposit={() => this.setState({deposit: true})}
+                    open_withdraw={() => this.setState({withdraw: true})}
+                />
                 <div className={"d-flex position-relative content-container" + (show_chat ? " show-chat" : "") + (show_bets ? " show-bets" : "")}>
                     <Chat user={private_key ? name : ""} network={network}
                         show_chat={show_chat}
@@ -1086,6 +1095,18 @@ class DiceGame extends Component {
                     <ConnectPrompt dispatch={dispatch} close={() => this.setState({connect_prompt: 0})} />
                     : null
                 }
+
+                { deposit ?
+                    <Deposit asset={asset} close={() => this.setState({deposit: false})} quantaAddress={name} 
+                    isETH={(["ETH", "ERC20"].includes(asset) || asset.split("0X").length == 2)}/>
+                    : null
+                }
+
+                { withdraw ?
+                    <Withdraw asset={asset} close={() => this.setState({withdraw: false})}/>
+                    : null
+                }
+
 				<ToastContainer />
             </div>
         )

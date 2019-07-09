@@ -18,6 +18,7 @@ const container = css`
   margin:0 -15px;
   background-color:white;
   color: #28303c;
+  text-align: left;
 
   input {
     width: 100%;
@@ -77,6 +78,14 @@ const container = css`
     font-weight: bold;
     color: ${globalcss.COLOR_THEME};
     text-decoration: underline;
+    z-index: 1;
+  }
+
+  &.vertical {
+    .toggle {
+      left: 30px;
+      right: auto;
+    }
   }
 `
 
@@ -201,16 +210,19 @@ class QTWithdraw extends React.Component {
   }
   
   CoinDetails() {
-    !this.state.issuer && GetAccount(this.coin.issuer).then(issuer => {
+    const { issuer, showTransfer } = this.state
+    const { vertical } = this.props
+
+    !issuer && GetAccount(this.coin.issuer).then(issuer => {
       this.setState({issuer: (issuer.name == "null-account" ? "Native": issuer.name)})
     })
 
     return (
-      <div className={coin_details + " mx-auto"}>
-        <h1>{this.state.showTransfer ? "TRANSFER" : "WITHDRAW"}<br/><SymbolToken name={this.coin.symbol} showIcon={false} /></h1>
+      <div className={coin_details + " mx-auto py-5" + (vertical ? " d-flex justify-content-between align-items-center w-100 px-5 border-bottom" : "")}>
+        <h1>{showTransfer ? "TRANSFER" : "WITHDRAW"}<br/><SymbolToken name={this.coin.symbol} showIcon={false} /></h1>
         <div>
           Asset ID: <span className="value">{this.coin.id}</span> <a href={CONFIG.getEnv().EXPLORER_URL + "/object/" + this.coin.id} target="_blank"><img src={devicePath("public/images/external-link.svg")} /></a><br/>
-          Issuer: <span className="value">{this.state.issuer}</span><br/>
+          Issuer: <span className="value">{issuer}</span><br/>
           Precision: <span className="value">{this.coin.precision}</span><br/>
           Max Supply: <span className="value">{(parseInt(this.coin.options.max_supply)/Math.pow(10, this.coin.precision)).toLocaleString(navigator.language)}</span>
         </div>
@@ -219,9 +231,10 @@ class QTWithdraw extends React.Component {
   }
 
   Transfer() {
+    const { vertical, handleClick } = this.props
     return (
       <div className="input-container">
-        <div className="close-dialog cursor-pointer" onClick={this.props.handleClick}>Close</div>
+        { vertical ? null : <div className="close-dialog cursor-pointer" onClick={handleClick}>Close</div> }
         {this.state.isCrosschain ? 
           <div className="d-md-none toggle qt-font-small mb-3" onClick={this.toggleTransfer}>Switch to {this.state.showTransfer ? "Withdraw" : "Transfer"}</div> 
           : null}
@@ -251,7 +264,7 @@ class QTWithdraw extends React.Component {
   }
 
   Withdraw() {
-    const { handleClick } = this.props
+    const { vertical, handleClick } = this.props
     const { isCrosschain, showTransfer, asset, issuer, amount, fee, error, errorMsg, memo } = this.state
     const mins = {BTC: 0.00075, ETH: 0.015, LTC: 0.0015, BCH: 0.0015}
     const withdraw_fees = {BTC: 0.0005, ETH: 0.005, LTC: 0.0005, BCH: 0.0005}
@@ -260,7 +273,7 @@ class QTWithdraw extends React.Component {
     const withdraw_fee = withdraw_fees[asset] || (asset.split('0X').length == 2 ? 0.005 : 0)
     return (
       <div className="input-container">
-        <div className="close-dialog cursor-pointer" onClick={handleClick}>Close</div>
+        { vertical ? null : <div className="close-dialog cursor-pointer" onClick={handleClick}>Close</div> }
         {isCrosschain ? 
           <div className="d-md-none toggle qt-font-small mb-3" onClick={this.toggleTransfer}>Switch to {showTransfer ? "Withdraw" : "Transfer"}</div> 
           : null}
@@ -314,10 +327,17 @@ class QTWithdraw extends React.Component {
   }
 
   render() {
+    const { vertical, handleClick } = this.props
     const {isCrosschain, showTransfer, confirmDialog, issuer, destination, amount, asset, fee, memo} = this.state
     return (
-      <div className={container + " d-flex"}>
-        <div className="d-none d-md-flex w-75 align-items-center position-relative">
+      <div className={container + " d-flex" + (vertical ? " flex-column vertical position-relative" : "")}>
+        { vertical ? 
+          <div className="close-dialog cursor-pointer" onClick={handleClick}>
+            <img src="/public/images/x_close.svg" height="12" alt="Close" />
+          </div>
+          : null
+        }
+        <div className={"d-none d-md-flex align-items-center position-relative"  + (vertical ? " w-100" : " w-75")}>
           {isCrosschain ? 
             <div className="position-absolute toggle qt-font-small" onClick={this.toggleTransfer}>Switch to {showTransfer ? "Withdraw" : "Transfer"}</div> 
             : null}

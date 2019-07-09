@@ -37,11 +37,14 @@ const container = css `
     .assets-list {
         position: absolute;
         right: 0;
-        top: 100%;
+        top: 33px;
         min-width: 140px;
+        max-height: 200px;
         background: #b09520;
         border-radius: 3px;
         box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        overflow: hidden;
+        overflow-y: scroll;
         z-index: 1;
 
         .asset:hover {
@@ -54,6 +57,21 @@ const container = css `
         color: #fff;
         background: none;
         margin-right: 0;
+    }
+
+    .transfer-container {
+        width: max-content;
+        margin-top: 5px;
+        
+        .transfer-btn {
+            background: #51b58b;
+            border: 1px solid #3f9571;
+            color: #fff;
+            padding: 0 7px;
+            font-size: 12px;
+            box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.5);
+            cursor: pointer;
+        }
     }
 `
 
@@ -92,14 +110,24 @@ class Header extends Component {
         const { balance, private_key } = nextProps
         if (private_key && !this.state.selected_asset && Object.keys(balance).length > 0) {
             const default_asset = localStorage.getItem("dice_asset") || Object.keys(balance)[0]
-            this.setState({selected_asset: default_asset})
+            for (let listing of window.wallet_listing) {
+                if (balance[listing] === undefined) balance[listing] = {balance: 0, symbol: listing}
+            }
+            this.setState({selected_asset: default_asset, listing_balance: balance})
             this.props.setAsset(default_asset)
+        }
+
+        if (this.state.listing_balance && nextProps.balance != this.state.listing_balance) {
+            const { listing_balance } = this.state
+            Object.assign(listing_balance, nextProps.balance)
+            this.setState({listing_balance})
         }
     }
 
     render() {
-        const { name, balance, network, dispatch, connectDialog, setAsset, demo_fund, buyQdexDialog, private_key } = this.props
-        const { selected_asset, show_assets } = this.state
+        const { name, balance, network, dispatch, connectDialog, setAsset, demo_fund, buyQdexDialog, private_key,
+            open_deposit, open_withdraw } = this.props
+        const { selected_asset, show_assets, listing_balance } = this.state
         return (
             <div className={container + " px-4 px-md-5"}>
                 <div className="d-flex qt-font-normal align-items-center justify-content-between h-100">
@@ -109,12 +137,22 @@ class Header extends Component {
                     <div className="w-100 position-relative">
                         <div  ref="Assets" className="avail-fund text-right cursor-pointer ml-auto">
                             { private_key && selected_asset ? 
-                                balance[selected_asset].balance + " " + balance[selected_asset].symbol.split('0X')[0] + " " + String.fromCharCode(9662)  
+                                listing_balance[selected_asset].balance + " " + listing_balance[selected_asset].symbol.split('0X')[0] + " " + String.fromCharCode(9662)  
                                 : (demo_fund/Math.pow(10, 5)).toFixed(5) + " BTC"}
                         </div>
+                        { private_key ?
+                            <div className="transfer-container d-flex ml-auto">
+                                { ["QDEX", "QAIR"].includes(selected_asset) ?
+                                    null :
+                                    <button className="transfer-btn mr-2" onClick={open_deposit}>Deposit</button>
+                                }
+                                <button className="transfer-btn" onClick={open_withdraw}>{["QDEX", "QAIR"].includes(selected_asset) ? "Transfer" : "Withdraw"}</button>
+                            </div>
+                            : null
+                        }
                         { show_assets ?
                             <div className="assets-list text-right">
-                                {Object.keys(balance).map(coin => {
+                                {Object.keys(listing_balance).map(coin => {
                                     return (
                                         <div key={coin} className="asset my-2 px-3 py-2 cursor-pointer"
                                             onClick={() => {
@@ -122,7 +160,7 @@ class Header extends Component {
                                                 setAsset(coin)
                                             }}
                                         >
-                                            {balance[coin].balance + " " + coin.split('0X')[0]}
+                                            {listing_balance[coin].balance + " " + coin.split('0X')[0]}
                                         </div>
                                     )
                                 })}
