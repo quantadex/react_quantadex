@@ -1,0 +1,14 @@
+baseurl = "http://localhost:3000/blog/"  # Include trailing slash
+title = "QUANTADEX | Blog"
+theme = "hugo-swift-theme"
+author = "Quanta"
+copyright = "Copyright © 2008–2018, Quanta Foundation, Ltd; all rights reserved."
+canonifyurls = true
+paginate = 4
+# Enable syntax highlighting
+# comment on delete the following lines 11 ~ 13
+pygmentsCodefences = true
+pygmentsCodefencesGuessSyntax = true
+pygmentsStyle = "friendly"
+staticDir = "/blog"
+publishDir = "../blog"
