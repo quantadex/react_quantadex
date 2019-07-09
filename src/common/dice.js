@@ -124,7 +124,7 @@ export function calculate_profit(above, betNum, risk, fee) {
     if (above) {
         reward = 1./((100.-betNum)/100.);
     } else {
-        reward = 1./((betNum)/100.);
+        reward = 1./((betNum-1.)/100.);
     }
     var payrate = reward - 1.0;
     var payrateI = BigInt(Math.trunc(payrate * GRAPHENE_100_PERCENT));
