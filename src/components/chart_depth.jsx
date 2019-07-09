@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { connect } from 'react-redux'
 import Highchart from 'highcharts'
 import lodash from 'lodash';
+import Utils from '../common/utils.js'
 
 class DepthChart extends Component {
     constructor(props) {
@@ -9,6 +10,8 @@ class DepthChart extends Component {
         this.state = {
             currentTicker: this.props.currentTicker
         }
+
+        this.timeout
     }
 
     update(bids, asks, ticker, init = false) {
@@ -17,15 +20,20 @@ class DepthChart extends Component {
         let totalBids = 0
         let totalAsks = 0
         let mid, min, max
+        
+        const comp = this.props.currentTicker && this.props.currentTicker.split("/") || ["",""]
+        const base = comp[0].split("0X")
+        const counter = comp[1].split("0X")
+        const precision = window.marketsHash && window.marketsHash[this.props.currentTicker] && window.marketsHash[this.props.currentTicker].pricePrecision || 5
 
         bids.dataSource.map(order => {
             totalBids += parseFloat(order.amount)
-            bidsData.push([parseFloat(order.price), totalBids])
+            bidsData.push([Number(Utils.maxPrecision(parseFloat(order.price), precision)), Number(Utils.maxPrecision(totalBids, precision))])
         })
         bidsData.reverse()
         asks.dataSource.map(order => {
             totalAsks += parseFloat(order.amount)
-            asksData.push([parseFloat(order.price), totalAsks])
+            asksData.push([Number(Utils.maxPrecision(parseFloat(order.price), precision)), Number(Utils.maxPrecision(totalAsks, precision))])
         })
         
         if (bidsData.length > 0 && asksData.length > 0) {
@@ -33,12 +41,20 @@ class DepthChart extends Component {
             min = mid * 0.4
             max = mid * 1.6
 
+            let lowest = bidsData[0][0]
+            let highest = asksData[asksData.length - 1][0]
+
             if (max < asksData[0][0]) {
 				max = asksData[0][0] * 1.5;
 			}
 			if (min > bidsData[bidsData.length - 1][0]) {
 				min = bidsData[bidsData.length - 1][0] * 0.5;
-			}
+            }
+            if(min < lowest && max > highest) {
+                let gap = Math.max(mid - lowest, highest - mid)
+                min = mid - gap
+                max = mid + gap
+            }
         } else if (bidsData.length && !asksData.length) {
 			min = bidsData[bidsData.length - 1][0] * 0.4;
 			max = bidsData[bidsData.length - 1][0] * 1.6;
@@ -60,7 +76,7 @@ class DepthChart extends Component {
         }
         
         if (init || window.depthChartWidget.xAxis[0].min == undefined) {
-            options.title = { text: ticker }
+            options.title = { text: `${base[0]}${(base[1] ? "0x" + base[1].substr(0, 4) : "")}/${counter[0]}${(counter[1] ? "0x" + counter[1].substr(0, 4) : "")}` }
             options.xAxis = { min: min,  max: max }
         }
         
@@ -71,7 +87,7 @@ class DepthChart extends Component {
         window.depthChartWidget = Highchart.chart("depth_chart_container", {
             chart: {
                 type: 'area',
-                backgroundColor: '#23282c'
+                backgroundColor: this.props.mobile ? "#0A121E" : "#23282c"
             },
             title: {
                 text: this.props.currentTicker,
@@ -136,22 +152,33 @@ class DepthChart extends Component {
                 name: 'Bids',
                 data: [],
                 step: 'right',
-                color: '#03a7a8'
+                color: '#03a7a8',
+                states: {
+                    inactive: {
+                        opacity: 1
+                    }
+                },
             }, {
                 name: 'Asks',
                 data: [],
                 step: 'left',
-                color: '#fc5857'
+                color: '#fc5857',
+                states: {
+                    inactive: {
+                        opacity: 1
+                    }
+                },
             }],
         })
         
-        setTimeout(() => {
+        this.timeout = setTimeout(() => {
             this.update(this.props.bids, this.props.asks, this.props.currentTicker, true)
         }, 1000)
     }
 
     componentWillReceiveProps(nextProp) {
-        setTimeout(() => {
+        if (this.props.bids == nextProp.bids && this.props.asks == nextProp.asks) return
+        this.timeout = setTimeout(() => {
             if (nextProp.currentTicker != this.state.currentTicker) {
                 this.setState({currentTicker: nextProp.currentTicker})
                 this.update(nextProp.bids, nextProp.asks, nextProp.currentTicker, true)
@@ -159,6 +186,10 @@ class DepthChart extends Component {
                 this.update(nextProp.bids, nextProp.asks, nextProp.currentTicker)
             }
         }, 1000)
+    }
+
+    componentWillUnmount() {
+        if (this.timeout) clearTimeout(this.timeout)
     }
 
     handleScroll = lodash.throttle((delta) => {

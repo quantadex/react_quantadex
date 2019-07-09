@@ -1,35 +1,58 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom'
 import { connect } from 'react-redux'
-import { ConnectLink } from '../connect.jsx';
 import { css } from 'emotion'
-import Menu from '../menu.jsx';
+import Connect from "../connect.jsx"
+import Menu from "../menu.jsx"
+import ProductsMenu from './products_menu.jsx'
 
 const container = css `
-    position: sticky;
-    position: -webkit-sticky;
-    top: 0;
-    background: #121517;
+    min-height: 60px;
     z-index: 999;
-    
-    .header-logo {
-		margin-bottom: -2px;
-	}
+
+    .left, .right {
+        position: absolute;
+    }
+
+    .right {
+        right: 15px;
+    }
 `
 
 class MobileHeader extends Component {
-    handleConnectDialog(type) {
-        this.setState({dialog: type})
-        setTimeout(() => {
-            document.getElementById("connect-dialog").style.display = "flex"
-        }, 0)
-    }
-
     render() {
+        const { header, publicKey, mobile_nav, network } = this.props
+
+        if (window.isApp) {
+            return (
+                <div className={container + " d-flex align-items-center border-bottom border-dark px-3"}>
+                    { header.left ? 
+                        <div className="left" onClick={header.left}>
+                            <img src={header.left_icon ? header.left_icon : devicePath("public/images/back-btn.svg")} />
+                        </div>
+                        : null
+                    }
+                    <div className="text-uppercase qt-font-bold qt-font-normal mx-auto">{header.header}</div>
+                    { header.right ?
+                        <div className="right" onClick={header.right.action}>{header.right.label}</div>
+                        : null
+                    }
+                </div>
+            )
+        }
+
         return (
-            <div className={container + " d-flex p-4 justify-content-between border-bottom border-dark"}>
-                <Link to="/exchange" className="header-logo"><img src={this.props.network == "MAINNET" ? devicePath("public/images/logo-light.svg") : devicePath("public/images/qdex-fantasy-light.svg")} height="26" /></Link>
-                {this.props.private_key ? <Menu isMobile={true} style={{padding: 0, alignSelf: "center", minWidth: 0}}/> : <ConnectLink isMobile={true} onOpen={this.handleConnectDialog.bind(this)} />}
+            <div className={container + " d-flex justify-content-between align-items-center border-bottom border-dark px-3"}>
+                <div className="d-flex align-items-center">
+                    <Link to={"/" + window.location.search}><img src={devicePath("public/images/logo.svg")} alt="QUANTADEX" /></Link>
+					<ProductsMenu network={network} className="ml-3" />
+                </div>
+                
+                { publicKey ?
+                    <Menu mobile_nav={mobile_nav}/>
+                    :
+                    <Connect type="link" mobile_nav={mobile_nav} />
+                }
             </div>
         )
     }
@@ -37,8 +60,8 @@ class MobileHeader extends Component {
 
 const mapStateToProps = (state) => ({
 	network: state.app.network,
-    private_key: state.app.private_key,
+    publicKey: state.app.publicKey,
+    private_key: state.app.private_key
 });
-
 
 export default connect(mapStateToProps)(MobileHeader);

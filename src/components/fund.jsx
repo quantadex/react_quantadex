@@ -1,18 +1,17 @@
 import React, { Component } from 'react';
-import CONFIG from '../config.js'
 import Header from './headersimple.jsx';
 import { connect } from 'react-redux'
 import { css } from 'emotion'
 import globalcss from './global-css.js'
 
 import QTTabBar from './ui/tabBar.jsx'
-import MobileHeader from './ui/mobileHeader.jsx';
-import MobileNav from './ui/mobileNav.jsx';
 import { ToastContainer } from 'react-toastify';
+import { switchTicker, refreshData } from "../redux/actions/app.jsx";
 import 'react-toastify/dist/ReactToastify.css';
 import Wallets from './wallets.jsx'
 import CrosschainHistory from './crosschain_history.jsx'
 import Vesting from './vesting.jsx'
+import Referral from './referral.jsx'
 
 const container = css`
 	background-color:${globalcss.COLOR_BACKGROUND};
@@ -21,14 +20,6 @@ const container = css`
   .header-row {
     padding:0 20px;
   }
-
-  .mobile-nav {
-		position: fixed;
-		width: 100%;
-		bottom: 0;
-		background-color: #23282c;
-		z-index: 99;
-	}
 
   .tab-row {
     background-color: rgba(52, 62, 68, 0.4);
@@ -68,16 +59,38 @@ const container = css`
 
   &.mobile {
     padding: 0;
+    background-color: #0a121e !important;
+    min-height: unset;
 
-    .tab-row {
-      display: none !important;
+    .content {
+      margin-top: 20px;
+      min-height: 100vh;
     }
 
     .table-row .row {
       height: auto;
       padding: 5px 0;
     }
-  }
+
+    .tab-row {
+      background-color: transparent;
+      margin: 0;
+      height: auto;
+      border: none;
+      font-size: 12px;
+      white-space: nowrap;
+      position: -webkit-sticky;
+      position: -webkit-sticky;
+      position: sticky;
+      top: 0;
+      background: #0A121E;
+      z-index: 1;
+    }
+
+    .tabs {
+      width: 100%;
+      font-size: 12px;
+    }
 `;
 
 class Fund extends Component {
@@ -86,30 +99,57 @@ class Fund extends Component {
     this.state = {
       selectedTabIndex: 0,
     }
+
+    this.wallet_path = location.pathname.includes("/wallets")
+    this.eventUpdate = this.eventUpdate.bind(this)
   }
+
+  componentDidMount() {
+    const { match , dispatch } = this.props
+    if (!window.markets && !window.isApp) {
+			const default_ticker = match && match.params.net == "testnet" ? "ETH/USD" : 'ETH/BTC'
+			dispatch(switchTicker(default_ticker));
+    } 
+    
+    document.addEventListener('mouseenter', this.eventUpdate, false)
+	}
+
+	componentWillUnmount() {
+    document.removeEventListener('mouseenter', this.eventUpdate, false)
+  }
+  
+  componentWillReceiveProps(nextProps) {
+    const { publicKey, match, history, currentTicker } = nextProps
+    if (!publicKey) history.push('/' + (match.params.net == "testnet" ? "testnet" : "mainnet") + '/exchange/' + currentTicker.replace("/", "_"))
+  }
+	
+	eventUpdate() {
+		this.props.dispatch(refreshData())
+	}
 
   handleSwitch(index) {
 		this.setState({selectedTabIndex: index})
 	}
 
 	render() {
-    if (this.props.private_key == null) {
-			window.location.assign('/exchange')
-    } 
+    const { isMobile, currentTicker, name, mobile_nav } = this.props
+
+    if (!currentTicker && !window.markets) {
+      return <div className={container + " container-fluid" + (isMobile ? " mobile" : "")}></div>
+    }
 
     const tabs = {
-			names: ['Wallets', 'Vesting', 'Crosschain History'],
+			names: ['Wallets', 'Vesting', 'Crosschain History', "Referral"],
 			selectedTabIndex: 0,
     }
-    const content = [<Wallets />, <Vesting />, <CrosschainHistory user={this.props.name} />]
-    
+    const content = [<Wallets mobile_nav={mobile_nav} />, <Vesting />, <CrosschainHistory user={name} />, <Referral />]
 		return (
-		<div className={container + " container-fluid" + (this.props.isMobile ? " mobile" : "")}>
-      {this.props.isMobile ? 
-          <MobileHeader />
+		<div className={container + " container-fluid" + (isMobile ? " mobile" : "")}>
+      {isMobile && !this.wallet_path ? 
+          null
         :
-        <div className="row header-row">
-          <Header />
+        <div className="header-row">
+          <Header mobile={isMobile} hash={this.props.location.hash} />
         </div>
       }
       
@@ -117,19 +157,13 @@ class Fund extends Component {
         <div className="tabs">
           <QTTabBar
             className="pad-sides underline fluid even-width qt-font-semibold d-flex"
-            width={200}
+            width={isMobile || 200}
             tabs = {tabs}
             switchTab = {this.handleSwitch.bind(this)}
           />
         </div>
       </div>
       {content[this.state.selectedTabIndex]}
-        {this.props.isMobile ? 
-        <div className="mobile-nav">
-          <MobileNav tabs={tabs} selectedTabIndex={this.state.selectedTabIndex} switchTab={this.handleSwitch.bind(this)} /> 
-        </div>
-          : null
-        }
       <ToastContainer />
 		</div>
 		);
@@ -139,7 +173,9 @@ class Fund extends Component {
 const mapStateToProps = (state) => ({
     isMobile: state.app.isMobile,
     private_key: state.app.private_key,
-		name: state.app.name
+    publicKey: state.app.publicKey,
+    name: state.app.name,
+    currentTicker: state.app.currentTicker
 	});
 
 

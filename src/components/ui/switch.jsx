@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { css } from 'emotion'
+import ReactTooltip from 'react-tooltip'
 
 const container = css `
     #container {
@@ -32,27 +33,38 @@ const container = css `
     .active #switch {
         left: 11px;
     }
+
+    &.dark {
+        #container {
+            border: 1px solid #333;
+        }
+        #switch {
+            background-color: #333;
+        }
+        .active#container {
+            background-color: transparent;
+            border-color: #333;
+        }
+    }
 `
 
 export default class Switch extends Component {
-    handleSwitch(toggle) {
-        const el = document.getElementById("container")
-        if (el.classList.contains("active")) {
-            el.classList.remove("active")
-            toggle(false)
-        } else {
-            el.classList.add("active")
-            toggle(true)
-        }
-    }
 
     render() {
+        const { label, onToggle, active, className, dataTip } = this.props
         return (
-            <div className={container + " qt-font-extra-small"}>
-                <span>{this.props.label}</span>
-                <div id="container" onClick={this.handleSwitch.bind(this, this.props.onToggle)}>
+            <div className={container + " qt-font-extra-small " + (className || "")}>
+                <span>{label}</span>
+                <div id={"container"} className={(active ? "active" : "")} onClick={onToggle}>
                     <span id="switch"></span>
                 </div>
+                { dataTip ?
+                    <React.Fragment>
+				        <img className="ml-2" src={devicePath("public/images/question.png")} data-tip={dataTip} />
+                        <ReactTooltip clickable={true} html={true} />
+                    </React.Fragment>
+                    : null
+                }
             </div>
             
         )

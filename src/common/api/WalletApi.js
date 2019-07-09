@@ -6,9 +6,12 @@ import {
 import ApplicationApi from "./ApplicationApi";
 
 const dictJson = require("./dictionary_en.json");
-import { ChainStore, PrivateKey, key, Aes } from "@quantadex/bitsharesjs";
+import { ChainStore, PublicKey, PrivateKey, key, Aes } from "@quantadex/bitsharesjs";
 
 const WalletApi = {
+    getShortAddress(publicKey) {
+        return PublicKey.fromPublicKeyString(publicKey).toAddressString()
+    },
     generate_key(brainkey_plaintext) {
         if (!brainkey_plaintext)
             brainkey_plaintext = key.suggest_brain_key(dictJson.en);

@@ -7,9 +7,14 @@ import globalcss from './global-css.js'
 import QTDeposit from './ui/deposit.jsx'
 import QTWithdraw from './ui/withdraw.jsx'
 import SearchBox from "./ui/searchBox.jsx"
+import Loader from "./ui/loader.jsx"
 import Switch from "./ui/switch.jsx"
+import { updateUserData } from '../redux/actions/app.jsx'
+import ReactGA from 'react-ga';
 
 const container = css`
+  padding-bottom: 30vh !important;
+
   .public-address-container {
     background-color: #2a3135;
     border-radius: 2px;
@@ -23,7 +28,22 @@ const container = css`
       margin-left: 10px;
     }
   }
+  .changelly {
+    position: relative;
+    a {
+      color: ${globalcss.COLOR_THEME};
+      border: 1px solid ${globalcss.COLOR_THEME};
+      border-radius: 2px;
+      padding: 5px 10px;
+    }
 
+    span {
+      position: absolute;    
+      right: 0;
+      bottom: -20px;
+    }
+  }
+  
   &.mobile {
     .public-address-container {
       margin: 0;
@@ -54,7 +74,6 @@ const container = css`
 
     .filter-container, .table-row {
       padding: 0 15px;
-      margin-top: 20px !important;
     }
 
     .filter-container input {
@@ -90,72 +109,68 @@ class Wallets extends Component {
     super(props)
     this.state = {
       dataSource: [],
+      unlisted: [],
       filter: "",
       hideZero: false,
-      txData: undefined,
       confirmDialog: false,
     }
 
     this.PublicAddress = this.PublicAddress.bind(this)
-    this.BTC_id = window.assetsBySymbol["BTC"].id
-    this.ETH_id = window.assetsBySymbol["ETH"].id
   }
 
   componentDidMount() {
-    fetch(CONFIG.SETTINGS[window.currentNetwork].API_PATH + "/node1/address/eth/" + this.props.name).then(e => e.json())
-    .then(e => {
-      this.setState({ethAddress: e && (e[e.length-1] && e[e.length-1].Address) || undefined})
-    })
-
-    fetch(CONFIG.SETTINGS[window.currentNetwork].API_PATH + "/node1/address/btc/" + this.props.name).then(e => e.json())
-    .then(e => {
-      this.setState({btcAddress: e && (e[e.length-1] && e[e.length-1].Address) || undefined})
-    })
-
-    this.setDataSource(this.props.balance)
+    const { balance, dispatch } = this.props
+    dispatch(updateUserData())
+    this.setDataSource(balance)
   }
 
 	componentWillReceiveProps(nextProps) {
+    if (this.props.name !== nextProps.name) {
+      this.componentDidMount(nextProps.name)
+    }
     if (this.props.balance != nextProps.balance) {
       this.setDataSource(nextProps.balance)
     }
   }
 
   setDataSource(balance) {
+    if (!window.assets || !window.wallet_listing) return
+    const { onOrdersFund } = this.props
+
     const dataSource = []
-    let has_BTC = false
-    let has_ETH = false
-    balance.forEach(currency => {
-      if (!has_BTC && currency.asset == this.BTC_id) {
-        has_BTC = true
-      }
-      if (!has_ETH && currency.asset == this.ETH_id) {
-        has_ETH = true
-      }
+    const in_wallet = []
+    const unlisted = []
+
+    Object.keys(balance).forEach(symbol => {
+      let currency = balance[symbol]
       const data = {
-        pairs: window.assets[currency.asset].symbol,
+        pairs: symbol,
         balance: currency.balance,
-        on_orders: this.props.onOrdersFund[currency.asset] || 0,
+        on_orders: onOrdersFund[currency.asset] || 0,
         usd_value: currency.usd > 0 ? currency.usd.toLocaleString(navigator.language, {maximumFractionDigits: 2, minimumFractionDigits: 2}) : "N/A"
       }
-      dataSource.push(data)
+      if (window.wallet_listing.includes(symbol) || symbol == "QDEX") {
+        dataSource.push(data)
+      } else {
+        unlisted.push(data)
+      }
+      in_wallet.push(symbol)
     });
 
-    if (!has_BTC) {
-      dataSource.push({
-        pairs: "BTC",
-        balance: 0,
-        on_orders: 0,
-        usd_value: "N/A"
-      })
-    }
-    if (!has_ETH) {
-      dataSource.push({
-        pairs: "ETH",
-        balance: 0,
-        on_orders: 0,
-        usd_value: "N/A"
-      })
+    for (let coin of (Object.keys(window.assetsBySymbol) || [])) {
+      if (in_wallet.indexOf(coin) === -1) {
+        let data = {
+          pairs: coin,
+          balance: 0,
+          on_orders: 0,
+          usd_value: "N/A"
+        }
+        if (window.wallet_listing.includes(coin)) {
+          dataSource.push(data)
+        } else {
+          unlisted.push(data)
+        }
+      }
     }
 
     dataSource.push({
@@ -165,17 +180,15 @@ class Wallets extends Component {
       usd_value: 0
     })
 
-    this.setState({
-      dataSource: dataSource
-    })
+    this.setState({dataSource, unlisted})
   }
   
   handleChange(e) {
 		this.setState({filter: e.target.value})
   }
   
-  hideZeroBalance(hide) {
-    this.setState({hideZero: hide})
+  hideZeroBalance() {
+    this.setState({hideZero: !this.state.hideZero})
   }
 
   PublicAddress() {
@@ -184,7 +197,7 @@ class Wallets extends Component {
         <div id='public-address'>
           <h3>Your QUANTA Wallet Account</h3>
           <span className="qt-font-light">{this.props.name}</span>
-          <a href={CONFIG.SETTINGS[window.currentNetwork].EXPLORER_URL + "/account/" + this.props.name} target="_blank"><img src={devicePath("public/images/external-link-light.svg")} /></a>
+          <a href={CONFIG.getEnv().EXPLORER_URL + "/account/" + this.props.name} target="_blank"><img src={devicePath("public/images/external-link-light.svg")} /></a>
         </div>
         <div className="est-fund text-right align-self-center">
           <span className="qt-font-extra-small qt-white-62">On-chain custody estimated funds</span>
@@ -195,7 +208,39 @@ class Wallets extends Component {
     )
   }
 
+  Changelly() {
+    return (
+      <div className="d-flex ml-auto my-2 changelly">
+        <img className="mr-3" src={devicePath("public/images/visa-logo.svg")} alt="Visa" />
+        <img className="mr-3" src={devicePath("public/images/mastercard-logo.svg")} alt="Mastercard" />
+        <ReactGA.OutboundLink
+          eventLabel="Clicked Buy BTC with credit card"
+          to="https://payments.changelly.com/"
+          target="_blank"
+          className="text-uppercase"
+        >
+          BUY BTC with credit card
+        </ReactGA.OutboundLink>
+        <span className="small text-muted">
+          <img 
+            className="mr-2 align-bottom"
+            data-tip="Copy & paste your BTC deposit address to Changelly, and buy with your credit card" 
+            src={devicePath("public/images/question.png")} 
+          /> 
+          Powered by Changelly
+        </span>
+      </div>
+    )
+  }
+
+  shortName(coin) {
+    const pair = coin.split('0X')
+		return pair[0] + (pair[1] ? "0X" + pair[1].substr(0,4) : "")
+	}
+
   render() {
+    const { network, private_key, publicKey, name, isMobile, mobile_nav, dispatch } = this.props
+    const { dataSource, hideZero, filter, unlisted } = this.state
     const columns = [{
         title: "PAIRS",
         key: "pairs",
@@ -218,38 +263,67 @@ class Wallets extends Component {
         width:"90"
     }, {
         buttons: [{
-          label:"WITHDRAW",
+          label: "WITHDRAW",
           color:"theme unite",
           handleClick: (asset, close) => {
 						return <QTWithdraw asset={asset} handleClick={close} />
-          },
-          disabled: (pairs) => {return false}
+          }
         }, {
-          label:"DEPOSIT",
+          label: "DEPOSIT",
           color:"theme unite",
           handleClick: (asset, close) => {
-            return <QTDeposit asset={asset} handleClick={close} quantaAddress={this.props.name} 
-            isETH={(["ETH", "ERC20"].includes(asset) || asset.split("0X").length == 2)}
-            deposit_address={(["ETH", "ERC20"].includes(asset) || asset.split("0X").length == 2) ? this.state.ethAddress : this.state.btcAddress} />
-          },
-          disabled: (pairs) => {return false}
+            ReactGA.event({
+              category: 'DEPOSIT_EXPAND',
+              action: asset
+            });
+            return <QTDeposit asset={asset} handleClick={close} quantaAddress={name} 
+            isETH={(["ETH", "ERC20"].includes(asset) || asset.split("0X").length == 2)} />
+          }
+        }, {
+          label: "TRADE",
+          color:"theme unite"
         }],
         type: "buttons"
     }]
     
     return (
-      <div className={container + " content" + (this.props.isMobile ? " mobile" : "")}>
-          <this.PublicAddress />
+      <div className={container + " content" + (isMobile ? " mobile" : "")}>
+        { publicKey ? <this.PublicAddress /> : null }
           
-          <div className='filter-container d-flex mt-5 align-items-center'>
+          
+          <div className='filter-container d-flex flex-wrap mt-5 align-items-center'>
           <SearchBox placeholder="Search Coin" onChange={this.handleChange.bind(this)} style={{marginRight: "20px"}}/>
-          <Switch label="Hide Zero Balances" onToggle={this.hideZeroBalance.bind(this)} />
+          <Switch label="Hide Zero Balances" active={hideZero} onToggle={this.hideZeroBalance.bind(this)} />
+          <this.Changelly />
           </div>
 
-          <div className="table-row">
-          <QTTableView dataSource={this.state.dataSource.filter(data => data.pairs.toLowerCase().includes(this.state.filter.toLowerCase()) && 
-              (!this.state.hideZero || data.balance > 0))} columns={columns} mobile={this.props.isMobile}/>
-          </div>
+          {dataSource.length == 0 ?
+            <Loader size={50} />
+            :
+            <div className="table-row">
+              <QTTableView dataSource={dataSource.filter(data => this.shortName(data.pairs).toLowerCase().includes(filter.toLowerCase()) && 
+                  (!hideZero || data.balance > 0))} 
+                  network={network}
+                  dispatch={dispatch}
+                  mobile_nav={mobile_nav}
+                  columns={columns} mobile={isMobile} 
+                  unlocked={private_key && true}/>
+            </div>
+          }
+
+          {unlisted.length > 0 ?
+            <div className="table-row">
+              <h5>Unofficial Coins</h5>
+              <QTTableView dataSource={unlisted.filter(data => this.shortName(data.pairs).toLowerCase().includes(filter.toLowerCase()) && 
+                  (!hideZero || data.balance > 0))} 
+                  network={network}
+                  dispatch={dispatch}
+                  mobile_nav={mobile_nav}
+                  columns={columns} mobile={isMobile} 
+                  unlocked={private_key && true}/>
+            </div>
+            : null
+          }
       </div>
     );
 	}
@@ -257,13 +331,14 @@ class Wallets extends Component {
 
 const mapStateToProps = (state) => ({
     isMobile: state.app.isMobile,
-    balance: state.app.balance,
-    onOrdersFund: state.app.onOrdersFund,
+    balance: state.app.balance || {},
+    onOrdersFund: state.app.onOrdersFund || [],
     publicKey: state.app.publicKey || "",
     private_key: state.app.private_key,
-    estimated_fund: state.app.totalFundValue,
+    estimated_fund: state.app.totalFundValue || 0,
     usd_value: state.app.usd_value,
-		name: state.app.name
+    name: state.app.name,
+    network: state.app.network,
 	});
 
 

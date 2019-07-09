@@ -9,8 +9,9 @@ import QTTabBar from './ui/tabBar.jsx'
 import QTButton from './ui/button.jsx'
 import QTTableViewSimple from './ui/tableViewSimple.jsx'
 import Loader from './ui/loader.jsx'
+import Switch from "./ui/switch.jsx"
 
-import {cancelTransaction, loadOrderHistory} from "../redux/actions/app.jsx";
+import { cancelTransaction, loadOrderHistory, TOGGLE_CONNECT_DIALOG, updateUserData } from "../redux/actions/app.jsx";
 import ReactGA from 'react-ga';
 import lodash from 'lodash';
 
@@ -120,40 +121,18 @@ const container = css`
     font-size: 16px;
     color: #777;
   }
-  
-  .loader {
-    display: none;
-    border: 2px solid rgba(255,255,255,0.5);
-    border-radius: 50%;
-    border-top: 2px solid #fff;
-    width: 15px;
-    height: 15px;
-    float: right;
-    margin-right: 28px;
-    -webkit-animation: spin 2s linear infinite;
-    animation: spin 2s linear infinite;
-  }
-  
-  @-webkit-keyframes spin {
-      0% { -webkit-transform: rotate(0deg); }
-      100% { -webkit-transform: rotate(360deg); }
-  }
-      
-  @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-  }
 
   &.mobile {
     padding: 15px;
     margin: 0;
-    .scroll-up {
-      display: none;
+    
+    .sticky, thead th {
+      background: #0A121E;
     }
 
     .order-list {
       padding: 0;
-      height: calc(100vh - 235px);
+      height: calc(100vh - 168px);
 
       .list-row {
         padding: 5px 0;
@@ -161,7 +140,7 @@ const container = css`
       }
 
       .item-assets {
-        width: 30%;
+        width: 50%;
       }
       .item-price {
         width:50%;
@@ -171,7 +150,7 @@ const container = css`
         padding-right: 20px;
       }
       .item-status {
-        width: 20%;
+        width: 30%;
       }
 
       .filled-order {
@@ -209,9 +188,6 @@ const container = css`
           padding: 0 10px;
         }
       }
-      .item-details.active {
-        display: block;
-      }
     }
   }
 `;
@@ -221,11 +197,12 @@ class Orders extends Component {
     super(props);
     this.state = {
       selectedTabIndex: 0,
+      hideMarkets: false,
       isFocused: false,
-      cancelling: [],
+      cancelling: {},
       selectedRow: null,
       loading: false,
-      page: 1
+      page: 1,
     };
 
     this.OpenOrders = this.OpenOrders.bind(this)
@@ -234,46 +211,57 @@ class Orders extends Component {
 
   handleSwitch(index) {
     this.setState({selectedTabIndex: index})
+    this.props.dispatch(updateUserData())
     document.getElementById("scroll-order-list").scrollTop = 0
   }
 
   notify_success = (toastId) => toast.update(toastId, {
     render: "Order cancelled",
     type: toast.TYPE.SUCCESS,
-    autoClose: 5000,
-    position: toast.POSITION.TOP_CENTER
+    autoClose: 2000,
+    position: toast.POSITION.TOP_CENTER,
+    pauseOnFocusLoss: false,
+    pauseOnHover: false
   });
   notify_failed = (toastId) => toast.update(toastId, {
     render: "Unable to cancel order",
     type: toast.TYPE.ERROR,
-    autoClose: 5000,
-    position: toast.POSITION.TOP_CENTER
+    autoClose: 2000,
+    position: toast.POSITION.TOP_CENTER,
+    pauseOnFocusLoss: false,
+    pauseOnHover: false
   });
 
   handleCancel(market, order) {
     const toastId = toast("CANCELING...", { autoClose: false, position: toast.POSITION.TOP_CENTER });
-    if (!this.props.mobile) {
-      var id = order.replace(/\./g, '-')
-      document.querySelectorAll('#cancel-' + id + ' button')[0].style.display = 'none';
-      document.querySelectorAll('#cancel-' + id + ' .loader')[0].style.display = 'block';
-    }
+    const self = this
+    this.setState((state) => {
+      let cancelling = state.cancelling
+      cancelling[order] = true
+      return {cancelling}
+    })
 
     ReactGA.event({
       category: 'CANCEL',
       action: market
     });
-    this.props.dispatch(cancelTransaction(market, order))
+    this.props.dispatch(cancelTransaction(order))
     .then((e) => {
-      if (!this.props.mobile) {
-        document.querySelectorAll('#cancel-' + id + ' .loader')[0].style.display = 'none';
-      }
+      setTimeout(() => {
+        self.setState((state) => {
+          let cancelling = state.cancelling
+          delete cancelling[order]
+          return {cancelling}
+        })
+      }, 5000)
       
       this.notify_success(toastId)
     }).catch((e) => {
-      if (!this.props.mobile) {
-        document.querySelectorAll('#cancel-' + id + ' button')[0].style.display = 'inherit';
-        document.querySelectorAll('#cancel-' + id + ' .loader')[0].style.display = 'none';
-      }
+      this.setState((state) => {
+        let cancelling = state.cancelling
+        delete cancelling[order]
+        return {cancelling}
+      })
       this.notify_failed(toastId)
     })
   }
@@ -309,11 +297,30 @@ class Orders extends Component {
     }
   }, 200)
 
+  openConnect() {
+    const { mobile_nav, dispatch } = this.props
+        if (mobile_nav) {
+            mobile_nav("connect")
+        } else {
+            dispatch({
+                type: TOGGLE_CONNECT_DIALOG,
+                data: "connect"
+            })
+        }
+  }
+
   OpenOrders() {
-    if (this.props.openOrders.dataSource.length == 0) {
+    const { openOrders, currentTicker, mobile, private_key } = this.props
+    const { cancelling } = this.state
+
+    if (openOrders.dataSource.length == 0) {
       return <div className="empty-list">You have no active orders</div>
     }
-    if (this.props.mobile) {
+
+    const dataSource = openOrders.dataSource.filter(row => !this.state.hideMarkets || row.assets === currentTicker)
+    dataSource.sort((a,b) => (a.id > b.id) ? -1 : ((b.id > a.id) ? 1 : 0))
+
+    if (mobile) {
       return (
         <div>
           <div className="list-row sticky">
@@ -323,18 +330,25 @@ class Orders extends Component {
               <span className="item-type text-right">TYPE</span>
             </div>
           </div>
-          {this.props.openOrders.dataSource.sort((a,b) => (a.id > b.id) ? -1 : ((b.id > a.id) ? 1 : 0)).map((row) => {
+          {dataSource.map((row) => {
             return (
               <div key={row.id} className="list-row" onClick={() => this.toggleDetails(row.id)}>
                 <div className="d-flex list-item">
-                  <span className="item-assets">{row.assets}</span>
+                  <span className="item-assets">{row.pair}</span>
                   <span className="item-price text-right">{row.price}</span>
                   <span className={"text-right item-type item-type-" + row.type}>{row.type}</span>
                 </div>
-                <div className={"item-details" + (this.state.selectedRow == row.id ? " active" : "")}>
+                <div className={"item-details justify-content-between flex-wrap mt-2" + (this.state.selectedRow == row.id ? " d-flex" : "")}>
                   <span className="item"><span className="label">AMOUNT</span> {row.amount}</span>
                   <span className="item"><span className="label">TOTAL</span> {row.total}</span>
-                  <button onClick={() => this.handleCancel(row.assets, row.id)}>CANCEL</button>
+                  {
+                    cancelling[row.id] ?
+                    <Loader size={15} />
+                    :
+                    <button onClick={() => !private_key ? this.openConnect() : this.handleCancel(row.assets, row.id)}>
+                      CANCEL
+                    </button>
+                  }
                 </div>
               </div>
             )
@@ -343,7 +357,11 @@ class Orders extends Component {
       )
     } else {
       return (
-        <QTTableViewSimple dataSource={this.props.openOrders.dataSource.sort((a,b) => (a.id > b.id) ? -1 : ((b.id > a.id) ? 1 : 0))} columns={this.props.openOrders.columns}
+        <QTTableViewSimple dataSource={dataSource} 
+        columns={openOrders.columns}
+        disabled={!private_key} 
+        openConnect={this.openConnect.bind(this)}
+        cancelling={cancelling}
         cancelOrder={this.handleCancel.bind(this)} />
       )
     }
@@ -353,6 +371,8 @@ class Orders extends Component {
     if (this.props.filledOrders.dataSource.length == 0) {
       return <div className="empty-list">You have no recent filled orders in this market</div>
     }
+
+    const dataSource = this.props.filledOrders.dataSource.concat(this.props.filledOrders.dataSource2).filter(row => !this.state.hideMarkets || row.assets === this.props.currentTicker)
 
     if (this.props.mobile) {
       return (
@@ -365,16 +385,16 @@ class Orders extends Component {
               <span className="item-type text-right">TYPE</span>
             </div>
           </div>
-          {this.props.filledOrders.dataSource.concat(this.props.filledOrders.dataSource2).map((row, index) => {
+          {dataSource.map((row, index) => {
             return (
               <div key={row.id + index} className="list-row" onClick={() => this.toggleDetails(index)}>
                 <div className="d-flex list-item">
-                  <span className="item-assets">{row.assets}</span>
+                  <span className="item-assets">{row.pair}</span>
                   <span className="item-price text-right">{row.price}</span>
                   <span className="item-status text-right">{row.status}</span>
                   <span className={"text-right item-type item-type-" + row.type}>{row.type}</span>
                 </div>
-                <div className={"item-details" + (this.state.selectedRow == index ? " active" : "")}>
+                <div className={"item-details justify-content-between flex-wrap mt-2" + (this.state.selectedRow == index ? " d-flex" : "")}>
                   <span className="item"><span className="label">AMOUNT</span> {row.amount}</span>
                   <span className="item"><span className="label">TOTAL</span> {row.total}</span>
                 </div>
@@ -385,12 +405,13 @@ class Orders extends Component {
       )
     } else {
       return (
-        <QTTableViewSimple dataSource={this.props.filledOrders.dataSource.concat(this.props.filledOrders.dataSource2)} columns={this.props.filledOrders.columns}/>
+        <QTTableViewSimple dataSource={dataSource} columns={this.props.filledOrders.columns}/>
       )
     }
   }
 
   render() {
+    const { mobile } = this.props
     const tabs = {
       names: ['Open Orders', 'Order History'],
       selectedTabIndex: 0,
@@ -398,15 +419,19 @@ class Orders extends Component {
     const OrdersList = [<this.OpenOrders />, <this.FilledOrders />]
 
     return (
-      <div className={container + (this.props.mobile ? " mobile" : "")}>
-      <div className="sticky">
+      <div className={container + (mobile ? " mobile" : "")}>
+      <div className="sticky d-flex align-items-center">
           <QTTabBar
-            className="button small static set-width qt-font-bold d-flex justify-content-left"
+            className={"small static set-width qt-font-bold d-flex justify-content-left " + (mobile ? "underline" : "button")}
             width={120}
             gutter={10}
             tabs = {tabs}
             switchTab = {this.handleSwitch.bind(this)}
           />
+          <Switch label="Current Market Only" 
+            className={mobile ? "ml-4" : ""}
+            active={this.state.hideMarkets} 
+            onToggle={() => this.setState({hideMarkets: !this.state.hideMarkets})} />
         </div>
         <section className="order-list no-scroll-bar">
           <div id="scroll-order-list" onScroll={(e) => this.handleScroll(e.target)}>
@@ -420,6 +445,7 @@ class Orders extends Component {
 }
 
 const mapStateToProps = (state) => ({
+    private_key: state.app.private_key,
   	bids: state.app.tradeBook.bids,
   	asks: state.app.tradeBook.asks,
 		currentPrice: state.app.currentPrice,

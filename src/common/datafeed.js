@@ -1,5 +1,7 @@
 import { Apis } from "@quantadex/bitsharesjs-ws";
 import { transformPriceData } from "../common/PriceData";
+import lodash from 'lodash';
+import CONFIG from "../config.js";
 
 /*
 	This class implements interaction with UDF-compatible datafeed.
@@ -7,6 +9,32 @@ import { transformPriceData } from "../common/PriceData";
 	See UDF protocol reference at
 	https://github.com/tradingview/charting_library/wiki/UDF
 */
+
+// { text: "1m", resolution: "1" },
+// { text: "5m", resolution: "5" },
+// { text: "15m", resolution: "15" },
+// { text: "30m", resolution: "30" },
+// { text: "1h", resolution: "60" },
+// { text: "1D", resolution: "1D" },
+
+const BinanceResolution = {
+  "1": "1m",
+  "5": "5m",
+  "15" : "15m",
+  "30" : "30m",
+  "60" : "1h",
+  "1D" : "1d"
+}
+
+function getResolutionInSec(resolution) {
+  let resolutionSec = null;
+  if (resolution == "1D") {
+    resolutionSec = 1440
+  } else {
+    resolutionSec = parseInt(resolution)
+  }
+  return resolutionSec;
+}
 
 function parseJSONorNot(mayBeJSON) {
   if (typeof mayBeJSON === "string") {
@@ -394,14 +422,24 @@ Datafeeds.UDFCompatibleDatafeed.prototype.resolveSymbol = function(
     //     that._logMessage("Error resolving symbol: " + JSON.stringify([reason]));
     //     onResolveErrorCallback("unknown_symbol");
     //   });
+
     setTimeout(function() {
+      const parts = symbolName.split("@")
+      let ticker = parts.length > 1 ? parts[0] : symbolName;
+      const comp = ticker.split("/")
+      const base = comp[0] && comp[0].split("0X") || []
+      const counter = comp[1] && comp[1].split("0X") || []
       onResultReady({
         name: symbolName,
         ticker: symbolName,
-        description: symbolName,
+        description: `${base[0]}${(base[1] ? "0x" + base[1].substr(0, 4) : "")}/${counter[0]}${(counter[1] ? "0x" + counter[1].substr(0, 4) : "")}`,
         // exchange: "QDEX",
-        timezone: "America/Los_Angeles",
+        timezone: "GMT/UTC",
         has_intraday: true,
+        //has_empty_bars: true,
+        pricescale: 10000000,
+        minmov: 1,
+        minmove2: 0,
         supported_resolutions: ['1', '5', '15', '30', '60', '1D']
       });
     }, 500)
@@ -434,6 +472,25 @@ function getBaseCounter(market) {
   }
 }
 
+function getExternalPrice(ticker, resolution, errorCb) {
+  if (ticker.startsWith("BINANCE:")) {
+    const symbol = ticker.split(":")[1]
+    let interval = BinanceResolution[resolution]
+    var url = CONFIG.getEnv().API_PATH +`/get_external_price?timeframe=${interval}&symbol=${symbol}&exchange=binance`
+    // var url = new URL(CONFIG.getEnv().API_PATH +"/get_external_price")
+    // url.search = new URLSearchParams({timeframe: interval, symbol: symbol, exchange: "binance"});
+    return fetch(url, { mode: "cors" }).then(data => data.json()).then(data => {
+      const bars = data.map((e, index) => {
+        return { time: e[0], open: e[1], high: e[2], low: e[3], close: e[4], volume: 0 }
+      });
+      return bars;
+    }).catch(e => {
+      errorCb()
+    })
+  }
+  return Promise.resolve();
+}
+
 Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
   symbolInfo,
   resolution,
@@ -442,51 +499,7 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
   onDataCallback,
   onErrorCallback
 ) {
-  //	timestamp sample: 1399939200
-  // if (rangeStartDate > 0 && (rangeStartDate + "").length > 10) {
-  //   throw new Error([
-  //     "Got a JS time instead of Unix one.",
-  //     rangeStartDate,
-  //     rangeEndDate
-  //   ]);
-  // }
-
-  console.log(symbolInfo);
-  //if (symbolInfo.ticker.startsWith("BINANCE:")) 
-  {
-    const symbol = "BTC/USDT"; //symbolInfo.ticker.split(":")[1]
-    let interval = resolution.toLowerCase();
-    if (!resolution.endsWith("d")) {
-      interval = resolution + "m";
-    }
-    var url = new URL("http://localhost:5000/get_external_price")
-    url.search = new URLSearchParams({
-      timeframe: interval,
-      symbol: symbol,
-      exchange: "binance"
-    })
-
-    return fetch(url).then(data => data.json()).then(data=>{
-      const bars = data.map((e,index)=> {
-        return { time: new Date(e[0]), open: e[1], high: e[1], low: e[1], close: e[1], volume: e[5] }
-      });
-      if (data.length == 0) {
-        onDataCallback(bars, { noData: true })
-      } else {
-        console.log(bars);
-        onDataCallback(bars);
-      }
-    })
-  }
-
-
-  if (resolution == "1D") {
-    resolution = "1440"
-  }
-
-  try {
-    var { base, counter } = getBaseCounter(symbolInfo.ticker);
-  } catch(e) {
+  function errorCb() {
     setTimeout(() => {
       Datafeeds.UDFCompatibleDatafeed.prototype.getBars(
         symbolInfo,
@@ -496,44 +509,89 @@ Datafeeds.UDFCompatibleDatafeed.prototype.getBars = function(
         onDataCallback,
         onErrorCallback)
     }, 1000)
+  } 
+  //TODO: Detect better
+  if (!window.allMarketsByHash) {
+    errorCb()
     return
   }
-  const bucketCount = 200
 
-  const endDate = new Date(rangeEndDate * 1000)
-  const startDate = new Date(
-    endDate.getTime() -
-    resolution * 60 * bucketCount * 1000
-  );
+  const parts = symbolInfo.ticker.split("@")
+  let ticker = parts.length > 1 ? parts[0] : symbolInfo.ticker;
 
-  // console.log("Load prices ", symbolInfo, resolution, rangeStartDate, rangeEndDate);
-  return Apis.instance()
-    .history_api()
-    .exec("get_market_history", [      
-      base.id,
-      counter.id,
-      resolution * 60,
-      startDate.toISOString().slice(0, -5),
-      endDate.toISOString().slice(0, -5)
-    ]).then((data) => {
-      // console.log("chart data", data);
-      const no_data = data.length == 0;
-      const bars = transformPriceData(data, counter, base);
-      // console.log("Bars ", bars, no_data);
+  try {
+    var { base, counter } = getBaseCounter(ticker);
+  } catch(e) {
+    errorCb()
+    return
+  }
 
-      // console.log("Writing Enddate");
-      Datafeeds.endDate = endDate;
+    let resolutionSec = getResolutionInSec(resolution)
 
-      if (data.length == 0) {
-        const bars = [{ time: startDate}, {time: endDate}]
-        console.log("no data?",bars);
-        onDataCallback(bars)
-
-        onDataCallback([], {noData: true})
+    const bucketCount = 200
+    const endDate = new Date(rangeEndDate * 1000)
+    const startDate2 = new Date(rangeStartDate * 1000)
+    const startDate = new Date(
+      endDate.getTime() -
+      resolutionSec * 60 * bucketCount * 1000
+    );
+    // console.log("show benchmark=", window.showBenchmark , ticker);
+    var binancePrice = null;
+    if (window.showBenchmark) {
+      if (window.allMarketsByHash[ticker] && window.allMarketsByHash[ticker].benchmarkSymbol) {
+        // console.log("benchmark symbol=", window.allMarketsByHash[ticker].benchmarkSymbol);
+        binancePrice = getExternalPrice(window.allMarketsByHash[ticker].benchmarkSymbol, resolution, errorCb);
       } else {
-        onDataCallback(bars);
+        binancePrice = Promise.resolve([])
       }
-    })
+    } else {
+      binancePrice = Promise.resolve([])
+    }
+
+    // console.log("Load prices ", symbolInfo, resolution, rangeStartDate, rangeEndDate);
+    return Promise.all([Apis.instance()
+      .history_api()
+      .exec("get_market_history", [      
+        base.id,
+        counter.id,
+        resolutionSec * 60,
+        startDate.toISOString().slice(0, -5),
+        endDate.toISOString().slice(0, -5)
+      ]), binancePrice]).then((res) => {
+        // console.log("chart data", res, "benchmark=", window.showBenchmark);
+        var data = res[0];
+        var binance = res[1];
+        data = data || [];
+        const no_data = data.length == 0;
+        const bars = transformPriceData(data, counter, base);
+        //console.log("Bars ", bars, no_data);
+        // console.log("Writing Enddate");
+        Datafeeds.endDate = endDate;
+        var combined = null;
+
+        if (window.showBenchmark) {
+          combined = lodash.unionBy(bars, binance, (e) => e.time);
+          combined = combined.filter(e => {
+            return e.time >= startDate2 && e.time <= endDate;
+          })
+        } else {
+          //console.log("data orig", data.length, "start=", startDate2, "end=", endDate);
+          combined = bars;  
+          combined = combined.filter(e => {
+            return e.time >= startDate2 && e.time <= endDate;
+          })
+        }
+
+        combined = lodash.sortBy(combined, "time");
+
+        //console.log("data after", bars,combined,combined.length);
+
+        if (combined.length == 0) {
+          onDataCallback([], {noData: true})
+        } else {
+          onDataCallback(combined);
+        }
+      })
 };
 
 Datafeeds.UDFCompatibleDatafeed.prototype.subscribeBars = function(
@@ -917,12 +975,17 @@ Datafeeds.DataPulseUpdater.prototype.subscribeDataListener = function(
     };
   }
 
-  Apis.instance().streamCb = () => {
-    const { base, counter } = getBaseCounter(symbolInfo.ticker);
+  const parts = symbolInfo.ticker.split("@")
+  let ticker = parts.length > 1 ? parts[0] : symbolInfo.ticker;
+  let lastBar = null;
+
+  Apis.instance().streamCb = async () => {
+    let resolutionSec = getResolutionInSec(resolution)
+    const { base, counter } = getBaseCounter(ticker);
     const endDate = new Date()
     const startDate = new Date(
       endDate.getTime() -
-      resolution * 1 * 1000
+      resolutionSec * 1 * 1000
     );
 
     // console.log("Stream Load prices ", symbolInfo, resolution);
@@ -931,7 +994,7 @@ Datafeeds.DataPulseUpdater.prototype.subscribeDataListener = function(
       .exec("get_market_history", [
         base.id,
         counter.id,
-        resolution,
+        resolutionSec,
         startDate.toISOString().slice(0, -5),
         endDate.toISOString().slice(0, -5)
       ]).then((data) => {
@@ -940,32 +1003,53 @@ Datafeeds.DataPulseUpdater.prototype.subscribeDataListener = function(
         } else {
           const no_data = data.length == 0;
           const bars = transformPriceData(data, counter, base);
-          // console.log("Bars ", bars, no_data);
-          newDataCallback(bars[0]);
-          Datafeeds.endDate = endDate;
+          // console.log("New Bars from QUANTA ", bars, no_data);
+          //newDataCallback(bars[0]);
+          //Datafeeds.endDate = endDate;
+          lastBar = bars[0];
+          if (!window.showBenchmark) {
+            newDataCallback(lastBar);
+          }
         }
+      }).catch((e) => {
+        console.error("datafeed error", e);
       })
   }
 
-  // var streamUrl = "http://testnet-02.quantachain.io:7200/stream/chart/" + symbolInfo.ticker + "?interval=" + resolution.toLowerCase()
-  // console.log("Stream Subscribe ", symbolInfo, streamUrl);
-  // var stream = new EventSource(streamUrl);
+  var binancePrice = null;
+  if (window.allMarketsByHash[ticker] && window.showBenchmark) {
+    const benchmark = window.allMarketsByHash[ticker].benchmarkSymbol;
+    if (benchmark) {
+      if (benchmark.startsWith("BINANCE:")) {
+        const symbol = benchmark.split(":")[1]
+        const interval = BinanceResolution[resolution]
+        const streamName = symbol.replace("/", "").toLowerCase() + "@kline_" + interval;
+        // console.log("stream name=", streamName);
+        var socket = new WebSocket("wss://stream.binance.com:9443/ws/" + streamName);
+        socket.onmessage = function (event) {
+          event = JSON.parse(event.data);
+          const res = {
+            time: event.k.t,
+            open: +event.k.o,
+            high: +event.k.h,
+            low: +event.k.l,
+            close: +event.k.c,
+            volume: 0
+          }
+          //console.log(res);
 
-  // stream.onmessage = function(event) {
-  //   const data = JSON.parse(event.data);
-  //   const res = {
-  //     time: data.time*1000,
-  //     volume: +data.volume,
-  //     open: +data.open,
-  //     high: +data.high,
-  //     low: +data.low,
-  //     close: +data.close
-  //   }
-  //   console.log(data, res);
-  //   newDataCallback(res);
-  // };
+          // prioritize QUANTA data if we've seen the data
+          if (lastBar && lastBar.time == res.time) {
+            newDataCallback(lastBar);
+          } else {
+            newDataCallback(res);
+          }
+        }
+        this._subscribers[listenerGUID].sockets.push(socket);
+      }
+    }
+  }
 
-  //this._subscribers[listenerGUID].sockets.push(stream);
 };
 
 Datafeeds.DataPulseUpdater.prototype.periodLengthSeconds = function(

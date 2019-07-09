@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
-import { TOGGLE_LEFT_PANEL, TOGGLE_RIGHT_PANEL } from '../redux/actions/app.jsx'
 import { css } from 'emotion'
 import Ticker from './ui/ticker.jsx';
 import Dashboard from './dashboard.jsx';
+import { ConnectDialog } from './connect.jsx';
+import BuyQdex from './buy_qdex.jsx'
+import ProductsMenu from './ui/products_menu.jsx'
 
 const container = css`
 	margin: 5px 0;
@@ -12,6 +14,10 @@ const container = css`
 	padding: 10px 20px;
 	width: 100%;
 	border-right: 2px solid #444;
+
+	.header-logo {
+		max-height: 35px;
+	}
 
 	.header-slogan {
 		margin-left: 8.5px;
@@ -26,6 +32,7 @@ const container = css`
 	}
 
 	.header-coin-name {
+		white-space: nowrap;
 		background: url(${devicePath("public/images/big-arrow-down.svg")}) no-repeat 100%;
 	}
 
@@ -56,89 +63,91 @@ const container = css`
 
 class Header extends Component {
 	constructor(props) {
-		super(props)
+		super(props);
 		this.state = {
-			toggle_market: false
+			showMarkets: false
 		}
+		
+		this.toggleDropdown = this.toggleDropdown.bind(this)
 	}
 
-	handleMarketClick() {
-		this.setState({ toggle_market: !this.state.toggle_market })
+	toggleDropdown(e) {
+		const markets = this.refs.markets;
+		const list = this.refs.list;
+		if (list.contains(e.target)) {
+			this.setState({showMarkets: true})
+		} else if (markets.contains(e.target)) {
+			this.setState({showMarkets: !this.state.showMarkets})
+		} else {
+			this.setState({showMarkets: false})
+		}
+	}
+	
+	componentDidMount() {
+		document.addEventListener('click', this.toggleDropdown, true)
+	}
+
+	componentWillUnmount() {
+		document.removeEventListener('click', this.toggleDropdown, true)
 	}
 
 	render() {
+		const { network, currentTicker, dispatch, connectDialog, buyQdexDialog } = this.props
+		const { showMarkets } = this.state
 		return (
 			<div className={container}>
 				<div className="d-flex justify-content-between align-items-center">
-					<div className="d-flex">
-						<Link to="/exchange" className="header-logo">
-							<img src={this.props.network == "MAINNET" ? devicePath("public/images/logo-light.svg") : devicePath("public/images/qdex-fantasy-light.svg")} width="220" />
+					<div className="w-100 d-flex align-items-center">
+						<Link to={"/"} className="header-logo">
+							<img src={network == "mainnet" ? devicePath("public/images/logo.svg") : devicePath("public/images/qdex-fantasy-light.svg")} width="220" />
 						</Link>
-						
+						<ProductsMenu network={network} className="ml-5" />
 					</div>
-					<div className="price-stats d-flex">
+					{/* <div className="price-stats d-flex">
 						<div>
 							<label>Last Price</label><br/>
 							<span className="value">{this.props.currentPrice}</span>
 						</div>
-					</div>
+					</div> */}
 
-					{this.props.network == "TESTNET" ?
+					{network == "testnet" ?
 						<div className="leaderboard-link">
-							<Link to="/leaderboard">LEADERBOARD</Link>
+							<Link to={"/" + network + "/leaderboard"}>LEADERBOARD</Link>
 						</div>
 					: "" }
 
-					<div className="d-flex align-items-center position-relative cursor-pointer" onClick={this.handleMarketClick.bind(this)}>
+					<div ref="markets" className="d-flex align-items-center position-relative cursor-pointer">
 						<span className="header-coin-name qt-font-normal qt-font-bold qt-color-theme">
-							<Ticker ticker={this.props.currentTicker} />
+							<Ticker ticker={currentTicker} />
 						</span>
-						<div className={"markets" + (this.state.toggle_market ? " active" : "")}>
-							<Dashboard />
+						<div ref="list" id="market-list" className={"markets" + (showMarkets ? " active" : "")}>
+							<Dashboard closeSelf={() => this.setState({showMarkets: false})} />
 						</div>
 					</div>
 					
         		</div>
+				{ connectDialog ? 
+					<ConnectDialog default={connectDialog} 
+						network={network} 
+						dispatch={dispatch}/> 
+					: null
+				}
+				{ buyQdexDialog ?
+                    <BuyQdex />
+                    : null
+                }
 			</div>
 		);
 	}
 }
 
-/*
-<div  className={this.props.className}>
-	<div className={container + " row"}>
-		<div className="col-md-2 text-left ticker">
-			{this.props.currentTicker}
-		</div>
-		<div className="col-md-2">
-			<div className="headerLabel">Last Price</div>
-			<div className="headerValue">{this.props.currentPrice}</div>
-		</div>
-		<div className="col-md-2">
-			<div className="headerLabel">24h Change</div>
-			<div className="headerValue"></div>
-		</div>
-		<div className="col-md-2">
-			<div className="headerLabel">24h High</div>
-			<div className="headerValue"></div>
-		</div>
-		<div className="col-md-2">
-			<div className="headerLabel">24h Low</div>
-			<div className="headerValue"></div>
-		</div>
-		<div className="col-md-2">
-			<div className="headerLabel">24h Volume</div>
-			<div className="headerValue"></div>
-		</div>
-	</div>
-</div>
-*/
-
-
 const mapStateToProps = (state) => ({
 		network: state.app.network,
+		private_key: state.app.private_key,
 		currentTicker: state.app.currentTicker,
-		currentPrice: state.app.mostRecentTrade.price
+		currentPrice: state.app.mostRecentTrade.price,
+		connectDialog: state.app.ui.connectDialog,
+		buyQdexDialog: state.app.ui.buyQdexDialog,
 	});
 
 export default connect(mapStateToProps)(Header);

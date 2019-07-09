@@ -1,37 +1,46 @@
 import React from 'react';
-import { INIT_DATA, INIT_BALANCE, SET_MARKET_QUOTE, APPEND_TRADE, UPDATE_ORDER, UPDATE_OPEN_ORDERS, SET_AMOUNT, UPDATE_USER_ORDER, UPDATE_TICKER, UPDATE_TRADES, UPDATE_FEE, UPDATE_DIGITS, UPDATE_NETWORK, LOAD_FILLED_ORDERS } from "../actions/app.jsx";
-import { TOGGLE_LEFT_PANEL, TOGGLE_RIGHT_PANEL } from "../actions/app.jsx";
-import { TOGGLE_FAVORITE_LIST, UPDATE_ACCOUNT, UPDATE_BLOCK_INFO } from "../actions/app.jsx";
-import { LOGIN } from "../actions/app.jsx";
+import { 
+  INIT_DATA, USER_DATA, INIT_BALANCE, SET_MARKET_QUOTE, 
+  APPEND_TRADE, UPDATE_ORDER, UPDATE_OPEN_ORDERS, 
+  SET_AMOUNT, UPDATE_USER_ORDER, UPDATE_TICKER, 
+  UPDATE_TRADES, UPDATE_FEE, UPDATE_DIGITS, LOAD_FILLED_ORDERS ,
+  UPDATE_STORAGE, WEBSOCKET_STATUS,
+  UPDATE_ACCOUNT, UPDATE_BLOCK_INFO,
+  LOGIN, LOGOUT, TOGGLE_CONNECT_DIALOG, 
+  TOGGLE_BUY_QDEX_DIALOG
+} from "../actions/app.jsx";
 import { dataSize } from "../actions/app.jsx";
 import SortedSet from 'js-sorted-set'
 import { toast } from 'react-toastify';
-
+import Ticker, {SymbolToken} from '../../components/ui/ticker.jsx'
 import lodash from 'lodash'
 import moment from 'moment'
+import {clear} from '../../common/storage.js'
 
-let url_hash = document.URL.split("#")[1]
-let init_ticker = window.currentNetwork == "MAINNET" ? 'QDEX/ETH' : 'ETH/USD'
-if (url_hash && url_hash.split('/').length == 2) {
-  init_ticker = url_hash
-}
+let network = window.location.pathname.startsWith("/testnet") ? "testnet" : "mainnet"
+if (localStorage.env !== undefined && localStorage.env !== network) localStorage.clear()
 
 let initialState = {
-  network: window.currentNetwork,
-  isMobile: (window.isApp ? (screen.width / window.devicePixelRatio) : screen.width) < 992, 
+  network: network,
+  isMobile: window.isApp || screen.width < 992 || window.location.search.includes("app=true"), 
+  websocket_status: null,
   private_key: null,
-  publicKey: "",
-  currentTicker: init_ticker,
+  publicKey: localStorage.publicKey || "",
+  name: localStorage.name,
+  userId: localStorage.id,
+  lifetime: localStorage.lifetime === "true",
+  currentTicker: null,
   fee: {},
   tradeHistory: [],
   tradeBook: { bids: [], asks: []},
   markets: [],
   currentPrice: undefined,
-  balance: [],
+  balance: {},
   vesting: [],
+  genesis: [],
   ui: {
-    leftOpen: true,
-    rightOpen: true
+    connectDialog: false,
+    buyQdexDialog: false
   },
   mostRecentTrade: {
     price: undefined
@@ -40,7 +49,7 @@ let initialState = {
     dataSource: [],
     columns: [{
       name:"PAIR",
-      key:"assets",
+      key:"pair",
       type:"string",
       sortable:false,
       color: (value) => {return "white"},
@@ -117,7 +126,7 @@ let initialState = {
     dataSource2: [],
     columns: [{
       name:"PAIR",
-      key:"assets",
+      key:"pair",
       type:"string",
       sortable:false,
       color: (value) => {return "white"},
@@ -206,11 +215,12 @@ let initialState = {
     },
     spread: 0,
     spreadDollar:0,
+    user_orders: {},
     asks: {
       dataSource: new SortedSet({ comparator: function(a, b) { return parseFloat(a.price) - parseFloat(b.price); }}),
 
       columns: [{
-        name: (ticker) => {return "Price " + ticker.split('/')[1].substr(0,3)},
+        name: (ticker) => {return "Price " + ticker.split('/')[1].split('0X')[0]},
         key:"price",
         type:"number",
         sortable:false,
@@ -228,7 +238,7 @@ let initialState = {
         fontWeight:"light",
         float:"right"
       },{
-        name: (ticker) => {return "Total " + ticker.split('/')[1].substr(0,3)},
+        name: (ticker) => {return "Total " + ticker.split('/')[1].split('0X')[0]},
         key:"total",
         type:"number",
         sortable:false,
@@ -373,8 +383,10 @@ function processFilledOrder(orders) {
       tickerPair = [order.assets[order.sell_price.base.asset_id].symbol, order.assets[order.sell_price.quote.asset_id].symbol]
       ticker = order.isBid() ? tickerPair.reverse() : tickerPair
       order.time = new Date(order.order.time + 'z')
-      amount = order.isBid() ? order.sell_price.quote.getAmount({ real: true }) : order.sell_price.base.getAmount({ real: true });
-      total = ((order.getPrice() * Math.pow(10, 6)) * (amount * Math.pow(10, 6)))/Math.pow(10, 12)
+      amount = order.isBid() ? order.sell_price.quote.getAmount({ real: true }) 
+                            : order.sell_price.base.getAmount({ real: true })
+      total = order.isBid() ?  order.sell_price.base.getAmount({ real: true }) 
+                            : order.sell_price.quote.getAmount({ real: true })
       order.isBid = order.isBid()
     } else {
       tickerPair = [order.assets[order.fill_price.base.asset_id].symbol, order.assets[order.fill_price.quote.asset_id].symbol]
@@ -394,8 +406,10 @@ function processFilledOrder(orders) {
         </div>)
         toastId = toast.success(msg, {
                     position: toast.POSITION.TOP_CENTER,
-                    autoClose: 5000,
-                    toastId: order.id
+                    autoClose: 2000,
+                    toastId: order.id,
+                    pauseOnFocusLoss: false,
+                    pauseOnHover: false
                   });
       }
     }
@@ -403,9 +417,10 @@ function processFilledOrder(orders) {
     return {
       id: order.id,
       assets: ticker.join('/'),
-      price: order.getPrice() + ' ' + ticker[1],
-      amount: parseFloat(amount) + ' ' + ticker[0],
-      total: total.toLocaleString(navigator.language, {maximumFractionDigits: window.assetsBySymbol[ticker[1]].precision}) + ' ' + ticker[1],
+      pair: <Ticker ticker={ticker.join('/')} withLink={true} />,
+      price: <span>{order.getPrice()} <SymbolToken name={ticker[1]} showIcon={false} /></span>,
+      amount: <span>{amount} <SymbolToken name={ticker[0]} showIcon={false} /></span>,
+      total: <span>{total.toLocaleString(navigator.language, {maximumFractionDigits: window.assetsBySymbol[ticker[1]].precision})} <SymbolToken name={ticker[1]} showIcon={false} /></span>,
       maker: order.seller ? "False" : String(order.is_maker),
       type: order.isBid ? 'BUY' : 'SELL',
       date: order.time.toLocaleString(navigator.language, { day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false }),
@@ -418,7 +433,7 @@ function processFilledOrder(orders) {
 }
 var currentOrders = []
 const app = (state = initialState, action) => {
-  //console.log("Reduce ", action);
+  // console.log("Reduce ", action);
 
   switch (action.type) {
     case INIT_DATA:
@@ -436,7 +451,7 @@ const app = (state = initialState, action) => {
           })
           maxAsk = Math.max(maxAsk, total)
         } catch(e) {
-          console.log(e)
+          console.log("init data exception ",e)
         }
       })
 
@@ -453,7 +468,7 @@ const app = (state = initialState, action) => {
             })
             maxBid = Math.max(maxBid, total)
           } catch(e) {
-            console.log(e)
+          console.log("init data exception ",e)
           }
       })
       
@@ -477,6 +492,10 @@ const app = (state = initialState, action) => {
           time: moment(trade.time || "").utc().format("HH:mm:ss")
         }
       })
+
+      if (lastTradePrice === undefined) {
+        lastTradePrice = window.allMarketsByHash[action.data.ticker] ? window.allMarketsByHash[action.data.ticker].last : "-"
+      }
       
       var spread = undefined
       var spreadDollar = 0
@@ -484,72 +503,12 @@ const app = (state = initialState, action) => {
         spread = Math.abs((parseFloat(asksSortedSet.beginIterator().value().price)/parseFloat(bidsSortedSet.beginIterator().value().price) - 1)*100)
         spreadDollar = Math.abs(parseFloat(asksSortedSet.beginIterator().value().price) - parseFloat(bidsSortedSet.beginIterator().value().price)).toFixed(7)
       }
-
-      const onOrdersFund = {}
-      currentOrders = []
-      const limitOrdersDataSource = action.data.openOrders.map((order) => {
-        const tickerPair = [order.assets[order.sell_price.base.asset_id].symbol, order.assets[order.sell_price.quote.asset_id].symbol]
-        const ticker = order.isBid() ? tickerPair.reverse() : tickerPair
-        
-        const amount = order.isBid() ?
-          (order.amountToReceive()).getAmount({ real: true }) :
-          (order.amountForSale()).getAmount({ real: true });
-        
-        const total = ((order.getPrice() * Math.pow(10, 6)) * (amount * Math.pow(10, 6)))/Math.pow(10, 12)
-
-        let onOrderFeeAsset = order.order.deferred_paid_fee.asset_id
-        let onOrderFeeValue = order.fee / Math.pow(10, window.assets[onOrderFeeAsset].precision)
-        let onOrderAsset = order.sell_price.base.asset_id
-        let onOrderValue = order.isBid() ? total : amount
-        
-        onOrdersFund[onOrderFeeAsset] = (onOrdersFund[onOrderFeeAsset] || 0) + onOrderFeeValue
-        onOrdersFund[onOrderAsset] = (onOrdersFund[onOrderAsset] || 0) + onOrderValue
-        currentOrders.push(order.id)
-        return {
-          assets: ticker.join('/'),
-          price: order.getPrice() + ' ' + ticker[1],
-          amount: amount + ' ' + ticker[0],
-          total: total.toLocaleString(navigator.language, {maximumFractionDigits: window.assetsBySymbol[ticker[1]].precision}) + ' ' + ticker[1],
-          type: order.isBid() ? 'BUY' : 'SELL',
-          date: (new Date(order.expiration.setFullYear(order.expiration.getFullYear() - 5))).toLocaleString('en-US', { day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false }),
-          id: order.id
-        }
-      })
-      
-      const filledOrdersDataSource = processFilledOrder(action.data.filledOrders)
-      
-      var total_fund_value = 0
-      const balances = action.data.accountData.length > 0 && action.data.accountData[0][1].balances.map((balance => {
-        const real_balance = balance.balance / (10 ** window.assets[balance.asset_type].precision)
-        const usd = state.usd_value[balance.asset_type] ? (real_balance + (onOrdersFund[balance.asset_type] || 0)) * state.usd_value[balance.asset_type] : 0
-        total_fund_value += usd
-        return {
-          asset: balance.asset_type,
-          balance: real_balance,
-          usd: usd
-        }
-      }))
-      
-      const vesting = action.data.accountData.length > 0 && action.data.accountData[0][1].vesting_balances
-
       return {
         ...state,
-        // currentTicker:action.data.ticker,
-        balance: balances,
-        vesting: vesting,
-        onOrdersFund: onOrdersFund,
-        totalFundValue: total_fund_value,
+        currentTicker: action.data.ticker,
         mostRecentTrade: {
           ticker: action.data.ticker,
           price: lastTradePrice
-        },
-        openOrders: {
-          ...state.openOrders,
-          dataSource: limitOrdersDataSource
-        }, 
-        filledOrders: {
-          ...state.filledOrders,
-          dataSource: filledOrdersDataSource
         },
         orderBook: {
           ...state.orderBook,
@@ -573,6 +532,105 @@ const app = (state = initialState, action) => {
         }
       }
 
+    case USER_DATA:
+      const onOrdersFund = {}
+      const user_orders = {}
+      currentOrders = []
+      const limitOrdersDataSource = action.data.openOrders.map((order) => {
+        const tickerPair = [order.assets[order.sell_price.base.asset_id].symbol, order.assets[order.sell_price.quote.asset_id].symbol]
+        const ticker = order.isBid() ? tickerPair.reverse() : tickerPair
+        
+        const amount = order.isBid() ?
+          (order.amountToReceive()).getAmount({ real: true }) :
+          (order.amountForSale()).getAmount({ real: true })
+        
+        const total = order.isBid() ?
+          (order.amountForSale()).getAmount({ real: true }) :
+          (order.amountToReceive()).getAmount({ real: true })
+        
+        let onOrderFeeAsset = order.order.deferred_paid_fee.asset_id
+        let onOrderFeeValue = order.fee / Math.pow(10, window.assets[onOrderFeeAsset].precision)
+        let onOrderAsset = order.sell_price.base.asset_id
+        let onOrderValue = order.isBid() ? total : amount
+        
+        onOrdersFund[onOrderFeeAsset] = (onOrdersFund[onOrderFeeAsset] || 0) + onOrderFeeValue
+        onOrdersFund[onOrderAsset] = (onOrdersFund[onOrderAsset] || 0) + onOrderValue
+        currentOrders.push(order.id)
+
+        const user_orders_list = user_orders[ticker.join('/')]
+        if (user_orders_list) {
+          user_orders_list.push(order.getPrice())
+          user_orders[ticker.join('/')] = user_orders_list
+        } else {
+          user_orders[ticker.join('/')] = [order.getPrice()]
+        }
+
+        return {
+          assets: ticker.join('/'),
+          pair: <Ticker ticker={ticker.join('/')} withLink={true} />,
+          price: <span>{order.getPrice()} <SymbolToken name={ticker[1]} showIcon={false} /></span>,
+          amount: <span>{amount} <SymbolToken name={ticker[0]} showIcon={false} /></span>,
+          total: <span>{total.toLocaleString(navigator.language, {maximumFractionDigits: window.assetsBySymbol[ticker[1]].precision})} <SymbolToken name={ticker[1]} showIcon={false} /></span>,
+          type: order.isBid() ? 'BUY' : 'SELL',
+          date: (new Date(order.expiration.setFullYear(order.expiration.getFullYear() - 5))).toLocaleString('en-US', { day: 'numeric', month: 'short', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false }),
+          id: order.id
+        }
+      })
+      
+      const filledOrdersDataSource = processFilledOrder(action.data.filledOrders)
+      
+      var total_fund_value = 0
+      const balances = action.data.accountData.length > 0 && action.data.accountData[0][1].balances.map((balance => {
+        
+        const symbol = window.assets[balance.asset_type].symbol
+        const real_balance = balance.balance / (10 ** window.assets[balance.asset_type].precision)
+        const total_balance = real_balance + (onOrdersFund[balance.asset_type] || 0)
+        const binance = state.usd_value[balance.asset_type] > 0 ? null : window.binance_data[symbol + (state.network == "testnet" ? "/USD" : "/TUSD0X0000000000085D4780B73119B644AE5ECD22B376")]
+        const usd = state.usd_value[balance.asset_type] > 0 ? 
+                    total_balance * state.usd_value[balance.asset_type] 
+                      : binance ? total_balance * parseFloat(binance.last_price)
+                        : 0
+        total_fund_value += usd
+        return {
+          asset: balance.asset_type,
+          symbol: symbol,
+          balance: real_balance,
+          usd: usd
+        }
+      }))
+      
+      const vesting = action.data.accountData.length > 0 && action.data.accountData[0][1].vesting_balances
+      const genesis = action.data.genesis_balance 
+      const referral_paid = action.data.referral_fee || []
+
+      return {
+        ...state,
+        balance: lodash.keyBy(balances, "symbol"),
+        vesting: vesting,
+        genesis: genesis,
+        referral_paid: referral_paid,
+        onOrdersFund: onOrdersFund,
+        totalFundValue: total_fund_value,
+        orderBook: {
+          ...state.orderBook,
+          user_orders
+        },
+        openOrders: {
+          ...state.openOrders,
+          dataSource: limitOrdersDataSource
+        }, 
+        filledOrders: {
+          ...state.filledOrders,
+          dataSource: filledOrdersDataSource
+        }
+      }
+
+    case UPDATE_STORAGE:
+      const { publicKey, name, userId, lifetime } = action.data
+      return {
+        ...state, publicKey, name, userId, lifetime
+      }
+
     case LOAD_FILLED_ORDERS:
       const filledOrdersDataSource2 = processFilledOrder(action.data, state.userId)
       const end = filledOrdersDataSource2.length < dataSize
@@ -591,13 +649,6 @@ const app = (state = initialState, action) => {
         ...state,
         balance: lodash.keyBy(action.data.balances,'currency')
       }
-    
-    case UPDATE_NETWORK:
-      window.currentNetwork = action.data
-      return {
-        ...state,
-        network: action.data
-    }
 
     case UPDATE_FEE:
       let asset = window.assets[action.data.asset_id]
@@ -620,12 +671,25 @@ const app = (state = initialState, action) => {
         ...state,
         private_key: action.private_key
       }
+
+    case LOGOUT: 
+      clear()
+      return {
+        ...state,
+        private_key: null,
+        userId: null,
+        name: null,
+        publicKey: null,
+        lifetime: false
+      }
+    
     case UPDATE_ACCOUNT: 
       return {
         ...state,
         userId: action.data.id,
         name: action.data.name,
-        publicKey: action.data.owner.key_auths[0][0]
+        publicKey: action.data.publicKey || action.data.owner.key_auths[0][0],
+        lifetime: action.data.lifetime
       }
 
     case UPDATE_OPEN_ORDERS:
@@ -679,7 +743,7 @@ const app = (state = initialState, action) => {
       return {
         ...state,
         currentTicker:action.data,
-        markets: mergeTickerData(state.markets, action.data)
+        // markets: mergeTickerData(state.markets, action.data)
       }
     case APPEND_TRADE:
       return {
@@ -764,65 +828,27 @@ const app = (state = initialState, action) => {
         console.log("error",e)
       }
 
-      //
-      // const rec = action.data;
-      // if (rec.is_bid) {
-      //   if (parseFloat(rec.amount) == 0.0 ) {
-      //     delete bidByPrice[rec.price];
-      //   } else {
-      //     bidByPrice[rec.price] = rec;
-      //   }
-      // } else {
-      //   if (parseFloat(rec.amount) == 0.0 ) {
-      //     delete askByPrice[rec.price];
-      //   } else {
-      //     askByPrice[rec.price] = rec;
-      //   }
-      // }
-      //
-      // const finalBids = lodash.orderBy(lodash.values(bidByPrice), "price", ['desc'])
-      // const finalAsks = lodash.orderBy(lodash.values(askByPrice), "price")
-
-      // console.log(rec, finalBids, finalAsks)
-      // return {
-      //   ...state,
-      //   tradeBook: {
-      //     bids: action.data.bids,
-      //     asks: action.data.asks
-      //   }
-      // }
-    case TOGGLE_LEFT_PANEL:
+    case TOGGLE_CONNECT_DIALOG:
       return {
         ...state,
         ui: {
           ...state.ui,
-          leftOpen: !state.ui.leftOpen,
+          connectDialog: action.data,
         }
-      }
-
-    case TOGGLE_RIGHT_PANEL:
+    }
+    case TOGGLE_BUY_QDEX_DIALOG:
       return {
         ...state,
         ui: {
           ...state.ui,
-          rightOpen: !state.ui.rightOpen
+          buyQdexDialog: action.data,
         }
-      }
-    case TOGGLE_FAVORITE_LIST:
+    }
+    case WEBSOCKET_STATUS:
       return {
         ...state,
-        dashboard: {
-          ...state.dashboard,
-          dataSource: state.dashboard.dataSource.map((item) => {
-            if (item.pair == action.pair) {
-              item.favoriteList = !item.favoriteList
-            }
-
-            return item
-
-          })
-        }
-      }
+        websocket_status: action.data
+    }
     default:
       return state
   }

@@ -1,23 +1,36 @@
 import React, { Component } from "react";
 import { connect } from 'react-redux'
 import Datafeeds from '../common/datafeed.js';
-import { stringify } from "querystring";
 
 class Chart extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      init: false
+      init: false,
+      resolution: "15",
     };
   }
   componentDidMount() {
-    this.initChart()
+    const { mobile, currentTicker } = this.props
+    if (currentTicker != null) {
+      try {
+        this.initChart()
+      } catch (e) {
+        Rollbar.error("Failed to load chart: " + currentTicker, e);
+      }
+    }
   }
 
-  initChart() {
+  componentWillUnmount() {
+    window.chartWidget = undefined
+  }
+
+  initChart(ticker = this.props.currentTicker) {
     const self = this;
     self.setState({init: true})
     const dataFeed = new Datafeeds.UDFCompatibleDatafeed("/api/v1");
+    window.showBenchmark = this.props.showBenchmark;
+    // console.log("show benchmark=", window.showBenchark);
 
     let disabled_features = [
       "header_saveload",
@@ -62,15 +75,17 @@ class Chart extends Component {
 
     const upColor = "#50b3b7"
     const downColor = "#ff3282"
+    const background_color = this.props.mobile ? "#0A121E" : "#23282c"
 
     // TradingView.onready(function() {
       var widget = (window.chartWidget = new TradingView.widget({
         fullscreen: false,
-        symbol: self.props.currentTicker,
-        interval: "15",
+        symbol: ticker,
+        interval: self.state.resolution,
         allow_symbol_change: false,
         // height: '50px',
         autosize: true,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         container_id: "tv_chart_container",
         //	BEWARE: no trailing slash is expected in feed URL
         datafeed: dataFeed,
@@ -95,22 +110,21 @@ class Chart extends Component {
         enabled_features: enabled_features,
         charts_storage_url: "https://saveload.tradingview.com",
         charts_storage_api_version: "1.1",
-        theme: "Dark",
-        custom_css_url: window.isApp ? "../theme_dark.css" : "/public/vendor/charting_library/theme_dark.css",
+        custom_css_url: window.isApp ? "../theme_dark_mobile.css" : "/public/vendor/charting_library/" + (this.props.mobile ? "theme_dark_mobile.css" : "theme_dark.css"),
         client_id: "tradingview.com",
         user_id: "public_user_id",
         overrides: {
           "paneProperties.leftAxisProperties.autoScale": true,
 					"paneProperties.topMargin": 25,
           "paneProperties.bottomMargin": 25,
-          "paneProperties.background": "#23282c",
+          "paneProperties.background": background_color,
           "paneProperties.vertGridProperties.color": "#333",
           "paneProperties.horzGridProperties.color": "#333",
           "paneProperties.vertGridProperties.style": 2,
           "paneProperties.horzGridProperties.style": 2,
           "paneProperties.crossHairProperties.color": "#444",
-          "scalesProperties.backgroundColor": "#23282c",
-          "scalesProperties.lineColor": "#23282c",
+          "scalesProperties.backgroundColor": background_color,
+          "scalesProperties.lineColor": background_color,
           "scalesProperties.textColor": "#999",
           "symbolWatermarkProperties.color": "rgba(0, 0, 0, 0)",
           "mainSeriesProperties.style": 1, //  Candles styles
@@ -157,30 +171,53 @@ class Chart extends Component {
     widget.onChartReady(function() {
       for (let interval of custom_intervals) {
         var button = widget.createButton()
-        .on('click', () => widget.setSymbol(self.props.currentTicker, interval.resolution))
+        .on('click', (e) => {
+          self.setState({resolution: interval.resolution})
+          widget.setSymbol(self.props.currentTicker, interval.resolution)
+          let target = e.target.classList.contains("custom-button") ? e.target : e.target.parentNode
+          let header_buttons = target.parentNode.parentNode.childNodes
+          for (let i of header_buttons) {
+            i.classList.remove("active")
+          }
+          target.parentNode.classList.add("active")
+        })
         .append($('<span>' + interval.text + '</span>'))
         button.addClass("custom-button")
-      }
 
-      widget.chart().createStudy('Compare', false, false, ['open','BINANCE:BTC/USDT']);
-      widget.chart().getPanes()[0].getMainSourcePriceScale().setMode(0);
-      self.setState({init: false})
+        if(interval.resolution == "15") {
+          button[0].parentNode.classList.add("active")
+        }
+      }
+      self.setState({init: true})
     })
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.network !== nextProps.network) {
-      this.initChart()
+    if (nextProps.showBenchmark !== this.props.showBenchmark) window.showBenchmark = nextProps.showBenchmark;
+    let nextTicker = nextProps.currentTicker + (nextProps.showBenchmark ? "@adjusted" : "")
+    try {
+      if (window.chartWidget) {
+        window.chartWidget.setSymbol(nextTicker, this.state.resolution)
+      } else {
+        this.initChart(nextTicker)
+      }
+    } catch (e) {
+      Rollbar.error("Failed to load chart: " + nextProps.currentTicker, e);
     }
   }
 
-  componentDidUpdate() {
-    if (!this.state.init) {
-      setTimeout(() => {
-        window.chartWidget.setSymbol(this.props.currentTicker, "15")
-      }, 0)
-    }
-  }
+  // componentDidUpdate() {
+  //   window.chart_count = window.chart_count || 0;
+  //   // TODO: reload with the same resolution
+  //   if (this.state.init && window.showBenchmark != this.props.showBenchmark) {
+  //     setTimeout(() => {
+  //       window.showBenchmark = this.props.showBenchmark;
+  //       // console.log("update benchmark= ", window.showBenchmark, window.chart_count);
+  //       // window.chartWidget.setSymbol(this.props.currentTicker + "@adjusted" + window.chart_count, "15")
+  //       // window.chart_count++;
+  //     }, 10)
+  //   }
+  // }
 
   render() {
     return (

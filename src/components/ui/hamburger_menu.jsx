@@ -1,9 +1,8 @@
 import React, {PropTypes} from 'react';
 import { Redirect, withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
-import { LOGIN } from '../../redux/actions/app.jsx'
+import { TOGGLE_CONNECT_DIALOG, LOGOUT } from '../../redux/actions/app.jsx'
 import { css } from 'emotion'
-
 import { Link } from 'react-router-dom'
 
 const container = css`
@@ -37,7 +36,7 @@ const container = css`
       border-bottom: solid 1px rgba(18, 21, 23,0.24);
 
       .menu-row {
-        padding:6px 0 6px 24px;
+        padding:6px 20px 6px 24px;
       }
 
       .menu-row div {
@@ -91,13 +90,13 @@ export class HamburgerMenu extends React.Component {
 
   render() {
     const a = Math.random()
+    const { mobile_nav, isMobile } = this.props
     return (
       <div ref="hamburgerMenu" className={container}>
         <a><img src={devicePath("public/images/menuicons/hamburger.svg")} width="16" height="16" /></a>
         <div className={"hamburger-menu flex-column position-absolute qt-font-small qt-font-regular " + (this.state.menuOpen ? 'd-flex' : 'd-none')}>
           {
             this.props.menuList.map((e, index) => {
-
               if (index == 0) {
                 return (
                   <div key={index} className="group-head d-flex flex-column align-items-center justify-content-center">
@@ -106,14 +105,16 @@ export class HamburgerMenu extends React.Component {
                   </div>
                 )
               }
+              if (isMobile && index == 1) return
 
               return (
                 <div key={index} className={"group " + css`background-color:${e.backgroundColor};`}>
                   {
                     e.items.map((item, index) => {
-                      if (item.onClick) {
+                      if ((isMobile && item.mobile_nav) || item.onClick) {
+                        if ( this.props.private_key && item.text == "Unlock" ) return
                         return (
-                          <a key={index} onClick={item.onClick}
+                          <a key={index} onClick={isMobile && item.mobile_nav ? () => item.mobile_nav(mobile_nav) : () => item.onClick(this.props.dispatch)}
                              className="d-flex menu-row qt-cursor-pointer"
                              onMouseOver={this.handleHover.bind(this,item.iconPathActive)}
                              onMouseLeave={this.handleHover.bind(this,item.iconPath)}>
@@ -122,8 +123,9 @@ export class HamburgerMenu extends React.Component {
                           </a>
                         )
                       } else {
+                        if ( this.props.network == "mainnet" && item.text == "Leaderboard" ) return
                         return (
-                          <Link key={index} to={item.url}
+                          <Link key={index} to={item.text == "Exchange" && this.props.currentTicker ? item.url + this.props.currentTicker.replace("/", "_") : item.url}
                                 onMouseOver={this.handleHover.bind(this,item.iconPathActive)}
                                 onMouseLeave={this.handleHover.bind(this,item.iconPath)}
                                 className="d-flex menu-row">
@@ -144,10 +146,10 @@ export class HamburgerMenu extends React.Component {
   }
 }
 
-
+var net = window.location.pathname.startsWith("/testnet") ? "testnet" : "mainnet"
 HamburgerMenu.defaultProps = {
   menuList: [
-    {
+  {
     items: [{
       header:"$12.560",
       subheader:" estimated funds"
@@ -158,35 +160,56 @@ HamburgerMenu.defaultProps = {
       iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),
       iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
       text:"Exchange",
-      url:"/exchange"
+      url:"/" + net + "/exchange/"
     }]
   },{
     items: [{
       iconPath: devicePath("public/images/menuicons/wallet-grey.svg"),
       iconPathActive: devicePath("public/images/menuicons/wallet-white.svg"),
       text:"Wallets",
-      url:"/exchange/wallets"
+      url:"/" + net + "/wallets",
+      mobile_nav: (mobile_nav) => mobile_nav(3)
     },{
       iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),
       iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
       text:"Sign/Verify",
-      url:"/exchange/message"
-    },
-    {
+      url:"/" + net + "/message",
+      mobile_nav: (mobile_nav) => mobile_nav("message")
+    },{
       iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),
       iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
-      text:"Leaderboard",
-      url:"/leaderboard"
-    },
+      text:"Export Private Key",
+      url:"/" + net + "/export_key",
+      mobile_nav: (mobile_nav) => mobile_nav("export_key")
+    }
+    // {
+    //   iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),
+    //   iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
+    //   text:"Leaderboard",
+    //   url:"/" + net + "/leaderboard"
+    // },
   ],
     backgroundColor:"rgba(40, 48, 52,0.36)"
   },{
     items: [{
       iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),
       iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
+      text:"Unlock",
+      onClick: (dispatch) => {
+        dispatch({
+          type: TOGGLE_CONNECT_DIALOG,
+          data: "connect"
+        })
+      },
+      mobile_nav: (mobile_nav) => mobile_nav("connect")
+    },{
+      iconPath: devicePath("public/images/menuicons/quanta-grey.svg"),
+      iconPathActive: devicePath("public/images/menuicons/quanta-white.svg"),
       text:"Logout",
-      onClick: () => {
-        window.location.assign(window.isApp ? "index.html" : "/")
+      onClick: (dispatch) => {
+        dispatch({
+          type: LOGOUT
+        })
       }
     }],
     backgroundColor:"#323b40"
@@ -197,7 +220,11 @@ HamburgerMenu.propTypes = {
 };
 
 const mapStateToProps = (state) => ({
-  total_fund: state.app.totalFundValue
+  total_fund: state.app.totalFundValue,
+  currentTicker: state.app.currentTicker,
+  network: state.app.network,
+  private_key: state.app.private_key,
+  isMobile: state.app.isMobile
 });
 
 export default connect(mapStateToProps)(withRouter(HamburgerMenu))

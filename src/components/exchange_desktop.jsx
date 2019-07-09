@@ -1,34 +1,23 @@
 import React, { Component } from 'react';
 import Header from './header.jsx';
+import Announcement from './announcement.jsx'
 import Chart from './chart.jsx';
 import DepthChart from './chart_depth.jsx';
 import TradingHistory from './trading_history.jsx';
 import OrderBook from './order_book.jsx';
-import Dashboard from './dashboard.jsx';
 import Menu from './menu.jsx';
 import Orders from './orders.jsx';
 import Trade from './trade.jsx';
 import Balance from './balance.jsx';
-import ConnectDialog, { ConnectLink, Connect } from './connect.jsx';
-import Leaderboard from './leaderboard.jsx'
+import Connect from './connect.jsx';
 import Status from './status.jsx'
-import FirstTime from './first_time.jsx'
-import QTTableView from './ui/tableView.jsx'
-import Order from './order.jsx';
-import Markets from './markets.jsx';
-import OpenOrders from './open_orders.jsx';
+import Switch from './ui/switch.jsx';
+import { refreshData } from '../redux/actions/app.jsx'
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-import {switchTicker, initBalance, getMarketQuotes} from "../redux/actions/app.jsx";
 import { connect } from 'react-redux'
-
 import { css } from 'emotion'
-import globalcss from './global-css.js'
-
-import { Link } from 'react-router-dom'
-
-import QTTableViewSimple from './ui/tableViewSimple.jsx'
+import CONFIG from '../config.js'
 
 const container = css`
 	background-color: #121517;
@@ -65,8 +54,32 @@ const container = css`
 	}
 	
 	#tv_chart_container, #depth_chart_container {
-		height: calc(100vh - 390px);
+		height: calc(100vh - 124px);
 		width: 100%;
+	}
+
+	&.has-user {
+		#tv_chart_container, #depth_chart_container {
+			height: calc(100vh - 390px);
+		}
+	}
+
+	&.has-announcement {
+		.left-cols {
+			height: calc(100vh - 120px);
+		}
+
+		#tv_chart_container, #depth_chart_container {
+			height: calc(100vh - 152px);
+		}
+
+		.orderbook-ask, .orderbook-bid {
+			height: calc(50vh - 110px);
+		}
+
+		&.has-user #tv_chart_container, &.has-user #depth_chart_container {
+			height: calc(100vh - 417px);
+		}
 	}
 
 	.trade-toggle {
@@ -112,6 +125,11 @@ const container = css`
 			border-color: #50b3b7;
 			color: #fff;
 		}
+	}
+
+	.benchmark-box {
+		margin-top: 8px;
+		margin-left: 10px;
 	}
 
 	.exchange-dashboard {
@@ -162,7 +180,11 @@ const container = css`
 		scrollbar-color: rgba(255,255,255,0.1) transparent;
 	}
 
-	
+	.websocket-status {
+		background: #dc3545;
+		position: fixed;
+    	width: 100%;
+	}
 `;
 
 class Exchange extends Component {
@@ -172,8 +194,32 @@ class Exchange extends Component {
 			chart: "tv",
 			toggle_trade: false,
 			dialog: undefined,
+			showBenchmark: true,
+			announcements: false
 		}
-		
+
+		this.eventUpdate = this.eventUpdate.bind(this)
+		this.Switchchart = this.Switchchart.bind(this)
+	}
+
+	componentDidMount() {
+		fetch(CONFIG.getEnv().ANNOUNCEMENT_JSON,{mode: "cors"}).then(e => e.json())
+        .then(data => {
+            const entries = data.entries
+            if (entries && entries.length > 0) {
+                this.setState({announcements: entries.slice(0,3)})
+            }
+		})
+
+		document.addEventListener('mouseenter', this.eventUpdate, false)
+	}
+
+	componentWillUnmount() {
+		document.removeEventListener('mouseenter', this.eventUpdate, false)
+	}
+	
+	eventUpdate() {
+		this.props.dispatch(refreshData())
 	}
 
 	resizeDepthChart() {
@@ -194,33 +240,48 @@ class Exchange extends Component {
 		this.resizeDepthChart()
 	}
 
-	handleConnectDialog(type) {
-		this.setState({dialog: type})
-		setTimeout(() => {
-			document.getElementById("connect-dialog").style.display = "flex"
-		}, 0)
+	toggleBenchmarkPrice() {
+		this.setState({ showBenchmark: !this.state.showBenchmark })
+	}
+
+	Switchchart() {
+		return(
+			<div className="switch-chart d-flex">
+				<button className={this.state.chart === "tv" ? "active": ""} onClick={() => this.toggleChart("tv")}>Price Chart</button>
+				<button className={this.state.chart === "depth" ? "active": ""} onClick={() => this.toggleChart("depth")}>Depth Chart</button>
+				{this.state.chart === "tv" ?
+				<React.Fragment>
+					<span className="benchmark-box">
+						<Switch label="Benchmark Price " onToggle={this.toggleBenchmarkPrice.bind(this)}  active={this.state.showBenchmark} dataTip="Enabling benchmark price aggregate prices from Binance/others<br/> to give more pricing information for you to make informed trades." />
+					</span>
+				</React.Fragment>
+				: null
+				}
+				
+			</div>
+		)
 	}
 
 	render() {
-		const Switchchart = () => {
-			return(
-				<div className="switch-chart d-flex">
-					<button className={this.state.chart === "tv" ? "active": ""} onClick={() => this.toggleChart("tv")}>Price Chart</button>
-					<button className={this.state.chart === "depth" ? "active": ""} onClick={() => this.toggleChart("depth")}>Depth Chart</button>
-				</div>
-			)
-		}
+		const { announcements } = this.state
+		const { websocket_status, publicKey } = this.props
 		return (
-			<div className={container}>
+			<div className={container + (announcements ? " has-announcement" : "") + (publicKey ? " has-user" : "")}>
 				<div className="d-flex">
 					<Header />
-					{this.props.private_key ? <Menu /> : <ConnectLink onOpen={this.handleConnectDialog.bind(this)} />}
+					{publicKey ? <Menu /> : <Connect type="link" />}
+				
+					{ websocket_status ?
+						<div className="websocket-status text-center py-2 px-5">Connection Issue: {websocket_status}</div>
+						:null
+					}
 				</div>
+				{announcements ? <Announcement announcements={announcements}/> : null}
 				<div className="content d-flex">
 					<section className="compartment left-cols">
 						<Trade />
 						<hr/>
-						{this.props.private_key ? <Balance /> : <Connect onOpen={this.handleConnectDialog.bind(this)} />}
+						{publicKey ? <Balance /> : <Connect/>}
 					</section>
 					<section className="compartment left-cols">
 						<OrderBook />
@@ -235,9 +296,9 @@ class Exchange extends Component {
 									</div>
 								</div>
 							<section className="compartment" style={this.state.toggle_trade ? {width: "calc(100% - 270px)"} : {width: "100%"}}>
-								<Switchchart />
-								<Chart chartTools={true} className={this.state.chart === "tv" ? "d-block": "d-none" } style={!this.props.private_key && {height: "calc(100vh - 124px)"}} />
-								<DepthChart className={this.state.chart === "depth" ? "d-block": "d-none"} style={!this.props.private_key && {height: "calc(100vh - 124px)"}} />
+								<this.Switchchart />
+								<Chart chartTools={true} showBenchmark={this.state.showBenchmark} className={this.state.chart === "tv" ? "d-block": "d-none" } />
+								<DepthChart className={this.state.chart === "depth" ? "d-block": "d-none"} />
 							</section>
 
 							<section className={"compartment cols" + (this.state.toggle_trade ? "" : " d-none")}>
@@ -245,7 +306,7 @@ class Exchange extends Component {
 							</section>
 						</div>
 						
-						{this.props.private_key ? 
+						{publicKey ? 
 							<section className="compartment">
 								<Orders />
 							</section>
@@ -258,7 +319,6 @@ class Exchange extends Component {
 					<Status />
 				</section>
 				<ToastContainer />
-				{this.props.private_key ? "" : <ConnectDialog default={this.state.dialog} />}
 			</div>
 		);
 	}
@@ -266,9 +326,11 @@ class Exchange extends Component {
 
 const mapStateToProps = (state) => ({
 		private_key: state.app.private_key,
+		publicKey: state.app.publicKey,
 		leftOpen: state.app.ui.leftOpen,
 		rightOpen: state.app.ui.rightOpen,
 		currentTicker: state.app.currentTicker,
+		websocket_status: state.app.websocket_status,
 	});
 
 

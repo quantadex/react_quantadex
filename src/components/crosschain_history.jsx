@@ -38,9 +38,10 @@ class CrosschainHistory extends Component {
   loadHistory() {
     this.setState({loading: true})
     const limit = 100
-    fetch(CONFIG.SETTINGS[window.currentNetwork].API_PATH + `/node1/history?user=${this.props.user}&offset=${this.state.page * limit}&limit=${limit}`)
+    fetch(CONFIG.getEnv().API_PATH + `/node1/history?user=${this.props.user}&offset=${this.state.page * limit}&limit=${limit}`, { mode: "cors" })
     .then(e => e.json())
     .then(data => {
+      if (data && !(data.length > 0)) return
       const list = this.state.data.concat(data || [])
       this.setState({data: list, page: this.state.page + 1, end: (!data || data.length < limit), loading: false})
     })
@@ -67,8 +68,22 @@ class CrosschainHistory extends Component {
 		}
   }, 200)
 
-  render() {
+  coinURL(coinName, type) {
+    const testnet = this.props.network == 'testnet'
+    const coin = coinName.toLowerCase()
+    switch(coin) {
+      case "btc":
+        return testnet ? CONFIG.getEnv().BLOCKCYPHER_URL + coin + "-testnet" + type : CONFIG.getEnv().BLOCKCYPHER_URL + coin + type
+      case "ltc":
+        return testnet ? "https://chain.so" + type + "LTCTEST/" : CONFIG.getEnv().BLOCKCYPHER_URL + coin + type
+      case "bch":
+        return CONFIG.getEnv().BITCOIN_URL + coin + type
+      default:
+        return CONFIG.getEnv().ETHERSCAN_URL + type
+    }
+  }
 
+  render() {
     return (
       <div className={container + " content"  + (this.props.isMobile ? " mobile px-4" : "")} onWheel={this.handleScroll}>
         <div className='filter-container d-flex mt-5 align-items-center'>
@@ -76,7 +91,7 @@ class CrosschainHistory extends Component {
           <Switch label="Hide Deposit" onToggle={() => this.setState({hideDeposit: !this.state.hideDeposit})} />
         </div>
         <div className="table-responsive">
-          <table className="w-100 mt-5">
+          <table className="w-100 mt-5 text-nowrap">
             <thead>
               <tr className="qt-white-27">
                 <th>TYPE</th>
@@ -92,15 +107,14 @@ class CrosschainHistory extends Component {
               </tr>
             </thead>
             <tbody className="qt-font-extra-small">
-              {this.state.data.filter(item => item.Coin.toLowerCase().includes(this.state.filter.toLowerCase()) && (!this.state.hideDeposit || item.Type !== "deposit") ).map(row => {
-                const COIN_URL = row.Coin == "BTC" ? CONFIG.SETTINGS[window.currentNetwork].BLOCKCYPHER_URL : CONFIG.SETTINGS[window.currentNetwork].ETHERSCAN_URL
+              {this.state.data.filter(item => item.Coin.toLowerCase().includes(this.state.filter.toLowerCase()) && (!this.state.hideDeposit || item.Type !== "deposit") ).map((row, index) => {
                 return (
-                  <tr key={row.Type + row.Tx}>
+                  <tr key={index}>
                     <td className={"text-uppercase " + (row.Type == "deposit" ? "qt-color-theme" : "qt-color-red")}>{row.Type}</td>
-                    <td><a href={(row.Type === "deposit" && !row.IsBounced ? COIN_URL + "/tx/" : CONFIG.SETTINGS[window.currentNetwork].EXPLORER_URL + "/ledgers/") + row.Tx.split("_")[0]} title={row.Tx} target="_blank" rel="noopener noreferrer">{this.shorten(row.Tx)}</a></td>
-                    <td><a href={(row.Type === "deposit" && !row.IsBounced ? COIN_URL + "/address/" : CONFIG.SETTINGS[window.currentNetwork].EXPLORER_URL + "/account/") + row.From.split(',')[0]} title={row.From.split(',')[0]} target="_blank" rel="noopener noreferrer">{this.shorten(row.From.split(',')[0])}</a></td>
-                    <td><a href={(row.Type === "deposit" || row.IsBounced ? CONFIG.SETTINGS[window.currentNetwork].EXPLORER_URL + "/ledgers/" : COIN_URL + "/tx/") + row.SubmitTxHash.split("_")[0]} title={row.SubmitTxHash} target="_blank" rel="noopener noreferrer">{this.shorten(row.SubmitTxHash)}</a></td>
-                    <td><a href={(row.Type === "deposit" || row.IsBounced ? CONFIG.SETTINGS[window.currentNetwork].EXPLORER_URL + "/account/" : COIN_URL + "/address/") + row.To.split(',')[0]} title={row.To.split(',')[0]} target="_blank" rel="noopener noreferrer">{this.shorten(row.To.split(',')[0])}</a></td>
+                    <td><a href={(row.Type === "deposit" && !row.IsBounced ? this.coinURL(row.Coin, "/tx/")  : CONFIG.getEnv().EXPLORER_URL + "/ledgers/") + row.Tx.split("_")[0]} title={row.Tx} target="_blank" rel="noopener noreferrer">{this.shorten(row.Tx)}</a></td>
+                    <td><a href={(row.Type === "deposit" && !row.IsBounced ? this.coinURL(row.Coin, "/address/") : CONFIG.getEnv().EXPLORER_URL + "/account/") + row.From.split(',')[0]} title={row.From.split(',')[0]} target="_blank" rel="noopener noreferrer">{this.shorten(row.From.split(',')[0])}</a></td>
+                    <td><a href={(row.Type === "deposit" || row.IsBounced ? CONFIG.getEnv().EXPLORER_URL + "/ledgers/" : this.coinURL(row.Coin, "/tx/")) + row.SubmitTxHash.split("_")[0]} title={row.SubmitTxHash} target="_blank" rel="noopener noreferrer">{this.shorten(row.SubmitTxHash)}</a></td>
+                    <td><a href={(row.Type === "deposit" || row.IsBounced ? CONFIG.getEnv().EXPLORER_URL + "/account/" : this.coinURL(row.Coin, "/address/")) + row.To.split(',')[0]} title={row.To.split(',')[0]} target="_blank" rel="noopener noreferrer">{this.shorten(row.To.split(',')[0])}</a></td>
                     <td><SymbolToken name={row.Coin} /></td>
                     <td className="text-right">{row.Amount / Math.pow(10, row.Type === "withdrawal" ? 5 : (window.assetsBySymbol[row.Coin] ? window.assetsBySymbol[row.Coin].precision : 0))}</td>
                     <td className="text-right text-capitalize">{String(row.IsBounced)}</td>
@@ -120,7 +134,8 @@ class CrosschainHistory extends Component {
 }
 
 const mapStateToProps = (state) => ({
-  isMobile: state.app.isMobile
+  isMobile: state.app.isMobile,
+  network: state.app.network
 });
 
 export default connect(mapStateToProps)(CrosschainHistory)

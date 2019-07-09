@@ -79,11 +79,10 @@ const Container = styled('button')`
   &.fluid {
     width: 100% !important;
   }
-  &:disabled {
+  &:disabled, &:disabled:hover, &.locked {
     background-color: transparent !important;
-    border-color: #555;
+    border-color: #555 !important;
     color: #555 !important;
-    cursor: not-allowed;
   }
 `
 

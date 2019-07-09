@@ -2,7 +2,7 @@ import React, {PropTypes} from 'react';
 import { connect } from 'react-redux'
 import CONFIG from '../../config.js'
 import { TransactionBuilder } from "@quantadex/bitsharesjs"
-import { GetName } from '../../redux/actions/app.jsx'
+import { GetAccount } from '../../redux/actions/app.jsx'
 import {SymbolToken} from './ticker.jsx'
 import WAValidator from 'wallet-address-validator'
 
@@ -12,12 +12,13 @@ import { toast } from 'react-toastify';
 import TxDialog from './transaction_dialog.jsx'
 import { transferFund } from '../../redux/actions/app.jsx'
 import Utils from '../../common/utils'
+import ReactTooltip from 'react-tooltip'
 
 const container = css`
-  position: relative;
   margin:0 -15px;
   background-color:white;
   color: #28303c;
+  text-align: left;
 
   input {
     width: 100%;
@@ -46,6 +47,7 @@ const container = css`
   }
 
   .input-container {
+    position: relative;
     width: 100%;
     padding: 15px 30px;
     border-left: 1px solid #eee;
@@ -65,7 +67,7 @@ const container = css`
   }
 
   img {
-    vertical-align: baseline;
+    vertical-align: text-bottom;
   }
   
   .close-dialog {
@@ -76,6 +78,14 @@ const container = css`
     font-weight: bold;
     color: ${globalcss.COLOR_THEME};
     text-decoration: underline;
+    z-index: 1;
+  }
+
+  &.vertical {
+    .toggle {
+      left: 30px;
+      right: auto;
+    }
   }
 `
 
@@ -105,7 +115,7 @@ const coin_details = css`
 class QTWithdraw extends React.Component {
   constructor(props) {
     super(props);
-    const isCrosschain = CONFIG.SETTINGS[window.currentNetwork].CROSSCHAIN_COINS.includes(this.props.asset) || this.props.asset.split("0X").length == 2
+    const isCrosschain = CONFIG.getEnv().CROSSCHAIN_COINS.includes(this.props.asset) || this.props.asset.split("0X").length == 2
     this.state = {
       isCrosschain: isCrosschain,
       showTransfer: !isCrosschain,
@@ -124,10 +134,6 @@ class QTWithdraw extends React.Component {
   }
 
   componentDidMount() {
-    $(function(){
-      $('[data-toggle="tooltip"]').tooltip();   
-    });
-
     let fee_asset = "1.3.0"
     let tr = new TransactionBuilder();
     let transfer_op = tr.get_type_operation("transfer", {
@@ -154,8 +160,10 @@ class QTWithdraw extends React.Component {
   }
 
   validateAddress(address) {
-    let coin = this.state.asset == "BTC" ? "BTC" : "ETH"
-    let valid = WAValidator.validate(address, coin, 'testnet')
+    const is_token = this.state.asset.split("0X").length > 1;
+
+    let coin = is_token ? "ETH" : this.state.asset;
+    let valid = WAValidator.validate(address, coin, this.props.network == "testnet" ? "testnet" : "prod")
 
     if (!valid) {
       this.setState({error: true, errorMsg: "Invalid address"})
@@ -188,7 +196,7 @@ class QTWithdraw extends React.Component {
       })
       .catch((e) => {
         var msg = "Please make sure the destination account name is correct."
-        if (String(e).includes("insufficient_balance")) {
+        if (String(e).includes("insufficient_balance") || String(e).toLowerCase().includes("insufficient balance")) {
           msg = "Insufficient Balance."
         }
 
@@ -202,16 +210,19 @@ class QTWithdraw extends React.Component {
   }
   
   CoinDetails() {
-    !this.state.issuer && GetName(this.coin.issuer).then(issuer => {
-      this.setState({issuer: (issuer == "null-account" ? "Native": issuer)})
+    const { issuer, showTransfer } = this.state
+    const { vertical } = this.props
+
+    !issuer && GetAccount(this.coin.issuer).then(issuer => {
+      this.setState({issuer: (issuer.name == "null-account" ? "Native": issuer.name)})
     })
 
     return (
-      <div className={coin_details + " mx-auto"}>
-        <h1>{this.state.showTransfer ? "TRANSFER" : "WITHDRAW"}<br/><SymbolToken name={this.coin.symbol} showIcon={false} /></h1>
+      <div className={coin_details + " mx-auto py-5" + (vertical ? " d-flex justify-content-between align-items-center w-100 px-5 border-bottom" : "")}>
+        <h1>{showTransfer ? "TRANSFER" : "WITHDRAW"}<br/><SymbolToken name={this.coin.symbol} showIcon={false} /></h1>
         <div>
-          Asset ID: <span className="value">{this.coin.id}</span> <a href={CONFIG.SETTINGS[window.currentNetwork].EXPLORER_URL + "/object/" + this.coin.id} target="_blank"><img src={devicePath("public/images/external-link.svg")} /></a><br/>
-          Issuer: <span className="value">{this.state.issuer}</span><br/>
+          Asset ID: <span className="value">{this.coin.id}</span> <a href={CONFIG.getEnv().EXPLORER_URL + "/object/" + this.coin.id} target="_blank"><img src={devicePath("public/images/external-link.svg")} /></a><br/>
+          Issuer: <span className="value">{issuer}</span><br/>
           Precision: <span className="value">{this.coin.precision}</span><br/>
           Max Supply: <span className="value">{(parseInt(this.coin.options.max_supply)/Math.pow(10, this.coin.precision)).toLocaleString(navigator.language)}</span>
         </div>
@@ -220,8 +231,10 @@ class QTWithdraw extends React.Component {
   }
 
   Transfer() {
+    const { vertical, handleClick } = this.props
     return (
       <div className="input-container">
+        { vertical ? null : <div className="close-dialog cursor-pointer" onClick={handleClick}>Close</div> }
         {this.state.isCrosschain ? 
           <div className="d-md-none toggle qt-font-small mb-3" onClick={this.toggleTransfer}>Switch to {this.state.showTransfer ? "Withdraw" : "Transfer"}</div> 
           : null}
@@ -251,69 +264,106 @@ class QTWithdraw extends React.Component {
   }
 
   Withdraw() {
+    const { vertical, handleClick } = this.props
+    const { isCrosschain, showTransfer, asset, issuer, amount, fee, error, errorMsg, memo } = this.state
+    const mins = {BTC: 0.00075, ETH: 0.015, LTC: 0.0015, BCH: 0.0015}
+    const withdraw_fees = {BTC: 0.0005, ETH: 0.005, LTC: 0.0005, BCH: 0.0005}
+
+    const min_amount = mins[asset] || (asset.split('0X').length == 2 ? 0.015 : 0)
+    const withdraw_fee = withdraw_fees[asset] || (asset.split('0X').length == 2 ? 0.005 : 0)
     return (
       <div className="input-container">
-        {this.state.isCrosschain ? 
-          <div className="d-md-none toggle qt-font-small mb-3" onClick={this.toggleTransfer}>Switch to {this.state.showTransfer ? "Withdraw" : "Transfer"}</div> 
+        { vertical ? null : <div className="close-dialog cursor-pointer" onClick={handleClick}>Close</div> }
+        {isCrosschain ? 
+          <div className="d-md-none toggle qt-font-small mb-3" onClick={this.toggleTransfer}>Switch to {showTransfer ? "Withdraw" : "Transfer"}</div> 
           : null}
         <div className="mb-3">
           <label className="my-0">DESTINATION ACCOUNT</label>
-          <div className="d-inline ml-2 cursor-pointer" data-toggle="tooltip" data-placement="right" 
-            title="Withdraw requires funds to go back to the QUANTA cross-chain issuer for processing.">
-              <img src={devicePath("public/images/question.svg")} />
+          <div className="d-inline ml-2 cursor-pointer" 
+            data-tip="Withdraw requires funds to go back to the QUANTA cross-chain issuer for processing.">
+              <img src={devicePath("public/images/question.png")} />
           </div>
-          <input type="text" readOnly value={this.state.issuer || ""}/>
+          <input type="text" readOnly value={issuer || ""}/>
         </div>
         <div className="mb-3">
           <label className="my-0">AMOUNT</label>
-          <input type="number" value={this.state.amount} onChange={(e) => this.setState({amount: Utils.maxPrecision(e.target.value, this.coin.precision)})}/>
+          <input type="number" value={amount} onChange={(e) => this.setState({amount: Utils.maxPrecision(e.target.value, this.coin.precision)})}/>
         </div>
         <div className="mb-3">
           <label className="my-0">BENEFICIARY ADDRESS</label>
-          <div className="d-inline ml-2 cursor-pointer" data-toggle="tooltip" data-placement="right" 
-            title="Specify the outgoing address where you want to withdraw your tokens.">
-              <img src={devicePath("public/images/question.svg")} />
+          <div className="d-inline ml-2 cursor-pointer" 
+            data-tip="Specify the outgoing address where you want to withdraw your tokens.">
+              <img src={devicePath("public/images/question.png")} />
           </div>
-          {this.state.error && <span className="text-danger float-right">{this.state.errorMsg}</span>}
-          <input type="text" spellCheck="false" value={this.state.memo} 
+          {error && <span className="text-danger float-right">{errorMsg}</span>}
+          <input type="text" spellCheck="false" value={memo} 
             onChange={(e) => {
               this.setState({memo: e.target.value})
               this.validateAddress(e.target.value)
             }}/>
         </div>
-
+        { min_amount > 0 ? 
+          <span className={amount > 0 && amount < min_amount ? "text-danger" : ""}>* Widthdraw Minimum: {min_amount}</span> 
+          : null
+        }
         <div className="d-flex justify-content-between mt-3">
+          { withdraw_fee > 0 ? 
+            <div>
+              <b>WITHDRAW FEE</b><br/>
+              {withdraw_fee} {asset.split('0X')[0]}
+            </div>
+            : null
+          }
           <div>
             <b>TRANSACTION FEE</b><br/>
-            {this.state.fee.amount} {this.state.fee.asset}
+            {fee.amount} {fee.asset}
           </div>
+          
           <button className="cursor-pointer" onClick={() => this.confirmTransaction({type: "Withdraw"})}
-            disabled={this.state.memo.length == 0 || this.state.amount == 0 || this.state.error}>SEND</button>
+            disabled={memo.length == 0 || amount == 0 || amount < min_amount || error}>SEND</button>
         </div>
       </div>
     )
   }
 
   render() {
+    const { vertical, handleClick } = this.props
+    const {isCrosschain, showTransfer, confirmDialog, issuer, destination, amount, asset, fee, memo} = this.state
     return (
-      <div className={container + " d-flex"}>
-        <div className="d-none d-md-flex w-75 align-items-center position-relative">
-          {this.state.isCrosschain ? 
-            <div className="position-absolute toggle qt-font-small" onClick={this.toggleTransfer}>Switch to {this.state.showTransfer ? "Withdraw" : "Transfer"}</div> 
+      <div className={container + " d-flex" + (vertical ? " flex-column vertical position-relative" : "")}>
+        { vertical ? 
+          <div className="close-dialog cursor-pointer" onClick={handleClick}>
+            <img src="/public/images/x_close.svg" height="12" alt="Close" />
+          </div>
+          : null
+        }
+        <div className={"d-none d-md-flex align-items-center position-relative"  + (vertical ? " w-100" : " w-75")}>
+          {isCrosschain ? 
+            <div className="position-absolute toggle qt-font-small" onClick={this.toggleTransfer}>Switch to {showTransfer ? "Withdraw" : "Transfer"}</div> 
             : null}
           <this.CoinDetails />
         </div>
-        <div className="close-dialog cursor-pointer" onClick={this.props.handleClick}>Close</div>
-        {this.state.showTransfer ? <this.Transfer /> : <this.Withdraw />}
+        {showTransfer ? <this.Transfer /> : <this.Withdraw />}
 
-        {this.state.confirmDialog && 
-        <TxDialog data={this.state} 
-          cancel={() => this.closeTransaction()} 
-          submit={() => this.submitTransfer()} />
-      }
+        {confirmDialog && 
+          <TxDialog data={{
+              type: showTransfer ? "Transfer" : "Withdraw",
+              destination: showTransfer ? destination : issuer,
+              amount: {amount, asset},
+              memo: {type: showTransfer ? "Memo" : "Beneficiary Address", memo},
+              fee: fee
+            }} 
+            cancel={() => this.closeTransaction()} 
+            submit={() => this.submitTransfer()} />
+        }
+        <ReactTooltip clickable={true} html={true} />
       </div>
     );
   }
 }
 
-export default connect()(QTWithdraw);
+
+const mapStateToProps = (state) => ({
+  network: state.app.network
+});
+export default connect(mapStateToProps)(QTWithdraw);

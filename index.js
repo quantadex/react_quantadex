@@ -4,6 +4,7 @@ var path = require("path");
 var bodyParser = require('body-parser');
 import { registerAccount } from "./register";
 import { GetLeaderboard } from "./leaderboard";
+import { MarketsAPI } from "./markets_api";
 
 currentApp.use(bodyParser.json());
 currentApp.use("/public", express.static(path.join(__dirname, './public')))
@@ -61,6 +62,15 @@ currentApp.post('/api/register', function (req, res) {
 	})
 	.catch(e => {
 		console.log("exception",e.message);
+		res.status(500).send({message: e.message});
+	})
+})
+
+currentApp.get('/api', function (req, res) {
+	MarketsAPI(req.query).then((e) => {
+		res.json(e)
+	})
+	.catch(e => {
 		res.status(500).send({message: e.message});
 	})
 })

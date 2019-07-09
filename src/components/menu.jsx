@@ -5,6 +5,7 @@ import moment from 'moment';
 import { css } from 'emotion'
 import globalcss from './global-css.js'
 import HamburgerMenu from './ui/hamburger_menu.jsx'
+import Connect from './connect.jsx';
 
 const container = css`
 	padding: 0 20px;
@@ -16,13 +17,15 @@ const container = css`
 	}
 
 	.name {
-		margin-right:10px;
-		max-width: 100px;
-    overflow: hidden;
+		max-width: 88px;
+		overflow: hidden;
+		white-space: nowrap;
     text-overflow: ellipsis;
 	}
 
 	&.mobile {
+		position: absolute;
+		right: 0;
 		.name {
 			max-width: 80px;
 		}
@@ -31,11 +34,13 @@ const container = css`
 
 class Menu extends Component {
   render() {
+		const {isMobile, style, name, mobile_nav} = this.props
     return (
-      <div className={container + (this.props.isMobile ? " mobile" : "")}  style={this.props.style}>
+      <div className={container + (isMobile ? " mobile" : "")}  style={style}>
 				<div className="row qt-font-bold qt-font-small justify-content-end">
-					<span className="name">{this.props.name}</span>
-					{this.props.name && <HamburgerMenu />}
+					<span className="name mr-3">{name}</span>
+					<Connect type="lock" mobile_nav={isMobile ? () => mobile_nav("connect") : null}/>
+					{name && <HamburgerMenu mobile_nav={mobile_nav} />}
 				</div>
       </div>
     )
@@ -43,10 +48,9 @@ class Menu extends Component {
 }
 
 const mapStateToProps = (state) => ({
-  	// bids: state.app.tradeBook.bids,
-  	// asks: state.app.tradeBook.asks,
-		// currentPrice: state.app.currentPrice,
-		name: state.app.name
+		private_key: state.app.private_key,
+		name: state.app.name,
+		isMobile: state.app.isMobile
 	});
 
 export default connect(mapStateToProps)(Menu);

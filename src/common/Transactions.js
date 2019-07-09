@@ -73,7 +73,7 @@ export function signAndBroadcast(tr, pKey) {
 		//console.log("serialized transaction:", tr.serialize().operations);
 		return tr.broadcast()
 			.then((res) => {
-				console.log("Call order update success!");
+				// console.log("Call order update success!");
 				return res;
 			})
 	});
@@ -93,8 +93,6 @@ function calculatePrice(assets, is_buy, base, counter, price, amount) {
 		real: parseFloat(price)
 	})
 
-	console.log(priceObj);
-
 	// USD
 	const sellAmount = priceObj.quote.clone()
 	sellAmount.setAmount({ real: parseFloat(amount) });
@@ -109,7 +107,7 @@ function calculatePrice(assets, is_buy, base, counter, price, amount) {
 	return { forSale, toReceive }
 }
 
-export function createLimitOrderWithPrice(user_id, is_buy, assets, base, counter, price, amount) {
+export function createLimitOrderWithPrice(user_id, is_buy, assets, base, counter, price, amount, fill_or_kill = false) {
 
 	const { forSale, toReceive } = calculatePrice(assets, is_buy, base, counter, price, amount)
 
@@ -118,6 +116,7 @@ export function createLimitOrderWithPrice(user_id, is_buy, assets, base, counter
 		expiration: null,
 		to_receive: toReceive,
 		seller: user_id,
+		fill_or_kill: fill_or_kill,
 		fee: {
 			asset_id: "1.3.0",
 			amount: 0
