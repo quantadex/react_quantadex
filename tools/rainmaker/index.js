@@ -147,7 +147,7 @@ async function main() {
     
     if (users_id.length > 0) {
         for (let user of users_id) {
-            await transfer("1.2.22", user.id, amount_to_send * Math.pow(10, 5), "QDEX", "Rainbot tip")
+            await transfer(process.env.ACCOUNT_ID, user.id, amount_to_send * Math.pow(10, 5), "QDEX", "Rainbot tip")
         }
         await send_msg(prepare_message(users_info, amount_to_send), { bot: "rainbot", users: users_id, amount: amount_to_send, asset: "QDEX" })
     }
