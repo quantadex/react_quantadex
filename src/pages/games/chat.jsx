@@ -241,7 +241,7 @@ export default class Chat extends Component {
                 const bot_type = bot_call[0].slice(1)
                 
                 if(window.binance_data && window.binance_data[bot_type.toUpperCase()]) {
-                    const msg = `${bot_type.toUpperCase()} price is $${parseFloat(window.binance_data[bot_type.toUpperCase()].last_price).toFixed(2)} USD`
+                    const msg = `${bot_type.toUpperCase()} price is $${parseFloat(window.binance_data[bot_type.toUpperCase()].last_price).toLocaleString(navigator.language, {maximumFractionDigits: 2})} USD`
                     setTimeout(() => {
                         this.ref.push().set({
                             user: "pricebot",
@@ -314,15 +314,15 @@ export default class Chat extends Component {
     }
 
     BotMessage(metadata, react_key) {
-        if (metadata.bot === "rainbot") {
+        if (metadata.bot === "rainbot" && metadata.users) {
             return (
                 <div key={react_key} className="bot-msg gold mb-3">
                     <span className="bot-name ml-3">{metadata.bot}</span>
                     <div className="message p-2 px-3">
                         Rainbot 💧💧💧 has tipped the following {metadata.users.length} users {metadata.amount} {metadata.asset} each:&nbsp;
-                        {metadata.users.map((user) => {
+                        {metadata.users.map((user, index) => {
                             return (
-                                <span key={user.id} className="user-name">{user.name} </span>
+                                <span key={user.id || index} className="user-name">{user.name} </span>
                             )
                         })}
                     </div>
@@ -332,7 +332,7 @@ export default class Chat extends Component {
 
         if (metadata.message) {
             return (
-                <div className="bot-msg mb-3">
+                <div key={react_key} className="bot-msg mb-3">
                     <span className="bot-name ml-3">{metadata.bot}</span>
                     <div className="message p-2 px-3">{metadata.message}</div>
                 </div>
