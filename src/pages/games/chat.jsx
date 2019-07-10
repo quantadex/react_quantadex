@@ -38,6 +38,31 @@ const container = css `
         }
     }
 
+    .bot-msg {
+        color: #fff;
+        background: #333;
+        border-radius: 5px;
+        padding: 2px;
+        word-break: break-word;
+        
+        .bot-name {
+            text-transform: uppercase;
+            line-height: 25px;
+        }
+
+        .user-name {
+            opacity: 0.8;
+        }
+    }
+
+    .bot-msg.gold {
+        color: #75651b;
+        text-shadow: none;
+        .message {
+            background: rgba(255,255,255,0.5);
+        }
+    }
+
     .message-input {
         position:absolute;
         bottom: 0;
@@ -210,6 +235,23 @@ export default class Chat extends Component {
                 date: Date.now()
             })
             this.setState({message: ""}, () => this.scrollToBottom())
+
+            const bot_call = message.match(/![A-z]+/)
+            if (bot_call) {
+                const bot_type = bot_call[0].slice(1)
+                
+                if(window.binance_data && window.binance_data[bot_type.toUpperCase()]) {
+                    const msg = `${bot_type.toUpperCase()} price is $${parseFloat(window.binance_data[bot_type.toUpperCase()].last_price).toFixed(2)} USD`
+                    setTimeout(() => {
+                        this.ref.push().set({
+                            user: "pricebot",
+                            message: msg,
+                            date: Date.now(),
+                            metadata: {bot: "pricebot", message: msg}
+                        }).then(() => this.scrollToBottom())
+                    }, 1000)
+                }
+            }
         }
     }
     
@@ -221,8 +263,8 @@ export default class Chat extends Component {
           return false
         }
         
-        messages.push({name: value.user, message: value.message, ts: value.date, bet_ids: value.bet_ids})
-        this.setState(messages, () => {
+        messages.push({name: value.user, message: value.message, ts: value.date, bet_ids: value.bet_ids, metadata: value.metadata})
+        this.setState({messages: messages.slice(-100)}, () => {
             if (this.messagesEnd.getBoundingClientRect().top < window.innerHeight) {
                 this.scrollToBottom()
             }
@@ -271,6 +313,35 @@ export default class Chat extends Component {
         )
     }
 
+    BotMessage(metadata, react_key) {
+        if (metadata.bot === "rainbot") {
+            return (
+                <div key={react_key} className="bot-msg gold mb-3">
+                    <span className="bot-name ml-3">{metadata.bot}</span>
+                    <div className="message p-2 px-3">
+                        Rainbot 💧💧💧 has tipped the following {metadata.users.length} users {metadata.amount} {metadata.asset} each:&nbsp;
+                        {metadata.users.map((user) => {
+                            return (
+                                <span key={user.id} className="user-name">{user.name} </span>
+                            )
+                        })}
+                    </div>
+                </div>
+            )
+        }
+
+        if (metadata.message) {
+            return (
+                <div className="bot-msg mb-3">
+                    <span className="bot-name ml-3">{metadata.bot}</span>
+                    <div className="message p-2 px-3">{metadata.message}</div>
+                </div>
+            )
+        }
+
+        return null
+    }
+
     render() {
         const { user } = this.props
         const { message, messages } = this.state
@@ -289,9 +360,15 @@ export default class Chat extends Component {
                             }
                         }
                         last_ts = msg.ts
+
+                        const react_key = msg.name + msg.ts
+
+                        if (msg.metadata && msg.metadata.bot) {
+                            return this.BotMessage(msg.metadata, react_key)
+                        }
                         
                         return (
-                            <React.Fragment  key={msg.name + msg.ts}>
+                            <React.Fragment  key={react_key}>
                                 { time ? 
                                     <div className="d-flex justify-content-between w-100 qt-font-extra-small qt-white-62">
                                         <span>{date ? time.toLocaleDateString([], {weekday: "long"}) : ""}</span>

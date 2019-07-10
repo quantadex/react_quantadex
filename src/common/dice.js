@@ -1,3 +1,4 @@
+const BigInt = require('big-integer');
 /*
       if (op.numbers.size() == 0) {
          if (op.bet == "odd") {
