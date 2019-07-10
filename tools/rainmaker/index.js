@@ -6,13 +6,13 @@ import ApplicationApi from "../../src/common/api/ApplicationApi";
 import { PrivateKey } from "@quantadex/bitsharesjs";
 import { signAndBroadcast } from "../../src/common/Transactions";
 
-const config = {
+const CONFIG = {
     mainnet: {
         ws: "wss://mainnet-lb.quantachain.io",
         api: 'https://wya99cec1d.execute-api.us-east-1.amazonaws.com/mainnet/'
     },
     testnet: {
-        ws: "wss://testnet-01.quantachain.io",
+        ws: "ws://testnet-01.quantachain.io",
         api: 'https://wya99cec1d.execute-api.us-east-1.amazonaws.com/testnet/'
     }
 }
@@ -25,7 +25,7 @@ const static_usd_price = {
 }
 
 function get_history(dt) {
-    return fetch(config[process.env.NETWORK].api + 'account?filter_field=operation_type&filter_value=50&size=1000&from_date=' + dt).then(e => e.json())
+    return fetch(CONFIG[process.env.NETWORK].api + 'account?filter_field=operation_type&filter_value=50&size=1000&from_date=' + dt).then(e => e.json())
 }
 
 /**
@@ -56,10 +56,10 @@ function get_rewardee(total_n, lucky,  history, minimum_loss, usd_price_map, ass
 
 function filter_users_to_tip(profit_flat, total_n, lucky, minimum_loss) {
     const sorted_profit = lodash.sortBy(profit_flat, "profit")
-    //const profit_users = lodash.filter(sorted_profit, e=> e.profit > minimum_loss)    
-    //const loss_users = lodash.filter(sorted_profit, e=> e.profit <= minimum_loss)    
-    const loss_users = sorted_profit.splice(0, total_n - lucky)
-    const lucky_users = (lodash.shuffle(sorted_profit)).slice(0, lucky)
+    const profit_users = lodash.filter(sorted_profit, e=> e.profit > minimum_loss)    
+    const loss_users_f = lodash.filter(sorted_profit, e=> e.profit <= minimum_loss)    
+    const loss_users = loss_users_f.splice(0, total_n - lucky)
+    const lucky_users = (lodash.shuffle(loss_users_f.concat(profit_users))).slice(0, lucky)
     
     //console.log("Result? ", loss_users, lucky_users)
     return {
@@ -121,7 +121,7 @@ function transfer(from, to, amount, asset_id, memo) {
 }
 async function main() {
     // INITIALIZE CODE
-    await Apis.instance(config[process.env.NETWORK].ws, true, 5000, { enableOrders: true }).init_promise
+    await Apis.instance(CONFIG[process.env.NETWORK].ws, true, 5000, { enableOrders: true }).init_promise
     const config = {
         apiKey: "AIzaSyCwbyI8f9wUMIXE34-MZRKM_O9xixMiJn8",
         authDomain: "quantadice-01.firebaseapp.com",
@@ -136,18 +136,21 @@ async function main() {
 
     const assets = await get_assets()
     // get current time - 5 minutes
+    const minimum_loss = parseFloat(process.env.MINIMUM_LOSS)
     const now = new Date()
-    const dt = new Date(now - ((process.env.INTERVAL||5) * 60 * 1000))
+    const dt = new Date(now - ((parseInt(process.env.INTERVAL)||5) * 60 * 1000))
     const history = await get_history(dt.toJSON().slice(0, -5))
-    const tipped_users = get_rewardee(5, 1, history, 0, static_usd_price, assets)
+    const tipped_users = get_rewardee(5, 1, history, minimum_loss, static_usd_price, assets)
     const users_info = await get_users(tipped_users.loss_users.concat(tipped_users.lucky_users))
     const users_id = lodash.map(users_info, (e) => { return {id: e.id, name: e.name} })
-    const amount_to_send = 10;
+    const amount_to_send = parseInt(process.env.AMOUNT_TO_SEND);
     
-    for (let user of users_id) {
-        await transfer("1.2.22", user.id, amount_to_send * Math.pow(10, 5), "QDEX", "Rainbot tip")
+    if (users_id.length > 0) {
+        for (let user of users_id) {
+            await transfer("1.2.22", user.id, amount_to_send * Math.pow(10, 5), "QDEX", "Rainbot tip")
+        }
+        await send_msg(prepare_message(users_info, amount_to_send), { bot: "rainbot", users: users_id, amount: amount_to_send, asset: "QDEX" })
     }
-    await send_msg(prepare_message(users_info, amount_to_send), { bot: "rainbot", users: users_id, amount: amount_to_send, asset: "QDEX" })
     
 
     process.exit()
