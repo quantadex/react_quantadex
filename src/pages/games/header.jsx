@@ -125,9 +125,10 @@ class Header extends Component {
     }
 
     render() {
-        const { name, balance, network, dispatch, connectDialog, setAsset, demo_fund, buyQdexDialog, private_key,
+        const { name, network, dispatch, connectDialog, setAsset, demo_fund, buyQdexDialog, private_key,
             open_deposit, open_withdraw } = this.props
         const { selected_asset, show_assets, listing_balance } = this.state
+        const native_coins = ["QDEX", "QAIR"]
         return (
             <div className={container + " px-4 px-md-5"}>
                 <div className="d-flex qt-font-normal align-items-center justify-content-between h-100">
@@ -142,11 +143,11 @@ class Header extends Component {
                         </div>
                         { private_key ?
                             <div className="transfer-container d-flex ml-auto">
-                                { ["QDEX", "QAIR"].includes(selected_asset) ?
+                                { native_coins.includes(selected_asset) ?
                                     null :
                                     <button className="transfer-btn mr-2" onClick={open_deposit}>Deposit</button>
                                 }
-                                <button className="transfer-btn" onClick={open_withdraw}>{["QDEX", "QAIR"].includes(selected_asset) ? "Transfer" : "Withdraw"}</button>
+                                <button className="transfer-btn" onClick={open_withdraw}>{native_coins.includes(selected_asset) ? "Transfer" : "Withdraw"}</button>
                             </div>
                             : null
                         }

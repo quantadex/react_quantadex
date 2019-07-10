@@ -281,7 +281,7 @@ export default class Chat extends Component {
                 <div className="messages no-scrollbar qt-font-small">
                     { messages.map((msg) => {
                         let date, time
-                        if (!last_ts || msg.ts - last_ts > 2 * 60 * 1000) {
+                        if (!last_ts || msg.ts - last_ts > 5 * 60 * 1000) {
                             time = new Date(msg.ts)
                             if (time.getDate() != last_dt) {
                                 date = time.getDate()
