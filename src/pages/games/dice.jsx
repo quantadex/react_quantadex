@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import { ToastContainer } from 'react-toastify';
 import {switchTicker, updateUserData, refreshData, rollDice} from "../../redux/actions/app.jsx";
 import ReactSlider from 'react-slider';
+import BigInt from 'big-integer'
 import Utils from '../../common/utils.js'
 import { calculate_profit } from '../../common/dice.js'
 import Header from './header.jsx'
