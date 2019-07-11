@@ -352,10 +352,6 @@ export default class Chat extends Component {
 
                         const react_key = msg.name + msg.ts
 
-                        if (msg.metadata && msg.metadata.bot) {
-                            return this.BotMessage(msg.metadata, react_key)
-                        }
-                        
                         return (
                             <React.Fragment  key={react_key}>
                                 { time ? 
@@ -365,10 +361,15 @@ export default class Chat extends Component {
                                     </div>
                                     : null
                                 }
-                                <div className="message p-2 px-3 mb-3">
-                                    <span className="name pr-2">{msg.name}:</span>
-                                    <span className="msg">{this.LinkedMessage(msg.message, msg.bet_ids)}</span>
-                                </div>
+                                { msg.metadata && msg.metadata.bot ?
+                                    this.BotMessage(msg.metadata, react_key)
+                                    :
+                                    <div className="message p-2 px-3 mb-3">
+                                        <span className="name pr-2">{msg.name}:</span>
+                                        <span className="msg">{this.LinkedMessage(msg.message, msg.bet_ids)}</span>
+                                    </div>
+                                }
+                                
                             </React.Fragment>
                         )
                     })}
