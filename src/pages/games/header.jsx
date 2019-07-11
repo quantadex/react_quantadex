@@ -18,6 +18,7 @@ const container = css `
     .logo {
         max-width: 185px;
         height: 100%;
+        max-height: 60px;
     }
 
     .avail-fund {
