@@ -73,7 +73,7 @@ class CrosschainHistory extends Component {
     const coin = coinName.toLowerCase()
     switch(coin) {
       case "btc":
-        return testnet ? CONFIG.getEnv().BLOCKCYPHER_URL + coin + "-testnet" + type : CONFIG.getEnv().BLOCKCYPHER_URL + coin + type
+        return testnet ? CONFIG.getEnv().BLOCKCYPHER_URL + coin + "-testnet" + type : CONFIG.getEnv().BTC_URL
       case "ltc":
         return testnet ? "https://chain.so" + type + "LTCTEST/" : CONFIG.getEnv().BLOCKCYPHER_URL + coin + type
       case "bch":

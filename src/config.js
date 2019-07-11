@@ -23,6 +23,7 @@ const SETTINGS = {
 		ETHERSCAN_URL: "https://etherscan.io",
 		BLOCKCYPHER_URL: "https://live.blockcypher.com/",
 		BITCOIN_URL: "https://explorer.bitcoin.com/",
+		BTC_URL: "https://btc.com/",
 		CROSSCHAIN_COINS: ["BTC", "ETH", "LTC", "BCH"]
 	}
 };
