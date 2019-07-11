@@ -40,10 +40,9 @@ const container = css `
 
     .bot-msg {
         color: #fff;
-        background: #333;
         border-radius: 5px;
-        padding: 2px;
         word-break: break-word;
+        border: 1px solid rgba(255,255,255,0.3);
         
         .bot-name {
             text-transform: uppercase;
@@ -54,15 +53,7 @@ const container = css `
             opacity: 0.8;
         }
     }
-
-    .bot-msg.gold {
-        color: #75651b;
-        text-shadow: none;
-        .message {
-            background: rgba(255,255,255,0.5);
-        }
-    }
-
+    
     .message-input {
         position:absolute;
         bottom: 0;
@@ -316,8 +307,7 @@ export default class Chat extends Component {
     BotMessage(metadata, react_key) {
         if (metadata.bot === "rainbot" && metadata.users) {
             return (
-                <div key={react_key} className="bot-msg gold mb-3">
-                    <span className="bot-name ml-3">{metadata.bot}</span>
+                <div key={react_key} className="bot-msg mb-3">
                     <div className="message p-2 px-3">
                         Rainbot 💧💧💧 has tipped the following {metadata.users.length} users {metadata.amount} {metadata.asset} each:&nbsp;
                         {metadata.users.map((user, index) => {
@@ -333,8 +323,7 @@ export default class Chat extends Component {
         if (metadata.message) {
             return (
                 <div key={react_key} className="bot-msg mb-3">
-                    <span className="bot-name ml-3">{metadata.bot}</span>
-                    <div className="message p-2 px-3">{metadata.message}</div>
+                    <div className="message p-2 px-3"><span className="name pr-2">{metadata.bot}:</span>: {metadata.message}</div>
                 </div>
             )
         }
