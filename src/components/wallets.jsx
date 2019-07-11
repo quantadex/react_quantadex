@@ -80,13 +80,8 @@ const container = css`
       flex: auto;
     }
 
-    [data-key="on_orders"], span.on_orders {
+    [data-key="on_orders"], span.on_orders, [data-key="usd_value"], span.usd_value {
       display: none;
-    }
-
-    [data-key="usd_value"], span.usd_value {
-      text-align: right;
-      padding-right: 20px;
     }
 
     span.usd_value {
@@ -94,11 +89,6 @@ const container = css`
     }
 
     .action-btn {
-      display: none !important;
-      margin-top: 5px;
-    }
-
-    .active .action-btn {
       display: flex !important;
     }
   }
@@ -245,12 +235,12 @@ class Wallets extends Component {
         title: "PAIRS",
         key: "pairs",
         type: "symbol",
-        width:"80"
+        width: isMobile ? "60" : "80"
     }, {
         title: "TOTAL BALANCE",
         key: "balance",
         type: "number",
-        width:"125"
+        width: isMobile ? "100" : "125"
     }, {
         title: "ON ORDERS",
         key: "on_orders",

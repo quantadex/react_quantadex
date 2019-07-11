@@ -234,7 +234,11 @@ class QTWithdraw extends React.Component {
     const { vertical, handleClick } = this.props
     return (
       <div className="input-container">
-        { vertical ? null : <div className="close-dialog cursor-pointer" onClick={handleClick}>Close</div> }
+        { vertical ? null : 
+          <div className="close-dialog cursor-pointer" onClick={handleClick}>
+            <img src="/public/images/x_close.svg" height="12" alt="Close" />
+          </div>
+        }
         {this.state.isCrosschain ? 
           <div className="d-md-none toggle qt-font-small mb-3" onClick={this.toggleTransfer}>Switch to {this.state.showTransfer ? "Withdraw" : "Transfer"}</div> 
           : null}
@@ -273,7 +277,11 @@ class QTWithdraw extends React.Component {
     const withdraw_fee = withdraw_fees[asset] || (asset.split('0X').length == 2 ? 0.005 : 0)
     return (
       <div className="input-container">
-        { vertical ? null : <div className="close-dialog cursor-pointer" onClick={handleClick}>Close</div> }
+        { vertical ? null :
+          <div className="close-dialog cursor-pointer" onClick={handleClick}>
+            <img src="/public/images/x_close.svg" height="12" alt="Close" />
+          </div>  
+        }
         {isCrosschain ? 
           <div className="d-md-none toggle qt-font-small mb-3" onClick={this.toggleTransfer}>Switch to {showTransfer ? "Withdraw" : "Transfer"}</div> 
           : null}
