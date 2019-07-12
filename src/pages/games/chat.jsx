@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { css } from 'emotion';
+import ReactGA from 'react-ga';
 
 const container = css `
     height: 100%;
@@ -227,6 +228,11 @@ export default class Chat extends Component {
             })
             this.setState({message: ""}, () => this.scrollToBottom())
 
+            ReactGA.event({
+                category: 'DICE',
+                action: "Chat"
+            });
+
             const bot_call = message.match(/![A-z]+/)
             if (bot_call) {
                 const bot_type = bot_call[0].slice(1)
@@ -323,7 +329,7 @@ export default class Chat extends Component {
         if (metadata.message) {
             return (
                 <div key={react_key} className="bot-msg mb-3">
-                    <div className="message p-2 px-3"><span className="name pr-2">{metadata.bot}:</span>: {metadata.message}</div>
+                    <div className="message p-2 px-3"><span className="name pr-2">{metadata.bot}:</span>{metadata.message}</div>
                 </div>
             )
         }
