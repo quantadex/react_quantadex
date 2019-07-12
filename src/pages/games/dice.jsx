@@ -741,7 +741,7 @@ class DiceGame extends Component {
             max_bet, sounds, stats, hot_keys, show_chat, show_bets, 
             processing, bet_info, shared_message, show_tutorial, connect_prompt,
             deposit, withdraw } = this.state
-        
+            
         const profit = (Number(calculate_profit(roll_over, win_value, BigInt(amount || 0), BigInt(window.roll_dice_percent_of_fee || 0)))/Math.pow(10, precision)).toFixed(precision)
         return (
             <div className={container + " d-flex flex-column"}>
@@ -753,7 +753,11 @@ class DiceGame extends Component {
                     <Chat user={private_key ? name : ""} network={network}
                         show_chat={show_chat}
                         display_bet={(id) => this.showBetDialog(id)} 
-                        shared_message={shared_message} />
+                        shared_message={shared_message} 
+                        balance={balance}
+                        dispatch={dispatch}
+                        toast={toast}
+                    />
                     <div className="right-column d-flex flex-column w-100 no-scrollbar">
                         <div className="game-main">
                             <div className="d-flex flex-column flex-lg-row justify-content-center pt-5">

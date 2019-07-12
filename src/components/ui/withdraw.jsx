@@ -185,10 +185,11 @@ class QTWithdraw extends React.Component {
   }
 
   submitTransfer() {
-    const token = this.state.asset.split("0X")
-    this.props.dispatch(transferFund(this.state))
+    const { showTransfer, destination, issuer, amount, asset, memo } = this.state
+    const token = asset.split("0X")
+    this.props.dispatch(transferFund(showTransfer ? destination : issuer, amount, asset, memo))
       .then(() => {
-        toast.success(`Successfully transfer ${this.state.amount} ${token[0]} ${token[1] ? ("0x" + token[1].substr(0, 4)) : ""} to ${this.state.showTransfer ? this.state.destination : this.state.issuer}.`, {
+        toast.success(`Successfully transfer ${amount} ${token[0]} ${token[1] ? ("0x" + token[1].substr(0, 4)) : ""} to ${showTransfer ? destination : issuer}.`, {
           position: toast.POSITION.TOP_CENTER
         });
       }).then(() => {
