@@ -31,7 +31,7 @@ const container = css `
         width: 100%;
 
         .name {
-            color: rgba(255,255,255,0.8);
+            color: #a8c6c4;
         }
 
         .msg {
@@ -45,25 +45,45 @@ const container = css `
         background: #1b645c;
         border: 2px solid #57a38b;
         color: #fff;
-        left: calc(100% + 5px);
-        top: -2px;
-        padding: 0 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: max-content;
         border-radius: 4px;
         cursor: pointer;
+        z-index: 1;
     }
 
-    .menu:hover {
+    .menu.top {
+        bottom: 20px;
+    }
+
+    .menu.bottom {
+        top: 25px;
+    }
+
+    .menu div {
+        padding: 0 20px;
+    }
+
+    .menu div:hover {
         background: #57a38b;
     }
 
     .menu::after {
         content: "";
-        border: solid 9px transparent;
-        border-right-color: #57a38b;
+        border: solid 10px transparent;
         position: absolute;
+        left: 50%;
         transform: translateX(-50%);
-        left: -10px;
-        top: 1px;
+    }
+
+    .menu.top::after {
+        border-top-color: #57a38b;
+    }
+
+    .menu.bottom::after {
+        border-bottom-color: #57a38b;
+        bottom: 100%;
     }
 
     .bot-msg {
@@ -78,7 +98,7 @@ const container = css `
         }
 
         .user-name {
-            opacity: 0.8;
+            white-space: nowrap;
         }
     }
     
@@ -168,6 +188,10 @@ export default class Chat extends Component {
             this.setState({message: (message ? message + " " + nextProps.shared_message : nextProps.shared_message) + " "})
         }
 
+        if (nextProps.tip_user) {
+            this.setState({tip_user: nextProps.tip_user})
+        }
+
         if(nextProps.show_chat && !this.props.show_chat) {
             this.scrollToBottom()
         }
@@ -179,7 +203,7 @@ export default class Chat extends Component {
     }
 
     closeMenu(e) {
-        if (e.target.className == "menu") return
+        if (["menu", "menu-item"].includes(e.target.className)) return
         this.setState({menu: null})
     }
 
@@ -213,7 +237,7 @@ export default class Chat extends Component {
 
         this.ref = this.db.ref(`quantadice/${channel}`)
         this.ref.off('child_added', this.onMessage)
-        this.ref.limitToLast(50)
+        this.ref.limitToLast(20)
         .on('child_added', this.onMessage)
 
         setTimeout(() => {
@@ -361,7 +385,7 @@ export default class Chat extends Component {
         )
     }
 
-    BotMessage(metadata) {
+    BotMessage(metadata, key) {
         if (metadata.bot === "rainbot" && metadata.users) {
             return (
                 <div className="bot-msg mb-3">
@@ -369,7 +393,8 @@ export default class Chat extends Component {
                         Rainbot 💧💧💧 has tipped the following {metadata.users.length} users {metadata.amount} {metadata.asset} each:&nbsp;
                         {metadata.users.map((user, index) => {
                             return (
-                                <span key={user.id || index} className="user-name">{user.name} </span>
+                                <span key={user.id || index} className="user-name">{this.NameMenu(user.name, key + user.id)}</span>
+                                
                             )
                         })}
                     </div>
@@ -388,21 +413,31 @@ export default class Chat extends Component {
         return null
     }
 
-    NameMenu(name, react_key) {
+    NameMenu(name, key, separator = " ") {
         return (
             <span className="name pr-2 position-relative cursor-pointer" 
-                onClick={() => {
-                    this.props.user && this.setState({menu: react_key})
+                onClick={(e) => {
+                    this.menu_pos = e.target.getBoundingClientRect().y > window.innerHeight/2 ? 0 : 1
+                    this.setState({menu: key})
                 }}
             >
-                {name}:
-                { react_key === this.state.menu ?
-                    <div className="menu" 
-                        onClick={(e) => {
+                {name + String.fromCharCode(9662) + separator}
+                { key === this.state.menu ?
+                    <div className={"menu " + (this.menu_pos ? "bottom" : "top")}> 
+                        {this.props.user ?
+                            <div className="menu-item" onClick={(e) => {
+                                e.stopPropagation()
+                                this.setState({menu: null, tip_user: name})
+                            }}>Tip</div>
+                            : null
+                        }
+
+                        <div className="menu-item" onClick={(e) => {
                             e.stopPropagation()
-                            this.setState({menu: null, tip_user: name})
-                        }}
-                    >Tip</div>
+                            this.props.display_stats(name)
+                            this.setState({menu: null})
+                        }}>Stats</div>
+                    </div>
                     : null
                 }
             </span>
@@ -441,10 +476,10 @@ export default class Chat extends Component {
                                         : null
                                     }
                                     { msg.metadata && msg.metadata.bot ?
-                                        this.BotMessage(msg.metadata)
+                                        this.BotMessage(msg.metadata, react_key)
                                         :
                                         <div className="message p-2 px-3 mb-3">
-                                            {this.NameMenu(msg.name, react_key)}
+                                            {this.NameMenu(msg.name, react_key, ":")}
                                             <span className="msg">{this.LinkedMessage(msg.message, msg.bet_ids)}</span>
                                         </div>
                                     }

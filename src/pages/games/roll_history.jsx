@@ -49,7 +49,7 @@ const container = css `
                 animation: 0.2s ease-out rollIn;
             }
 
-            .bet-id:hover {
+            .clickable:hover {
                 text-decoration: underline;
             }
 
@@ -124,6 +124,7 @@ export default class RollHistory extends Component {
                 const data = {
                     id: op.operation_id_num,
                     user: name,
+                    user_id: op_object.account_id,
                     time: new Date(op.block_data.block_time + "Z").toLocaleTimeString([], {hour: "numeric", minute: "numeric"}),
                     wagered: op_object.risk.amount/Math.pow(10, asset.precision),
                     payout: op_object.win ? (op_object.payout.amount/op_object.risk.amount) + 1 : 0,
@@ -171,11 +172,11 @@ export default class RollHistory extends Component {
 
     BetRow(row, first = false) {
         if (!row) return 
-        const { show_info } = this.props
+        const { show_info, show_player } = this.props
         return (
             <div key={row.id} className={"bet-row d-flex " + (first ? "first" : "")}>
-                <span className="text-left bet-id cursor-pointer" onClick={() => show_info(row.id)}>{row.id}</span>
-                <span>{row.user}</span>
+                <span className="text-left clickable cursor-pointer" onClick={() => show_info(row.id)}>{row.id}</span>
+                <span className="clickable cursor-pointer" onClick={() => show_player(row.user_id)}>{row.user}</span>
                 <span className="d-none d-md-block">{row.time}</span>
                 <span className="d-none d-sm-block">{row.wagered.toFixed(row.precision)} 
                 <img src={`/public/images/coins/${row.symbol.toLowerCase()}.svg`} 
