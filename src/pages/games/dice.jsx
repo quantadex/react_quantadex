@@ -16,6 +16,7 @@ import RollHistory from './roll_history.jsx'
 import Toolbar from './toolbar.jsx'
 import MobileNav from './mobile_nav.jsx'
 import BetInfo from './bet_info.jsx'
+import PlayerStats from './player_stats.jsx'
 import Tutorial from './tutorial.jsx'
 import ConnectPrompt from './connect_prompt.jsx'
 import Jackpot from './pot.jsx'
@@ -397,7 +398,9 @@ class DiceGame extends Component {
             show_chat: false,
             show_bets: false,
             bet_info: null,
+            player_stats: null,
             shared_message: null,
+            tip_user: null,
             show_tutorial: !localStorage.getItem("dice_start"),
             connect_prompt: 0
         }
@@ -443,6 +446,16 @@ class DiceGame extends Component {
         if (location.search.includes("bet=")) {
             const arr = location.search.slice(1).split("=")
             this.setState({bet_info: arr[arr.indexOf("bet") + 1]})
+        }
+
+        if (location.search.includes("player=")) {
+            const arr = location.search.slice(1).split("=")
+            this.setState({player_stats: arr[arr.indexOf("player") + 1]})
+        }
+
+        if (location.search.includes("asset=")) {
+            const arr = location.search.slice(1).split("=")
+            localStorage.setItem("dice_asset", arr[arr.indexOf("asset") + 1])
         }
 
         document.addEventListener("keypress", this.handleHotkeys)
@@ -680,8 +693,17 @@ class DiceGame extends Component {
         this.props.history.push("?bet=" + id)
     }
 
+    showPlayerDialog(id) {
+        this.setState({player_stats: id})
+        this.props.history.push("?player=" + id)
+    }
+
     shareToChat(message) {
         this.setState({shared_message: message, bet_info: null, show_chat: true, show_bets: false}, () => this.setState({shared_message: null}))
+    }
+
+    sendTip(tip_user) {
+        this.setState({tip_user}, () => this.setState({tip_user: null}))
     }
 
     setInputs(type, val) {
@@ -739,9 +761,9 @@ class DiceGame extends Component {
             stop_loss_amount_display, stop_profit_amount_display,
             modify_loss, modify_loss_amount, modify_win, modify_win_amount, show_roll,
             max_bet, sounds, stats, hot_keys, show_chat, show_bets, 
-            processing, bet_info, shared_message, show_tutorial, connect_prompt,
+            processing, player_stats, bet_info, shared_message, tip_user, show_tutorial, connect_prompt,
             deposit, withdraw } = this.state
-        
+            
         const profit = (Number(calculate_profit(roll_over, win_value, BigInt(amount || 0), BigInt(window.roll_dice_percent_of_fee || 0)))/Math.pow(10, precision)).toFixed(precision)
         return (
             <div className={container + " d-flex flex-column"}>
@@ -753,7 +775,13 @@ class DiceGame extends Component {
                     <Chat user={private_key ? name : ""} network={network}
                         show_chat={show_chat}
                         display_bet={(id) => this.showBetDialog(id)} 
-                        shared_message={shared_message} />
+                        display_stats={(id) => this.showPlayerDialog(id)}
+                        tip_user={tip_user}
+                        shared_message={shared_message} 
+                        balance={balance}
+                        dispatch={dispatch}
+                        toast={toast}
+                    />
                     <div className="right-column d-flex flex-column w-100 no-scrollbar">
                         <div className="game-main">
                             <div className="d-flex flex-column flex-lg-row justify-content-center pt-5">
@@ -1064,7 +1092,10 @@ class DiceGame extends Component {
                             />
                         </div>
                         <div className="game-history mt-5 d-flex flex-column">
-                            <RollHistory userId={private_key && userId} show_info={(id) => this.showBetDialog(id)} />
+                            <RollHistory userId={private_key && userId}
+                                show_info={(id) => this.showBetDialog(id)}
+                                show_player={(id) => this.showPlayerDialog(id)}
+                            />
                             <Jackpot init={init} asset={asset} precision={precision} />
                             <Footer network={network} />
                         </div>
@@ -1082,6 +1113,18 @@ class DiceGame extends Component {
                         this.setState({bet_info: null})
                         history.push()
                     }} />
+                    : null
+                }
+
+                { player_stats ?
+                    <PlayerStats id={player_stats} 
+                        allow_action={private_key ? true : false}
+                        sendTip={this.sendTip.bind(this)}
+                        close={() => {
+                            this.setState({player_stats: null})
+                            history.push()
+                        }} 
+                    />
                     : null
                 }
 

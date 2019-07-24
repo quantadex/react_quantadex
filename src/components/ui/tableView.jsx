@@ -42,7 +42,7 @@ const container = css`
     background: #22282C;
     padding: 0 10px;
     min-width: 80px;
-    z-index: 1;
+    z-index: 2;
     border: 1px solid #1cdad8;
 
     a {
@@ -173,9 +173,9 @@ export default class QTTableView extends React.Component {
           {
               columns.map((col, index) => {
                 if (col.type == "buttons") {
-                  const new_css = css`width:${col.buttons.length * 96 - 16}px`
+                  const new_css = css`width:${mobile ? 140 : col.buttons.length * 96 - 16}px;text-align:center;`
                   return (
-                    <span key={index} className={new_css}></span>
+                    <span key={index} className={new_css+" theader qt-font-semibold qt-cursor-pointer"}>ACTIONS</span>
                   )
                 } else if (col.type == "string" || col.type == "symbol" || col.type == "coloredString") {
                   const new_css = css`width:${col.width}px;text-align:left;`
@@ -201,7 +201,7 @@ export default class QTTableView extends React.Component {
                       if (col.type == "buttons") {
 
                         const new_css = css`
-                          width:${col.buttons.length * 96 - 16}px;
+                          width:${mobile ? 140 : col.buttons.length * 96 - 16}px;
 
                         `
 
@@ -213,6 +213,7 @@ export default class QTTableView extends React.Component {
                                   return null
                                 }
                                 if(e.pairs !== ERC20Label && btn.label == "TRADE") {
+                                  if (mobile) return null
                                   const pair_markets = markets.filter(market => market.includes(e.pairs))
                                   for (let coin of default_markets) {
                                     const token = coin == "TUSD" ? "TUSD0X0000000000085D4780B73119B644AE5ECD22B376" : coin
@@ -225,7 +226,7 @@ export default class QTTableView extends React.Component {
                                       <QTButton
                                         className={btn.color + " qt-font-base qt-font-semibold"}
                                         borderWidth="1"
-                                        width="80"
+                                        width={mobile ? "65" : "80"}
                                         height="20"
                                         label={btn.label}
                                         color={btn.color}/>
@@ -257,7 +258,7 @@ export default class QTTableView extends React.Component {
                                     }
                                     className={btn.color + " qt-font-base qt-font-semibold"}
                                     borderWidth="1"
-                                    width="80"
+                                    width={mobile ? "65" : "80"}
                                     height="20"
                                     label={(e.pairs !== ERC20Label && !CONFIG.getEnv().CROSSCHAIN_COINS.includes(e.pairs) && e.pairs.split("0X").length !== 2) ? "TRANSFER" : btn.label}
                                     color={btn.color}/>

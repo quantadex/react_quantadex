@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { css } from 'emotion';
+import ReactGA from 'react-ga';
+import UserTip from './user_tip.jsx'
 
 const container = css `
     height: 100%;
@@ -15,11 +17,11 @@ const container = css `
         .bet-id {
             text-decoration: underline;
             cursor: pointer;
-            opacity: 0.7;
+            color: #bad0ce;
         }
 
         .bet-id:hover {
-            opacity: 1;
+            color: #fff;
         }
     }
 
@@ -29,13 +31,64 @@ const container = css `
         width: 100%;
 
         .name {
-            color: rgba(255,255,255,0.8);
+            color: #a8c6c4;
         }
 
         .msg {
             color: #fff;
             word-break: break-word;
         }
+    }
+
+    .menu {
+        position: absolute;
+        background: #1b645c;
+        border: 2px solid #57a38b;
+        color: #fff;
+        left: 50%;
+        transform: translateX(-50%);
+        width: max-content;
+        border-radius: 4px;
+        cursor: pointer;
+        z-index: 1;
+    }
+
+    .menu.top {
+        bottom: 20px;
+    }
+
+    .menu.bottom {
+        top: 25px;
+    }
+
+    .menu div {
+        padding: 0 20px;
+    }
+
+    .menu div:hover {
+        background: #57a38b;
+    }
+
+    .menu::after {
+        content: "";
+        border: solid 10px transparent;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .menu.top::after {
+        border-top-color: #57a38b;
+    }
+
+    .menu.bottom::after {
+        border-bottom-color: #57a38b;
+        bottom: 100%;
+    }
+
+    .arrow {
+        font-size: 18px;
+        line-height: 0px;
     }
 
     .bot-msg {
@@ -50,7 +103,8 @@ const container = css `
         }
 
         .user-name {
-            opacity: 0.8;
+            white-space: nowrap;
+            display: inline-block;
         }
     }
     
@@ -83,11 +137,14 @@ export default class Chat extends Component {
         this.state = {
             messages: [],
             message: "",
+            menu: null,
+            tip_user: null
         }
 
         this.messagesEnd = React.createRef();
         this.onMessage = this.onMessage.bind(this)
         this.post = this.post.bind(this)
+        this.closeMenu = this.closeMenu.bind(this)
     }
 
     componentDidMount() {
@@ -121,7 +178,9 @@ export default class Chat extends Component {
 
         window.addEventListener("focus", () => {
 			this.scrollToBottom()
-		});
+        });
+        
+        document.addEventListener('click', this.closeMenu, true)
     }
 
     componentWillReceiveProps(nextProps) {
@@ -135,9 +194,23 @@ export default class Chat extends Component {
             this.setState({message: (message ? message + " " + nextProps.shared_message : nextProps.shared_message) + " "})
         }
 
+        if (nextProps.tip_user) {
+            this.setState({tip_user: nextProps.tip_user})
+        }
+
         if(nextProps.show_chat && !this.props.show_chat) {
             this.scrollToBottom()
         }
+    }
+
+    componentWillUnmount() {
+        this.destroy()
+        document.removeEventListener('click', this.closeMenu, true)
+    }
+
+    closeMenu(e) {
+        if (["menu", "menu-item"].includes(e.target.className)) return
+        this.setState({menu: null})
     }
 
     onLoad(initRef = true) {
@@ -170,7 +243,7 @@ export default class Chat extends Component {
 
         this.ref = this.db.ref(`quantadice/${channel}`)
         this.ref.off('child_added', this.onMessage)
-        this.ref.limitToLast(50)
+        this.ref.limitToLast(20)
         .on('child_added', this.onMessage)
 
         setTimeout(() => {
@@ -227,6 +300,11 @@ export default class Chat extends Component {
             })
             this.setState({message: ""}, () => this.scrollToBottom())
 
+            ReactGA.event({
+                category: 'DICE',
+                action: "Chat"
+            });
+
             const bot_call = message.match(/![A-z]+/)
             if (bot_call) {
                 const bot_type = bot_call[0].slice(1)
@@ -244,6 +322,19 @@ export default class Chat extends Component {
                 }
             }
         }
+    }
+
+    chatBot(msg) {
+        if (!this.ref || !this.props.user) {
+            return false
+        }
+
+        this.ref.push().set({
+            user: "chatbot",
+            message: msg,
+            date: Date.now(),
+            metadata: {bot: "chatbot", message: msg}
+        }).then(() => this.scrollToBottom())
     }
     
     onMessage(snapshot) {
@@ -282,10 +373,6 @@ export default class Chat extends Component {
         }
     }
 
-    componentWillUnmount() {
-        this.destroy()
-    }
-
     LinkedMessage(message, bet_ids) {
         const arr = message.split("[bet]")
         return (
@@ -304,15 +391,16 @@ export default class Chat extends Component {
         )
     }
 
-    BotMessage(metadata, react_key) {
+    BotMessage(metadata, key) {
         if (metadata.bot === "rainbot" && metadata.users) {
             return (
-                <div key={react_key} className="bot-msg mb-3">
+                <div className="bot-msg mb-3">
                     <div className="message p-2 px-3">
                         Rainbot 💧💧💧 has tipped the following {metadata.users.length} users {metadata.amount} {metadata.asset} each:&nbsp;
                         {metadata.users.map((user, index) => {
                             return (
-                                <span key={user.id || index} className="user-name">{user.name} </span>
+                                <span key={user.id || index} className="user-name">{this.NameMenu(user.name, key + user.id)}</span>
+                                
                             )
                         })}
                     </div>
@@ -322,8 +410,8 @@ export default class Chat extends Component {
 
         if (metadata.message) {
             return (
-                <div key={react_key} className="bot-msg mb-3">
-                    <div className="message p-2 px-3"><span className="name pr-2">{metadata.bot}:</span>: {metadata.message}</div>
+                <div className="bot-msg mb-3">
+                    <div className="message p-2 px-3">{metadata.message}</div>
                 </div>
             )
         }
@@ -331,70 +419,112 @@ export default class Chat extends Component {
         return null
     }
 
+    NameMenu(name, key, separator = " ") {
+        return (
+            <span className="name pr-2 position-relative cursor-pointer" 
+                onClick={(e) => {
+                    this.menu_pos = e.target.getBoundingClientRect().y > window.innerHeight/2 ? 0 : 1
+                    this.setState({menu: key})
+                }}
+            >
+                {name} <span className="arrow">{String.fromCharCode(9662)}</span> {separator}
+                { key === this.state.menu ?
+                    <div className={"menu " + (this.menu_pos ? "bottom" : "top")}> 
+                        {this.props.user ?
+                            <div className="menu-item" onClick={(e) => {
+                                e.stopPropagation()
+                                this.setState({menu: null, tip_user: name})
+                            }}>Tip</div>
+                            : null
+                        }
+
+                        <div className="menu-item" onClick={(e) => {
+                            e.stopPropagation()
+                            this.props.display_stats(name)
+                            this.setState({menu: null})
+                        }}>Stats</div>
+                    </div>
+                    : null
+                }
+            </span>
+        )
+    }
+
     render() {
-        const { user } = this.props
-        const { message, messages } = this.state
+        const { user, balance, dispatch, toast } = this.props
+        const { message, messages, tip_user } = this.state
         let last_ts
         let last_dt
         return (
-            <div ref="Chat" className={container + " chat-container"}>
-                <div className="messages no-scrollbar qt-font-small">
-                    { messages.map((msg) => {
-                        let date, time
-                        if (!last_ts || msg.ts - last_ts > 5 * 60 * 1000) {
-                            time = new Date(msg.ts)
-                            if (time.getDate() != last_dt) {
-                                date = time.getDate()
-                                last_dt = date
+            <React.Fragment>
+                <div ref="Chat" className={container + " chat-container"}>
+                    <div className="messages no-scrollbar qt-font-small">
+                        { messages.map((msg) => {
+                            let date, time
+                            if (!last_ts || msg.ts - last_ts > 5 * 60 * 1000) {
+                                time = new Date(msg.ts)
+                                if (time.getDate() != last_dt) {
+                                    date = time.getDate()
+                                    last_dt = date
+                                }
                             }
-                        }
-                        last_ts = msg.ts
+                            last_ts = msg.ts
 
-                        const react_key = msg.name + msg.ts
+                            const react_key = msg.name + msg.ts
 
-                        return (
-                            <React.Fragment  key={react_key}>
-                                { time ? 
-                                    <div className="d-flex justify-content-between w-100 qt-font-extra-small qt-white-62">
-                                        <span>{date ? time.toLocaleDateString([], {weekday: "long"}) : ""}</span>
-                                        <span>{time.toLocaleTimeString([], {hour: "numeric", minute: "numeric"})}</span>
-                                    </div>
-                                    : null
+                            return (
+                                <React.Fragment key={react_key}>
+                                    { time ? 
+                                        <div className="d-flex justify-content-between w-100 qt-font-extra-small qt-white-62">
+                                            <span>{date ? time.toLocaleDateString([], {weekday: "long"}) : ""}</span>
+                                            <span>{time.toLocaleTimeString([], {hour: "numeric", minute: "numeric"})}</span>
+                                        </div>
+                                        : null
+                                    }
+                                    { msg.metadata && msg.metadata.bot ?
+                                        this.BotMessage(msg.metadata, react_key)
+                                        :
+                                        <div className="message p-2 px-3 mb-3">
+                                            {this.NameMenu(msg.name, react_key, ":")}
+                                            <span className="msg">{this.LinkedMessage(msg.message, msg.bet_ids)}</span>
+                                        </div>
+                                    }
+                                    
+                                </React.Fragment>
+                            )
+                        })}
+                        <div ref={(el) => { this.messagesEnd = el; }}/>
+                    </div>
+                    
+                    <div className="message-input d-flex w-100">
+                        <textarea value={message}
+                            className="w-100 qt-font-small"
+                            type="text"
+                            placeholder={user ? "Type your message" : "Login to use chat"}
+                            autoComplete="off"
+                            disabled={!user}
+                            onChange={(e) => this.setState({message: e.target.value})}
+                            onKeyPress={e => {
+                                if (e.key == "Enter") {
+                                    e.preventDefault()
+                                    this.post()
                                 }
-                                { msg.metadata && msg.metadata.bot ?
-                                    this.BotMessage(msg.metadata, react_key)
-                                    :
-                                    <div className="message p-2 px-3 mb-3">
-                                        <span className="name pr-2">{msg.name}:</span>
-                                        <span className="msg">{this.LinkedMessage(msg.message, msg.bet_ids)}</span>
-                                    </div>
-                                }
-                                
-                            </React.Fragment>
-                        )
-                    })}
-                    <div ref={(el) => { this.messagesEnd = el; }}/>
+                            }} />
+                        <button className="btn ml-3" onClick={this.post}>
+                            SEND
+                        </button>
+                    </div>
                 </div>
+                { tip_user ?
+                    <UserTip from={this.config.user} 
+                        name={tip_user} 
+                        announce_tip={this.chatBot.bind(this)}
+                        close={() => this.setState({tip_user: null})} 
+                        balance={balance} dispatch={dispatch} toast={toast} />
+                    : null
+                }
                 
-                <div className="message-input d-flex w-100">
-                    <textarea value={message}
-                        className="w-100 qt-font-small"
-                        type="text"
-                        placeholder={user ? "Type your message" : "Login to use chat"}
-                        autoComplete="off"
-                        disabled={!user}
-                        onChange={(e) => this.setState({message: e.target.value})}
-                        onKeyPress={e => {
-                            if (e.key == "Enter") {
-                                e.preventDefault()
-                                this.post()
-                            }
-                        }} />
-                    <button className="btn ml-3" onClick={this.post}>
-                        SEND
-                    </button>
-                </div>
-            </div>
+            </React.Fragment>
         )
     }
     

@@ -196,14 +196,14 @@ export const cancelTransaction = (order_id) => {
 	}
 }
 
-export const transferFund = (data) => {
+export const transferFund = (to_account, amount, asset, memo) => {
 	return (dispatch, getState) => {
 		return ApplicationApi.transfer({ 
 			from_account: getState().app.userId,
-			to_account: data.showTransfer ? data.destination : data.issuer,
-			amount: Math.round(data.amount * Math.pow(10, window.assetsBySymbol[data.asset].precision)),
-			asset: data.asset,
-			memo: data.memo,
+			to_account: to_account,
+			amount: Math.round(amount * Math.pow(10, window.assetsBySymbol[asset].precision)),
+			asset: asset,
+			memo: memo,
 			broadcast: true,
 			encrypt_memo: false,
 		}).then((tr) => {

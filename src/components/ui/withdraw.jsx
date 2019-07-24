@@ -185,10 +185,11 @@ class QTWithdraw extends React.Component {
   }
 
   submitTransfer() {
-    const token = this.state.asset.split("0X")
-    this.props.dispatch(transferFund(this.state))
+    const { showTransfer, destination, issuer, amount, asset, memo } = this.state
+    const token = asset.split("0X")
+    this.props.dispatch(transferFund(showTransfer ? destination : issuer, amount, asset, memo))
       .then(() => {
-        toast.success(`Successfully transfer ${this.state.amount} ${token[0]} ${token[1] ? ("0x" + token[1].substr(0, 4)) : ""} to ${this.state.showTransfer ? this.state.destination : this.state.issuer}.`, {
+        toast.success(`Successfully transfer ${amount} ${token[0]} ${token[1] ? ("0x" + token[1].substr(0, 4)) : ""} to ${showTransfer ? destination : issuer}.`, {
           position: toast.POSITION.TOP_CENTER
         });
       }).then(() => {
@@ -234,7 +235,11 @@ class QTWithdraw extends React.Component {
     const { vertical, handleClick } = this.props
     return (
       <div className="input-container">
-        { vertical ? null : <div className="close-dialog cursor-pointer" onClick={handleClick}>Close</div> }
+        { vertical ? null : 
+          <div className="close-dialog cursor-pointer" onClick={handleClick}>
+            <img src="/public/images/x_close.svg" height="12" alt="Close" />
+          </div>
+        }
         {this.state.isCrosschain ? 
           <div className="d-md-none toggle qt-font-small mb-3" onClick={this.toggleTransfer}>Switch to {this.state.showTransfer ? "Withdraw" : "Transfer"}</div> 
           : null}
@@ -273,7 +278,11 @@ class QTWithdraw extends React.Component {
     const withdraw_fee = withdraw_fees[asset] || (asset.split('0X').length == 2 ? 0.005 : 0)
     return (
       <div className="input-container">
-        { vertical ? null : <div className="close-dialog cursor-pointer" onClick={handleClick}>Close</div> }
+        { vertical ? null :
+          <div className="close-dialog cursor-pointer" onClick={handleClick}>
+            <img src="/public/images/x_close.svg" height="12" alt="Close" />
+          </div>  
+        }
         {isCrosschain ? 
           <div className="d-md-none toggle qt-font-small mb-3" onClick={this.toggleTransfer}>Switch to {showTransfer ? "Withdraw" : "Transfer"}</div> 
           : null}

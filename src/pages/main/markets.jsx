@@ -3,8 +3,7 @@ import { Apis } from "@quantadex/bitsharesjs-ws";
 import lodash from 'lodash';
 import { css } from 'emotion';
 import Ticker, { SymbolToken } from '../../components/ui/ticker.jsx'
-
-const wsString = "wss://mainnet-api.quantachain.io:8095"
+import CONFIG from '../../config.js'
 
 const container = css`
     width: 100%;
@@ -158,13 +157,13 @@ export default class MarketBox extends Component {
     }
 
     componentDidMount() {
-        Apis.instance(wsString, true, 3000, { enableOrders: true }).init_promise.then(() => {
+        Apis.instance(CONFIG.getEnv().WEBSOCKET_PATH, true, 3000, { enableOrders: true }).init_promise.then(() => {
             Apis.instance().db_api().exec("list_assets", ["A", 100]).then((assets) => {
                 // console.log("assets ", assets);
                 window.assets = lodash.keyBy(assets, "id")
                 window.assetsBySymbol = lodash.keyBy(assets, "symbol")
                 
-                fetch("https://s3.amazonaws.com/quantachain.io/markets_mainnet.json").then(e => e.json())
+                fetch(CONFIG.getEnv().MARKETS_JSON).then(e => e.json())
                 .then((e) => {
                     window.binance_data = {}
                     const markets = e;
@@ -181,7 +180,7 @@ export default class MarketBox extends Component {
     render() {
         const { tab_index, markets } = this.state
         const m = markets[this.tabs[tab_index]] || {}
-        const tab_markets = lodash.sortBy(m, 'base_volume').reverse()
+        const tab_markets = lodash.map(m)
         return (
             <div className={container + " container px-3 py-5 qt-font-light"}>
                 <h2><b>Markets</b></h2>

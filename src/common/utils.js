@@ -16,6 +16,10 @@ var Utils = {
         return amount
     },
 
+    localeString: (number, precision = 0) => {
+        return number.toLocaleString(navigator.language, { minimumFractionDigits: precision })
+    },
+
     is_object_id: obj_id => {
         if ("string" != typeof obj_id) return false;
         let match = id_regex.exec(obj_id);
