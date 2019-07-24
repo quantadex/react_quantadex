@@ -45,6 +45,11 @@ const container = css `
         transform: translateX(-50%);
     }
 
+    .arrow {
+        font-size: 20px;
+        line-height: 0px;
+    }
+
     h4 {
         width: max-content;
     }
@@ -143,7 +148,7 @@ export default class PlayerStats extends Component {
                     { init ?
                         <React.Fragment>
                             <h4 ref="NameMenu" className="mb-5 mx-auto position-relative cursor-pointer">
-                                <b>{name + String.fromCharCode(9662)}</b>
+                                <b>{name} <span className="arrow">{String.fromCharCode(9662)}</span></b>
                                 { show_menu ?
                                     <div className="menu" onClick={(e) => {
                                         sendTip(name)

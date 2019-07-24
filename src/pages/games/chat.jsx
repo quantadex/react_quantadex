@@ -86,6 +86,11 @@ const container = css `
         bottom: 100%;
     }
 
+    .arrow {
+        font-size: 18px;
+        line-height: 0px;
+    }
+
     .bot-msg {
         color: #fff;
         border-radius: 5px;
@@ -99,6 +104,7 @@ const container = css `
 
         .user-name {
             white-space: nowrap;
+            display: inline-block;
         }
     }
     
@@ -421,7 +427,7 @@ export default class Chat extends Component {
                     this.setState({menu: key})
                 }}
             >
-                {name + String.fromCharCode(9662) + separator}
+                {name} <span className="arrow">{String.fromCharCode(9662)}</span> {separator}
                 { key === this.state.menu ?
                     <div className={"menu " + (this.menu_pos ? "bottom" : "top")}> 
                         {this.props.user ?
