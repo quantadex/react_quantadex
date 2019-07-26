@@ -1,5 +1,6 @@
 const SETTINGS = {
 	TESTNET: {
+		ENV: "testnet",
 		WEBSOCKET_PATH: "wss://testnet-01.quantachain.io",
 		API_PATH: "https://api-gw.quantadex.com/testnet",
 		MARKETS_JSON: "https://s3.amazonaws.com/quantachain.io/markets_v2.json",
@@ -13,6 +14,7 @@ const SETTINGS = {
 		CROSSCHAIN_COINS: ["BTC", "ETH", "LTC", "BCH"]
 	},
 	MAINNET: {
+		ENV: "mainnet",
 		WEBSOCKET_PATH: "wss://mainnet-lb.quantachain.io",
 		API_PATH: "https://api-gw.quantadex.com/mainnet",
 		MARKETS_JSON: "https://s3.amazonaws.com/quantachain.io/markets_mainnet.json",
