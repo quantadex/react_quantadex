@@ -109,12 +109,13 @@ class Header extends Component {
 
     componentWillReceiveProps(nextProps) {
         const { balance, private_key } = nextProps
+        const listing_balance = Object.assign({}, balance)
         if (private_key && !this.state.selected_asset && Object.keys(balance).length > 0) {
             const default_asset = localStorage.getItem("dice_asset") || Object.keys(balance)[0]
             for (let listing of window.wallet_listing) {
-                if (balance[listing] === undefined) balance[listing] = {balance: 0, symbol: listing}
+                if (listing_balance[listing] === undefined) listing_balance[listing] = {balance: 0, symbol: listing}
             }
-            this.setState({selected_asset: default_asset, listing_balance: balance})
+            this.setState({selected_asset: default_asset, listing_balance})
             this.props.setAsset(default_asset)
         }
 
