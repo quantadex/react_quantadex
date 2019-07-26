@@ -3,7 +3,7 @@ import { css } from 'emotion';
 import Carousel from 'react-bootstrap/Carousel'
 
 const container = css`
-    background: #23282c url('/public/images/head_bg.png') no-repeat 70%;
+    background: #23282c url(${devicePath('public/images/head_bg.png')}) no-repeat 70%;
     color: #fff;
 
     .carousel-indicators {

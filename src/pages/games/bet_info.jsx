@@ -161,14 +161,14 @@ export default class BetInfo extends Component {
             <div className={container + " d-flex justify-content-center"} onClick={close}>
                 <div className="info-container qt-font-small align-self-center p-5 position-relative" onClick={(e) => e.stopPropagation()}>
                     <div className="close-btn cursor-pointer" onClick={close}>
-                        <img src="/public/images/x_close.svg" height="12" alt="Close" />
+                        <img src={devicePath("public/images/x_close.svg")} height="12" alt="Close" />
                     </div>
                     { data && data.op.payout ?
                         <React.Fragment>
                             <div className="bet-info text-center">
                                 <h4><b>BET #{id}</b>
                                     <img className="ml-2 cursor-pointer" 
-                                        src="/public/images/share.svg" width="20"
+                                        src={devicePath("public/images/share.svg")} width="20"
                                         onClick={() => share("/bet " + id)}
                                         title="Share to chat"
                                     />
@@ -182,10 +182,10 @@ export default class BetInfo extends Component {
                                     <div>
                                         <span>BET</span><br/>
                                         {(data.op.risk.amount/Math.pow(10, data.precision)).toFixed(data.precision)}
-                                        <img src={`/public/images/coins/${data.symbol.toLowerCase()}.svg`} 
+                                        <img src={devicePath(`public/images/coins/${data.symbol.toLowerCase()}.svg`)} 
                                             onError={(e) => {
-                                                e.target.src='/public/images/crosschain-coin.svg'}
-                                            }
+                                                e.target.src=devicePath('public/images/crosschain-coin.svg')
+                                            }}
                                             title={data.symbol} 
                                         />
                                     </div>
@@ -198,9 +198,9 @@ export default class BetInfo extends Component {
                                         <span className={data.op.payout.amount < 0 ? "loss" : "win"}>
                                             {(data.op.payout.amount/Math.pow(10, data.precision)).toFixed(data.precision)}
                                         </span>
-                                        <img src={`/public/images/coins/${data.symbol.toLowerCase()}.svg`} 
+                                        <img src={devicePath(`public/images/coins/${data.symbol.toLowerCase()}.svg`)} 
                                             onError={(e) => {
-                                                e.target.src='/public/images/crosschain-coin.svg'}
+                                                e.target.src=devicePath('public/images/crosschain-coin.svg')}
                                             }
                                             title={data.symbol} 
                                         />

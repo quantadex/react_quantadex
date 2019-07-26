@@ -71,7 +71,7 @@ export default class NavHeader extends Component {
             <div className={container}>
                 <div className="container nav-bar d-flex justify-content-end align-items-center">
                     <div className="w-100 text-left d-flex align-items-center">
-                        <img src="/public/images/logo.svg" />
+                        <img src={devicePath("public/images/logo.svg")} />
 					    <ProductsMenu className="ml-5" />
                     </div>
                     <a className={"d-none d-sm-block" + (page == "main" ? " active" : "")} href="/">Main</a>
@@ -79,7 +79,7 @@ export default class NavHeader extends Component {
                     <a className="d-none d-sm-block" href="http://medium.com/@quantadex" target="_blank">Blog</a>
                     <a className="d-none d-sm-block launch-btn" href={"/mainnet/exchange/ETH_BTC" + location.search}>Launch</a>
                     <div className="hamburger-menu">
-                        <img className="d-block d-sm-none" src="/public/images/hamb.svg" />
+                        <img className="d-block d-sm-none" src={devicePath("public/images/hamb.svg")} />
                         <div className="menu-items py-3 text-left">
                             <a href="/">Main</a>
                             <a href="/technology">Technology</a>

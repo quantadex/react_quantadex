@@ -80,26 +80,26 @@ export default class ProductsMenu extends React.Component {
     const network = this.props.network || "mainnet"
     return (
       <div ref="menu" className={container + (className ? " " + className : "")}>
-            <img className="cursor-pointer" src="/public/images/grid.svg" />
+            <img className="cursor-pointer" src={devicePath("public/images/grid.svg")} />
             { this.state.menuOpen ?
                 <div className="menu d-flex flex-column py-4">
                     <Link to={"/" + network}>
                         <div className="icon">
-                            <img src="/public/images/advanced-trader-interface.svg" />
+                            <img src={devicePath("public/images/advanced-trader-interface.svg")} />
                         </div>
-                        <img src="/public/images/quantadex_link.svg" />
+                        <img src={devicePath("public/images/quantadex_link.svg")} />
                     </Link>
                     <Link to={"/" + network + "/dice"}>
                         <div className="icon">
-                            <img src="/public/images/dice.svg" />
+                            <img src={devicePath("public/images/dice.svg")} />
                         </div>
-                        <img src="/public/images/quantadice_link.svg" />
+                        <img src={devicePath("public/images/quantadice_link.svg")} />
                     </Link>
                     <a href={"http://explorer.quantadex.com/" + network}>
                         <div className="icon">
-                            <img src="/public/images/explorer.svg" />
+                            <img src={devicePath("public/images/explorer.svg")} />
                         </div>
-                        <img src="/public/images/quantaexplorer_link.svg" />
+                        <img src={devicePath("public/images/quantaexplorer_link.svg")} />
                     </a>
                 </div>
                 : null

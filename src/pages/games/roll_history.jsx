@@ -179,19 +179,19 @@ export default class RollHistory extends Component {
                 <span className="clickable cursor-pointer" onClick={() => show_player(row.user_id)}>{row.user}</span>
                 <span className="d-none d-md-block">{row.time}</span>
                 <span className="d-none d-sm-block">{row.wagered.toFixed(row.precision)} 
-                <img src={`/public/images/coins/${row.symbol.toLowerCase()}.svg`} 
+                <img src={devicePath(`public/images/coins/${row.symbol.toLowerCase()}.svg`)} 
                     onError={(e) => {
-                        e.target.src='/public/images/crosschain-coin.svg'}
-                    }
+                        e.target.src=devicePath('public/images/crosschain-coin.svg')
+                    }}
                     title={row.symbol} 
                 /></span>
                 <span className="d-none d-md-block">{row.payout.toFixed(2)}x</span>
                 <span className="d-none d-md-block">{row.bet[0]} {row.bet.slice(1)}</span>
                 <span className="d-none d-sm-block">{row.roll}</span>
                 <span className={"text-right" + (row.profit >= 0 ? " win" : " loss")}>{row.profit.toFixed(row.precision)}
-                <img src={`/public/images/coins/${row.symbol.toLowerCase()}.svg`} 
+                <img src={devicePath(`public/images/coins/${row.symbol.toLowerCase()}.svg`)} 
                     onError={(e) => {
-                        e.target.src='/public/images/crosschain-coin.svg'}
+                        e.target.src=devicePath('public/images/crosschain-coin.svg')}
                     }
                     title={row.symbol} 
                 /></span>

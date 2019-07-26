@@ -51,17 +51,17 @@ export default class MobileNav extends Component {
             <div className={container + " d-flex d-lg-none justify-content-around align-items-center"}>
                 <div className={"cursor-pointer" + (show_chat ? " active" : "")} 
                     onClick={() => onClick({show_chat: true, show_bets: false})}>
-                    <img src="/public/images/dice/chat.svg" alt="Chat" /><br/>
+                    <img src={devicePath("public/images/dice/chat.svg")} alt="Chat" /><br/>
                     Chat
                 </div>
                 <div className={"cursor-pointer" + (show_chat || show_bets ? "" : " active")} 
                     onClick={() => onClick({show_chat: false, show_bets: false})}>
-                    <img src="/public/images/dice/dice.svg" alt="Dice" /><br/>
+                    <img src={devicePath("public/images/dice/dice.svg")} alt="Dice" /><br/>
                     Dice
                 </div>
                 <div className={"cursor-pointer" + (show_bets ? " active" : "")} 
                     onClick={() => onClick({show_bets: true, show_chat: false})}>
-                    <img src="/public/images/dice/list.svg" alt="Bets" /><br/>
+                    <img src={devicePath("public/images/dice/list.svg")} alt="Bets" /><br/>
                     Bets
                 </div>
             </div>

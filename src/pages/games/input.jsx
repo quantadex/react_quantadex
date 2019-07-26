@@ -103,10 +103,10 @@ export default class DiceInput extends Component {
                             
                             { asset ?
                                 <img className="asset-symbol"
-                                    src={`/public/images/coins/${asset.toLowerCase()}.svg`} 
+                                    src={devicePath(`public/images/coins/${asset.toLowerCase()}.svg`)} 
                                     onError={(e) => {
-                                        e.target.src='/public/images/crosschain-coin.svg'}
-                                    }
+                                        e.target.src=devicePath('public/images/crosschain-coin.svg')
+                                    }}
                                     title={asset} 
                                 />
                                 : null

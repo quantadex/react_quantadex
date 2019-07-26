@@ -25,7 +25,7 @@ export default class Footer extends Component {
                     <div className="container">
                         <div className="row footer-row d-flex flex-column flex-md-row justify-content-between">
                             <div className="footer-logo-list">
-                                <a href="/"><img className="footer-logo" src="/public/images/group-4.svg" alt=""/></a>
+                                <a href="/"><img className="footer-logo" src={devicePath("public/images/group-4.svg")} alt=""/></a>
                                 <div className="logo-sub-header qt-font-small my-3">
                                     DECENTRALIZED<br />EXCHANGE
                                 </div>
