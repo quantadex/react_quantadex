@@ -66,8 +66,8 @@ currentApp.post('/api/register', function (req, res) {
 	})
 })
 
-currentApp.get('/api', function (req, res) {
-	MarketsAPI(req.query).then((e) => {
+currentApp.get('/api/:type', function (req, res) {
+	MarketsAPI(req.params.type, req.query).then((e) => {
 		res.json(e)
 	})
 	.catch(e => {

@@ -20,8 +20,10 @@ export default class Footer extends Component {
     render() {
         const network = this.props.network || "mainnet"
         return (
-            <div className={container + " d-flex justify-content-center"}>
+            <div className={container + " d-flex flex-wrap justify-content-center"}>
                 <a href={"http://explorer.quantadex.com/" + network + "/account/relaxed-committee-account"} target="_blank">Jackpot Account</a>
+                <div className="separator">&bull;</div>
+                <a href={"http://explorer.quantadex.com/" + network + "/dice"} target="_blank">Statistics</a>
                 <div className="separator">&bull;</div>
                 <a href="https://quantadex.zendesk.com/hc/en-us/articles/360029883111" target="_blank">Term of Use</a>
                 <div className="separator">&bull;</div>

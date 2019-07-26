@@ -18,7 +18,7 @@ function getAssets(type = "symbol") {
 	
 }
 
-// http://localhost:3000/api?query=getTicker
+// http://localhost:3000/api/ticker
 async function getTicker() {
     const markets = await getMarkets()
     const res = {}
@@ -33,7 +33,7 @@ async function getTicker() {
     return res
 }
 
-// http://localhost:3000/api?query=get24hVolume
+// http://localhost:3000/api/24hvolume
 async function get24hVolume() {
     const markets = await getMarkets()
     const res = {}
@@ -48,7 +48,7 @@ async function get24hVolume() {
     return res
 }
 
-// http://localhost:3000/api?query=getOrderBook&currencyPair=QDEX/BTC&depth=10
+// http://localhost:3000/api/orderbook?currencyPair=QDEX_BTC&depth=50
 async function getOrderBook(params) {
     var markets
     const assets = await getAssets()
@@ -63,20 +63,29 @@ async function getOrderBook(params) {
     for (let coin of Object.keys(markets.markets)) {
         for (let market of markets.markets[coin]) {
             const pair = market.name.split('/')
-            const ob = await Apis.instance().db_api().exec("get_order_book", [pair[0], pair[1], Math.min(50, params.depth) || 50])
-            res[market.name] = aggregateOrderBook(ob.bids, ob.asks, assets[pair[0]].precision)
+            const ob = await Apis.instance().db_api().exec("get_order_book", [pair[1], pair[0], Math.min(50, params.depth) || 50])
+            const agg = aggregateOrderBook(ob.bids, ob.asks, assets[pair[0]].precision)
+            const bids = []
+            const asks = []
+            for (let row of agg.bids) {
+                bids.push([row.price, row.quote])
+            }
+            for (let row of agg.asks) {
+                asks.push([row.price, row.quote])
+            }
+            res[market.name] = {bids, asks}
         }
     }
     return res
 }
 
-// http://localhost:3000/api?query=getTradeHistory&currencyPair=QDEX/BTC
+// http://localhost:3000/api/tradehistory?currencyPair=QDEX_BTC
 async function getTradeHistory(params) {
     const assets = await getAssets()
     const assetsById = await getAssets("id")
     const res = []
     
-    const pair = params.currencyPair.split('/')
+    const pair = params.currencyPair.replace("_", "/").split('/')
     const history = await Apis.instance().history_api().exec("get_fill_order_history", [assets[pair[0]].id, assets[pair[1]].id, 100])
     const set = convertHistoryToOrderedSet(history, assets[pair[0]].id, assetsById)
 
@@ -95,14 +104,14 @@ async function getTradeHistory(params) {
     return res
 }
 
-// http://localhost:3000/api?query=getChartData&currencyPair=QDEX/BTC&period=86400&start=2019-04-08T00:00:00&end=2019-07-01T00:00:00
+// http://localhost:3000/api/chartdata?currencyPair=QDEX_BTC&period=86400&start=2019-04-08T00:00:00&end=2019-07-01T00:00:00
 async function getChartData(params) {
     const assets = await getAssets()
     
     const period = params.period // 60, 300, 900, 1800, 3600, 86400
     const start = params.start
     const end = params.end
-    const pair = params.currencyPair.split('/')
+    const pair = params.currencyPair.replace("_", "/").split('/')
     const data = await Apis.instance().history_api().exec("get_market_history", [
         assets[pair[0]].id, 
         assets[pair[1]].id, 
@@ -113,22 +122,22 @@ async function getChartData(params) {
     return transformPriceData(data, assets[pair[1]], assets[pair[0]])
 }
 
-export function MarketsAPI(params) {
+export function MarketsAPI(type, params) {
     return Apis.instance(wsString, true, 3000, { enableOrders: false }).init_promise
     .then(() => {
-        switch (params.query) {
-            case "getTicker":
+        switch (type) {
+            case "ticker":
                 return getTicker()
-            case "get24hVolume": 
+            case "24hvolume": 
                 return get24hVolume()
-            case "getOrderBook": 
+            case "orderbook": 
                 return getOrderBook(params)
-            case "getTradeHistory": 
+            case "tradehistory": 
                 return getTradeHistory(params)
-            case "getChartData": 
+            case "chartdata": 
                 return getChartData(params)
             default:
-                return "No method named " + params.query
+                return "No method named " + type
         }
     })
 }
