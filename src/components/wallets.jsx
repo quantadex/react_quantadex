@@ -228,11 +228,6 @@ class Wallets extends Component {
           Buy with Cash
         </button>
         <span className="small text-muted">
-          <img 
-            className="mr-2 align-bottom"
-            data-tip="Copy & paste your BTC deposit address to Changelly, and buy with your credit card" 
-            src={devicePath("public/images/question.png")} 
-          /> 
           Powered by Wyre
         </span>
       </div>
