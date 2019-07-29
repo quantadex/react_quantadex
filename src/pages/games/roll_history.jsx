@@ -79,6 +79,8 @@ export default class RollHistory extends Component {
             tab_index: 1,
         }
 
+        this.history_timeout = null
+        this.push_timeout = null
         this.names = {}
         this.buffer = []
         this.last_operation_id_num
@@ -94,6 +96,11 @@ export default class RollHistory extends Component {
         }
         this.getRollHistory()
         this.pushToDisplay()
+    }
+
+    componentWillUnmount() {
+        if (this.history_timeout) clearTimeout(this.history_timeout)
+        if (this.push_timeout) clearTimeout(this.push_timeout)
     }
 
     getRollHistory() {
@@ -146,12 +153,12 @@ export default class RollHistory extends Component {
             this.last_operation_id_num = e[0] && e[0].operation_id_num
         })
         .then(() => {
-            setTimeout(() => {
+            this.history_timeout = setTimeout(() => {
                 this.getRollHistory()
             }, 3000)
         })
         .catch(() => {
-            setTimeout(() => {
+            this.history_timeout = setTimeout(() => {
                 this.getRollHistory()
             }, 6000)
         })
@@ -165,7 +172,7 @@ export default class RollHistory extends Component {
             this.setState({history: history.slice(0, 11)})
         }
         
-        setTimeout(() => {
+        this.push_timeout = setTimeout(() => {
             this.pushToDisplay()
         }, 1000)
     }
