@@ -66,6 +66,7 @@ const container = css `
 
         tbody td {
             color: #888;
+            white-space: nowrap;
         }
     }
 
