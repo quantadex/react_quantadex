@@ -1,0 +1,49 @@
+.mute{
+  color: $mute;
+}
+.pale{
+  color: $pale;
+}
+.hidden{
+  display: none;
+}
+.center{
+  text-align:center;
+  margin:5px auto;
+}
+.left{
+  text-align:left;
+}
+.flex{
+  display:flex;
+  align-items:flex-start;
+  justify-content: space-between;
+  &,
+  &-in{
+    display:flex;
+    flex-flow:row wrap;
+  }
+  &-in{
+    justify-content:center;
+    align-items: center;
+  }
+}
+.wrap{
+  padding:10px 0;
+  max-width: 1024px;
+  margin: 0 auto;
+}
+.mt-2 {
+  margin-top: 30px;
+}
+.link {
+  display: inline-block;
+  width: 1.5rem;
+  margin: 0 0.25rem;
+  padding: 0 0.25rem;
+  opacity: 0;
+  transition: opacity 0.3s cubic-bezier(0.39, 0.575, 0.565, 1);
+  &_owner:hover & {
+    opacity: 0.9;
+  }
+}

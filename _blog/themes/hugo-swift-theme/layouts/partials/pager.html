@@ -1,0 +1,8 @@
+{{- $paginator := .Paginator }}
+{{- if gt $paginator.TotalPages 1 }}
+  <div class = 'pager'>
+    {{ range $paginator.Pagers -}}
+      <a href = '{{ $.Site.BaseURL }}{{ .URL }}' class = 'pager_item{{ if eq . $paginator }} pager_active{{ end }}'>{{ .PageNumber }}</a>
+    {{ end }}
+  </div>
+{{- end }}
