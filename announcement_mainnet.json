@@ -1,6 +1,11 @@
 {
 	"entries": [
 		{
+			"title": "QUANTA DICE: Roll & Win up to 100X (6-25)",
+			"link": "https://quantadex.zendesk.com/hc/en-us/articles/360029933751-QUANTA-launches-the-world-s-first-dice-game-fully-on-the-blockchain-",
+			"banner": "https://quantadex.com/public/marketing/dice_banner.png"
+		},
+		{
 			"title": "BitcoinCash Crosschain support (4-25)",
 			"link": "https://quantadex.zendesk.com/hc/en-us/articles/360027357792-Crosschain-support-for-BitcoinCash-ABC-BCH-",
 			"banner": "https://s3.amazonaws.com/quantachain.io/images/Listing_BitcoinCash.jpg"
