@@ -271,6 +271,21 @@ injectGlobal`
 		white-space: normal !important;
 		line-height: 20px;
 	}
+
+	.popup-container {
+		display: flex;
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		min-height: 100vh;
+		background: rgba(0,0,0,0.3);
+		z-index: 999;
+	}
+
+	button {
+		cursor: pointer;
+	}
 `
 
 const store = createStore(reducer, compose(applyMiddleware(thunk)))

@@ -294,7 +294,7 @@ class QTDeposit extends React.Component {
           }
         </div>
         <div className="close-dialog cursor-pointer" onClick={handleClick}>
-          <img src="/public/images/x_close.svg" height="12" alt="Close" />
+          <img src={devicePath("public/images/x_close.svg")} height="12" alt="Close" />
         </div>
         {init && !deposit_address ? <this.NoAddress /> : <this.Deposit />}
       </div>

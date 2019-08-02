@@ -79,6 +79,8 @@ export default class RollHistory extends Component {
             tab_index: 1,
         }
 
+        this.history_timeout = null
+        this.push_timeout = null
         this.names = {}
         this.buffer = []
         this.last_operation_id_num
@@ -94,6 +96,11 @@ export default class RollHistory extends Component {
         }
         this.getRollHistory()
         this.pushToDisplay()
+    }
+
+    componentWillUnmount() {
+        if (this.history_timeout) clearTimeout(this.history_timeout)
+        if (this.push_timeout) clearTimeout(this.push_timeout)
     }
 
     getRollHistory() {
@@ -146,12 +153,12 @@ export default class RollHistory extends Component {
             this.last_operation_id_num = e[0] && e[0].operation_id_num
         })
         .then(() => {
-            setTimeout(() => {
+            this.history_timeout = setTimeout(() => {
                 this.getRollHistory()
             }, 3000)
         })
         .catch(() => {
-            setTimeout(() => {
+            this.history_timeout = setTimeout(() => {
                 this.getRollHistory()
             }, 6000)
         })
@@ -165,7 +172,7 @@ export default class RollHistory extends Component {
             this.setState({history: history.slice(0, 11)})
         }
         
-        setTimeout(() => {
+        this.push_timeout = setTimeout(() => {
             this.pushToDisplay()
         }, 1000)
     }
@@ -179,19 +186,19 @@ export default class RollHistory extends Component {
                 <span className="clickable cursor-pointer" onClick={() => show_player(row.user_id)}>{row.user}</span>
                 <span className="d-none d-md-block">{row.time}</span>
                 <span className="d-none d-sm-block">{row.wagered.toFixed(row.precision)} 
-                <img src={`/public/images/coins/${row.symbol.toLowerCase()}.svg`} 
+                <img src={devicePath(`public/images/coins/${row.symbol.toLowerCase()}.svg`)} 
                     onError={(e) => {
-                        e.target.src='/public/images/crosschain-coin.svg'}
-                    }
+                        e.target.src=devicePath('public/images/crosschain-coin.svg')
+                    }}
                     title={row.symbol} 
                 /></span>
                 <span className="d-none d-md-block">{row.payout.toFixed(2)}x</span>
                 <span className="d-none d-md-block">{row.bet[0]} {row.bet.slice(1)}</span>
                 <span className="d-none d-sm-block">{row.roll}</span>
                 <span className={"text-right" + (row.profit >= 0 ? " win" : " loss")}>{row.profit.toFixed(row.precision)}
-                <img src={`/public/images/coins/${row.symbol.toLowerCase()}.svg`} 
+                <img src={devicePath(`public/images/coins/${row.symbol.toLowerCase()}.svg`)} 
                     onError={(e) => {
-                        e.target.src='/public/images/crosschain-coin.svg'}
+                        e.target.src=devicePath('public/images/crosschain-coin.svg')}
                     }
                     title={row.symbol} 
                 /></span>

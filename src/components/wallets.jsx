@@ -9,7 +9,9 @@ import QTWithdraw from './ui/withdraw.jsx'
 import SearchBox from "./ui/searchBox.jsx"
 import Loader from "./ui/loader.jsx"
 import Switch from "./ui/switch.jsx"
-import { updateUserData } from '../redux/actions/app.jsx'
+import { updateUserData, TOGGLE_CONNECT_DIALOG } from '../redux/actions/app.jsx'
+import SendWyre from './sendwyre.jsx'
+import { getItem } from "../common/storage.js";
 import ReactGA from 'react-ga';
 
 const container = css`
@@ -28,9 +30,10 @@ const container = css`
       margin-left: 10px;
     }
   }
-  .changelly {
+  .sendwyre {
     position: relative;
-    a {
+    button {
+      background: transparent;
       color: ${globalcss.COLOR_THEME};
       border: 1px solid ${globalcss.COLOR_THEME};
       border-radius: 2px;
@@ -103,15 +106,18 @@ class Wallets extends Component {
       filter: "",
       hideZero: false,
       confirmDialog: false,
+      show_sendwyre: false,
     }
 
     this.PublicAddress = this.PublicAddress.bind(this)
+    this.SendWyre = this.SendWyre.bind(this)
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     const { balance, dispatch } = this.props
     dispatch(updateUserData())
     this.setDataSource(balance)
+    this.DEVICE_TOKEN = await getItem("DEVICE_TOKEN")
   }
 
 	componentWillReceiveProps(nextProps) {
@@ -198,26 +204,31 @@ class Wallets extends Component {
     )
   }
 
-  Changelly() {
+  SendWyre() {
+    const { dispatch, private_key } = this.props
     return (
-      <div className="d-flex ml-auto my-2 changelly">
+      <div className="d-flex ml-auto my-2 sendwyre">
+        <img className="mr-3" src={devicePath("public/images/bank.svg")} alt="ACH" />
         <img className="mr-3" src={devicePath("public/images/visa-logo.svg")} alt="Visa" />
         <img className="mr-3" src={devicePath("public/images/mastercard-logo.svg")} alt="Mastercard" />
-        <ReactGA.OutboundLink
-          eventLabel="Clicked Buy BTC with credit card"
-          to="https://payments.changelly.com/"
-          target="_blank"
-          className="text-uppercase"
-        >
-          BUY BTC with credit card
-        </ReactGA.OutboundLink>
+        <button onClick={() => {
+          if (this.DEVICE_TOKEN || private_key) {
+            ReactGA.event({
+              category: 'WALLET',
+              action: "SendWyre",
+            });
+            this.setState({show_sendwyre: true})
+          } else {
+            dispatch({
+              type: TOGGLE_CONNECT_DIALOG,
+              data: "connect"
+            })
+          }
+        }}>
+          Buy with Cash
+        </button>
         <span className="small text-muted">
-          <img 
-            className="mr-2 align-bottom"
-            data-tip="Copy & paste your BTC deposit address to Changelly, and buy with your credit card" 
-            src={devicePath("public/images/question.png")} 
-          /> 
-          Powered by Changelly
+          Powered by Wyre
         </span>
       </div>
     )
@@ -230,7 +241,7 @@ class Wallets extends Component {
 
   render() {
     const { network, private_key, publicKey, name, isMobile, mobile_nav, dispatch } = this.props
-    const { dataSource, hideZero, filter, unlisted } = this.state
+    const { dataSource, hideZero, filter, unlisted, show_sendwyre } = this.state
     const columns = [{
         title: "PAIRS",
         key: "pairs",
@@ -284,7 +295,7 @@ class Wallets extends Component {
           <div className='filter-container d-flex flex-wrap mt-5 align-items-center'>
           <SearchBox placeholder="Search Coin" onChange={this.handleChange.bind(this)} style={{marginRight: "20px"}}/>
           <Switch label="Hide Zero Balances" active={hideZero} onToggle={this.hideZeroBalance.bind(this)} />
-          <this.Changelly />
+          <this.SendWyre />
           </div>
 
           {dataSource.length == 0 ?
@@ -312,6 +323,11 @@ class Wallets extends Component {
                   columns={columns} mobile={isMobile} 
                   unlocked={private_key && true}/>
             </div>
+            : null
+          }
+
+          { show_sendwyre ?
+            <SendWyre close={() => this.setState({show_sendwyre: false})} user={name} private_key={private_key} />
             : null
           }
       </div>

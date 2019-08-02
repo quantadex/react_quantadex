@@ -102,17 +102,17 @@ export default class Tutorial extends Component {
                     <div className="card">
                         <div className="step">1</div>
                         Connect<br/> Your Wallet
-                        <img src="/public/images/dice/connect.svg" />
+                        <img src={devicePath("public/images/dice/connect.svg")} />
                     </div>
                     <div className="card mx-3 mx-sm-5">
                         <div className="step">2</div>
                         Roll<br/> Your Dice
-                        <img src="/public/images/dice/dice_gold.svg" />
+                        <img src={devicePath("public/images/dice/dice_gold.svg")} />
                     </div>
                     <div className="card">
                         <div className="step">3</div>
                         Collect<br/> Your Winnings
-                        <img src="/public/images/dice/coin.svg" />
+                        <img src={devicePath("public/images/dice/coin.svg")} />
                     </div>
                 </div>
 
@@ -185,7 +185,7 @@ export default class Tutorial extends Component {
             <div className={container + " d-block d-sm-flex justify-content-center"} >
                 <div className="tutorial-container qt-font-small align-self-center position-relative text-center">
                     <div className="header d-flex py-4 px-5">
-                        <img src="/public/images/dice/logo.svg" />
+                        <img src={devicePath("public/images/dice/logo.svg")} />
                         <div className="w-100 align-self-center">
                             Roll & Win Up to 100X in Cryptos
                         </div>

@@ -103,7 +103,7 @@ export default class UserTip extends Component {
                 <div className="info-container qt-font-small align-self-center px-5 py-4 position-relative">
                     <h3 className="qt-font-bold">SEND TIP</h3>
                     <div className="close-btn cursor-pointer" onClick={close}>
-                        <img src="/public/images/x_close.svg" height="12" alt="Close" />
+                        <img src={devicePath("public/images/x_close.svg")} height="12" alt="Close" />
                     </div>
                     <div className="d-flex align-items-center text-center">
                         Send <span className="qt-font-bold name ml-2">{name}</span> 

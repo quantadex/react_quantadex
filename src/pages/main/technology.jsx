@@ -6,7 +6,7 @@ import Footer from './footer.jsx'
 const container = css`
     .banner {
         color: #fff;
-        background: #1f1e35 url('/public/images/technology/tech-background.png') no-repeat;
+        background: #1f1e35 url(${devicePath('public/images/technology/tech-background.png')}) no-repeat;
         background-size: cover;
         background-position: center;
 
@@ -94,7 +94,7 @@ export default class Technology extends Component {
                         <div className="advantage d-flex justify-content-between flex-column flex-md-row ">
                             <div>
                                 <div className="img-container">
-                                    <img src="/public/images/technology/performance.svg" />
+                                    <img src={devicePath("public/images/technology/performance.svg")} />
                                 </div>
                                 <h3>Uncompromising <br/> Performance</h3>
                                 <p>Get the speed of a CEX and the security of a DEX.</p>
@@ -102,7 +102,7 @@ export default class Technology extends Component {
 
                             <div>
                                 <div className="img-container">
-                                    <img src="/public/images/technology/secure.svg" />
+                                    <img src={devicePath("public/images/technology/secure.svg")} />
                                 </div>
                                 
                                 <h3>On-Chain <br/> Custody</h3>
@@ -114,7 +114,7 @@ export default class Technology extends Component {
 
                             <div>
                                 <div className="img-container">
-                                    <img src="/public/images/technology/audit.svg" />
+                                    <img src={devicePath("public/images/technology/audit.svg")} />
                                 </div>
                                 <h3>Auditable <br/> Order-Book</h3>
                                 <p>
@@ -127,7 +127,7 @@ export default class Technology extends Component {
 
                     <section>
                         <div className="d-flex flex-column flex-sm-row justify-content-between">
-                            <img className="mr-md-5" src="/public/images/technology/block_chain.png" />
+                            <img className="mr-md-5" src={devicePath("public/images/technology/block_chain.png")} />
                             
                             <div>
                                 <h1>The Blockchain</h1>
@@ -157,7 +157,7 @@ export default class Technology extends Component {
                                 </p>
                             </div>
                             
-                            <img className="ml-md-5" src="/public/images/technology/cross_chain.png" />
+                            <img className="ml-md-5" src={devicePath("public/images/technology/cross_chain.png")} />
                         </div>
                     </section>
 

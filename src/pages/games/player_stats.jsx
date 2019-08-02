@@ -66,6 +66,7 @@ const container = css `
 
         tbody td {
             color: #888;
+            white-space: nowrap;
         }
     }
 
@@ -143,7 +144,7 @@ export default class PlayerStats extends Component {
             <div className={container + " d-flex justify-content-center"} onClick={close}>
                 <div className="info-container text-center qt-font-small align-self-center p-5 position-relative" onClick={(e) => e.stopPropagation()}>
                     <div className="close-btn cursor-pointer" onClick={close}>
-                        <img src="/public/images/x_close.svg" height="12" alt="Close" />
+                        <img src={devicePath("public/images/x_close.svg")} height="12" alt="Close" />
                     </div>
                     { init ?
                         <React.Fragment>
@@ -187,19 +188,19 @@ export default class PlayerStats extends Component {
                                                     <td>{Utils.localeString(row.bet_count - payout_count)}</td>
                                                     <td>
                                                         {Utils.localeString(row.bet_total / Math.pow(10, asset.precision), asset.precision)}
-                                                        <img src={`/public/images/coins/${asset.symbol.toLowerCase()}.svg`} 
+                                                        <img src={devicePath(`public/images/coins/${asset.symbol.toLowerCase()}.svg`)} 
                                                             onError={(e) => {
-                                                                e.target.src='/public/images/crosschain-coin.svg'}
-                                                            }
+                                                                e.target.src=devicePath('public/images/crosschain-coin.svg')
+                                                            }}
                                                             title={row.symbol} 
                                                         />
                                                     </td>
                                                     <td className={profit > 0 ? "win" : "loss"}>
                                                         {Utils.localeString(profit / Math.pow(10, asset.precision), asset.precision)}
-                                                        <img src={`/public/images/coins/${asset.symbol.toLowerCase()}.svg`} 
+                                                        <img src={devicePath(`public/images/coins/${asset.symbol.toLowerCase()}.svg`)} 
                                                             onError={(e) => {
-                                                                e.target.src='/public/images/crosschain-coin.svg'}
-                                                            }
+                                                                e.target.src=devicePath('public/images/crosschain-coin.svg')
+                                                            }}
                                                             title={asset.symbol} 
                                                         />
                                                     </td>

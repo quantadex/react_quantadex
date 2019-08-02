@@ -237,7 +237,7 @@ class QTWithdraw extends React.Component {
       <div className="input-container">
         { vertical ? null : 
           <div className="close-dialog cursor-pointer" onClick={handleClick}>
-            <img src="/public/images/x_close.svg" height="12" alt="Close" />
+            <img src={devicePath("public/images/x_close.svg")} height="12" alt="Close" />
           </div>
         }
         {this.state.isCrosschain ? 
@@ -280,7 +280,7 @@ class QTWithdraw extends React.Component {
       <div className="input-container">
         { vertical ? null :
           <div className="close-dialog cursor-pointer" onClick={handleClick}>
-            <img src="/public/images/x_close.svg" height="12" alt="Close" />
+            <img src={devicePath("public/images/x_close.svg")} height="12" alt="Close" />
           </div>  
         }
         {isCrosschain ? 
@@ -342,7 +342,7 @@ class QTWithdraw extends React.Component {
       <div className={container + " d-flex" + (vertical ? " flex-column vertical position-relative" : "")}>
         { vertical ? 
           <div className="close-dialog cursor-pointer" onClick={handleClick}>
-            <img src="/public/images/x_close.svg" height="12" alt="Close" />
+            <img src={devicePath("public/images/x_close.svg")} height="12" alt="Close" />
           </div>
           : null
         }

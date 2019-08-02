@@ -1,7 +1,8 @@
 const SETTINGS = {
 	TESTNET: {
+		ENV: "testnet",
 		WEBSOCKET_PATH: "wss://testnet-01.quantachain.io",
-		API_PATH: "https://wya99cec1d.execute-api.us-east-1.amazonaws.com/testnet",
+		API_PATH: "https://api-gw.quantadex.com/testnet",
 		MARKETS_JSON: "https://s3.amazonaws.com/quantachain.io/markets_v2.json",
 		ANNOUNCEMENT_JSON: "https://s3.amazonaws.com/quantachain.io/announcement_testnet.json",
 		CROSSCHAIN_ISSUER: "1.2.8",
@@ -13,8 +14,9 @@ const SETTINGS = {
 		CROSSCHAIN_COINS: ["BTC", "ETH", "LTC", "BCH"]
 	},
 	MAINNET: {
+		ENV: "mainnet",
 		WEBSOCKET_PATH: "wss://mainnet-lb.quantachain.io",
-		API_PATH: "https://wya99cec1d.execute-api.us-east-1.amazonaws.com/mainnet",
+		API_PATH: "https://api-gw.quantadex.com/mainnet",
 		MARKETS_JSON: "https://s3.amazonaws.com/quantachain.io/markets_mainnet.json",
 		ANNOUNCEMENT_JSON: "https://s3.amazonaws.com/quantachain.io/announcement_mainnet.json",
 		CROSSCHAIN_ISSUER: "1.2.8",
