@@ -30,7 +30,7 @@ const container = css`
         
         .launch-btn {
             width: 100px;
-            border 1px solid #66d7d7;
+            border: 1px solid #66d7d7;
             border-radius: 3px;
         }
         .launch-btn:hover {
@@ -74,12 +74,12 @@ export default class NavHeader extends Component {
                         <img src={devicePath("public/images/logo.svg")} />
 					    <ProductsMenu className="ml-5" />
                     </div>
-                    <a className={"d-none d-sm-block" + (page == "main" ? " active" : "")} href="/">Main</a>
-                    <a className={"d-none d-sm-block" + (page == "tech" ? " active" : "")} href="/technology">Technology</a>
-                    <a className="d-none d-sm-block" href="http://medium.com/@quantadex" target="_blank">Blog</a>
-                    <a className="d-none d-sm-block launch-btn" href={"/mainnet/exchange/ETH_BTC" + location.search}>Launch</a>
+                    <a className={"d-none d-md-block" + (page == "main" ? " active" : "")} href="/">Main</a>
+                    <a className={"d-none d-md-block" + (page == "tech" ? " active" : "")} href="/technology">Technology</a>
+                    <a className="d-none d-md-block" href="http://medium.com/@quantadex" target="_blank">Blog</a>
+                    <a className="d-none d-md-block launch-btn" href={"/mainnet/exchange/ETH_BTC" + location.search}>Launch</a>
                     <div className="hamburger-menu">
-                        <img className="d-block d-sm-none" src={devicePath("public/images/hamb.svg")} />
+                        <img className="d-block d-md-none" src={devicePath("public/images/hamb.svg")} />
                         <div className="menu-items py-3 text-left">
                             <a href="/">Main</a>
                             <a href="/technology">Technology</a>

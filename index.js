@@ -8,6 +8,7 @@ import { MarketsAPI } from "./markets_api";
 
 currentApp.use(bodyParser.json());
 currentApp.use("/public", express.static(path.join(__dirname, './public')))
+currentApp.use("/blog", express.static(path.join(__dirname, './blog')))
 
 let currentLeaderboard = null;
 let lockFetch = false;
