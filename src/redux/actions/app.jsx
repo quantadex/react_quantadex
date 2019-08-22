@@ -14,6 +14,7 @@ import Utils from "../../common/utils.js";
 import {setItem} from "../../common/storage.js"
 import * as QuantaApi from './quanta-api'
 import * as OrderHistory from './order_history.jsx';
+import { initializeFirebase, askForPermissionToReceiveNotifications } from '../../common/push_notification.js';
 
 export const INIT_DATA = 'INIT_DATA';
 export const USER_DATA = 'USER_DATA';
@@ -397,7 +398,7 @@ export const ConnectAccount = (account_id, private_key) => {
 			if (window.isApp) {
 				setItem("private_key", private_key)
 			}
-
+			
 			Rollbar.configure({
 				payload: {
 				  person: {
@@ -413,6 +414,7 @@ export const ConnectAccount = (account_id, private_key) => {
 				type: TOGGLE_CONNECT_DIALOG,
 				data: false
 			})
+			
 			return true
 		}).catch(error => {
 			console.log(error)
@@ -436,6 +438,7 @@ export function getQdexAsks(counter) {
 }
 
 window.initAPI = false;
+window.initUser = false;
 export var dataSize = 100;
 
 export function switchTicker(ticker, force_init=false) {
@@ -578,6 +581,12 @@ export function updateUserData() {
 				dispatch(updateUserData())
 			}, 500)
 			return
+		}
+
+		if (!window.initUser) {
+			initializeFirebase()
+			askForPermissionToReceiveNotifications(getState().app.name)
+			window.initUser = true
 		}
 		
 		const my_trades_promise = fetch(CONFIG.getEnv().API_PATH + `/account?filter_field=operation_type&filter_value=2,4&size=${dataSize}&account_id=${userId}`, { mode: "cors" }).then(e => e.json())

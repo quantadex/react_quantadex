@@ -76,6 +76,9 @@ currentApp.get('/api/:type', function (req, res) {
 	})
 })
 
+currentApp.get("/firebase-messaging-sw.js", (req, res) => {
+	res.sendFile(path.resolve(__dirname + '/public/firebase-messaging-sw.js'))
+});
 currentApp.get('/*', function (req, res) {
 	const fileName = path.join(__dirname + '/public/index.html')
   res.sendFile(fileName);
