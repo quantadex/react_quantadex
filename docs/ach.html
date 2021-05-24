@@ -1,0 +1,46 @@
+<html>
+
+<body>
+	<button id="verifyButton">Verify with Wyre!</button>
+
+	<!-- Install the Wyre Loader -->
+	<script src="https://verify.sendwyre.com/js/widget-loader.js"></script>
+	<script>
+		// generate a device token if it hasn't been already
+		var deviceToken = localStorage.getItem("DEVICE_TOKEN");
+		if (!deviceToken) {
+			var array = new Uint8Array(25);
+			window.crypto.getRandomValues(array);
+			deviceToken = Array.prototype.map.call(array, x => ("00" + x.toString(16)).slice(-2)).join('');
+			localStorage.setItem("DEVICE_TOKEN", deviceToken);
+		}
+
+		// configure the widget to authenticate using the generated key
+		var widget = new Wyre.Widget({
+			env: "test",
+			accountId: "AC_C3CZWL2993W",
+			auth: {
+				type: "secretKey",
+				secretKey: deviceToken
+			},
+			operation: {
+				type: "onramp",
+				destCurrency: "ETH",
+				dest: "ethereum:0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413",
+				sourceAmount: 10.0
+			}
+		});
+
+		// open the widget when the user presses the button
+		document
+			.getElementById("verifyButton")
+			.addEventListener('click', function (e) { widget.open(); });
+
+		//add events here
+		widget.on("complete", function (event) {
+			console.log("Completed", event);
+		});
+	</script>
+</body>
+
+</html>

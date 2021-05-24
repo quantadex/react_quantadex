@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32px" height="33px" viewBox="0 0 32 33" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 52.6 (67491) - http://www.bohemiancoding.com/sketch -->
+    <title>maxbet_icon</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Dice" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" opacity="0.805826823">
+        <g id="quanta_dice" transform="translate(-598.000000, -548.000000)">
+            <g id="Group-10" transform="translate(520.894531, 545.628906)">
+                <g id="Group" transform="translate(70.238601, 4.066563)">
+                    <g id="maxbet_icon" transform="translate(8.251827, 0.218750)">
+                        <circle id="Oval" stroke="#FFFFFF" stroke-width="2" cx="14.5631735" cy="14.5631735" r="14.5631735"></circle>
+                        <path d="M15.6951361,4.281728 C14.917231,9.45523782 22.1776792,10.4899398 18.8586172,16.9159836 C19.8958241,16.2080296 20.5700085,15.3367016 20.8293103,13.9752517 C23.2148861,25.1391413 9.00515171,25.3569733 8.90143102,16.4803196 C8.84957068,13.1039237 11.909331,11.5790997 11.3907276,8.52945185 C14.5542086,10.5443978 9.93863791,14.9554956 13.0502586,17.1338156 C12.4279344,14.8465796 12.7909569,12.8316337 14.0356051,11.1978938 C13.9318844,12.0147637 13.8800241,13.1583817 14.2430465,13.9207937 C14.917231,15.4456176 16.3174603,15.1733276 16.0062982,13.2128397 C15.4876948,10.1087338 12.7390965,8.25716186 15.6951361,4.281728 Z" id="Path" fill="#D2E0DF" transform="translate(15.000000, 13.529737) scale(-1, 1) translate(-15.000000, -13.529737) "></path>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

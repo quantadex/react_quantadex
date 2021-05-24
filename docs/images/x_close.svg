@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="57px" height="57px" viewBox="0 0 57 57" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 52.6 (67491) - http://www.bohemiancoding.com/sketch -->
+    <title>Group</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="noun_Close_2593540-(1)" transform="translate(-22.000000, -22.000000)">
+            <g id="Group">
+                <g transform="translate(0.500000, 0.500000)">
+                    <rect id="Rectangle" x="0" y="0" width="100" height="100"></rect>
+                    <g transform="translate(21.500000, 21.500000)" fill="#666666" id="Path">
+                        <path d="M28.51,24.245 L51.353,1.401 C52.356,0.476 52.705,0.473 53.776,0.537 C55.354,0.761 55.443,1.17 55.836,1.672 C56.741,2.827 56.829,4.307 55.596,5.644 L32.752,28.487 L55.621,51.356 C57.704,53.614 54.532,58.508 51.379,55.599 L28.51,32.73 L5.641,55.599 C3.96,57.149 3.514,56.661 2.512,56.304 C0.621,55.63 -0.078,52.956 1.398,51.356 L24.267,28.487 L1.423,5.644 C0.888,5.064 0.812,4.837 0.68,4.415 C0.126,2.636 1.206,0.661 3.484,0.523 C3.565,0.524 3.645,0.526 3.726,0.528 C4.914,0.648 5.102,0.881 5.666,1.401 L28.51,24.245 Z"></path>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
