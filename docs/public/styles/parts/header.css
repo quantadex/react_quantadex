@@ -233,7 +233,7 @@ section.footer {
 .topbar {
   height: 58px;
   background-color: #141a20;
-  background-image: url("/public/images/map-copy-2.png");
+  background-image: url("/react_quantadex/public/images/map-copy-2.png");
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;

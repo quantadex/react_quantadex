@@ -410,8 +410,8 @@ class DiceGame extends Component {
         this.eventUpdate = this.eventUpdate.bind(this)
 
         this.roll_timeout
-        this.win_audio = new Audio('/public/audio/win.wav');
-        this.loss_audio = new Audio('/public/audio/loss.wav');
+        this.win_audio = new Audio('/react_quantadex/public/audio/win.wav');
+        this.loss_audio = new Audio('/react_quantadex/public/audio/loss.wav');
     }
 
     componentDidMount() {

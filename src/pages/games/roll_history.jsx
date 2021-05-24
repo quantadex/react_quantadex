@@ -178,9 +178,9 @@ export default class RollHistory extends Component {
                 <span>{row.user}</span>
                 <span className="d-none d-md-block">{row.time}</span>
                 <span className="d-none d-sm-block">{row.wagered.toFixed(row.precision)} 
-                <img src={`/public/images/coins/${row.symbol.toLowerCase()}.svg`} 
+                <img src={`/react_quantadex/public/images/coins/${row.symbol.toLowerCase()}.svg`} 
                     onError={(e) => {
-                        e.target.src='/public/images/crosschain-coin.svg'}
+                        e.target.src='/react_quantadex/public/images/crosschain-coin.svg'}
                     }
                     title={row.symbol} 
                 /></span>
@@ -188,9 +188,9 @@ export default class RollHistory extends Component {
                 <span className="d-none d-md-block">{row.bet[0]} {row.bet.slice(1)}</span>
                 <span className="d-none d-sm-block">{row.roll}</span>
                 <span className={"text-right" + (row.profit >= 0 ? " win" : " loss")}>{row.profit.toFixed(row.precision)}
-                <img src={`/public/images/coins/${row.symbol.toLowerCase()}.svg`} 
+                <img src={`/react_quantadex/public/images/coins/${row.symbol.toLowerCase()}.svg`} 
                     onError={(e) => {
-                        e.target.src='/public/images/crosschain-coin.svg'}
+                        e.target.src='/react_quantadex/public/images/crosschain-coin.svg'}
                     }
                     title={row.symbol} 
                 /></span>

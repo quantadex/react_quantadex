@@ -333,7 +333,7 @@ class QTWithdraw extends React.Component {
       <div className={container + " d-flex" + (vertical ? " flex-column vertical position-relative" : "")}>
         { vertical ? 
           <div className="close-dialog cursor-pointer" onClick={handleClick}>
-            <img src="/public/images/x_close.svg" height="12" alt="Close" />
+            <img src="/react_quantadex/public/images/x_close.svg" height="12" alt="Close" />
           </div>
           : null
         }

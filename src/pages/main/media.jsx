@@ -56,7 +56,7 @@ const container = css`
         }
 
         .paper {
-            background: url('/public/images/media/paper-tear.png') no-repeat 0 100%;
+            background: url('/react_quantadex/public/images/media/paper-tear.png') no-repeat 0 100%;
             height: 18px;
             width: 100%;
             text-align: right;
@@ -80,7 +80,7 @@ export default class Media extends Component {
                 <div className="d-flex justify-content-around flex-column flex-md-row">
                     <div className="article mx-auto mb-5">
                         <div className="source cryptodaily text-center">
-                            <img src="/public/images/media/cryptodaily.png" />
+                            <img src="/react_quantadex/public/images/media/cryptodaily.png" />
                         </div>
                         <div className="content">
                             <h4>The Mainstream Crypto Economy is Rising</h4>
@@ -92,11 +92,11 @@ export default class Media extends Component {
                             </p>
                             <a className="d-block text-right" href="https://cryptodaily.co.uk/2018/10/the-mainstream-crypto-economy-is-rising/" target="_blank">Read More</a>
                         </div>
-                        <div className="paper"><img src="/public/images/media/tear_side.png" /></div>
+                        <div className="paper"><img src="/react_quantadex/public/images/media/tear_side.png" /></div>
                     </div>
                     <div className="article mx-auto mb-5">
                         <div className="source techbullion text-center">
-                            <img src="/public/images/media/techbullion.png" />
+                            <img src="/react_quantadex/public/images/media/techbullion.png" />
                         </div>
                         <div className="content">
                             <h4>Quanta Chain: A Public Blockchain Infrastructure to Provide Instant Liquidity for Millions of Tokens</h4>
@@ -108,11 +108,11 @@ export default class Media extends Component {
                             </p>
                             <a className="d-block text-right" href="https://www.techbullion.com/quanta-chain-a-public-blockchain-infrastructure-to-provide-instant-liquidity-for-millions-of-tokens/" target="_blank">Read More</a>
                         </div>
-                        <div className="paper"><img src="/public/images/media/tear_side.png" /></div>
+                        <div className="paper"><img src="/react_quantadex/public/images/media/tear_side.png" /></div>
                     </div>
                     <div className="article mx-auto mb-5">
                         <div className="source cryptodaily text-center">
-                            <img src="/public/images/media/cryptodaily.png" />
+                            <img src="/react_quantadex/public/images/media/cryptodaily.png" />
                         </div>
                         <div className="content">
                             <h4>5 decentralized exchanges to watch in 2018</h4>
@@ -125,7 +125,7 @@ export default class Media extends Component {
                             </p>
                             <a className="d-block text-right" href="https://cryptodaily.co.uk/2018/06/5-decentralized-exchanges-to-watch-in-2018/" target="_blank">Read More</a>
                         </div>
-                        <div className="paper"><img src="/public/images/media/tear_side.png" /></div>
+                        <div className="paper"><img src="/react_quantadex/public/images/media/tear_side.png" /></div>
                     </div>
                 </div>
 

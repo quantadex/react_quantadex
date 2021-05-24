@@ -72,9 +72,9 @@ export default class Jackpot extends Component {
             <div className={container + " text-center p-4 qt-font-bold"}>
                 <h1 className="qt-font-bold">JACKPOT</h1>
                 <div className="pot-amount d-flex justify-content-center align-items-center">
-                    <img className="mr-4" height="25" src={`/public/images/coins/${asset.toLowerCase()}.svg`} 
+                    <img className="mr-4" height="25" src={`/react_quantadex/public/images/coins/${asset.toLowerCase()}.svg`} 
                         onError={(e) => {
-                            e.target.src='/public/images/crosschain-coin.svg'}
+                            e.target.src='/react_quantadex/public/images/crosschain-coin.svg'}
                         }
                         title={asset} 
                     />

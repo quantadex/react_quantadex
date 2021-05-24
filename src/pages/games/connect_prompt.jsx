@@ -45,7 +45,7 @@ export default class ConnectPrompt extends Component {
             <div className={container + " d-flex justify-content-center"}>
                 <div className="info-container qt-font-small align-self-center text-center p-5 position-relative">
                     <div className="close-btn cursor-pointer" onClick={close}>
-                        <img src="/public/images/x_close.svg" height="12" alt="Close" />
+                        <img src="/react_quantadex/public/images/x_close.svg" height="12" alt="Close" />
                     </div>
                     <h4>Ready to win some real bitcoins?</h4>
 

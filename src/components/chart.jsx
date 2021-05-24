@@ -110,7 +110,7 @@ class Chart extends Component {
         enabled_features: enabled_features,
         charts_storage_url: "https://saveload.tradingview.com",
         charts_storage_api_version: "1.1",
-        custom_css_url: window.isApp ? "../theme_dark_mobile.css" : "/public/vendor/charting_library/" + (this.props.mobile ? "theme_dark_mobile.css" : "theme_dark.css"),
+        custom_css_url: window.isApp ? "../theme_dark_mobile.css" : "/react_quantadex/public/vendor/charting_library/" + (this.props.mobile ? "theme_dark_mobile.css" : "theme_dark.css"),
         client_id: "tradingview.com",
         user_id: "public_user_id",
         overrides: {

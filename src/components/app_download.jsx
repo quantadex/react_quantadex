@@ -23,8 +23,8 @@ export default class AppDownload extends Component {
         const { close } = this.props
         return (
             <div className={container + " d-flex align-items-center px-2 qt-font-small"}>
-                <img className="ml-2 mr-3" src="/public/images/x_close.svg" width="12" onClick={close}/>
-                <img src="/public/images/app_icon.png" />
+                <img className="ml-2 mr-3" src="/react_quantadex/public/images/x_close.svg" width="12" onClick={close}/>
+                <img src="/react_quantadex/public/images/app_icon.png" />
                 <div className="w-100 px-3 qt-font-bold">
                     <span>QUANTADEX For Android</span><br/>
                     <span className="qt-font-light small">Trade BTC, ETH, ERC-20 from your wallet</span>

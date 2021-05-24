@@ -103,9 +103,9 @@ export default class DiceInput extends Component {
                             
                             { asset ?
                                 <img className="asset-symbol"
-                                    src={`/public/images/coins/${asset.toLowerCase()}.svg`} 
+                                    src={`/react_quantadex/public/images/coins/${asset.toLowerCase()}.svg`} 
                                     onError={(e) => {
-                                        e.target.src='/public/images/crosschain-coin.svg'}
+                                        e.target.src='/react_quantadex/public/images/crosschain-coin.svg'}
                                     }
                                     title={asset} 
                                 />
